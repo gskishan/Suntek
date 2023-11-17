@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include suntek_app *.css
+recursive-include suntek_app *.csv
+recursive-include suntek_app *.html
+recursive-include suntek_app *.ico
+recursive-include suntek_app *.js
+recursive-include suntek_app *.json
+recursive-include suntek_app *.md
+recursive-include suntek_app *.png
+recursive-include suntek_app *.py
+recursive-include suntek_app *.svg
+recursive-include suntek_app *.txt
+recursive-exclude suntek_app *.pyc
