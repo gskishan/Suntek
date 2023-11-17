@@ -1,0 +1,80 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-11-17 13:01:55.947740",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "site_engineer",
+  "site_location",
+  "plan_drawings",
+  "site_photos",
+  "site_survey_report",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "site_engineer",
+   "fieldtype": "Link",
+   "label": "Site Engineer",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "site_location",
+   "fieldtype": "Link",
+   "label": "Site Location",
+   "options": "Address"
+  },
+  {
+   "fieldname": "plan_drawings",
+   "fieldtype": "Attach",
+   "label": "Plan Drawings"
+  },
+  {
+   "fieldname": "site_photos",
+   "fieldtype": "Attach",
+   "label": "Site Photos"
+  },
+  {
+   "fieldname": "site_survey_report",
+   "fieldtype": "Attach",
+   "label": "Site Survey Report"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Site Survey",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2023-11-17 13:01:55.947740",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "Site Survey",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
