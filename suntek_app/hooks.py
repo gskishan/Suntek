@@ -121,6 +121,13 @@ doctype_js = {
 # ---------------
 # Hook on document methods and events
 
+doc_events = {
+    "Lead": {
+        "validate": "suntek_app.suntek.custom.lead.change_enquiry_status"
+    }
+
+}   
+
 # doc_events = {
 #	"*": {
 #		"on_update": "method",
