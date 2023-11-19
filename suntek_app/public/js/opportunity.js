@@ -9,7 +9,7 @@ frappe.ui.form.on('Opportunity', {
                 siteSurveyDoc.opportunity_name = frm.doc.name; // Change 'opportunity_name' to the actual fieldname
 
                 // Remove <br> tags and set address field
-                var formattedAddress = frm.doc.address_display.replace(/<br>/g, '\n');
+                var formattedAddress = frm.doc.address_display
                 siteSurveyDoc.site_location = formattedAddress;
 
                 // Open the Site Survey document for editing
