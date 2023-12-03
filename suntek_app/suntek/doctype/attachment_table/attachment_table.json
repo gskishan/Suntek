@@ -1,35 +1,28 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2023-12-02 23:48:09.366842",
+ "creation": "2023-12-03 18:10:44.096983",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "month",
-  "qty"
+  "hand_sketch"
  ],
  "fields": [
   {
-   "fieldname": "month",
-   "fieldtype": "Data",
+   "fieldname": "hand_sketch",
+   "fieldtype": "Attach",
    "in_list_view": 1,
-   "label": "Month"
-  },
-  {
-   "fieldname": "qty",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Quantity"
+   "label": "Hand Sketch"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-12-03 20:29:49.819808",
+ "modified": "2023-12-03 18:11:14.810129",
  "modified_by": "Administrator",
  "module": "suntek",
- "name": "Month Details",
+ "name": "Attachment Table",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

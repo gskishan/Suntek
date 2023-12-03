@@ -1,35 +1,29 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2023-12-02 23:48:09.366842",
+ "creation": "2023-12-03 21:12:47.593637",
+ "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "month",
-  "qty"
+  "site_survey_report"
  ],
  "fields": [
   {
-   "fieldname": "month",
-   "fieldtype": "Data",
+   "fieldname": "site_survey_report",
+   "fieldtype": "Attach",
    "in_list_view": 1,
-   "label": "Month"
-  },
-  {
-   "fieldname": "qty",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Quantity"
+   "label": "Site Survey Report"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-12-03 20:29:49.819808",
+ "modified": "2023-12-03 21:43:02.013273",
  "modified_by": "Administrator",
  "module": "suntek",
- "name": "Month Details",
+ "name": "Site Survey Report",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

@@ -1,9 +1,8 @@
 import frappe
 
 def change_opportunity_status(doc,method):
+    pass
     
-    if doc.custom_enquiry_status:
-        doc.status = doc.custom_enquiry_status
 
 def set_opportunity_name(doc,method):
 
