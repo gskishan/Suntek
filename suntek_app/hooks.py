@@ -123,7 +123,13 @@ doctype_js = {
 
 doc_events = {
     "Lead": {
-        "validate": "suntek_app.suntek.custom.lead.change_enquiry_status"
+        "validate": ["suntek_app.suntek.custom.lead.change_enquiry_status",
+                    "suntek_app.suntek.custom.lead.set_enquiry_name"]
+
+    },
+    "Opportunity": {
+        "validate": ["suntek_app.suntek.custom.opportunity.change_opportunity_status",
+                    "suntek_app.suntek.custom.opportunity.set_opportunity_name"]
     }
 
 }   
