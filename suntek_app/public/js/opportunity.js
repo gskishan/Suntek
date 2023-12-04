@@ -51,7 +51,7 @@ frappe.ui.form.on("Opportunity", {
                 {'month':"Average Consumtion (Sum/no of month)"}
     
             ]
-           
+    
             if(frm.is_new()){
                 $.each(DetailedTable,function(i,r){
                     console.log(r)
