@@ -5,7 +5,6 @@ frappe.ui.form.on('Opportunity', {
             
             frm.remove_custom_button('Supplier Quotation', 'Create');
             frm.remove_custom_button('Request For Quotation', 'Create');
-            frm.remove_custom_button('Quotation', 'Create');
             frm.remove_custom_button('Opportunity', 'Create');
             }, 10);
 
@@ -28,83 +27,84 @@ frappe.ui.form.on('Opportunity', {
 
             });
         }, __('Create'));
-    }
-});
+    },
+    custom_average_consumption: function(frm) {
+        var averageConsumption = frm.doc.custom_average_consumption;
+        frm.set_value('custom_recommended_capacity_uom', averageConsumption / 120);
+    },
 
-frappe.ui.form.on("Opportunity", {
-    custom_consumption: function(frm){
-        if (frm.doc.custom_consumption == "Detailed"){
-            frm.set_df_property('custom_details', 'hidden', 0)
-            var DetailedTable = [
-                {'month': 'January'},
-                {'month': 'February'},
-                {'month': 'March'},
-                {'month': 'April'},
-                {'month': 'May'},
-                {'month': 'June'},
-                {'month': 'July'},
-                {'month': 'August'},
-                {'month': 'September'},
-                {'month': 'October'},
-                {'month': 'November'},
-                {'month': 'December'},
-                {'month':"Average Consumtion (Sum/no of month)"}
-    
-            ]
-    
-            if(frm.is_new()){
-                $.each(DetailedTable,function(i,r){
-                    console.log(r)
-                    var DetailedTable_add = cur_frm.add_child("custom_details");
-                    DetailedTable_add.month = r.month
-                    
-                    
-                });
-                frm.refresh_fields("custom_details");
-            }
-            else if (frm.doc.custom_proposed_action.length == 0){
-                $.each(DetailedTable,function(i,r){
-                
-                    var DetailedTable_add = cur_frm.add_child("custom_details");
-                    DetailedTable_add.month = r.month
-    
-                });
-                frm.refresh_fields("custom_details");
-            }
+    onload: function(frm) {
+        if (frm.doc.party_name) {
+            frappe.call({
+                method: "frappe.client.get",
+                args: {
+                    doctype: "Lead",
+                    name: frm.doc.party_name
+                },
+                callback: function(response) {
+                    console.log(response)
+                    var lead_doc = response.message;
+                    if (lead_doc) {
+                        // Clear existing items in the Opportunity
+                        frm.clear_table('items');
+                        
+                        // Populate items from the Lead
+                        lead_doc.custom_items.forEach(function(item) {
+                            
+                            var row = frappe.model.add_child(frm.doc, 'Opportunity Item', 'items');
+                        
+                            row.item_code = item.item_code
+                            row.item_name = item.item_name
+                            row.item_group = item.item_group
+                            row.brand = item.brand
+                            row.description = item.description
+                            row.qty = item.qty
+                            row.rate = item.rate
+                            row.amount = item.amount
+                            row.base_rate = item.base_rate
+                            row.base_amount = item.base_amount
+                            
+                            // Add other fields as needed
+                        });
 
-        }
-    
-		
-	},
-    validate: function(frm) {
-        if (frm.doc.custom_consumption == "Detailed") {
-            console.log("innnnnnnnnnnnnn")
-            // Calculate the sum and average
-            var totalSum = 0;
-            var nonZeroCount = 0;
-
-            $.each(frm.doc.custom_details || [], function(i, row) {
-                if (row.month !== "Average Consumption (Sum/no of month)") {
-                    var qty = flt(row.qty || 0);
-                    if (qty > 0) {
-                        totalSum += qty;
-                        nonZeroCount += 1;
+                        // Refresh the form to reflect the changes
+                        frm.refresh_fields();
                     }
                 }
             });
-
-            // Calculate average and set it in the last row
-            var average = nonZeroCount > 0 ? totalSum / nonZeroCount : 0;
-            frm.doc.custom_details[frm.doc.custom_details.length - 1].qty = average;
-
-            frm.refresh_fields("custom_details");
         }
-        else if (frm.doc.custom_consumption == "Average Consumption") {
-            var averageConsumption = frm.doc.custom_average_consumption
-            // Assuming there is a field named 'custom_recommended_capacity_uom'
-            frm.set_value('custom_recommended_capacity_uom', averageConsumption / 120);
-        }
+    }
+});
+
+
+frappe.ui.form.on('Month Details', {
+    qty: function(frm, cdt, cdn) {
+        calculateAverageConsumption(frm);
     },
-  
-	
-})
+
+    month: function(frm, cdt, cdn) {
+        calculateAverageConsumption(frm);
+    }
+});
+
+function calculateAverageConsumption(frm) {
+    var uniqueMonths = [];
+    var totalQty = 0;
+
+    frm.doc.custom_details.forEach(function(row) {
+        if (row.qty > 0 && row.month && !uniqueMonths.includes(row.month)) {
+            totalQty += row.qty;
+            uniqueMonths.push(row.month);
+        }
+    });
+
+    var averageConsumption = uniqueMonths.length > 0 ? totalQty / uniqueMonths.length : 0;
+
+    frm.set_value('custom_average', averageConsumption);
+
+    var RecommendedCapUom = averageConsumption/120
+
+    frm.set_value('custom_recommended_cap_uom', RecommendedCapUom);
+}
+
+

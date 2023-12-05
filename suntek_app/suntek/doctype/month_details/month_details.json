@@ -12,9 +12,10 @@
  "fields": [
   {
    "fieldname": "month",
-   "fieldtype": "Data",
+   "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Month"
+   "label": "Month",
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
   },
   {
    "fieldname": "qty",
@@ -26,7 +27,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-12-03 20:29:49.819808",
+ "modified": "2023-12-05 23:28:30.465152",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Month Details",
