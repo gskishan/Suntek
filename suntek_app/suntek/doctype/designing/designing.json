@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "format:{Designing}-{#####}",
  "creation": "2023-11-17 13:06:43.672003",
  "default_view": "List",
  "doctype": "DocType",
@@ -8,8 +9,11 @@
  "engine": "InnoDB",
  "field_order": [
   "designer_name",
-  "design",
   "bom",
+  "design",
+  "column_break_w4htu",
+  "site_survey",
+  "opportunity_name",
   "amended_from"
  ],
  "fields": [
@@ -21,14 +25,15 @@
   },
   {
    "fieldname": "design",
-   "fieldtype": "Attach",
-   "label": "Design"
+   "fieldtype": "Table",
+   "label": "Design",
+   "options": "Design"
   },
   {
    "fieldname": "bom",
    "fieldtype": "Link",
    "label": "BOM",
-   "options": "Item"
+   "options": "BOM"
   },
   {
    "fieldname": "amended_from",
@@ -38,15 +43,32 @@
    "options": "Designing",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "column_break_w4htu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "site_survey",
+   "fieldtype": "Link",
+   "label": "Site Survey",
+   "options": "Site Survey"
+  },
+  {
+   "fieldname": "opportunity_name",
+   "fieldtype": "Link",
+   "label": "Opportunity Name",
+   "options": "Opportunity"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-11-17 13:06:43.672003",
+ "modified": "2023-12-03 21:44:55.034818",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Designing",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

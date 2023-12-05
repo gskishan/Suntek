@@ -1,16 +1,23 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "format:{Site Survey}-{#####}",
  "creation": "2023-11-17 13:01:55.947740",
  "default_view": "List",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "department",
   "site_engineer",
   "site_location",
-  "plan_drawings",
+  "column_break_yioui",
+  "opportunity_name",
+  "section_break_ycske",
+  "hand_sketch",
+  "column_break_nqpc9",
   "site_photos",
+  "column_break_qryma",
   "site_survey_report",
   "amended_from"
  ],
@@ -22,25 +29,16 @@
    "options": "Employee"
   },
   {
-   "fieldname": "site_location",
-   "fieldtype": "Link",
-   "label": "Site Location",
-   "options": "Address"
-  },
-  {
-   "fieldname": "plan_drawings",
-   "fieldtype": "Attach",
-   "label": "Plan Drawings"
-  },
-  {
    "fieldname": "site_photos",
-   "fieldtype": "Attach",
-   "label": "Site Photos"
+   "fieldtype": "Table",
+   "label": "Site Photos",
+   "options": "Site Photos"
   },
   {
    "fieldname": "site_survey_report",
-   "fieldtype": "Attach",
-   "label": "Site Survey Report"
+   "fieldtype": "Table",
+   "label": "Site Survey Report",
+   "options": "Site Survey Report"
   },
   {
    "fieldname": "amended_from",
@@ -50,15 +48,60 @@
    "options": "Site Survey",
    "print_hide": 1,
    "read_only": 1
+  },
+  {
+   "fieldname": "opportunity_name",
+   "fieldtype": "Link",
+   "label": "Opportunity Name",
+   "options": "Opportunity"
+  },
+  {
+   "fieldname": "column_break_yioui",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_ycske",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_nqpc9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_qryma",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "hand_sketch",
+   "fieldtype": "Table",
+   "label": "Hand Sketch",
+   "options": "Attachment Table"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "site_location",
+   "fieldtype": "Small Text",
+   "label": "Site Location"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
- "links": [],
- "modified": "2023-11-17 13:01:55.947740",
+ "links": [
+  {
+   "link_doctype": "Designing",
+   "link_fieldname": "site_survey"
+  }
+ ],
+ "modified": "2023-12-03 22:23:10.663104",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Site Survey",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {

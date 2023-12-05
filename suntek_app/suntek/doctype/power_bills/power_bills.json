@@ -1,0 +1,31 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-12-03 20:11:09.557189",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "power_bills"
+ ],
+ "fields": [
+  {
+   "fieldname": "power_bills",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "Power Bills"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-12-03 20:12:08.095760",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "Power Bills",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

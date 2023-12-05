@@ -1,18 +1,29 @@
 frappe.ui.form.on('Lead', {
     refresh: function(frm) {
-
-        frm.set_df_property('status', 'options', ["Lead","Open","Replied","Opportunity","Quotation","Lost Quotation","Interested","Converted","Not Interested"])
-        
-        var status = frm.doc.status;
        
-        // Check if the status is "Interested"
-        if (status != "Interested") {
+        var status = frm.doc.custom_enquiry_status;
+    
+        setTimeout(() => {
+            
+            frm.remove_custom_button('Customer', 'Create');
+            frm.remove_custom_button('Prospect', 'Create');
+            frm.remove_custom_button('Quotation', 'Create');
+            frm.remove_custom_button('Opportunity', 'Create');
+            }, 10);
         
+        if (status == "Interested") {
+            
             setTimeout(() => {
-                frm.remove_custom_button('Opportunity', 'Create');
-                }, 10);
-        
-        } 
+                frm.add_custom_button('Opportunity', function() {
+
+                    frappe.model.open_mapped_doc({
+                        method: "erpnext.crm.doctype.lead.lead.make_opportunity",
+                        frm: frm
+                    });
+               
+                });
+            }, 10);
+        }
     },
     
     

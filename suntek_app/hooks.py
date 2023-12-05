@@ -30,7 +30,8 @@ app_license = "123"
 
 # include js in doctype views
 doctype_js = {
-    "Lead" : "public/js/lead.js"
+    "Lead" : "public/js/lead.js",
+    "Opportunity" : "public/js/opportunity.js"
     }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -119,6 +120,19 @@ doctype_js = {
 # Document Events
 # ---------------
 # Hook on document methods and events
+
+doc_events = {
+    "Lead": {
+        "validate": ["suntek_app.suntek.custom.lead.change_enquiry_status",
+                    "suntek_app.suntek.custom.lead.set_enquiry_name"]
+
+    },
+    "Opportunity": {
+        "validate": ["suntek_app.suntek.custom.opportunity.change_opportunity_status",
+                    "suntek_app.suntek.custom.opportunity.set_opportunity_name"]
+    }
+
+}   
 
 # doc_events = {
 #	"*": {
