@@ -14,13 +14,20 @@ frappe.ui.form.on('Opportunity', {
                 console.log(frm.doc.__onload["addr_list"][0])
                 var siteSurveyDoc = frappe.model.get_new_doc('Site Survey');
 
-                siteSurveyDoc.opportunity_name = frm.doc.name; // Change 'opportunity_name' to the actual fieldname
+                
+
+                siteSurveyDoc.opportunity_name = frm.doc.name;
+                console.log(siteSurveyDoc.opportunity_name)
+
+                siteSurveyDoc.site_survey_status = "Site Survey Assigned"
 
                 // Remove <br> tags and set address field
-                var formattedAddress = frm.doc.__onload["addr_list"][0]
-            
-                siteSurveyDoc.site_location = formattedAddress.name + '\n' + formattedAddress.address_line1 + '\n' + formattedAddress.address_line2 + '\n' + formattedAddress.city + '\n' + formattedAddress.state + '\n' + formattedAddress.pincode + '\n' + formattedAddress.country;
+                if (frm.doc.__onload["addr_list"][0]){
+                    var formattedAddress = frm.doc.__onload["addr_list"][0]
 
+                    siteSurveyDoc.site_location = formattedAddress.name + '\n' + formattedAddress.address_line1 + '\n' + formattedAddress.address_line2 + '\n' + formattedAddress.city + '\n' + formattedAddress.state + '\n' + formattedAddress.pincode + '\n' + formattedAddress.country;
+
+                }
 
                 // Open the Site Survey document for editing
                 frappe.set_route('Form', 'Site Survey', siteSurveyDoc.name);
