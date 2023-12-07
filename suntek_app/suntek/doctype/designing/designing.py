@@ -8,8 +8,9 @@ class Designing(Document):
 		if self.docstatus == 1:
 			self.update_designing_status()
 
-	def validate(self):
+	def after_insert(self):
 		self.update_designing_on_save()
+		self.update_opportunity_status_section()
 
 	def on_submit(self):
 		self.update_designing_status()
@@ -19,12 +20,11 @@ class Designing(Document):
 	def update_designing_on_save(self):
 		
 		self.designing_status = "Open"
-		self.status = "Open"
 			
 	def update_designing_status(self):
 		
 		self.designing_status = "Completed"
-		self.status = "Completed"
+
 
 	def update_opportunity_status_section(self):
 		if not self.opportunity_name:
@@ -34,5 +34,5 @@ class Designing(Document):
 
 		opportunity_doc.custom_designing_number = self.name
 		opportunity_doc.custom_bom = self.bom
-		opportunity_doc.custom_designing_status = self.status
+		opportunity_doc.custom_designing_status = self.designing_status
 		opportunity_doc.save()
