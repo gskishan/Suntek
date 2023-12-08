@@ -37,7 +37,8 @@ frappe.ui.form.on('Opportunity', {
     },
     custom_average_consumption: function(frm) {
         var averageConsumption = frm.doc.custom_average_consumption;
-        frm.set_value('custom_recommended_capacity_uom', averageConsumption / 120);
+        var recommendedCapacityUOM = averageConsumption / 120;
+        frm.set_value('custom_recommended_capacity_uom', recommendedCapacityUOM.toFixed(2));
     },
 
     onload: function(frm) {
@@ -111,7 +112,7 @@ function calculateAverageConsumption(frm) {
 
     var RecommendedCapUom = averageConsumption/120
 
-    frm.set_value('custom_recommended_cap_uom', RecommendedCapUom);
+    frm.set_value('custom_recommended_cap_uom', RecommendedCapUom.toFixed(2));
 }
 
 
