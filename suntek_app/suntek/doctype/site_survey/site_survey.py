@@ -7,6 +7,10 @@ class SiteSurvey(Document):
     def onload(self):
         if self.docstatus == 1:
             self.update_site_survery_status()
+    
+    def validate(self):
+        self.update_site_survey_status_on_save()
+        self.update_opportunity_status_section()
 
     def after_insert(self):
         self.update_site_survey_status_on_save()

@@ -8,6 +8,11 @@ class Designing(Document):
 		if self.docstatus == 1:
 			self.update_designing_status()
 
+	def validate(self):
+		self.update_designing_on_save()
+		self.update_opportunity_status_section()
+
+
 	def after_insert(self):
 		self.update_designing_on_save()
 		self.update_opportunity_status_section()
