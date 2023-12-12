@@ -41,47 +41,47 @@ frappe.ui.form.on('Opportunity', {
         frm.set_value('custom_recommended_capacity_uom', recommendedCapacityUOM.toFixed(2));
     },
 
-    onload: function(frm) {
-        if (frm.doc.party_name) {
-            frappe.call({
-                method: "frappe.client.get",
-                args: {
-                    doctype: "Lead",
-                    name: frm.doc.party_name
-                },
-                callback: function(response) {
-                    console.log(response)
-                    var lead_doc = response.message;
-                    if (lead_doc) {
-                        // Clear existing items in the Opportunity
-                        frm.clear_table('items');
+    // onload: function(frm) {
+    //     if (frm.doc.party_name) {
+    //         frappe.call({
+    //             method: "frappe.client.get",
+    //             args: {
+    //                 doctype: "Lead",
+    //                 name: frm.doc.party_name
+    //             },
+    //             callback: function(response) {
+    //                 console.log(response)
+    //                 var lead_doc = response.message;
+    //                 if (lead_doc) {
+    //                     // Clear existing items in the Opportunity
+    //                     frm.clear_table('items');
                         
-                        // Populate items from the Lead
-                        lead_doc.custom_items.forEach(function(item) {
+    //                     // Populate items from the Lead
+    //                     lead_doc.custom_items.forEach(function(item) {
                             
-                            var row = frappe.model.add_child(frm.doc, 'Opportunity Item', 'items');
+    //                         var row = frappe.model.add_child(frm.doc, 'Opportunity Item', 'items');
                         
-                            row.item_code = item.item_code
-                            row.item_name = item.item_name
-                            row.item_group = item.item_group
-                            row.brand = item.brand
-                            row.description = item.description
-                            row.qty = item.qty
-                            row.rate = item.rate
-                            row.amount = item.amount
-                            row.base_rate = item.base_rate
-                            row.base_amount = item.base_amount
+    //                         row.item_code = item.item_code
+    //                         row.item_name = item.item_name
+    //                         row.item_group = item.item_group
+    //                         row.brand = item.brand
+    //                         row.description = item.description
+    //                         row.qty = item.qty
+    //                         row.rate = item.rate
+    //                         row.amount = item.amount
+    //                         row.base_rate = item.base_rate
+    //                         row.base_amount = item.base_amount
                             
-                            // Add other fields as needed
-                        });
+    //                         // Add other fields as needed
+    //                     });
 
-                        // Refresh the form to reflect the changes
-                        frm.refresh_fields();
-                    }
-                }
-            });
-        }
-    }
+    //                     // Refresh the form to reflect the changes
+    //                     frm.refresh_fields();
+    //                 }
+    //             }
+    //         });
+    //     }
+    // }
 });
 
 
