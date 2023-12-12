@@ -10,12 +10,13 @@
  "field_order": [
   "designer",
   "designer_name",
-  "bom",
   "design",
+  "bom",
   "column_break_w4htu",
   "site_survey",
   "opportunity_name",
   "designing_status",
+  "comments",
   "amended_from"
  ],
  "fields": [
@@ -35,7 +36,7 @@
    "fieldname": "bom",
    "fieldtype": "Link",
    "label": "BOM",
-   "options": "BOM"
+   "options": "Item"
   },
   {
    "fieldname": "amended_from",
@@ -74,12 +75,17 @@
    "in_list_view": 1,
    "label": "Designing Status",
    "options": "\nOpen\nCompleted"
+  },
+  {
+   "fieldname": "comments",
+   "fieldtype": "Small Text",
+   "label": "Comments"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-07 18:20:17.749944",
+ "modified": "2023-12-11 15:30:15.327781",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Designing",
