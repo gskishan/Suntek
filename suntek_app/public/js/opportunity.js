@@ -40,79 +40,113 @@ frappe.ui.form.on('Opportunity', {
         var recommendedCapacityUOM = averageConsumption / 120;
         frm.set_value('custom_recommended_capacity_uom', recommendedCapacityUOM.toFixed(2));
     },
-
-    // onload: function(frm) {
-    //     if (frm.doc.party_name) {
-    //         frappe.call({
-    //             method: "frappe.client.get",
-    //             args: {
-    //                 doctype: "Lead",
-    //                 name: frm.doc.party_name
-    //             },
-    //             callback: function(response) {
-    //                 console.log(response)
-    //                 var lead_doc = response.message;
-    //                 if (lead_doc) {
-    //                     // Clear existing items in the Opportunity
-    //                     frm.clear_table('items');
-                        
-    //                     // Populate items from the Lead
-    //                     lead_doc.custom_items.forEach(function(item) {
-                            
-    //                         var row = frappe.model.add_child(frm.doc, 'Opportunity Item', 'items');
-                        
-    //                         row.item_code = item.item_code
-    //                         row.item_name = item.item_name
-    //                         row.item_group = item.item_group
-    //                         row.brand = item.brand
-    //                         row.description = item.description
-    //                         row.qty = item.qty
-    //                         row.rate = item.rate
-    //                         row.amount = item.amount
-    //                         row.base_rate = item.base_rate
-    //                         row.base_amount = item.base_amount
-                            
-    //                         // Add other fields as needed
-    //                     });
-
-    //                     // Refresh the form to reflect the changes
-    //                     frm.refresh_fields();
-    //                 }
-    //             }
-    //         });
-    //     }
-    // }
-});
-
-
-frappe.ui.form.on('Month Details', {
-    qty: function(frm, cdt, cdn) {
-        calculateAverageConsumption(frm);
+    custom_consumption: function(frm, cdt, cdn) {
+        if (frm.doc.custom_consumption == "Detailed"){
+            autopopulate_month(frm);
+        }
     },
+    custom_capacity_kw:function(frm){
+        updateProposalField(frm);
 
-    month: function(frm, cdt, cdn) {
-        calculateAverageConsumption(frm);
+    },
+    custom_capacity_mts:function(frm){
+        updateProposalField(frm);
+
+    },
+    custom_capacity_watts:function(frm){
+        updateProposalField(frm);
+
+    },
+    custom_capacity_lpd:function(frm){
+        updateProposalField(frm);
+
+    },
+    custom_product_category:function(frm){
+        updateProposalField(frm);
+
+    },
+    custom_product_type:function(frm){
+        updateProposalField(frm);
+
+    },
+    custom_product_types:function(frm){
+        updateProposalField(frm);
+
+    },
+    custom_product_typ:function(frm){
+        updateProposalField(frm);
+
+    },
+    custom_product_typo:function(frm){
+        updateProposalField(frm);
+
+    },
+    custom_type_of_case:function(frm){
+        updateProposalField(frm);
+
     }
 });
 
-function calculateAverageConsumption(frm) {
-    var uniqueMonths = [];
-    var totalQty = 0;
 
-    frm.doc.custom_details.forEach(function(row) {
-        if (row.qty > 0 && row.month && !uniqueMonths.includes(row.month)) {
-            totalQty += row.qty;
-            uniqueMonths.push(row.month);
-        }
-    });
+function updateProposalField(frm) {
+    var capacity_kw = frm.doc.custom_capacity_kw ? frm.doc.custom_capacity_kw + " kw" : '';
+    var capacity_mts = frm.doc.custom_capacity_mts ? frm.doc.custom_capacity_mts + " mts" : '';
+    var capacity_watt = frm.doc.custom_capacity_watts ? frm.doc.custom_capacity_watts + " watt" : '';
+    var capacity_lpd = frm.doc.custom_capacity_lpd ? frm.doc.custom_capacity_lpd + " lpd" : '';
+    var product_category = frm.doc.custom_product_category ? frm.doc.custom_product_category + " " : '';
+    var product_type_one = frm.doc.custom_product_type ? frm.doc.custom_product_type + " " : '';
+    var product_type_two = frm.doc.custom_product_types ? frm.doc.custom_product_types + " " : '';
+    var product_type_three = frm.doc.custom_product_typ ? frm.doc.custom_product_typ + " " : '';
+    var product_type_four = frm.doc.custom_product_typo ? frm.doc.custom_product_typo + " " : '';
+    var type_of_case = frm.doc.custom_type_of_case ? frm.doc.custom_type_of_case + " " : '';
 
-    var averageConsumption = uniqueMonths.length > 0 ? totalQty / uniqueMonths.length : 0;
+    var proposal = "Proposal for " + capacity_kw + capacity_mts + capacity_watt + capacity_lpd + product_category 
+    + "Under " + product_type_one + product_type_two + product_type_three + product_type_four + type_of_case;
 
-    frm.set_value('custom_average', averageConsumption);
-
-    var RecommendedCapUom = averageConsumption/120
-
-    frm.set_value('custom_recommended_cap_uom', RecommendedCapUom.toFixed(2));
+    frm.set_value('custom_proposal', proposal);
 }
+
+
+
+
+
+var Month = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+
+function autopopulate_month(frm){
+   
+    for (var i=0; i < Month.length; i++){
+		var d = frm.add_child("custom_details")
+
+		d.month = Month[i];
+	}
+	frm.refresh_fields("custom_details");
+
+}
+
+frappe.ui.form.on('Month Details', {
+        qty:function(frm,cdt,cdn){
+            var uniqueMonths = [];
+            var totalQty = 0;
+        
+
+            frm.doc.custom_details.forEach(function(row) {
+                if (row.qty > 0 && row.month && !uniqueMonths.includes(row.month)) {
+                    totalQty += row.qty;
+                    console.log(totalQty)
+                    uniqueMonths.push(row.month);
+                }
+            });
+        
+            var averageConsumption = uniqueMonths.length > 0 ? totalQty / uniqueMonths.length : 0;
+        
+            frm.set_value('custom_average', averageConsumption.toFixed(2));
+        
+            var RecommendedCapUom = averageConsumption/120
+        
+            frm.set_value('custom_recommended_cap_uom', RecommendedCapUom.toFixed(2));
+        },
+
+})
+
 
 
