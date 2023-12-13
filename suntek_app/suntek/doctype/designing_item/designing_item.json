@@ -122,6 +122,7 @@
   },
   {
    "collapsible": 1,
+   "fetch_from": "item_code.description",
    "fieldname": "section_break_5",
    "fieldtype": "Section Break",
    "label": "Description"
@@ -667,10 +668,10 @@
  ],
  "istable": 1,
  "links": [],
- "modified": "2023-12-03 19:25:24.497820",
+ "modified": "2023-12-13 17:22:08.309688",
  "modified_by": "Administrator",
  "module": "suntek",
- "name": "Enquiry Item",
+ "name": "Designing Item",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",
