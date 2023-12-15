@@ -36,6 +36,5 @@ class Designing(Document):
 		opportunity_doc = frappe.get_doc("Opportunity",self.opportunity_name)
 
 		opportunity_doc.custom_designing_number = self.name
-		opportunity_doc.custom_bom = self.bom
 		opportunity_doc.custom_designing_status = self.designing_status
 		opportunity_doc.save()
