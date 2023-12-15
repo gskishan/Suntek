@@ -35,49 +35,76 @@ frappe.ui.form.on('Opportunity', {
             });
         }, __('Create'));
     },
+ 
+
     custom_average_consumption: function(frm) {
         var averageConsumption = frm.doc.custom_average_consumption;
         var recommendedCapacityUOM = averageConsumption / 120;
         frm.set_value('custom_recommended_capacity_uom', recommendedCapacityUOM.toFixed(2));
     },
+
     custom_consumption: function(frm, cdt, cdn) {
         if (frm.doc.custom_consumption == "Detailed"){
             autopopulate_month(frm);
         }
     },
-    custom_capacity_kw:function(frm){
-        updateProposalField(frm);
 
-    },
-    custom_capacity_mts:function(frm){
-        updateProposalField(frm);
-
-    },
-    custom_capacity_watts:function(frm){
-        updateProposalField(frm);
-
-    },
-    custom_capacity_lpd:function(frm){
-        updateProposalField(frm);
-
-    },
     custom_product_category:function(frm){
+        if (frm.doc.custom_product_category == ""){
+            frm.fields_dict.custom_capacity.df.label = "Capacity";
+            frm.set_df_property('custom_product_type', 'options', ['']); 
+            
+        }
+        if (frm.doc.custom_product_category == "Solar Fencing"){
+            frm.fields_dict.custom_capacity.df.label = "Capacity (Mts)";
+            frm.set_df_property('custom_product_type', 'options', ['Ground Fencing', 'Wall Fencing']); 
+            
+            
+        }
+       
+        if (frm.doc.custom_product_category == "Solar PV Power"){
+
+            frm.fields_dict.custom_capacity.df.label = "Capacity (KW)";
+            frm.set_df_property('custom_product_type', 'options', ['Hybrid', 'Off Grid','On Grid']); 
+            frm.refresh_field('custom_product_type');
+            
+        }
+       
+        if (frm.doc.custom_product_category == "Solar Street Light"){
+
+            frm.fields_dict.custom_capacity.df.label = "Capacity (Watts)";
+            frm.set_df_property('custom_product_type', 'options', ['Semi Integrated', 'Stand Alone']); 
+            frm.refresh_field('custom_product_type');
+            
+        }
+       
+        if (frm.doc.custom_product_category == "Solar Water Heater"){
+
+            frm.fields_dict.custom_capacity.df.label = "Capacity (LPD)";
+            frm.set_df_property('custom_product_type', 'options', ['ETC', 'FPC','FPC-P']); 
+            frm.refresh_field('custom_product_type');
+            
+        }
+       
+        if (frm.doc.custom_product_category == "Heat Pump"){
+
+            frm.fields_dict.custom_capacity.df.label = "Capacity (KW)";
+            frm.set_df_property('custom_product_type', 'options'); 
+            
+        }
+        frm.refresh_field('custom_product_type');
+        frm.refresh_field('custom_capacity');
+        updateProposalField(frm);
+        
+    },
+
+    custom_capacity:function(frm){
+        
         updateProposalField(frm);
 
     },
     custom_product_type:function(frm){
-        updateProposalField(frm);
-
-    },
-    custom_product_types:function(frm){
-        updateProposalField(frm);
-
-    },
-    custom_product_typ:function(frm){
-        updateProposalField(frm);
-
-    },
-    custom_product_typo:function(frm){
+        
         updateProposalField(frm);
 
     },
@@ -85,25 +112,43 @@ frappe.ui.form.on('Opportunity', {
         updateProposalField(frm);
 
     }
+
 });
 
 
 function updateProposalField(frm) {
-    var capacity_kw = frm.doc.custom_capacity_kw ? frm.doc.custom_capacity_kw + " kw" : '';
-    var capacity_mts = frm.doc.custom_capacity_mts ? frm.doc.custom_capacity_mts + " mts" : '';
-    var capacity_watt = frm.doc.custom_capacity_watts ? frm.doc.custom_capacity_watts + " watt" : '';
-    var capacity_lpd = frm.doc.custom_capacity_lpd ? frm.doc.custom_capacity_lpd + " lpd" : '';
     var product_category = frm.doc.custom_product_category ? frm.doc.custom_product_category + " " : '';
-    var product_type_one = frm.doc.custom_product_type ? frm.doc.custom_product_type + " " : '';
-    var product_type_two = frm.doc.custom_product_types ? frm.doc.custom_product_types + " " : '';
-    var product_type_three = frm.doc.custom_product_typ ? frm.doc.custom_product_typ + " " : '';
-    var product_type_four = frm.doc.custom_product_typo ? frm.doc.custom_product_typo + " " : '';
+    var product_type = frm.doc.custom_product_type ? frm.doc.custom_product_type + " " : '';
     var type_of_case = frm.doc.custom_type_of_case ? frm.doc.custom_type_of_case + " " : '';
 
-    var proposal = "Proposal for " + capacity_kw + capacity_mts + capacity_watt + capacity_lpd + product_category 
-    + "Under " + product_type_one + product_type_two + product_type_three + product_type_four + type_of_case;
 
-    frm.set_value('custom_proposal', proposal);
+
+    if (frm.doc.custom_product_category == "Solar Fencing"){
+        var capacity = frm.doc.custom_capacity ? frm.doc.custom_capacity + " Mts " : ''; 
+       
+    }
+    if (frm.doc.custom_product_category == "Solar PV Power"){
+        var capacity = frm.doc.custom_capacity ? frm.doc.custom_capacity + " KW " : ''; 
+        
+    }
+    if (frm.doc.custom_product_category == "Solar Street Light"){
+        var capacity = frm.doc.custom_capacity ? frm.doc.custom_capacity + " Watts " : ''; 
+    }
+    if (frm.doc.custom_product_category == "Solar Water Heater"){
+        var capacity = frm.doc.custom_capacity ? frm.doc.custom_capacity + " LPD " : ''; 
+    }
+    if (frm.doc.custom_product_category == "Heat Pump"){
+        var capacity = frm.doc.custom_capacity ? frm.doc.custom_capacity + " KW " : ''; 
+    }
+
+    var proposal = '';
+
+    if (product_category) {
+        proposal = "Proposal for " + capacity + product_category +
+            " Under " + product_type + type_of_case;
+    }
+
+    frm.set_value('custom_proposal', proposal.trim());
 }
 
 
