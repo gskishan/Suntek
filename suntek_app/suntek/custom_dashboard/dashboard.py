@@ -31,6 +31,15 @@ def update_opportunity_dashboard(data):
 	
 	}
 
+def update_enquiry_dashboard(data):
+	return{
+		"fieldname":"party_name",
+	"transactions": [
+		{"label": _("Opportunity"), "items":["Opportunity"]},
+	]
+
+	}
+
 
 
 
