@@ -114,6 +114,7 @@ doctype_js = {
 # Override standard doctype classes
 override_doctype_dashboards = {
 	"Opportunity": "suntek_app.suntek.custom_dashboard.dashboard.update_opportunity_dashboard",
+    "Lead": "suntek_app.suntek.custom_dashboard.dashboard.update_enquiry_dashboard",
 }
 
 # override_doctype_class = {
