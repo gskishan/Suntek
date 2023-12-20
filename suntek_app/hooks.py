@@ -31,8 +31,10 @@ app_license = "123"
 # include js in doctype views
 doctype_js = {
     "Lead" : "public/js/lead.js",
-    "Opportunity" : "public/js/opportunity.js"
-    }
+    "Opportunity" : "public/js/opportunity.js",
+    "Quotation" : "public/js/quotation.js",
+    "Product Bundle" : "public/js/product_bundle.js"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
