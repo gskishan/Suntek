@@ -1,0 +1,39 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-12-19 21:05:42.393951",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "kyc_details",
+  "attach"
+ ],
+ "fields": [
+  {
+   "fieldname": "kyc_details",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "KYC Details",
+   "options": "\nAadhar Card\nPan Card\nElectrical Bill"
+  },
+  {
+   "fieldname": "attach",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "Attach"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-12-21 11:08:22.305162",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "KYC Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

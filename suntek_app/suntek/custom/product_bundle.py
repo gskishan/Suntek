@@ -6,6 +6,7 @@ def update_product_bundle_rate_price(docname):
 
     for item in product_bundle_doc.items:
         item_price_rate = frappe.db.get_value("Item Price", {"item_code": item.item_code}, "price_list_rate")
+        
         if item_price_rate is not None:
         
             calculated_amount = item.qty * item_price_rate
