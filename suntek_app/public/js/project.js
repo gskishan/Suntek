@@ -1,0 +1,36 @@
+frappe.ui.form.on('Project', {
+    refresh: function(frm) {
+        // Remove existing buttons
+        frm.clear_custom_buttons();
+
+        if (frm.doc.custom_type_of_case == "Subsidy") {
+            // Show both "Discom" and "Subsidy" buttons
+            frm.add_custom_button(__('Discom'), function() {
+                frappe.model.with_doctype('Discom', function() {
+                    var discomDoc = frappe.model.get_new_doc('Discom');
+                        discomDoc.project_name = frm.doc.name
+        
+                    frappe.set_route('Form', 'Discom', discomDoc.name);
+                });
+            }, __('Create'));
+
+            frm.add_custom_button(__('Subsidy'), function() {
+                frappe.model.with_doctype('Subsidy', function() {
+                    var subsidyDoc = frappe.model.get_new_doc('Subsidy');
+                    subsidyDoc.project_name = frm.doc.name
+                    frappe.set_route('Form', 'Subsidy', subsidyDoc.name);
+                });
+            }, __('Create'));
+        } else if (frm.doc.custom_type_of_case == "Non Subsidy") {
+            // Show only "Discom" button
+            frm.add_custom_button(__('Discom'), function() {
+                frappe.model.with_doctype('Discom', function() {
+                    var discomDoc = frappe.model.get_new_doc('Discom');
+                        discomDoc.project_name = frm.doc.name
+                    frappe.set_route('Form', 'Discom', discomDoc.name);
+                });
+            }, __('Create'));
+        }
+        // No buttons for other cases
+    }
+});

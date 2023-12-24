@@ -33,7 +33,9 @@ doctype_js = {
     "Lead" : "public/js/lead.js",
     "Opportunity" : "public/js/opportunity.js",
     "Quotation" : "public/js/quotation.js",
-    "Product Bundle" : "public/js/product_bundle.js"
+    "Product Bundle" : "public/js/product_bundle.js",
+    "Project" : "public/js/project.js",
+    "Sales Order": "public/js/sales_order.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -136,6 +138,9 @@ doc_events = {
     "Opportunity": {
         "validate": ["suntek_app.suntek.custom.opportunity.change_opportunity_status",
                     "suntek_app.suntek.custom.opportunity.set_opportunity_name"]
+    },
+    "Sales Order": {
+        "on_submit":"suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit"
     }
 
 }   
