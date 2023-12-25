@@ -1,0 +1,177 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-12-24 23:27:23.716299",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "series",
+  "project_name",
+  "sales_order",
+  "customer_name",
+  "tsredco_transaction_no",
+  "tsredco_transaction_date",
+  "proposal_submission_date",
+  "tracking_number",
+  "mnre_sanction_no",
+  "pcr_submit_date",
+  "subsidy_cheque_upload",
+  "subsidy_cheque_no",
+  "column_break_vnjg5",
+  "transaction_amount",
+  "transaction_bank_and_branch",
+  "in_principle_no",
+  "in_principle_date",
+  "tsredco_inspection",
+  "tsredco_inspection_photos",
+  "subsidy_cheque_date",
+  "pcr_submission_target_date",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "TSREDCO-"
+  },
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Link",
+   "label": "Project Name",
+   "options": "Project"
+  },
+  {
+   "fieldname": "tsredco_transaction_no",
+   "fieldtype": "Data",
+   "label": "TSREDCO Transaction No"
+  },
+  {
+   "fieldname": "tsredco_transaction_date",
+   "fieldtype": "Data",
+   "label": "TSREDCO Transaction date"
+  },
+  {
+   "fieldname": "proposal_submission_date",
+   "fieldtype": "Data",
+   "label": "Proposal Submission Date"
+  },
+  {
+   "fieldname": "tracking_number",
+   "fieldtype": "Data",
+   "label": "Tracking Number"
+  },
+  {
+   "fieldname": "mnre_sanction_no",
+   "fieldtype": "Data",
+   "label": "MNRE Sanction No"
+  },
+  {
+   "fieldname": "pcr_submit_date",
+   "fieldtype": "Data",
+   "label": "PCR Submit date"
+  },
+  {
+   "fieldname": "subsidy_cheque_upload",
+   "fieldtype": "Attach",
+   "label": "Subsidy Cheque upload"
+  },
+  {
+   "fieldname": "subsidy_cheque_no",
+   "fieldtype": "Data",
+   "label": "Subsidy Cheque No"
+  },
+  {
+   "fieldname": "column_break_vnjg5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transaction_amount",
+   "fieldtype": "Data",
+   "label": "Transaction Amount"
+  },
+  {
+   "fieldname": "transaction_bank_and_branch",
+   "fieldtype": "Data",
+   "label": "Transaction Bank and Branch"
+  },
+  {
+   "fieldname": "in_principle_no",
+   "fieldtype": "Data",
+   "label": "In Principle No"
+  },
+  {
+   "fieldname": "in_principle_date",
+   "fieldtype": "Data",
+   "label": "In Principle Date"
+  },
+  {
+   "fieldname": "tsredco_inspection",
+   "fieldtype": "Data",
+   "label": "TSREDCO Inspection"
+  },
+  {
+   "fieldname": "tsredco_inspection_photos",
+   "fieldtype": "Attach",
+   "label": "TSREDCO Inspection Photos"
+  },
+  {
+   "fieldname": "subsidy_cheque_date",
+   "fieldtype": "Data",
+   "label": "Subsidy Cheque Date"
+  },
+  {
+   "fieldname": "pcr_submission_target_date",
+   "fieldtype": "Data",
+   "label": "PCR Submission Target Date"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Subsidy",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Link",
+   "label": "Customer Name",
+   "options": "Customer"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2023-12-25 11:25:04.400295",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "Subsidy",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

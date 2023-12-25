@@ -1,0 +1,177 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-12-25 10:28:18.704777",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "series",
+  "project_name",
+  "sales_order",
+  "customer_name",
+  "net_meter_reg_no",
+  "application_date",
+  "ade_office",
+  "feasibility_report",
+  "meter_requisition_letter",
+  "pending_for_ade_inspection",
+  "meter_fitting_date",
+  "synchronization_report",
+  "column_break_h9vxg",
+  "net_meter_reg_doc",
+  "feasibility_release_date",
+  "adede_contact_no",
+  "work_completion_report_submission_date",
+  "meter_drawn_date",
+  "material_gatepass_of_meter",
+  "net_meter_bill_revise_status",
+  "revised_bill_copy",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "TSSPDCL-"
+  },
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Link",
+   "label": "Project Name",
+   "options": "Project"
+  },
+  {
+   "fieldname": "net_meter_reg_no",
+   "fieldtype": "Data",
+   "label": "Net Meter Reg No"
+  },
+  {
+   "fieldname": "application_date",
+   "fieldtype": "Date",
+   "label": "Application Date"
+  },
+  {
+   "fieldname": "ade_office",
+   "fieldtype": "Data",
+   "label": "ADE Office"
+  },
+  {
+   "fieldname": "feasibility_report",
+   "fieldtype": "Attach",
+   "label": "Feasibility Report"
+  },
+  {
+   "fieldname": "meter_requisition_letter",
+   "fieldtype": "Attach",
+   "label": "Meter Requisition Letter"
+  },
+  {
+   "fieldname": "pending_for_ade_inspection",
+   "fieldtype": "Data",
+   "label": "Pending for ADE inspection"
+  },
+  {
+   "fieldname": "meter_fitting_date",
+   "fieldtype": "Date",
+   "label": "Meter Fitting Date"
+  },
+  {
+   "fieldname": "synchronization_report",
+   "fieldtype": "Attach",
+   "label": "Synchronization Report"
+  },
+  {
+   "fieldname": "column_break_h9vxg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "net_meter_reg_doc",
+   "fieldtype": "Attach",
+   "label": "Net Meter Reg Doc"
+  },
+  {
+   "fieldname": "feasibility_release_date",
+   "fieldtype": "Date",
+   "label": "Feasibility Release Date"
+  },
+  {
+   "fieldname": "adede_contact_no",
+   "fieldtype": "Data",
+   "label": "ADE/DE Contact No"
+  },
+  {
+   "fieldname": "work_completion_report_submission_date",
+   "fieldtype": "Date",
+   "label": "Work Completion Report Submission Date"
+  },
+  {
+   "fieldname": "meter_drawn_date",
+   "fieldtype": "Date",
+   "label": "Meter Drawn Date"
+  },
+  {
+   "fieldname": "material_gatepass_of_meter",
+   "fieldtype": "Attach",
+   "label": "Material Gatepass of Meter"
+  },
+  {
+   "fieldname": "net_meter_bill_revise_status",
+   "fieldtype": "Data",
+   "label": "Net Meter Bill Revise status"
+  },
+  {
+   "fieldname": "revised_bill_copy",
+   "fieldtype": "Attach",
+   "label": "Revised Bill Copy"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Discom",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "options": "Sales Order"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Link",
+   "label": "Customer Name",
+   "options": "Customer"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2023-12-25 11:24:19.074133",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "Discom",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
