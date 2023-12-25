@@ -9,6 +9,8 @@ frappe.ui.form.on('Project', {
                 frappe.model.with_doctype('Discom', function() {
                     var discomDoc = frappe.model.get_new_doc('Discom');
                         discomDoc.project_name = frm.doc.name
+                        discomDoc.sales_order = frm.doc.sales_order
+                        discomDoc.customer_name = frm.doc.customer
         
                     frappe.set_route('Form', 'Discom', discomDoc.name);
                 });
@@ -18,6 +20,8 @@ frappe.ui.form.on('Project', {
                 frappe.model.with_doctype('Subsidy', function() {
                     var subsidyDoc = frappe.model.get_new_doc('Subsidy');
                     subsidyDoc.project_name = frm.doc.name
+                    subsidyDoc.sales_order = frm.doc.sales_order
+                    subsidyDoc.customer_name = frm.doc.customer
                     frappe.set_route('Form', 'Subsidy', subsidyDoc.name);
                 });
             }, __('Create'));
@@ -27,6 +31,8 @@ frappe.ui.form.on('Project', {
                 frappe.model.with_doctype('Discom', function() {
                     var discomDoc = frappe.model.get_new_doc('Discom');
                         discomDoc.project_name = frm.doc.name
+                        discomDoc.sales_order = frm.doc.sales_order
+                        discomDoc.customer_name = frm.doc.customer
                     frappe.set_route('Form', 'Discom', discomDoc.name);
                 });
             }, __('Create'));
