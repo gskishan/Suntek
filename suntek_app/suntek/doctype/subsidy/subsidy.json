@@ -9,6 +9,7 @@
  "field_order": [
   "series",
   "project_name",
+  "subsidy_status",
   "sales_order",
   "customer_name",
   "tsredco_transaction_no",
@@ -147,12 +148,18 @@
    "fieldtype": "Link",
    "label": "Customer Name",
    "options": "Customer"
+  },
+  {
+   "fieldname": "subsidy_status",
+   "fieldtype": "Select",
+   "label": "Subsidy Status",
+   "options": "\nStatus 1\nStatus 2"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-25 11:25:04.400295",
+ "modified": "2024-01-02 00:20:05.945882",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Subsidy",

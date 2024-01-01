@@ -1,5 +1,6 @@
 frappe.ui.form.on('Opportunity', {
     refresh: function(frm) {
+        
          
         setTimeout(() => {
             
@@ -34,8 +35,8 @@ frappe.ui.form.on('Opportunity', {
 
             });
         }, __('Create'));
+       
     },
- 
 
     custom_average_consumption: function(frm) {
         var averageConsumption = frm.doc.custom_average_consumption;
