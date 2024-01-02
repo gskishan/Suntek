@@ -1,32 +1,20 @@
    frappe.ui.form.on('Product Bundle Item', {
     item_code: function(frm,cdt,cdn){
-
-        console.log(frm.doc.items)
         frm.doc.items.forEach(function(item){
-            console.log(item)
             if (item.item_code){
                 frappe.call({
-                    method:"frappe.client.get_value",
+                    method:"suntek_app.suntek.custom.product_bundle.update_product_bundle_rate_price",
                     args:{
-                        doctype:"Item Price",
-                        filters:{
                             item_code:item.item_code,
-
-                        },
-                        fieldname:["price_list_rate","price_list"]
-                        
                      },
-
-
                      callback:function(res){
                         if (res.message){
                             console.log(res.message)
-                            console.log("innnn")
-                            if (res.message.price_list == "Standard Buying"){
-                                frappe.model.set_value(cdt,cdn,"custom_buying_rate",res.message.price_list_rate)
-
-                            }else if (res.message.price_list == "Standard Selling") {
-                                frappe.model.set_value(cdt,cdn,"rate",res.message.price_list_rate)
+                            if (res.message[0]){
+                                frappe.model.set_value(cdt,cdn,"rate", res.message[0])
+                            }
+                            if (res.message[1]){
+                                frappe.model.set_value(cdt,cdn,"custom_buying_rate", res.message[1])
                             }
                         }
                      }
