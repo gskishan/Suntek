@@ -50,16 +50,6 @@
    "label": "TSREDCO Transaction No"
   },
   {
-   "fieldname": "tsredco_transaction_date",
-   "fieldtype": "Data",
-   "label": "TSREDCO Transaction date"
-  },
-  {
-   "fieldname": "proposal_submission_date",
-   "fieldtype": "Data",
-   "label": "Proposal Submission Date"
-  },
-  {
    "fieldname": "tracking_number",
    "fieldtype": "Data",
    "label": "Tracking Number"
@@ -68,11 +58,6 @@
    "fieldname": "mnre_sanction_no",
    "fieldtype": "Data",
    "label": "MNRE Sanction No"
-  },
-  {
-   "fieldname": "pcr_submit_date",
-   "fieldtype": "Data",
-   "label": "PCR Submit date"
   },
   {
    "fieldname": "subsidy_cheque_upload",
@@ -89,11 +74,6 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "transaction_amount",
-   "fieldtype": "Data",
-   "label": "Transaction Amount"
-  },
-  {
    "fieldname": "transaction_bank_and_branch",
    "fieldtype": "Data",
    "label": "Transaction Bank and Branch"
@@ -104,11 +84,6 @@
    "label": "In Principle No"
   },
   {
-   "fieldname": "in_principle_date",
-   "fieldtype": "Data",
-   "label": "In Principle Date"
-  },
-  {
    "fieldname": "tsredco_inspection",
    "fieldtype": "Data",
    "label": "TSREDCO Inspection"
@@ -117,16 +92,6 @@
    "fieldname": "tsredco_inspection_photos",
    "fieldtype": "Attach",
    "label": "TSREDCO Inspection Photos"
-  },
-  {
-   "fieldname": "subsidy_cheque_date",
-   "fieldtype": "Data",
-   "label": "Subsidy Cheque Date"
-  },
-  {
-   "fieldname": "pcr_submission_target_date",
-   "fieldtype": "Data",
-   "label": "PCR Submission Target Date"
   },
   {
    "fieldname": "amended_from",
@@ -154,12 +119,47 @@
    "fieldtype": "Select",
    "label": "Subsidy Status",
    "options": "\nStatus 1\nStatus 2"
+  },
+  {
+   "fieldname": "tsredco_transaction_date",
+   "fieldtype": "Date",
+   "label": "TSREDCO Transaction Date"
+  },
+  {
+   "fieldname": "proposal_submission_date",
+   "fieldtype": "Date",
+   "label": "Proposal Submission Date"
+  },
+  {
+   "fieldname": "subsidy_cheque_date",
+   "fieldtype": "Date",
+   "label": "Subsidy Cheque Date"
+  },
+  {
+   "fieldname": "pcr_submission_target_date",
+   "fieldtype": "Date",
+   "label": "PCR Submission Target Date"
+  },
+  {
+   "fieldname": "in_principle_date",
+   "fieldtype": "Date",
+   "label": "In Principle Date"
+  },
+  {
+   "fieldname": "transaction_amount",
+   "fieldtype": "Float",
+   "label": "Transaction Amount"
+  },
+  {
+   "fieldname": "pcr_submit_date",
+   "fieldtype": "Date",
+   "label": "PCR Submit Date"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-01-02 00:20:05.945882",
+ "modified": "2024-01-02 11:57:14.433470",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Subsidy",
