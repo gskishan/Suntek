@@ -11,28 +11,20 @@
                         doctype:"Item Price",
                         filters:{
                             item_code:item.item_code,
-                            price_list: "Standard Buying"
 
                         },
-                        fieldname:["price_list_rate"]
+                        fieldname:["price_list_rate","price_list"]
                         
                      },
                      callback:function(res){
                         if (res.message){
                             console.log(res.message)
-                            // frm.fields_dict["items"].grid.get_field("custom_buying_rate").get_query = function(doc,cdt,cdn){
-                            //     return{
-                            //         filters:{
-                            //             item_code:item.item_code
-                            //         }
-                                    
-                            //     }
-                            // };
-                            frappe.model.set_value(cdt,cdn,"custom_buying_rate",res.message.price_list_rate)
-                        } else {
-                            frappe.model.set_value(cdt,cdn,"custom_buying_rate",0)
-                       
-                     }
+                            if (res.message.price_list == "Standard Buying"){
+                                frappe.model.set_value(cdt,cdn,"custom_buying_rate",res.message.price_list_rate)
+                            }else if (res.message.price_list == "Standard Selling") {
+                                frappe.model.set_value(cdt,cdn,"rate",res.message.price_list_rate)
+                            }
+                        }
                      } 
 
                  
