@@ -4,10 +4,6 @@ import frappe
 from frappe.model.document import Document
 
 class Designing(Document):
-	def onload(self):
-		if self.docstatus == 1:
-			self.update_designing_status()
-
 	def validate(self):
 		self.update_designing_on_save()
 	
