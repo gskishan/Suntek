@@ -26,7 +26,7 @@ class Designing(Document):
 			
 	def update_designing_status(self):
 		
-		self.designing_status = "Completed"
+		self.db_set("designing_status","Completed")
 
 
 	def update_opportunity_status_section(self):
