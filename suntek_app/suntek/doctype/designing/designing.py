@@ -29,6 +29,14 @@ class Designing(Document):
 		self.db_set("designing_status","Completed")
 
 
+	@frappe.whitelist()
+	def update_old_status(self):
+		sql="""select name from `tabDesigning` where docstatus=1 """
+		for d in  frappe.db.sql(sql,as_dict=True):
+			doc_d=frappe.get_doc("Designing",d.name)
+			doc_d.db_set("designing_status","Completed")
+
+
 	def update_opportunity_status_section(self):
 		if not self.opportunity_name:
 			return
