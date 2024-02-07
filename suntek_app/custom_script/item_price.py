@@ -5,9 +5,6 @@ def validate(self, method):
     if self.percentage != 0:
         change_rate = self.price_list_rate + (self.price_list_rate * (self.percentage / 100))
         self.db_set("price_list_rate", change_rate)
-
-@frappe.whitelist()
-def on_save(self, method):
     if self.is_new() and self.price_list=="Standard Buying":
         new=frappe.new_doc("Item Price")
         new.price_list="Standard Selling"
@@ -15,4 +12,8 @@ def on_save(self, method):
         new.price_list_rate=self.price_list_rate
         new.save()
         self.db_set("reference",new.name)
+
+@frappe.whitelist()
+def on_save(self, method):
+    pass
 
