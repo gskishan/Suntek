@@ -101,7 +101,7 @@
    "name": "Item Price-Group",
    "no_copy": 0,
    "non_negative": 0,
-   "options": null,
+   "options": "Item Group",
    "owner": "Administrator",
    "parent": null,
    "parentfield": null,
