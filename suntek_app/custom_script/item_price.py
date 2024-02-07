@@ -11,7 +11,6 @@ def validate(self, method):
         new.item_code=self.item_code
         new.price_list_rate=self.price_list_rate
         new.save()
-        self.db_set("reference",new.name)
 
 @frappe.whitelist()
 def on_save(self, method):
