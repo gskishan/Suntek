@@ -144,7 +144,7 @@ doc_events = {
         "on_submit":"suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit"
     },
     "Price List": {
-	        "validate" : "suntek_app.custom_script.price_list.validate",
+	        "validate" : "suntek_app.custom_script.price_list.validate"
     },
     "Quotation": {
 		"validate":  "suntek_app.custom_script.quotation.validate",
