@@ -146,6 +146,9 @@ doc_events = {
     "Price List": {
 	        "validate" : "suntek_app.custom_script.price_list.validate"
     },
+	"Item Price": {
+	        "validate" : "suntek_app.custom_script.item_price.validate"
+    },
     "Quotation": {
 		"validate":  "suntek_app.custom_script.quotation.validate",
 	},
@@ -249,3 +252,6 @@ doc_events = {
 # auth_hooks = [
 #	"suntek_app.auth.validate"
 # ]
+
+
+
