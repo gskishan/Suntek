@@ -1,6 +1,6 @@
 frappe.ui.form.on('Opportunity', {
     refresh: function(frm) {
-        
+        console.log("refreshd")
          
         setTimeout(() => {
             
