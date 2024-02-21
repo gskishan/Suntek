@@ -121,10 +121,15 @@ frappe.ui.form.on('Opportunity', {
 					  "user": frm.doc.opportunity_owner,
   
 				  }, callback: function (r) {
-					  console.log(r)
-					 // cur_frm.set_value("custom_sales_excecutive","")
-					  // cur_frm.set_value("custom_mobile_no","")
-					 
+					if(r.message){
+					
+					  cur_frm.set_value("custom_sales_excecutive",r.message[0].name)
+					  cur_frm.set_value("custom_mobile_no",r.message[0].cell_number)
+					}
+					  else{
+						    cur_frm.set_value("custom_sales_excecutive","")
+					  cur_frm.set_value("custom_mobile_no","")
+					  }
 					 
   
 				  }
