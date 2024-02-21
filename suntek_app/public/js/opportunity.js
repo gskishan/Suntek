@@ -114,14 +114,17 @@ frappe.ui.form.on('Opportunity', {
 
     },
 	opportunity_owner: function (frm) {
-		  if (frm.opportunity_owner) {
+		  if (frm.doc.opportunity_owner) {
 			  frappe.call({
 				  method: "suntek_app.custom_script.opportunity.get_emp",
 				  args: {
-					  "user": frm.opportunity_owner,
+					  "user": frm.doc.opportunity_owner,
   
 				  }, callback: function (r) {
 					  console.log(r)
+					 // cur_frm.set_value("custom_sales_excecutive","")
+					  // cur_frm.set_value("custom_mobile_no","")
+					 
 					 
   
 				  }
