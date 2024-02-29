@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 @frappe.whitelist()
-def on_update(self):
+def on_update(self,method):
 	if self.user_id:
 		u=frappe.get_doc("User",self.user_id)
 		u.db_set("mobile_no",self.cell_number, update_modified=False)
