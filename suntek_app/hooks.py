@@ -138,7 +138,9 @@ doc_events = {
     },
     "Opportunity": {
         "validate": ["suntek_app.suntek.custom.opportunity.change_opportunity_status",
-                    "suntek_app.suntek.custom.opportunity.set_opportunity_name"]
+                    "suntek_app.suntek.custom.opportunity.set_opportunity_name"],
+	    "on_update":  "suntek_app.custom_script.opportunity.on_update"
+	    
     },
     "Sales Order": {
         "on_submit":"suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit"
