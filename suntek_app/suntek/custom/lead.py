@@ -12,7 +12,13 @@ def set_enquiry_name(doc,method):
         doc.custom_enquiry_name = doc.name
         
 def duplicate_check(doc):
-    sql="""select * from  `tabLead` where name!="{0}" and mobile_no="{1}" """.format(doc.name,doc.mobile_no)
-    if frappe.db.sql(sql,as_dict=1):
-        frappe.errprint(sql)
+    leads = frappe.db.get_list('Lead',
+    filters={
+        'mobile_no': doc.mobile_no
+    },
+    fields=['name', 'mobile_no'],
+    as_list=True
+    )
+
+    if leads:
         frappe.throw("Duplicate Mobile no {0}".format(doc.mobile_no))
