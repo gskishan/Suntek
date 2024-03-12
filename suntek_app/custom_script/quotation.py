@@ -12,3 +12,4 @@ def get_grandtotal(quotation=None):
     if quotation:
         qt=frappe.get_doc("Quotation",quotation)
         gt_grand=qt.grand_total
+        return gt_grand
