@@ -1,5 +1,5 @@
 frappe.ui.form.on('Opportunity', {
-    refresh: function(frm) {
+    onload: function(frm) {
         console.log("refreshd")
 
 	    $("#opportunity-activities_tab-tab").css("display", "none");
@@ -9,7 +9,18 @@ frappe.ui.form.on('Opportunity', {
             frm.remove_custom_button('Supplier Quotation', 'Create');
             frm.remove_custom_button('Request For Quotation', 'Create');
             frm.remove_custom_button('Opportunity', 'Create');
+	    frm.remove_custom_button('Customer', 'Create');
             }, 10);
+	  setTimeout(() => {
+		frm.add_custom_button(__("Customer."),
+		function () {
+			frappe.model.open_mapped_doc({
+			method: "suntek_app.suntek.custom.opportunity.custom_make_customer",
+			frm: cur_frm,
+		});
+		},
+		__("Create"));
+	  }, 100);
 
         frm.add_custom_button(__('Site Survey'), function() {
     
@@ -39,6 +50,8 @@ frappe.ui.form.on('Opportunity', {
         }, __('Create'));
        
     },
+
+
 
     custom_average_consumption: function(frm) {
         var averageConsumption = frm.doc.custom_average_consumption;
