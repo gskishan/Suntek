@@ -14,7 +14,8 @@ def set_enquiry_name(doc,method):
 def duplicate_check(doc):
     leads = frappe.db.get_list('Lead',
     filters={
-        'mobile_no': doc.mobile_no
+        'mobile_no': doc.mobile_no,
+        'name': ('!=', doc.name)  
     },
     fields=['name', 'mobile_no'],
     as_list=True
