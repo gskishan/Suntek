@@ -12,7 +12,7 @@ frappe.ui.form.on('Opportunity', {
 	    frm.remove_custom_button('Customer', 'Create');
             }, 10);
 	  setTimeout(() => {
-		frm.add_custom_button(__("Customer."),
+		frm.add_custom_button(__(" Customer"),
 		function () {
 			frappe.model.open_mapped_doc({
 			method: "suntek_app.suntek.custom.opportunity.custom_make_customer",
