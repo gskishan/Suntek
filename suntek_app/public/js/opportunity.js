@@ -1,5 +1,5 @@
 frappe.ui.form.on('Opportunity', {
-    onload: function(frm) {
+    refresh: function(frm) {
         console.log("refreshd")
 
 	    $("#opportunity-activities_tab-tab").css("display", "none");
