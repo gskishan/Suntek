@@ -41,8 +41,8 @@ frappe.ui.form.on('Opportunity', {
 		siteSurveyDoc.customer_number=frm.doc.contact_mobile
 		siteSurveyDoc.opportunity_owner=frm.doc.opportunity_owner
 		siteSurveyDoc.sales_person=frm.doc.custom_sales_excecutive
-		siteSurveyDoc.poc_name=frm.doc.sales_person
-		siteSurveyDoc.poc_name=frm.doc.sales_person
+		siteSurveyDoc.poc_name=frm.doc.custom_person_name
+		siteSurveyDoc.poc_contact=frm.doc.custom_another_mobile_no
 		    
 
                 siteSurveyDoc.site_survey_status = "Site Survey Assigned"
