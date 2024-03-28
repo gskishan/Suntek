@@ -32,6 +32,18 @@ frappe.ui.form.on('Opportunity', {
 
                 siteSurveyDoc.opportunity_name = frm.doc.name;
                 console.log(siteSurveyDoc.opportunity_name)
+		if (frm.doc.custom_customer_category=="Individual"){
+			siteSurveyDoc.customer_name=frm.doc.contact_person
+		}
+		if (frm.doc.custom_customer_category=='C & I'){
+			siteSurveyDoc.customer_name=frm.doc.custom_company_name
+		}
+		siteSurveyDoc.customer_number=frm.doc.contact_mobile
+		siteSurveyDoc.opportunity_owner=frm.doc.opportunity_owner
+		siteSurveyDoc.sales_person=frm.doc.custom_sales_excecutive
+		siteSurveyDoc.poc_name=frm.doc.sales_person
+		siteSurveyDoc.poc_name=frm.doc.sales_person
+		    
 
                 siteSurveyDoc.site_survey_status = "Site Survey Assigned"
 
