@@ -1,4 +1,5 @@
 import frappe
+from frappe.model.mapper import get_mapped_doc
 
 def change_enquiry_status(doc,method):
 	
