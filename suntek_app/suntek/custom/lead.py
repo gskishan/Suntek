@@ -43,7 +43,34 @@ def custom_make_opportunity(source_name, target_doc=None):
 	)
 
 	return target_doc
+def _set_missing_values(source, target):
+	address = frappe.get_all(
+		"Dynamic Link",
+		{
+			"link_doctype": source.doctype,
+			"link_name": source.name,
+			"parenttype": "Address",
+		},
+		["parent"],
+		limit=1,
+	)
 
+	contact = frappe.get_all(
+		"Dynamic Link",
+		{
+			"link_doctype": source.doctype,
+			"link_name": source.name,
+			"parenttype": "Contact",
+		},
+		["parent"],
+		limit=1,
+	)
+
+	if address:
+		target.customer_address = address[0].parent
+
+	if contact:
+		target.contact_person = contact[0].parent
 
 def duplicate_check(doc):
 	leads = frappe.db.get_list('Lead',
