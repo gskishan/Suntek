@@ -12,14 +12,12 @@ frappe.ui.form.on('Lead', {
             }, 10);
         
         if (status == "Interested") {
-            
-            setTimeout(() => {
-                frm.add_custom_button('Opportunity', function() {
-                    frappe.model.open_mapped_doc({
-        			method: "suntek_app.suntek.custom.lead.custom_make_opportunity",
-        			frm: cur_frm,
+            frm.add_custom_button('Opportunity', function() {
+                frappe.model.open_mapped_doc({
+                    method: "suntek_app.suntek.custom.lead.custom_make_opportunity",
+                    frm: cur_frm,
                 });
-            }, 10);
+            });
         }
     }
 });
