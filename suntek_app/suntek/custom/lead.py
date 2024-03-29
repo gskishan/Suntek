@@ -10,7 +10,40 @@ def set_enquiry_name(doc,method):
 
     if doc.name:
         doc.custom_enquiry_name = doc.name
-        
+
+
+@frappe.whitelist()
+def custom_make_opportunity(source_name, target_doc=None):
+	def set_missing_values(source, target):
+		_set_missing_values(source, target)
+        target.custom_enquiry_status="Open"
+
+	target_doc = get_mapped_doc(
+		"Lead",
+		source_name,
+		{
+			"Lead": {
+				"doctype": "Opportunity",
+				"field_map": {
+					"campaign_name": "campaign",
+					"doctype": "opportunity_from",
+					"name": "party_name",
+					"lead_name": "contact_display",
+					"company_name": "customer_name",
+					"email_id": "contact_email",
+					"mobile_no": "contact_mobile",
+					"lead_owner": "opportunity_owner",
+					"notes": "notes",
+				},
+			}
+		},
+		target_doc,
+		set_missing_values,
+	)
+
+	return target_doc
+
+
 def duplicate_check(doc):
     leads = frappe.db.get_list('Lead',
     filters={
