@@ -18,9 +18,6 @@ frappe.ui.form.on('Lead', {
                     frappe.model.open_mapped_doc({
         			method: "suntek_app.suntek.custom.lead.custom_make_opportunity",
         			frm: cur_frm,
-
-                   
-               
                 });
             }, 10);
         }
