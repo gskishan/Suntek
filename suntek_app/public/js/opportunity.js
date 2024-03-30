@@ -3,6 +3,10 @@ frappe.ui.form.on('Opportunity', {
         console.log("refreshd")
 
 	    $("#opportunity-activities_tab-tab").css("display", "none");
+
+	if (frm.doc.status=="Quotation"){
+		 frm.set_df_property("custom_enquiry_status", "options", ['Open','Closed']);
+	}
          
         setTimeout(() => {
             
