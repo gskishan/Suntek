@@ -3,8 +3,36 @@ frappe.ui.form.on('Opportunity', {
         console.log("refreshd")
 
 	    $("#opportunity-activities_tab-tab").css("display", "none");
+	cur_frm.set_df_property("custom_enquiry_status", "options", ["Open",
+			    "Closed",
+			    "In Progress",
+			    "New",
+			    "Payment pending",
+			    "PO send",
+			    "Waiting on client approval",
+			    "Rejected by client",
+			    "Rejected by Suntek",
+			    "Enquiry status 2",
+			    "Quotation",
+			    "Converted",
+			    "Lost",
+			    "Replied"]);
 	if (cur_frm.doc.status=="Quotation"){
-			cur_frm.set_df_property("custom_enquiry_status", "options", ['Open','Closed']);
+			cur_frm.set_df_property("custom_enquiry_status", "options", ["Open",
+			    "Closed",
+			    "Customer Confirmed",
+			    "In Progress",
+			    "New",
+			    "Payment pending",
+			    "PO send",
+			    "Waiting on client approval",
+			    "Rejected by client",
+			    "Rejected by Suntek",
+			    "Enquiry status 2",
+			    "Quotation",
+			    "Converted",
+			    "Lost",
+			    "Replied"]);
 		}
      
          
