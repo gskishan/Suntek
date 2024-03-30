@@ -29,6 +29,7 @@ app_license = "123"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
+
 doctype_js = {
     "Lead" : "public/js/lead.js",
     "Opportunity" : "public/js/opportunity.js",
@@ -123,8 +124,9 @@ override_doctype_dashboards = {
 }
 
 
+
 override_doctype_class = {
-	"Contact": "suntek_app.suntek.custom.contact.sales_order.CustomContact",
+	"Contact": "suntek_app.suntek.custom.contact.CustomContact",
 }
 
 # Document Events
