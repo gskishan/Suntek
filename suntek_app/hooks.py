@@ -122,9 +122,10 @@ override_doctype_dashboards = {
     "Lead": "suntek_app.suntek.custom_dashboard.dashboard.update_enquiry_dashboard",
 }
 
-# override_doctype_class = {
-#	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+
+override_doctype_class = {
+	"Contact": "suntek_app.suntek.custom.contact.sales_order.CustomContact",
+}
 
 # Document Events
 # ---------------
