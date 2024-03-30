@@ -19,6 +19,10 @@ def custom_make_customer(source_name, target_doc=None):
 
 		if source.opportunity_from == "Lead":
 			target.lead_name = source.party_name
+		if source.custom_customer_category=='C & I':
+			target.customer_name=source.custom_company_name
+		if source.custom_customer_category=='Individual':
+			target.customer_name=source.contact_person
 
 	doclist = get_mapped_doc(
 		"Opportunity",
