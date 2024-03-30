@@ -9,6 +9,7 @@ def set_opportunity_name(doc,method):
 		doc.custom_opportunity_name = doc.name
 	if doc.contact_person:
 		doc.customer=doc.contact_person
+	frappe.errprint(doc.custom_customer_category)
 	if doc.custom_customer_category=='C & I':
 		doc.customer=doc.custom_company_name
 		
