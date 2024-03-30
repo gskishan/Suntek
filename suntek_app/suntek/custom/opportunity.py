@@ -8,10 +8,9 @@ def set_opportunity_name(doc,method):
 	if doc.name:
 		doc.custom_opportunity_name = doc.name
 	if doc.contact_person:
-		doc.customer=doc.contact_person
-	frappe.errprint(doc.custom_customer_category)
+		doc.customer_name=doc.contact_person
 	if doc.custom_customer_category=='C & I':
-		doc.customer=doc.custom_company_name
+		doc.customer_name=doc.custom_company_name
 		
 
 @frappe.whitelist()
