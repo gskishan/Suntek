@@ -18,6 +18,7 @@ def custom_make_opportunity(source_name, target_doc=None):
 	def set_missing_values(source, target):
 		_set_missing_values(source, target)
 		target.custom_enquiry_status="Open"
+		target.custom_company_name=source.company_name
 
 	target_doc = get_mapped_doc(
 		"Lead",
