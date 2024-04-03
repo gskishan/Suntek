@@ -6,11 +6,22 @@ def change_enquiry_status(doc,method):
 	if doc.custom_enquiry_status:
 		doc.status = doc.custom_enquiry_status
 	duplicate_check(doc)
+	if not validate_mobile_number()
+		frappe.throw("Invalid mobile number! Please enter a 10-digit number starting with 6, 7, 8, or 9.")
 
 def set_enquiry_name(doc,method):
 
 	if doc.name:
 		doc.custom_enquiry_name = doc.name
+
+
+def validate_mobile_number(number):
+	import re
+	pattern = r'^[6-9]\d{9}$'
+	if re.match(pattern, number):
+		return True
+	else:
+		return False
 
 
 @frappe.whitelist()
