@@ -29,7 +29,7 @@ frappe.ui.form.on('Lead', {
 		).message.name;
 		let fields=[]
 		if (!existing_prospect) {
-			 fields.push([
+			 fields = [
 				{
 					label: "Create Prospect",
 					fieldname: "create_prospect",
@@ -43,7 +43,7 @@ frappe.ui.form.on('Lead', {
 					default: frm.doc.company_name,
 					depends_on: "create_prospect",
 				},
-			];)
+			];
 		}
 		let existing_contact = (
 			await frappe.db.get_value(
