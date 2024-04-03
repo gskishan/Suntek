@@ -27,7 +27,7 @@ frappe.ui.form.on('Lead', {
 				"Prospect"
 			)
 		).message.name;
-
+		let fields;
 		if (!existing_prospect) {
 			var fields = [
 				{
