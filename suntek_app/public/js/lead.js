@@ -29,7 +29,7 @@ frappe.ui.form.on('Lead', {
 		).message.name;
 		let fields;
 		if (!existing_prospect) {
-			var fields = [
+			 fields = [
 				{
 					label: "Create Prospect",
 					fieldname: "create_prospect",
