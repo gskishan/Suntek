@@ -18,6 +18,7 @@ frappe.ui.form.on("Delivery Note", {
                     },
                     get_query_filters: {
                         custom_project: frm.doc.project,
+                         docstatus: 1,
                     },
 
                 }) 
