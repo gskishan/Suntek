@@ -42,3 +42,35 @@ class Designing(Document):
 		opportunity_doc.custom_designing_number = self.name
 		opportunity_doc.custom_designing_status = self.designing_status
 		opportunity_doc.save()
+
+
+@frappe.whitelist()
+def get_items(source_name, target_doc=None):
+	def set_missing_values(source, target):
+		preperation_order_note = frappe.get_doc(target)
+	doclist = get_mapped_doc("Delivery Request", source_name, {
+		"Delivery Request": {
+			"doctype": "Preparation Order Note",
+			"field_map": {
+				"customer": "customer",
+				"sub_customer": "sub_customer",
+				"required_date": "required_date",
+                "requested_date": "requested_date",
+				"warehouse": "warehouse",
+                "address_html": "customer_primary_address",
+                "address_and_contact_details": "address_and_contact_details"
+			}
+		},
+		"Item Grid":{
+			"doctype": "Preparation Item Grid",
+			"field_map": {
+				"item_code": "item_code",
+                "item_name": "item_name",
+				"item_description": "item_description",
+				"required_date": "required_date",
+				"qty_required": "qty_required",
+                "uom": "uom"
+			}
+		}
+	}, target_doc, set_missing_values)
+	return doclist
