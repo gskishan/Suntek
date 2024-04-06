@@ -10,7 +10,7 @@ frappe.ui.form.on("Delivery Note", {
                 }
                 else {
                 erpnext.utils.map_current_doc({
-                    method: "suntek_app.suntek.doctype.designing.designing.get_item",
+                    method: "suntek_app.suntek.doctype.designing.designing.get_items",
                     source_doctype: "Designing",
                     target: frm,
                     setters: {
