@@ -14,10 +14,10 @@ frappe.ui.form.on("Delivery Note", {
                     source_doctype: "Designing",
                     target: frm,
                     setters: {
-                        project: frm.doc.project,
+                        custom_project: frm.doc.project,
                     },
                     get_query_filters: {
-                        customer: frm.doc.project,
+                        custom_project: frm.doc.project,
                     },
 
                 }) 
