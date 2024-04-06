@@ -47,28 +47,25 @@ class Designing(Document):
 @frappe.whitelist()
 def get_items(source_name, target_doc=None):
 	def set_missing_values(source, target):
-		preperation_order_note = frappe.get_doc(target)
+		doc = frappe.get_doc(target)
+		source_doc = frappe.get_doc(source)
+		doc.against_designing=source_doc.name
 	doclist = get_mapped_doc("Designing", source_name, {
 		"Designing": {
 			"doctype": "Delivery Note",
 			"field_map": {
-				"customer": "customer",
-				"sub_customer": "sub_customer",
-				"required_date": "required_date",
-                "requested_date": "requested_date",
-				"warehouse": "warehouse",
-                "address_html": "customer_primary_address",
-                "address_and_contact_details": "address_and_contact_details"
+				"customer_name": "customer",
+				"custom_project": "project",
 			}
 		},
-		"Item Grid":{
-			"doctype": "Preparation Item Grid",
+		"Designing Item":{
+			"doctype": "Delivery Note Item",
 			"field_map": {
 				"item_code": "item_code",
                 "item_name": "item_name",
 				"item_description": "item_description",
-				"required_date": "required_date",
-				"qty_required": "qty_required",
+				"qty": "qty",
+				"rate": "rate",
                 "uom": "uom"
 			}
 		}
