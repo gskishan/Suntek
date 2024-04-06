@@ -48,9 +48,9 @@ class Designing(Document):
 def get_items(source_name, target_doc=None):
 	def set_missing_values(source, target):
 		preperation_order_note = frappe.get_doc(target)
-	doclist = get_mapped_doc("Delivery Request", source_name, {
-		"Delivery Request": {
-			"doctype": "Preparation Order Note",
+	doclist = get_mapped_doc("Designing", source_name, {
+		"Designing": {
+			"doctype": "Delivery Note",
 			"field_map": {
 				"customer": "customer",
 				"sub_customer": "sub_customer",
