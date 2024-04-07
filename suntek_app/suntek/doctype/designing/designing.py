@@ -100,3 +100,31 @@ def make_material_request(source_name, target_doc=None):
 		}
 	}, target_doc, set_missing_values)
 	return doclist
+
+@frappe.whitelist()
+def make_stock_entry(source_name, target_doc=None):
+	def set_missing_values(source, target):
+		doc = frappe.get_doc(target)
+		source_doc = frappe.get_doc(source)
+		doc.against_designing=source_doc.name
+	doclist = get_mapped_doc("Designing", source_name, {
+		"Designing": {
+			"doctype": "Stock Entry",
+			"field_map": {
+				"customer_name": "customer",
+				"custom_project": "project",
+			}
+		},
+		"Designing Item":{
+			"doctype": "Stock Entry Detail",
+			"field_map": {
+				"item_code": "item_code",
+                "item_name": "item_name",
+				"item_description": "item_description",
+				"qty": "qty",
+				"rate": "rate",
+                "uom": "uom"
+			}
+		}
+	}, target_doc, set_missing_values)
+	return doclist
