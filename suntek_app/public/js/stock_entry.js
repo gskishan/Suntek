@@ -10,7 +10,7 @@ frappe.ui.form.on("Stock Entry", {
                 }
                 else {
                 erpnext.utils.map_current_doc({
-                    method: "suntek_app.suntek.doctype.designing.designing.make_material_request",
+                    method: "suntek_app.suntek.doctype.designing.designing.make_stock_entry",
                     source_doctype: "Designing",
                     target: frm,
                     setters: {
