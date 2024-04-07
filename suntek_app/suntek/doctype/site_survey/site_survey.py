@@ -42,6 +42,18 @@ class SiteSurvey(Document):
             self.sales_person=op.custom_sales_excecutive
             self.poc_name=op.custom_person_name
             self.poc_contact=op.custom_another_mobile_no
+            if op.customer_address:
+                formattedAddress=frappe.get_doc("Address", op.customer_address)
+                self.site_location = (
+                formattedAddress.name + '\n' + 
+                formattedAddress.address_line1 + '\n' + 
+                formattedAddress.address_line2 + '\n' + 
+                formattedAddress.city + '\n' + 
+                formattedAddress.state + '\n' + 
+                formattedAddress.pincode + '\n' + 
+                formattedAddress.country
+                )
+
 		    
             
        
