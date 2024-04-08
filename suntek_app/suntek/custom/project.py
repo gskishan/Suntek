@@ -2,6 +2,40 @@
 
 import frappe
 from frappe import _
+from frappe.utils import  today
+
+@frappe.whitelist()
+def validate(doc,method):
+	if not doc.is_new():
+		custom_copy_from_template(doc)
+			
+def custom_copy_from_template(self):
+    """
+    Copy tasks from template
+    """
+    if self.custom_project_template and not frappe.db.get_all("Task", dict(project=self.name), limit=1):
+        # has a template, and no loaded tasks, so lets create
+        if not self.expected_start_date:
+            # project starts today
+            self.expected_start_date = today()
+
+        template = frappe.get_doc("Project Template", self.custom_project_template)
+
+        if not self.project_type:
+            self.project_type = template.project_type
+
+        # create tasks from template
+        project_tasks = []
+        tmp_task_details = []
+        for task in template.tasks:
+            template_task_details = frappe.get_doc("Task", task.task)
+            tmp_task_details.append(template_task_details)
+            task = self.create_task_from_template(template_task_details)
+            project_tasks.append(task)
+
+        self.dependency_mapping(tmp_task_details, project_tasks)
+
+
 
 @frappe.whitelist()
 def on_update(doc,method):
