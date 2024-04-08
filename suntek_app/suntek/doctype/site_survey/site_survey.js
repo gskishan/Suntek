@@ -22,6 +22,14 @@ frappe.ui.form.on("Site Survey", {
             DesigningDoc.opportunity_name = frm.doc.opportunity_name;
             DesigningDoc.designing_status = "Open"
 
+            
+            DesigningDoc.customer_name=frm.doc.customer_name
+            DesigningDoc.customer_number=frm.doc.customer_number
+            DesigningDoc.opportuniy_owner=frm.doc.opportunity_owner
+            DesigningDoc.sales_person=frm.doc.sales_person
+            DesigningDoc.poc_name=frm.doc.poc_name
+            DesigningDoc.poc_contact=frm.doc.poc_contact
+
 
             // Open the Site Survey document for editing
             frappe.set_route('Form', 'Designing', DesigningDoc.name);
