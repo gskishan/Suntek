@@ -1,6 +1,10 @@
 frappe.ui.form.on('Project', {
     refresh: function(frm) {
         // Remove existing buttons
+        if(!frm.is_new() && frm.custom_project_template){
+            frm.set_df_property('custom_project_template', 'read_only', 1)
+
+        }
         frm.clear_custom_buttons();
 
         if (frm.doc.custom_type_of_case == "Subsidy") {
