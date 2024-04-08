@@ -8,7 +8,7 @@ frappe.ui.form.on('Project', {
                $('.document-link[data-doctype="Subsidy"] .btn[data-doctype="Subsidy"]').remove();
         }
         
-        if(!frm.is_new() && frm.custom_project_template){
+        if(!frm.is_new() && frm.doc.custom_project_template){
             frm.set_df_property('custom_project_template', 'read_only', 1)
 
         }
