@@ -5,7 +5,7 @@ from erpnext.selling.doctype.sales_order.sales_order import make_project
 @frappe.whitelist()
 def auto_project_creation_on_submit(doc,method):
     project_make = make_project(doc)
-    project.custom_poc_person_name=doc.custom_poc_person_name
+    project_make.custom_poc_person_name=doc.custom_poc_person_name
     project_make.custom_poc_mobile_no=doc.custom_poc_mobile_no
     project_make.save()
     update_opportunity(doc)
