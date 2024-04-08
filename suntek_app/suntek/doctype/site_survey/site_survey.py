@@ -38,7 +38,7 @@ class SiteSurvey(Document):
             self.customer_number=project_doc.custom_customer_mobile
             self.opportunity_owner=op.opportunity_owner
             self.sales_person=op.custom_sales_excecutive
-            self.poc_name=project_doc.custom_person_name
+            self.poc_name=project_doc.custom_poc_person_name
             self.poc_contact=project_doc.custom_another_mobile_no
             if op.customer_address:
                 formattedAddress=frappe.get_doc("Address", op.customer_address)
