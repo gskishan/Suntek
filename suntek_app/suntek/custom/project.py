@@ -39,36 +39,37 @@ def custom_copy_from_template(self):
 
 @frappe.whitelist()
 def on_update(doc,method):
-	if doc.custom_type_of_case == "Subsidy":
-		if not doc.custom_discom_id:
-			if not frappe.db.get_value('Discom', {'project_name': doc.name}, ['sales_order', 'name'])
+	pass
+	# if doc.custom_type_of_case == "Subsidy":
+	# 	if not doc.custom_discom_id:
+	# 		if not frappe.db.get_value('Discom', {'project_name': doc.name}, ['sales_order', 'name'])
 			
-				discomDoc = frappe.new_doc('Discom');
-				discomDoc.project_name = doc.name
-				discomDoc.sales_order = doc.sales_order
-				discomDoc.customer_name =doc.customer
-				discomDoc.save()
+	# 			discomDoc = frappe.new_doc('Discom');
+	# 			discomDoc.project_name = doc.name
+	# 			discomDoc.sales_order = doc.sales_order
+	# 			discomDoc.customer_name =doc.customer
+	# 			discomDoc.save()
 
 
             
                       
-		if not doc.custom_subsidy_id:
-			if not frappe.db.get_value('Subsidy', {'project_name': doc.name}, ['sales_order', 'name'])
-				frappe.errprint([doc.is_new(),doc.docstatus])
-				subsidyDoc = frappe.new_doc('Subsidy')
-				subsidyDoc.project_name = doc.name
-				subsidyDoc.sales_order = doc.sales_order
-				subsidyDoc.customer_name = doc.customer
-				subsidyDoc.save()
+	# 	if not doc.custom_subsidy_id:
+	# 		if not frappe.db.get_value('Subsidy', {'project_name': doc.name}, ['sales_order', 'name'])
+	# 			frappe.errprint([doc.is_new(),doc.docstatus])
+	# 			subsidyDoc = frappe.new_doc('Subsidy')
+	# 			subsidyDoc.project_name = doc.name
+	# 			subsidyDoc.sales_order = doc.sales_order
+	# 			subsidyDoc.customer_name = doc.customer
+	# 			subsidyDoc.save()
                        
-	elif doc.custom_type_of_case == "Non Subsidy":
-		if not doc.custom_discom_id:
-			if not frappe.db.get_value('Discom', {'project_name': doc.name}, ['sales_order', 'name'])
-				discomDoc = frappe.new_doc('Discom')
-				discomDoc.project_name = doc.name
-				discomDoc.sales_order = doc.sales_order
-				discomDoc.customer_name =doc.customer
-				discomDoc.save()
+	# elif doc.custom_type_of_case == "Non Subsidy":
+	# 	if not doc.custom_discom_id:
+	# 		if not frappe.db.get_value('Discom', {'project_name': doc.name}, ['sales_order', 'name'])
+	# 			discomDoc = frappe.new_doc('Discom')
+	# 			discomDoc.project_name = doc.name
+	# 			discomDoc.sales_order = doc.sales_order
+	# 			discomDoc.customer_name =doc.customer
+	# 			discomDoc.save()
             
         
     
