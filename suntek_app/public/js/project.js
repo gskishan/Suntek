@@ -1,6 +1,13 @@
 frappe.ui.form.on('Project', {
     refresh: function(frm) {
         // Remove existing buttons
+        if (frm.doc.custom_type_of_case != "Subsidy" || frm.doc.custom_type_of_case != "Non Subsidy"){
+            $('.document-link[data-doctype="Discom"] .btn[data-doctype="Discom"]').remove();
+        }
+           if (!frm.doc.custom_type_of_case == "Subsidy"){
+               $('.document-link[data-doctype="Subsidy"] .btn[data-doctype="Subsidy"]').remove();
+        }
+        
         if(!frm.is_new() && frm.custom_project_template){
             frm.set_df_property('custom_project_template', 'read_only', 1)
 
