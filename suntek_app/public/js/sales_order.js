@@ -24,6 +24,10 @@ frappe.ui.form.on('Sales Order', {
                 }
             });
         }
+        var hasSystemManager = frappe.user.has_role('System Manager');
+        if (!hasSystemManager) {
+            cur_frm.set_df_property("terms", "read_only", 1);
+        }
         
     },
     onload: function(frm) {
