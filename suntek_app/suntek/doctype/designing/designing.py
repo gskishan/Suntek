@@ -7,6 +7,9 @@ from frappe.model.mapper import get_mapped_doc
 class Designing(Document):
 	def validate(self):
 		self.update_designing_on_save()
+		if self.is_new() and not self.custom_capacity and self.custom_project:
+			pro=frappe.get_doc("Project",self.custom_project)
+			self.custom_capacity=pro.custom_capacity
 	
 	def after_insert(self):
 		self.update_designing_on_save()
