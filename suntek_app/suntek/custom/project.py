@@ -52,6 +52,7 @@ def on_update(doc,method):
             
                       
 		if not doc.custom_subsidy_id:
+			frappe.errprint("yesin")
 			subsidyDoc = frappe.new_doc('Subsidy')
 			subsidyDoc.project_name = doc.name
 			subsidyDoc.sales_order = doc.sales_order
