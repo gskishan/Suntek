@@ -14,7 +14,7 @@ def auto_project_creation_on_submit(doc,method):
 def create_subsidy(doc):
 	if doc.custom_type_of_case == "Subsidy":
 		if not doc.custom_discom_id:
-			if not frappe.db.get_value('Discom', {'project_name': doc.name}, ['sales_order', 'name'])
+			if not frappe.db.get_value('Discom', {'project_name': doc.name}, ['sales_order', 'name'])::
 			
 				discomDoc = frappe.new_doc('Discom');
 				discomDoc.project_name = doc.name
@@ -26,7 +26,7 @@ def create_subsidy(doc):
             
                       
 		if not doc.custom_subsidy_id:
-			if not frappe.db.get_value('Subsidy', {'project_name': doc.name}, ['sales_order', 'name'])
+			if not frappe.db.get_value('Subsidy', {'project_name': doc.name}, ['sales_order', 'name']):
 				frappe.errprint([doc.is_new(),doc.docstatus])
 				subsidyDoc = frappe.new_doc('Subsidy')
 				subsidyDoc.project_name = doc.name
@@ -36,7 +36,7 @@ def create_subsidy(doc):
                        
 	elif doc.custom_type_of_case == "Non Subsidy":
 		if not doc.custom_discom_id:
-			if not frappe.db.get_value('Discom', {'project_name': doc.name}, ['sales_order', 'name'])
+			if not frappe.db.get_value('Discom', {'project_name': doc.name}, ['sales_order', 'name']):
 				discomDoc = frappe.new_doc('Discom')
 				discomDoc.project_name = doc.name
 				discomDoc.sales_order = doc.sales_order
