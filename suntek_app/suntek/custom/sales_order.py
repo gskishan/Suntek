@@ -8,10 +8,11 @@ def auto_project_creation_on_submit(doc,method):
 	project_make.custom_poc_person_name=doc.custom_poc_person_name
 	project_make.custom_poc_mobile_no=doc.custom_poc_mobile_no
 	project_make.save()
-	create_subsidy(doc)
+	create_subsidy(project_make)
 	update_opportunity(doc)
 
-def create_subsidy(doc):
+def create_subsidy(project_make):
+	doc=project_make
 	if doc.custom_type_of_case == "Subsidy":
 		if not doc.custom_discom_id:
 			if not frappe.db.get_value('Discom', {'project_name': doc.name}, ['sales_order', 'name']):
