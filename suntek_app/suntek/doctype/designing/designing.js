@@ -1,7 +1,21 @@
 // Copyright (c) 2023, kishan and contributors
 // For license information, please see license.txt
 
+frappe.ui.form.on('Designing', {
+    if (frm.is_new()){
 
+            frappe.call({
+                method: "get_opportunity_details",
+                doc: frm.doc,
+                callback: function (e) {
+                    cur_frm.refresh_fields()
+                }
+            })
+        }
+    
+
+
+    });
 
 frappe.ui.form.on('Designing Item', {
     rate: function(frm, cdt, cdn) {
