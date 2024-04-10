@@ -36,6 +36,33 @@ class Designing(Document):
 			doc_d=frappe.get_doc("Designing",d.name)
 			doc_d.db_set("designing_status","Completed")
 
+	@frappe.whitelist()	
+	def get_opportunity_details(self):
+		if self.is_new() and self.custom_project:
+			project_doc=frappe.get_doc("Project",self.custom_project)
+			so= project_doc.sales_order
+			opportunity= frappe.db.get_value('Sales Order', so, 'custom_opportunity_name')
+			op=frappe.get_doc("Opportunity", opportunity)
+			self.opportunity_name=op.name
+			self.customer_name=project_doc.customer
+			self.customer_number=project_doc.custom_customer_mobile
+			self.opportunity_owner=op.opportunity_owner
+			self.sales_person=op.custom_sales_excecutive
+			self.poc_name=project_doc.custom_poc_person_name
+			self.poc_contact=project_doc.custom_poc_mobile_no
+			if op.customer_address:
+				formattedAddress=frappe.get_doc("Address", op.customer_address)
+				self.site_location = (
+				formattedAddress.name + '\n' + 
+				formattedAddress.address_line1 + '\n' + 
+				formattedAddress.address_line2 + '\n' + 
+				formattedAddress.city + '\n' + 
+				formattedAddress.state + '\n' + 
+				formattedAddress.pincode + '\n' + 
+				formattedAddress.country
+				)
+
+
 
 	def update_opportunity_status_section(self):
 		if not self.opportunity_name:
