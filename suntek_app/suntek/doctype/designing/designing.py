@@ -50,6 +50,7 @@ class Designing(Document):
 			self.sales_person=op.custom_sales_excecutive
 			self.poc_name=project_doc.custom_poc_person_name
 			self.poc_contact=project_doc.custom_poc_mobile_no
+			self.custom_capacity=project_doc.custom_capacity
 			if op.customer_address:
 				formattedAddress=frappe.get_doc("Address", op.customer_address)
 				self.site_location = (
