@@ -37,7 +37,8 @@
    "fieldname": "bom",
    "fieldtype": "Table",
    "label": "BOM",
-   "options": "Designing Item"
+   "options": "Designing Item",
+    "allow_bulk_edit": 1
   },
   {
    "fieldname": "amended_from",
