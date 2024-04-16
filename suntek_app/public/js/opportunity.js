@@ -17,7 +17,7 @@ frappe.ui.form.on('Opportunity', {
 			    "Converted",
 			    "Lost",
 			    "Replied"]);
-	if (cur_frm.doc.status=="Quotation"){
+	if (cur_frm.doc.status=="Quotation" || cur_frm.doc.status=="Converted" ){
 			cur_frm.set_df_property("custom_enquiry_status", "options", ["Open",
 			    "Closed",
 			    "Customer Confirmed",
