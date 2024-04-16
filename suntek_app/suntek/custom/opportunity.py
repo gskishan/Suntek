@@ -11,6 +11,12 @@ def set_opportunity_name(doc,method):
 		doc.customer_name=doc.contact_person
 	if doc.custom_customer_category=='C & I':
 		doc.customer_name=doc.custom_company_name
+	vaidate_address(doc)
+
+def vaidate_address(doc):
+	sql="""select name from `tabDynamic Link` where link_doctype="Lead" and link_name="{0}" """.format(doc.party_name)
+	if not frappe.db.sql(sql,as_dict=True):
+		frappe.throw("Address missing")
 		
 
 @frappe.whitelist()
