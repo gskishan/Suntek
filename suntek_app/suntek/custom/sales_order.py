@@ -46,6 +46,6 @@ def update_opportunity(doc):
         qi=frappe.get_doc("Quotation Item",doc.items[0].quotation_item)
         if qi.prevdoc_docname and qi.prevdoc_doctype=="Opportunity":
             op=frappe.get_doc(qi.prevdoc_doctype, qi.prevdoc_docname)
-            op.db_set("opportunity_amount",doc.rounded_total)
+            op.db_set("opportunity_amount",doc.rounded_total, update_modified=False)
             
             
