@@ -144,6 +144,7 @@ def make_stock_entry(source_name, target_doc=None):
 		target.qty = qty
 		target.against_designing_item=obj.name
 		target.against_designing=obj.parent
+		target.conversion_factor=1
 
 	def set_missing_values(source, target):
 		doc = frappe.get_doc(target)
