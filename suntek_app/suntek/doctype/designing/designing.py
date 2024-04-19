@@ -136,11 +136,15 @@ def make_material_request(source_name, target_doc=None):
 @frappe.whitelist()
 def make_stock_entry(source_name, target_doc=None):
 	def update_item(obj, target, source_parent):
-		lambda obj: (
+		qty=(
 			flt(obj.qty) - flt(obj.transferred)
 			if flt(obj.qty) > flt(obj.transferred)
 			else 0
 			)
+		target.qty = qty
+		target.against_designing_item=obj.name
+		target.against_designing=obj.parent
+
 	def set_missing_values(source, target):
 		doc = frappe.get_doc(target)
 		source_doc = frappe.get_doc(source)
