@@ -168,6 +168,10 @@ doc_events = {
 	"Employee": {
 		"on_update":  "suntek_app.custom_script.employee.on_update",
 	},
+	"Stock Entry": {
+        "on_submit":"suntek_app.suntek.custom.stock_enrty.on_submit",
+	"on_cancel":"suntek_app.suntek.custom.stock_enrty.on_cancel"
+    },
 
 }   
 
