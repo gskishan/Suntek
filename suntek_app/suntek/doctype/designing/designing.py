@@ -3,6 +3,7 @@
 import frappe
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
+from frappe.utils import flt
 
 class Designing(Document):
 	def validate(self):
@@ -134,10 +135,22 @@ def make_material_request(source_name, target_doc=None):
 
 @frappe.whitelist()
 def make_stock_entry(source_name, target_doc=None):
+	def update_item(obj, target, source_parent):
+		lambda obj: (
+			flt(obj.qty) - flt(obj.transferred)
+			if flt(obj.qty) > flt(obj.transferred)
+			else 0
+			)
 	def set_missing_values(source, target):
 		doc = frappe.get_doc(target)
 		source_doc = frappe.get_doc(source)
 		doc.against_designing=source_doc.name
+		target.set_transfer_qty()
+		target.set_actual_qty()
+		target.calculate_rate_and_amount(raise_error_if_no_rate=False)
+		target.stock_entry_type = target.purpose
+		target.set_job_card_data()
+
 	doclist = get_mapped_doc("Designing", source_name, {
 		"Designing": {
 			"doctype": "Stock Entry",
@@ -155,7 +168,13 @@ def make_stock_entry(source_name, target_doc=None):
 				"qty": "qty",
 				"rate": "rate",
                 "uom": "uom"
-			}
+			},
+			"postprocess": update_item,
+			"condition":lambda doc: (
+					flt(doc.transferred, doc.precision("transferred"))
+					< flt(doc.qty, doc.precision("qty"))
+				)
+
 		}
 	}, target_doc, set_missing_values)
 	return doclist
