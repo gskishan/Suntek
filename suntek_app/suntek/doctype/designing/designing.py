@@ -146,7 +146,7 @@ def make_stock_entry(source_name, target_doc=None):
 		target.against_designing=obj.parent
 		target.conversion_factor=1
 		company= frappe.db.get_value('Project', source_parent.custom_project, 'company')
-		warehouse= frappe.db.get_value('Company ', company, 'custom_default_warehouse')
+		warehouse= frappe.db.get_value('Company', company, 'custom_default_warehouse')
 		target.s_warehouse=warehouse
 
 	def set_missing_values(source, target):
@@ -159,7 +159,7 @@ def make_stock_entry(source_name, target_doc=None):
 		target.stock_entry_type = "Material Transfer to Customer"
 		target.customer=source_doc.customer_name
 		company= frappe.db.get_value('Project', source.custom_project, 'company')
-		warehouse= frappe.db.get_value('Company ', company, 'custom_default_warehouse')
+		warehouse= frappe.db.get_value('Company',company, 'custom_default_warehouse')
 		target.s_warehouse=warehouse
 
 		
