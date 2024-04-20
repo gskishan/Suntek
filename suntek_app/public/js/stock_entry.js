@@ -27,19 +27,19 @@ frappe.ui.form.on("Stock Entry", {
             }, __("Get Items From"));
 
     },
-    stock_entry_type: function (frm) {
-        if (frm.doc.stock_entry_type == "Material Transfer to Customer" && frm.doc.project) {
-            frappe.db.get_value('Project', cur_frm.doc.project, 'customer',)
-                .then(r => {
-                    if (r.message["customer"] !== null) {
-                        frm.set_value("customer", r.message["customer"]);
-                    }
+    // stock_entry_type: function (frm) {
+    //     if (frm.doc.stock_entry_type == "Material Transfer to Customer" && frm.doc.project) {
+    //         frappe.db.get_value('Project', cur_frm.doc.project, 'customer',)
+    //             .then(r => {
+    //                 if (r.message["customer"] !== null) {
+    //                     frm.set_value("customer", r.message["customer"]);
+    //                 }
 
-                })
+    //             })
 
 
-        }
-    }
+    //     }
+    // }
 
 
 })
