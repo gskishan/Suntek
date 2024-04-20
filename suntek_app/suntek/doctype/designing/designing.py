@@ -160,7 +160,7 @@ def make_stock_entry(source_name, target_doc=None):
 		target.customer=source_doc.customer_name
 		company= frappe.db.get_value('Project', source.custom_project, 'company')
 		warehouse= frappe.db.get_value('Company',company, 'custom_default_warehouse')
-		target.s_warehouse=warehouse
+		target.from_warehouse=warehouse
 
 		
 
