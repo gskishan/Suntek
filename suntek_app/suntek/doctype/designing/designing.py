@@ -155,6 +155,10 @@ def make_stock_entry(source_name, target_doc=None):
 		target.calculate_rate_and_amount(raise_error_if_no_rate=False)
 		target.stock_entry_type = "Material Transfer to Customer"
 		target.customer=source_doc.customer_name
+		company= frappe.db.get_value('Project', source_doc.name, 'company')
+		warehouse= frappe.db.get_value('company ', company, 'custom_default_warehouse')
+		target.from_warehouse=warehouse
+		
 
 	doclist = get_mapped_doc("Designing", source_name, {
 		"Designing": {
