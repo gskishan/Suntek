@@ -154,7 +154,7 @@ def make_stock_entry(source_name, target_doc=None):
 		target.set_actual_qty()
 		target.calculate_rate_and_amount(raise_error_if_no_rate=False)
 		target.stock_entry_type = "Material Transfer to Customer"
-		target.set_job_card_data()
+		target.customer=source_doc.customer_name
 
 	doclist = get_mapped_doc("Designing", source_name, {
 		"Designing": {
