@@ -14,6 +14,15 @@ frappe.ui.form.on('Designing', {
 			})
 		}
 	},
+	setup: function (frm) {
+		cur_frm.set_query("designer", function (frm) {
+			return {
+				filters: [
+					['Employee', 'designation', '=', "Autocad draft man"]
+				]
+			}
+		});
+	}
 
 
 
