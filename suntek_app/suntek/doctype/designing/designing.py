@@ -156,7 +156,7 @@ def make_stock_entry(source_name, target_doc=None):
 		target.set_transfer_qty()
 		target.set_actual_qty()
 		target.calculate_rate_and_amount(raise_error_if_no_rate=False)
-		target.stock_entry_type = "Material Transfer to Customer"
+		#target.stock_entry_type = "Material Transfer to Customer"
 		target.customer=source_doc.customer_name
 		company= frappe.db.get_value('Project', source.custom_project, 'company')
 		warehouse= frappe.db.get_value('Company',company, 'custom_default_warehouse')
