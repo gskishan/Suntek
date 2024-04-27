@@ -22,7 +22,7 @@ def on_update(self,method):
 				}
 			if not frappe.get_all("ToDo", filters=filters):
 				frappe.share.add_docshare(
-						self.doctype, self.name, self.name, write=1, share=1, flags={"ignore_share_permission": True}
+						self.doctype, self.name,data[0].user_id , write=1, share=1, flags={"ignore_share_permission": True}
 					)
 
 				# d = frappe.get_doc(
