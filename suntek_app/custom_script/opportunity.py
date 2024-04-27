@@ -21,29 +21,33 @@ def on_update(self,method):
 				"allocated_to": data[0].user_id,
 				}
 			if not frappe.get_all("ToDo", filters=filters):
-				d = frappe.get_doc(
-	                            {
-	                                "doctype": "ToDo",
-	                                "allocated_to": data[0].user_id,
-	                                "reference_type": self.doctype,
-	                                "reference_name": self.name,
-	                                "description":self.customer_name,
-	                                "priority": "Medium",
-	                                "status": "Open",
-	                                "date": nowdate(),
-	                                "assigned_by": frappe.session.user,
-	                                "assignment_rule": "",
-	                            }
-	                        ).insert(ignore_permissions=True)
+				frappe.share.add_docshare(
+						self.doctype, self.name, self.name, write=1, share=1, flags={"ignore_share_permission": True}
+					)
 
-				notify_assignment(
-				frappe.session.user,
-				data[0].user_id,
-				self.doctype,
-				self.name,
-				action="ASSIGN",
-				description=self.customer_name,
-			)
+				# d = frappe.get_doc(
+	   #                          {
+	   #                              "doctype": "ToDo",
+	   #                              "allocated_to": data[0].user_id,
+	   #                              "reference_type": self.doctype,
+	   #                              "reference_name": self.name,
+	   #                              "description":self.customer_name,
+	   #                              "priority": "Medium",
+	   #                              "status": "Open",
+	   #                              "date": nowdate(),
+	   #                              "assigned_by": frappe.session.user,
+	   #                              "assignment_rule": "",
+	   #                          }
+	   #                      ).insert(ignore_permissions=True)
+
+			# 	notify_assignment(
+			# 	frappe.session.user,
+			# 	data[0].user_id,
+			# 	self.doctype,
+			# 	self.name,
+			# 	action="ASSIGN",
+			# 	description=self.customer_name,
+			# )
 	  
 def get_salesman_user(self):
 	sql="""select  e.name , user_id from `tabSales Person` s inner join `tabEmployee` e on s.employee=e.name where s.employee 
