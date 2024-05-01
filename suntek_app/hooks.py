@@ -130,7 +130,8 @@ override_doctype_dashboards = {
 
 override_doctype_class = {
 	"Contact": "suntek_app.suntek.custom.contact.CustomContact",
-	"Quotation": "suntek_app.custom_script.quotation.CustomQuotation"
+	"Quotation": "suntek_app.custom_script.quotation.CustomQuotation",
+	"Salary Slip": "suntek_app.custom_script.salary_slip.CustomSalarySlip",
 }
 
 # Document Events
