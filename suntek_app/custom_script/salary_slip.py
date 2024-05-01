@@ -11,13 +11,22 @@ class CustomSalarySlip(SalarySlip):
 
 		if self.salary_slip_based_on_timesheet:
 			self.salary_structure = self._salary_structure_doc.name
-			self.hour_rate = 11
-			self.base_hour_rate = flt(self.hour_rate) * flt(self.exchange_rate)
 			self.total_working_hours = sum([d.working_hours or 0.0 for d in self.timesheets]) or 0.0
+			base=get_base_amount(self.employee)
+			rt = round((base / self.total_working_days) / 8.5 * self.total_working_hours)
+			self.hour_rate = rt
+			self.base_hour_rate = flt(self.hour_rate) * flt(self.exchange_rate)
 			wages_amount = self.hour_rate * self.total_working_hours
-
 			self.add_earning_for_hourly_wages(
 				self, self._salary_structure_doc.salary_component, wages_amount
 			)
-		frappe.errprint("workingcustom")
 		make_salary_slip(self._salary_structure_doc.name, self)
+
+def get_base_amount(employee):
+	sql="""select base from `tabSalary Structure Assignment` where employee="{0}" """.format(employee)
+	base=frappe.db.sql(sql,as_dict=True)
+	if base:
+		return base[0].base
+	else:
+		frappe.msgprint("issue in finding salary assigment")
+		return 0
