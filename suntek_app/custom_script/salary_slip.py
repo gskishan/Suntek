@@ -13,7 +13,7 @@ class CustomSalarySlip(SalarySlip):
 			self.salary_structure = self._salary_structure_doc.name
 			self.total_working_hours = sum([d.working_hours or 0.0 for d in self.timesheets]) or 0.0
 			base=get_base_amount(self.employee)
-			rt = round((base / self.total_working_days) / 8.5 * self.total_working_hours)
+			rt = round((base / self.total_working_days) / 8.5)
 			self.hour_rate = rt
 			self.base_hour_rate = flt(self.hour_rate) * flt(self.exchange_rate)
 			wages_amount = self.hour_rate * self.total_working_hours
