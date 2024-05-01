@@ -21,6 +21,12 @@ class CustomSalarySlip(SalarySlip):
 				self, self._salary_structure_doc.salary_component, wages_amount
 			)
 		make_salary_slip(self._salary_structure_doc.name, self)
+		if self.salary_slip_based_on_timesheet:
+			base=get_base_amount(self.employee)
+			rt = round((base / self.total_working_days) / 8.5)
+			self.hour_rate = rt
+		
+		
 
 def get_base_amount(employee):
 	sql="""select base from `tabSalary Structure Assignment` where employee="{0}" """.format(employee)
