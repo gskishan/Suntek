@@ -2,9 +2,10 @@ import frappe
 from frappe import _
 from hrms.payroll.doctype.salary_slip.salary_slip import SalarySlip
 from hrms.payroll.doctype.salary_slip.salary_slip import *
-from frappe.utils import (	flt)
+from frappe.utils import flt
 
 class CustomSalarySlip(SalarySlip):
+	@frappe.whitelist()
 	def pull_sal_struct(self):
 		from hrms.payroll.doctype.salary_structure.salary_structure import make_salary_slip
 
