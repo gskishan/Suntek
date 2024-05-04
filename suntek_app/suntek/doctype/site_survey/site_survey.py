@@ -40,7 +40,7 @@ class SiteSurvey(Document):
             self.sales_person=op.custom_sales_excecutive
             self.poc_name=project_doc.custom_poc_person_name
             self.poc_contact=project_doc.custom_poc_mobile_no
-            sql="""select parent from `tabDynamic Link` where link_doctype="Lead" and link_name="{0}" """.format(op.party_name)
+            sql="""select parent from `tabDynamic Link` where link_doctype="Lead" and link_name="{0}" and parenttype="Address" """.format(op.party_name)
             data=frappe.db.sql(sql,as_dict=True)
 
             if data:
