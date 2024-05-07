@@ -100,7 +100,6 @@ def duplicate_check(doc):
 	if leads:
 		# lead = leads[0]
 		frappe.errprint(leads)
-		frappe.throw("Duplicate Mobile no")
 		frappe.throw(_("Duplicate Mobile no {0} {1}").format(
 			doc.mobile_no,
 			get_link_to_form("Lead", lead[0][0])
