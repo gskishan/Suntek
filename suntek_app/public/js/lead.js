@@ -101,7 +101,7 @@ frappe.ui.form.on('Lead', {
 	},
 	custom_company_name:function(frm){
 		if (frm.doc.custom_company_name){
-			cur_frm.set_value("company_name",custom_company_name)
+			cur_frm.set_value("company_name",cur_frm.doc.custom_company_name)
 		}
 	}
 });
