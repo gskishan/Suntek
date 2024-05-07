@@ -1,13 +1,19 @@
-
 import frappe
-def validate(doc,method):
-    leads = frappe.db.get_list('Lead',
-    filters={
-        'mobile_no': doc.mobile_no,
-        'name': ('!=', doc.name)  
-    },
-    fields=['name', 'mobile_no'],
-    as_list=True
+from frappe.utils import get_link_to_form
+
+def validate(doc, method):
+    leads = frappe.db.get_list(
+        'Lead',
+        filters={
+            'mobile_no': doc.mobile_no,
+            'name': ('!=', doc.name)  
+        },
+        fields=['name', 'mobile_no']
     )
+    
     if leads:
-        frappe.throw("Duplicate Mobile no {0}".format(doc.mobile_no))
+        lead = leads[0]
+        frappe.throw(_("Duplicate Mobile no {0} {1}").format(
+            doc.mobile_no,
+            get_link_to_form("Lead", lead['name'])
+        ))
