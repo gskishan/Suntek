@@ -1,5 +1,7 @@
 import frappe
 from frappe.model.mapper import get_mapped_doc
+from frappe.utils import get_link_to_form
+
 
 def change_enquiry_status(doc,method):
 	
@@ -95,4 +97,8 @@ def duplicate_check(doc):
 	)
 
 	if leads:
-		frappe.throw("Duplicate Mobile no {0}".format(doc.mobile_no))
+		lead = leads[0]
+		frappe.throw(_("Duplicate Mobile no {0} {1}").format(
+			doc.mobile_no,
+			get_link_to_form("Lead", lead['name'])
+		))
