@@ -1,6 +1,8 @@
 import frappe
 from frappe.utils import get_link_to_form
 
+
+@frappe.whitelist()
 def validate(doc, method):
     leads = frappe.db.get_list(
         'Lead',
