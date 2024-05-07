@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 from frappe.utils import get_link_to_form
 
 
