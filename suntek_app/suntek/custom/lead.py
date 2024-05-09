@@ -92,4 +92,4 @@ def duplicate_check(doc):
 	data=(frappe.db.sql(sql,as_dict=True))
 	if data:
 		frappe.errprint(data)
-		frappe.throw("Duplicate mobile no  {} already linked to '{}' ".format(doc.mobile_no,data[0].custom_enquiry_owner_name))
+		frappe.throw("Duplicate mobile no  {} already linked to <b>{}</b> ".format(doc.mobile_no,data[0].custom_enquiry_owner_name))
