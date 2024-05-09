@@ -88,7 +88,7 @@ def _set_missing_values(source, target):
 		target.contact_person = contact[0].parent
 
 def duplicate_check(doc):
-	sql="""select * from `tabLead` where mobile_no="{0}" name!="{1}" """.format(doc.mobile_no,doc.name)
+	sql="""select * from `tabLead` where mobile_no="{0}" and name!="{1}" """.format(doc.mobile_no,doc.name)
 	data=(frappe.db.sql(sql,as_dict=True))
 	if data:
 		frappe.errprint(data)
