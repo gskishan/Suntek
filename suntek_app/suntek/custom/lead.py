@@ -88,19 +88,10 @@ def _set_missing_values(source, target):
 		target.contact_person = contact[0].parent
 
 def duplicate_check(doc):
-	leads = frappe.db.get_list('Lead',
-	filters={
-		'mobile_no': doc.mobile_no,
-		'name': ('!=', doc.name)  
-	},
-	fields=['name', 'mobile_no'],
-	as_list=True
-	)
-
-	if leads:
-		# lead = leads[0]
-		frappe.errprint(leads)
-		frappe.throw(_("Duplicate Mobile no {0} {1}").format(
-			doc.mobile_no,
-			get_link_to_form("Lead", leads[0][0])
-		))
+	sql="""select * from `tabLead` where mobile_no="{0}" name!="{1}" """.format(doc.mobile_no,doc.name)
+	data=(frappe.db.sql(sql,as_dict=True))
+	if data:
+		
+		
+		frappe.errprint(data)
+		frappe.throw("Duplicate mobile no  {} already linked to "{}" ".format(doc.mobile_no,data[0].custom_enquiry_owner_name)
