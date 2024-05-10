@@ -10,7 +10,7 @@ frappe.ui.form.on("BOM", {
                 }
                 else {
                     erpnext.utils.map_current_doc({
-                        method: "suntek_app.suntek.doctype.designing.designing.make_stock_entry",
+                        method: "suntek_app.suntek.doctype.designing.designing.make_bom",
                         source_doctype: "Designing",
                         target: frm,
                         setters: {
@@ -26,11 +26,27 @@ frappe.ui.form.on("BOM", {
 
             }, __("Get Items From"));
 
+			if (frm.is_new()){
+				frappe.db.get_doc('Project', cur_frm.doc.project)
+				.then(doc => {
+					if ( doc.sales_order){
+
+						frappe.db.get_doc('Sales Order', doc.sales_order)
+						.then(so => {
+		
+							cur_frm.set_vaule("item",so.items[0].item_code)
+							
+							cur_frm.set_vaule("quantity",doc.custom_capacity)
+							
+						})
+						
+					}
+
+					
+				})
+			}
     },
  
-
-    //     }
-    // }
 
 
 })
