@@ -33,10 +33,8 @@ frappe.ui.form.on("BOM", {
 
 						frappe.db.get_doc('Sales Order', doc.sales_order)
 						.then(so => {
-		
-							cur_frm.set_vaule("item",so.items[0].item_code)
-							
-							cur_frm.set_vaule("quantity",doc.custom_capacity)
+							cur_frm.set_value("item",so.items[0].item_code)
+							cur_frm.set_value("quantity",doc.custom_capacity)
 							
 						})
 						
