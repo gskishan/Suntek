@@ -143,7 +143,7 @@ def make_bom(source_name, target_doc=None):
 		"Designing": {
 			"doctype": "BOM",
 			"field_map": {
-				"project": "project",
+				"custom_project": "project",
 			}
 		},
 		"Designing Item":{
