@@ -49,7 +49,7 @@ def custom_make_opportunity(source_name, target_doc=None):
 					"email_id": "contact_email",
 					"mobile_no": "contact_mobile",
 					"lead_owner": "opportunity_owner",
-					"custom_enquiry_owner_name" : "custom_opportunity_owner_name"
+					"custom_enquiry_owner_name" : "custom_opportunity_owner_name",
 					"notes": "notes",
 				},
 			}
