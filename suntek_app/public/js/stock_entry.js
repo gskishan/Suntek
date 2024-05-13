@@ -27,19 +27,35 @@ frappe.ui.form.on("Stock Entry", {
             }, __("Get Items From"));
 
     },
-    // stock_entry_type: function (frm) {
-    //     if (frm.doc.stock_entry_type == "Material Transfer to Customer" && frm.doc.project) {
-    //         frappe.db.get_value('Project', cur_frm.doc.project, 'customer',)
-    //             .then(r => {
-    //                 if (r.message["customer"] !== null) {
-    //                     frm.set_value("customer", r.message["customer"]);
-    //                 }
+    setup: function (frm) {
+        cur_frm.cscript.onload = function () {
+            frm.set_query("work_order", function () {
+                return {
+                    filters: [
+                        ["Work Order", "docstatus", "=", 1],
+                        ["Work Order", "qty", ">", "`tabWork Order`.produced_qty"],
+                        ["Work Order", "company", "=", frm.doc.company],
+                        ["Work Order", "project", "=", frm.doc.project],
+                    ],
+                };
+            });
 
-    //             })
 
 
-    //     }
-    // }
+        }
+        // stock_entry_type: function (frm) {
+        //     if (frm.doc.stock_entry_type == "Material Transfer to Customer" && frm.doc.project) {
+        //         frappe.db.get_value('Project', cur_frm.doc.project, 'customer',)
+        //             .then(r => {
+        //                 if (r.message["customer"] !== null) {
+        //                     frm.set_value("customer", r.message["customer"]);
+        //                 }
+
+        //             })
 
 
-})
+        //     }
+        // }
+
+
+    })
