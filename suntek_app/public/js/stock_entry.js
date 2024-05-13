@@ -43,6 +43,7 @@ frappe.ui.form.on("Stock Entry", {
 
 
         }
+    }
         // stock_entry_type: function (frm) {
         //     if (frm.doc.stock_entry_type == "Material Transfer to Customer" && frm.doc.project) {
         //         frappe.db.get_value('Project', cur_frm.doc.project, 'customer',)
