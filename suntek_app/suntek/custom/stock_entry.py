@@ -1,5 +1,14 @@
 import frappe
 from frappe.model.mapper import get_mapped_doc
+
+@frappe.whitelist()
+def get_address_display(party):
+    if party:
+        from erpnext.accounts.party import get_party_details
+        address_display = get_party_details(party)
+
+        return address_display
+
 def on_submit(doc,method):
 	if doc.stock_entry_type=='Material Transfer to Customer':
 		for d in doc.items:
