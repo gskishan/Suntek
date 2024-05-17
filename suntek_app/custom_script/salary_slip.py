@@ -50,9 +50,12 @@ class CustomSalarySlip(SalarySlip):
 		if self.salary_slip_based_on_timesheet:
 			self.salary_structure = self._salary_structure_doc.name
 			self.total_working_hours = sum([d.working_hours or 0.0 for d in self.timesheets]) or 0.0
-			frappe.errprint([len(self.deductions)])
-
-			base=get_base_amount(self.employee)
+			make_salary_slip(self._salary_structure_doc.name, self)
+			deduction=0
+			for d in self.deductions:
+				if d.salary_component=='Provident Fund Employee' or  d.salary_component=='ESIC Employer':
+					deduction+=d.amount
+			base=get_base_amount(self.employee)-deduction
 			rt = ((base / self.total_working_days) / 8.5)
 			self.hour_rate = rt
 			self.base_hour_rate = flt(self.hour_rate) * flt(self.exchange_rate)
