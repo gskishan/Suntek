@@ -55,6 +55,9 @@ class CustomSalarySlip(SalarySlip):
 			for d in self.deductions:
 				if d.salary_component=='Provident Fund Employee' or  d.salary_component=='ESIC Employer':
 					deduction+=d.amount
+			self.set("earnings", [])
+			self.set("deductions", [])
+
 			base=get_base_amount(self.employee)-deduction
 			rt = ((base / self.total_working_days) / 8.5)
 			self.hour_rate = rt
