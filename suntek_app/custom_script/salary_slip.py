@@ -32,7 +32,6 @@ class CustomSalarySlip(SalarySlip):
 
 		make_salary_slip(self._salary_structure_doc.name, self)
 		if self.salary_slip_based_on_timesheet:
-			=
 			self.hour_rate = rt
 		
 		
