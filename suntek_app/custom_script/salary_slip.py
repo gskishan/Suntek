@@ -10,7 +10,7 @@ class CustomSalarySlip(SalarySlip):
 	@frappe.whitelist()
 	def pull_sal_struct(self):
 		from hrms.payroll.doctype.salary_structure.salary_structure import make_salary_slip
-
+		rt=0
 		if self.salary_slip_based_on_timesheet:
 			self.salary_structure = self._salary_structure_doc.name
 			self.total_working_hours = sum([d.working_hours or 0.0 for d in self.timesheets]) or 0.0
@@ -21,7 +21,6 @@ class CustomSalarySlip(SalarySlip):
 					deduct+=d.amount
 			self.set("earnings", [])
 			self.set("deductions", [])
-			frappe.errprint(deduct)
 			base=get_base_amount(self.employee)-deduct
 			rt = ((base / self.total_working_days) / 8.5)
 			self.hour_rate = rt
@@ -30,13 +29,10 @@ class CustomSalarySlip(SalarySlip):
 			self.add_earning_for_hourly_wages(
 				self, self._salary_structure_doc.salary_component, wages_amount
 			)
-			frappe.errprint([len(self.deductions),"1"])
 
 		make_salary_slip(self._salary_structure_doc.name, self)
-		frappe.errprint([len(self.deductions),"2"])
 		if self.salary_slip_based_on_timesheet:
-			base=get_base_amount(self.employee)
-			rt = ((base / self.total_working_days) / 8.5)
+			=
 			self.hour_rate = rt
 		
 		
