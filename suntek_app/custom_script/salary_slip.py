@@ -14,7 +14,7 @@ class CustomSalarySlip(SalarySlip):
             self.total_working_hours = sum([d.working_hours or 0.0 for d in self.timesheets]) or 0.0
             make_salary_slip(self._salary_structure_doc.name, self)
             
-            # Clear deductions and unwanted earnings
+            # Clear earnings and deductions
             self.set("earnings", [])
             self.set("deductions", [])
 
@@ -30,7 +30,7 @@ class CustomSalarySlip(SalarySlip):
             wages_amount = self.hour_rate * self.total_working_hours
 
             self.add_earning_for_hourly_wages(
-                self, self._salary_structure_doc.salary_component, wages_amount
+                self._salary_structure_doc.salary_component, wages_amount
             )
 
         make_salary_slip(self._salary_structure_doc.name, self)
@@ -38,12 +38,26 @@ class CustomSalarySlip(SalarySlip):
             self.hour_rate = rt
 
     def calculate_relevant_earnings(self):
+        # Retrieve salary structure earnings
+        earnings = frappe.get_all("Salary Detail",
+                                  filters={"parent": self._salary_structure_doc.name, "parentfield": "earnings"},
+                                  fields=["salary_component", "amount"])
         total_earnings = 0
         earnings_components = ['Basic', 'Conveyance Allowance', 'House Rent Allowance', 'Medical Allowance']
-        for e in self.earnings:
+        for e in earnings:
             if e.salary_component in earnings_components:
                 total_earnings += e.amount
+                self.append("earnings", {
+                    "salary_component": e.salary_component,
+                    "amount": e.amount
+                })
         return total_earnings
+
+    def add_earning_for_hourly_wages(self, salary_component, wages_amount):
+        self.append("earnings", {
+            "salary_component": salary_component,
+            "amount": wages_amount
+        })
 
 def get_base_amount(employee):
     sql = """SELECT base FROM `tabSalary Structure Assignment` WHERE employee=%s"""
