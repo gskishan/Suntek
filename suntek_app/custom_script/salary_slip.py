@@ -24,7 +24,6 @@ class CustomSalarySlip(SalarySlip):
             self.set("earnings", [])
             self.set("deductions", [])
 
-            # Calculate rt based only on adding
             if self.total_working_days > 0:
                 rt = (adding / self.total_working_days) / 8.5
             else:
@@ -34,14 +33,11 @@ class CustomSalarySlip(SalarySlip):
             self.base_hour_rate = flt(self.hour_rate) * flt(self.exchange_rate)
 
             wages_amount = self.hour_rate * self.total_working_hours
-            self.add_earning_for_hourly_wages(
-                self._salary_structure_doc.salary_component, wages_amount
-            )
+            self.add_earning_for_hourly_wages(self._salary_structure_doc.salary_component, wages_amount)
 
         make_salary_slip(self._salary_structure_doc.name, self)
         if self.salary_slip_based_on_timesheet:
             self.hour_rate = rt
-
 
 def get_base_amount(employee):
     sql = """SELECT base FROM `tabSalary Structure Assignment` WHERE employee=%s"""
