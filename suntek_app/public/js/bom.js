@@ -25,26 +25,28 @@ frappe.ui.form.on("BOM", {
                 }
 
             }, __("Get Items From"));
+        setTimeout(function () {
 
-			if (frm.is_new() && cur_frm.doc.project){
-				frappe.db.get_doc('Project', cur_frm.doc.project)
-				.then(doc => {
-					if ( doc.sales_order){
+            if (frm.is_new() && cur_frm.doc.project) {
+                frappe.db.get_doc('Project', cur_frm.doc.project)
+                    .then(doc => {
+                        if (doc.sales_order) {
 
-						frappe.db.get_doc('Sales Order', doc.sales_order)
-						.then(so => {
-							cur_frm.set_value("item",so.items[0].item_code)
-							cur_frm.set_value("quantity",doc.custom_capacity)
-							
-						})
-						
-					}
+                            frappe.db.get_doc('Sales Order', doc.sales_order)
+                                .then(so => {
+                                    cur_frm.set_value("item", so.items[0].item_code)
+                                    cur_frm.set_value("quantity", doc.custom_capacity)
 
-					
-				})
-			}
+                                })
+
+                        }
+
+
+                    })
+            }
+        }, 400);
     },
- 
+
 
 
 })
