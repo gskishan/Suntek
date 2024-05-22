@@ -26,7 +26,7 @@ frappe.ui.form.on("BOM", {
 
             }, __("Get Items From"));
 
-			if (frm.is_new()){
+			if (frm.is_new() && cur_frm.doc.project){
 				frappe.db.get_doc('Project', cur_frm.doc.project)
 				.then(doc => {
 					if ( doc.sales_order){
