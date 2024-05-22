@@ -20,7 +20,7 @@ def set_enquiry_name(doc,method):
 
 def validate_mobile_number(number):
 	import re
-	pattern = r'^[6-9]\d{9}$'
+	pattern = r'^(\+91)?[6-9]\d{9}$'
 	if re.match(pattern, number):
 		return True
 	else:
