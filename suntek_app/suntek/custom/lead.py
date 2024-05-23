@@ -16,10 +16,9 @@ def set_enquiry_name(doc, method):
         doc.custom_enquiry_name = doc.name
 
 def validate_mobile_number(number):
-    pattern = r'^(\+91[-]?)?[6-9]\d{9}$'
     # Ensure number is a string before matching
-    if isinstance(number, int):
-        number = str(number)
+    number = str(number)
+    pattern = r'^(\+91[-]?)?[6-9]\d{9}$'
     if re.match(pattern, number):
         return True
     else:
