@@ -3,6 +3,12 @@ from erpnext.selling.doctype.sales_order.sales_order import make_project
 
 
 @frappe.whitelist()
+def validate(self,method):
+	for d in self.items:
+		d.bom_no=None
+
+
+@frappe.whitelist()
 def auto_project_creation_on_submit(doc,method):
 	project_make = make_project(doc)
 	project_make.custom_poc_person_name=doc.custom_person_name
