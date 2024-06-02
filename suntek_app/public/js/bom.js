@@ -36,6 +36,8 @@ frappe.ui.form.on("BOM", {
                                 .then(so => {
                                     cur_frm.set_value("item", so.items[0].item_code)
                                     cur_frm.set_value("quantity", doc.custom_capacity)
+                                    cur_frm.set_value("custom_customer", doc.customer)
+
 
                                 })
 
