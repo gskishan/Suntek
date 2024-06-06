@@ -18,7 +18,8 @@ frappe.ui.form.on('Designing', {
 		cur_frm.set_query("designer", function (frm) {
 			return {
 				filters: [
-					['Employee', 'designation', '=', "Autocad draft man"]
+					['Employee', 'designation', '=', "Autocad draft man"],
+					['Employee', 'designation', '=', "Autocad Draft Woman"]
 				]
 			}
 		});
