@@ -55,14 +55,15 @@ class Designing(Document):
 			if op.customer_address:
 				formattedAddress=frappe.get_doc("Address", op.customer_address)
 				self.site_location = (
-				formattedAddress.name + '\n' + 
-				formattedAddress.address_line1 + '\n' + 
-				formattedAddress.address_line2 + '\n' + 
-				formattedAddress.city + '\n' + 
-				formattedAddress.state + '\n' + 
-				formattedAddress.pincode + '\n' + 
-				formattedAddress.country
+				    (formattedAddress.name or "") + '\n' +
+				    (formattedAddress.address_line1 or "") + '\n' +
+				    (formattedAddress.address_line2 or "") + '\n' +
+				    (formattedAddress.city or "") + '\n' +
+				    (formattedAddress.state or "") + '\n' +
+				    (formattedAddress.pincode or "") + '\n' +
+				    (formattedAddress.country or "")
 				)
+
 
 
 
