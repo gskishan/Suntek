@@ -224,7 +224,7 @@ function updateProposalField(frm) {
         var capacity = frm.doc.custom_capacity ? frm.doc.custom_capacity + " LPD " : ''; 
     }
     if (frm.doc.custom_product_category == "Heat Pump"){
-        var capacity = frm.doc.custom_capacity ? frm.doc.custom_capacity + " LPD " : ''; 
+        var capacity = frm.doc.custom_capacity ? frm.doc.custom_capacity + " LPH " : ''; 
     }
 
     var proposal = '';
