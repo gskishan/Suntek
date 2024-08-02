@@ -148,7 +148,7 @@ frappe.ui.form.on('Opportunity', {
        
         if (frm.doc.custom_product_category == "Heat Pump"){
 
-            frm.fields_dict.custom_capacity.df.label = "Capacity (KW)";
+            frm.fields_dict.custom_capacity.df.label = "Capacity (LPH)";
             frm.set_df_property('custom_product_type', 'options'); 
             
         }
