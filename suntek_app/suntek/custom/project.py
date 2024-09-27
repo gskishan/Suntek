@@ -8,6 +8,8 @@ from frappe.utils import  today
 def validate(doc,method):
 	if not doc.is_new():
 		custom_copy_from_template(doc)
+	else:
+		exist_project(doc)
 			
 def custom_copy_from_template(self):
     """
@@ -38,7 +40,7 @@ def custom_copy_from_template(self):
 
 
 @frappe.whitelist()
-def on_update(doc,method):
+def exist_project(doc):
 	existing_project = frappe.db.get_value('Project', {'sales_order': doc.name}, ['name'])
 	if existing_project:
 		frappe.errprint(f"Project {existing_project} already exists for this Sales Order. Linking existing project.")
