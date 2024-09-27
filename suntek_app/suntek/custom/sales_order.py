@@ -16,6 +16,10 @@ def auto_project_creation_on_submit(doc,method):
 		project_make.custom_poc_mobile_no=doc.custom_another_mobile_no
 		project_make.save()
 		create_subsidy(project_make)
+	else:
+		if doc.project:
+			poj=frappe.get_doc("Project",doc.project)
+			poj.db_set("sales_order",doc.name)
 	update_opportunity(doc)
 
 def create_subsidy(project_make):
