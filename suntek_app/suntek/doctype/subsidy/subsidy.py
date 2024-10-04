@@ -13,6 +13,14 @@ class Subsidy(Document):
 
 	def on_submit(self):
 		self.update_project_on_submit()
+	def on_validate(self):
+		self.update_status_on_project()
+
+	def update_status_on_project(self):
+		if self.project_name:
+			project = frappe.get_doc("Project", self.project_name)
+			project.db_set("custom_subsidy_status",self.subsidy_status,update_modified=False)
+		
 
 	def update_project_on_save(self):
 		# Check if the Discom document is linked to a Project
