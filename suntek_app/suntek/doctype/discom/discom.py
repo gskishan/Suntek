@@ -11,6 +11,16 @@ class Discom(Document):
 
 	def after_save(self):
 		self.update_project_on_save()
+	def on_validate(self):
+		self.update_project_status()
+		
+
+	def update_project_status(self):
+		if self.project_name:
+			project = frappe.get_doc("Project", self.project_name,update_modified=False)
+			project.db_set("custom_discom_status",self.discom_status,update_modified=False)
+			
+		
 
 	def on_submit(self):
 		self.update_project_on_submit()
