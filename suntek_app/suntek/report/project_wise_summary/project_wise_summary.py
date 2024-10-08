@@ -76,7 +76,7 @@ def get_columns():
     return columns
 
 def get_data(condition=None):
-    sql = """
+    sql = """  select * from (
         SELECT 
             project.name AS project,
             IFNULL(SO.grand_total, 0) AS sales_order_amount,
@@ -100,7 +100,7 @@ def get_data(condition=None):
         WHERE 
             project.docstatus = 0 {0}
         GROUP BY 
-            project.name
+            project.name) x where  discom_status="Feasibility Released -Pending WCR Submission" and in_principle_date_received is not null
     """.format(condition)
     
     frappe.errprint(sql)
