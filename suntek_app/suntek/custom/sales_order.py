@@ -11,11 +11,11 @@ def validate(self,method):
 @frappe.whitelist()
 def auto_project_creation_on_submit(doc,method):
 	if not doc.amended_from:
-		if not doc.project:
-			project_make = make_project(doc)
-			project_make.custom_poc_person_name=doc.custom_person_name
-			project_make.custom_poc_mobile_no=doc.custom_another_mobile_no
-			project_make.save()
+		
+		project_make = make_project(doc)
+		project_make.custom_poc_person_name=doc.custom_person_name
+		project_make.custom_poc_mobile_no=doc.custom_another_mobile_no
+		project_make.save()
 		create_subsidy(project_make)
 	else:
 		if doc.project:
