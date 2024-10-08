@@ -11,11 +11,13 @@ def execute(filters=None):
 def data_condition(filters):
     condition = ""
     if filters.get("from_date") and filters.get("to_date"):
-        condition += " AND DATE(project.creation) BETWEEN '{0}' AND '{1}' ".format(filters.get("from_date"), filters.get("to_date"))
+        condition += " AND SO.transaction_date BETWEEN '{0}' AND '{1}' ".format(filters.get("from_date"), filters.get("to_date"))
     if filters.get("project"):
         condition += " AND project.name = '{0}' ".format(filters.get("project"))
     if filters.get("company"):
         condition += " AND project.company = '{0}' ".format(filters.get("company"))
+    if filters.get("customer"):
+        condition += " AND SO.customer = '{0}' ".format(filters.get("customr"))
     return condition
 
 def get_columns():
