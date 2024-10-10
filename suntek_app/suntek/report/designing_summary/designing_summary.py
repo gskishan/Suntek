@@ -83,3 +83,36 @@ where p.docstatus=1 {}
     
     frappe.errprint(sql)
     return frappe.db.sql(sql, as_dict=1)
+
+
+
+
+
+@frappe.whitelist()
+def get_designing_options(doctype, txt, searchfield, start, page_len, filters):
+    project = filters.get("project")
+
+
+    if project:
+        return frappe.db.sql("""
+            SELECT
+                against_designing
+            FROM
+                `tabStock Entry`
+            WHERE
+                project = %s
+                and against_designing is not null
+                AND name LIKE %s
+            LIMIT %s, %s
+        """, (project, "%%%s%%" % txt, start, page_len))
+    else:
+        return frappe.db.sql("""
+            SELECT
+                name
+            FROM
+                `tabDesigning`
+            WHERE
+                name LIKE %s
+            LIMIT %s, %s
+        """, ("%%%s%%" % txt, start, page_len))
+
