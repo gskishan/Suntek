@@ -7,10 +7,17 @@ from frappe.utils import flt
 
 class Designing(Document):
 	def validate(self):
+		self.get_duplicate_item()
 		self.update_designing_on_save()
 		if self.is_new() and not self.custom_capacity and self.custom_project:
 			pro=frappe.get_doc("Project",self.custom_project)
 			self.custom_capacity=pro.custom_capacity
+
+	def get_duplicate_item(self):
+		item_codes = [item.item_code for item in self.bom]
+		duplicates = [item_code for item_code, count in Counter(item_codes).items() if count > 1]
+		if duplicates:
+			frappe.throw("Duplicate Items found: {}".format(", ".join(duplicates)))
 	
 	def after_insert(self):
 		self.update_designing_on_save()
