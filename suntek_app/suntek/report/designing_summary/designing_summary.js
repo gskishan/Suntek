@@ -19,7 +19,7 @@ frappe.query_reports["Designing Summary"] = {
                 if (!project) return;
 
                 return {
-                    query: "suntek.suntek.report.designing_summary.designing_summary.get_designing_options",
+                    query: "suntek_app.suntek.report.designing_summary.designing_summary.get_designing_options",
                     filters: {
                         project: project
                     }
