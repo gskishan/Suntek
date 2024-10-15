@@ -4,6 +4,8 @@ import frappe
 from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import flt
+from collections import Counter
+
 
 class Designing(Document):
 	def validate(self):
