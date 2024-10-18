@@ -49,7 +49,7 @@ def get_columns():
             'width': 160
         },
         {
-            'fieldname': 'discom_status',
+            'fieldname': 'custom_discom_doc_status',
             'label': _('Discom Status'),
             'fieldtype': 'Data',
             'width': 180
