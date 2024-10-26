@@ -1,5 +1,4 @@
 import frappe
-import json
 from frappe import _
 
 def execute(filters=None):
@@ -17,7 +16,7 @@ def data_condition(filters):
     if filters.get("company"):
         condition += " AND project.company = '{0}' ".format(filters.get("company"))
     if filters.get("customer"):
-        condition += " AND SO.customer = '{0}' ".format(filters.get("customr"))
+        condition += " AND SO.customer = '{0}' ".format(filters.get("customer"))  # Corrected from 'customr' to 'customer'
     return condition
 
 def get_columns():
@@ -49,20 +48,8 @@ def get_columns():
             'width': 160
         },
         {
-            'fieldname': 'custom_discom_doc_status',
-            'label': _('Discom Status'),
-            'fieldtype': 'Data',
-            'width': 180
-        },
-        {
-            'fieldname': 'in_principle_date_received',
-            'label': _('In Principle Date Received'),
-            'fieldtype': 'Date',
-            'width': 180
-        },
-        {
-            'fieldname': 'paid_amount',
-            'label': _('Amount Received Via Payment Entry'),
+            'fieldname': 'total_paid_amount',
+            'label': _('Total Amount Received Via Payment Entry'),
             'fieldtype': 'Float',
             'width': 180
         },
@@ -71,37 +58,37 @@ def get_columns():
             'label': _('Remaining Balance Amount'),
             'fieldtype': 'Float',
             'width': 180
+        },
+        {
+            'fieldname': 'sales_order_status',
+            'label': _('Sales Order Status'),
+            'fieldtype': 'Data',
+            'width': 180
         }
     ]
     return columns
 
 def get_data(condition=None):
-    sql = """  select * from (
-        SELECT 
-            project.name AS project,
-            IFNULL(SO.grand_total, 0) AS sales_order_amount,
-            SO.custom_type_of_case,
-            SO.customer,
-            subsidy.name AS subsidy,
-            subsidy.custom_in_principle_date_received AS in_principle_date_received,
-            discom.discom_status AS discom_status,
-            IFNULL(SUM(payment.paid_amount), 0) AS paid_amount,
-            IFNULL(SO.grand_total, 0) - IFNULL(SUM(payment.paid_amount), 0) AS remaining_amount
-        FROM 
-            `tabProject` project
-        INNER JOIN 
-            `tabSales Order` SO ON project.name = SO.project 
-        LEFT JOIN 
-            `tabSubsidy` subsidy ON subsidy.project_name = project.name
-        LEFT JOIN 
-            `tabDiscom` discom ON discom.project_name = project.name
-        LEFT JOIN 
-            `tabPayment Entry` payment ON project.name = payment.project AND payment.docstatus = 1
-        WHERE 
-            project.docstatus = 0 {0}
-        GROUP BY 
-            project.name) x where  discom_status="Feasibility Released -Pending WCR Submission" and in_principle_date_received is not null
+    sql = """  
+    SELECT 
+        project.name AS project,
+        IFNULL(SO.grand_total, 0) AS sales_order_amount,
+        SO.custom_type_of_case,
+        SO.customer,
+        IFNULL(SUM(payment.paid_amount), 0) AS total_paid_amount,
+        IFNULL(SO.grand_total, 0) - IFNULL(SUM(payment.paid_amount), 0) AS remaining_amount,
+        SO.status AS sales_order_status
+    FROM 
+        `tabProject` project
+    INNER JOIN 
+        `tabSales Order` SO ON project.name = SO.project 
+    LEFT JOIN 
+        `tabPayment Entry` payment ON SO.name = payment.sales_order AND payment.docstatus = 1
+    WHERE 
+        project.docstatus = 0 {0}
+    GROUP BY 
+        SO.name, project.name
     """.format(condition)
-    
+
     frappe.errprint(sql)
     return frappe.db.sql(sql, as_dict=1)
