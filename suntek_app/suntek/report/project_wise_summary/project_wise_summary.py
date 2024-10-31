@@ -16,7 +16,7 @@ def data_condition(filters):
     if filters.get("company"):
         condition += " AND project.company = '{0}' ".format(filters.get("company"))
     if filters.get("customer"):
-        condition += " AND SO.customer = '{0}' ".format(filters.get("customer"))  # Corrected from 'customr' to 'customer'
+        condition += " AND SO.customer = '{0}' ".format(filters.get("customer"))
     return condition
 
 def get_columns():
@@ -83,8 +83,7 @@ def get_data(condition=None):
     INNER JOIN 
         `tabSales Order` SO ON project.name = SO.project 
     LEFT JOIN 
-        `tabPayment Entry` payment ON SO.name = payment.reference_name 
-        AND payment.reference_doctype = 'Sales Order' 
+        `tabPayment Entry` payment ON SO.name = payment.sales_order 
         AND payment.docstatus = 1
     WHERE 
         project.docstatus = 0 {0}
