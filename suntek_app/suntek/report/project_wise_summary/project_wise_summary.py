@@ -83,7 +83,9 @@ def get_data(condition=None):
     INNER JOIN 
         `tabSales Order` SO ON project.name = SO.project 
     LEFT JOIN 
-        `tabPayment Entry` payment ON SO.name = payment.sales_order AND payment.docstatus = 1
+        `tabPayment Entry` payment ON SO.name = payment.reference_name 
+        AND payment.reference_doctype = 'Sales Order' 
+        AND payment.docstatus = 1
     WHERE 
         project.docstatus = 0 {0}
     GROUP BY 
