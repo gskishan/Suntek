@@ -166,7 +166,7 @@ doc_events = {
 	        "validate" : "suntek_app.custom_script.item_price.validate"
     },
     "Quotation": {
-		"validate":  "suntek_app.custom_script.quotation.validate",
+		"validate": "suntek_app.custom_script.quotation.CustomQuotation.validate",
 	},
 	"Employee": {
 		"on_update":  "suntek_app.custom_script.employee.on_update",
