@@ -8,7 +8,6 @@ class CustomQuotation (Quotation):
 		self.validate_uom_is_integer("stock_uom", "stock_qty")
 		self.validate_uom_is_integer("uom", "qty")
 		self.validate_valid_till()
-		self.validate_shopping_cart_items()
 		self.set_custom_customer_name()
 		if self.items:
 			self.with_items = 1
