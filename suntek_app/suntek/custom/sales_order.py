@@ -14,14 +14,14 @@ def auto_project_creation_on_submit(doc, method):
             project_make.save()
         
         # Create subsidy or discom records if applicable
-        create_subsidy_or_discom(project_make)
+        # create_subsidy_or_discom(project_make)
     elif doc.amended_from and doc.project:
         # Update existing project if present
         project = frappe.get_doc("Project", doc.project)
         project.db_set("sales_order", doc.name)
     
     # Update opportunity linked with the Sales Order
-    update_opportunity(doc)
+    # update_opportunity(doc)
 
 def create_subsidy_or_discom(project):
     """Creates Discom and Subsidy records based on the project's custom type of case."""
