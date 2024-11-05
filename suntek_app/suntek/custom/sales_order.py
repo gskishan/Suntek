@@ -61,6 +61,7 @@ def update_opportunity(doc):
 
 @frappe.whitelist()
 def make_project(source_name, target_doc=None):
+    from frappe.model.mapper import get_mapped_doc
     def postprocess(source, doc):
         doc.project_type = "External"
         doc.project_name = source.name
@@ -71,7 +72,7 @@ def make_project(source_name, target_doc=None):
         {
             "Sales Order": {
                 "doctype": "Project",
-                # Allow docstatus to be either 0 or 1
+               
                 "validation": {"docstatus": ["in", [0, 1]]},
                 "field_map": {
                     "name": "sales_order",
@@ -85,4 +86,3 @@ def make_project(source_name, target_doc=None):
     )
 
     return doc
-
