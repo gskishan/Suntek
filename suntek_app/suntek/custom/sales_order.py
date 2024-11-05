@@ -66,7 +66,7 @@ def make_project(source_name, target_doc=None):
     from frappe.model.mapper import get_mapped_doc
     def postprocess(source, doc):
         doc.project_type = "External"
-        doc.project_name = source.name
+        doc.project_name = source_name.name
         frappe.errprint([source.name,source_name.name,"mememem"])
 
     doc = get_mapped_doc(
