@@ -1,5 +1,5 @@
 import frappe
-from erpnext.selling.doctype.sales_order.sales_order import make_project
+#from erpnext.selling.doctype.sales_order.sales_order import make_project
 
 @frappe.whitelist()
 def auto_project_creation_on_submit(doc, method):
@@ -56,3 +56,33 @@ def update_opportunity(doc):
         if quotation_item.prevdoc_docname and quotation_item.prevdoc_doctype == "Opportunity":
             opportunity = frappe.get_doc(quotation_item.prevdoc_doctype, quotation_item.prevdoc_docname)
             opportunity.db_set("opportunity_amount", doc.rounded_total, update_modified=False)
+
+
+
+@frappe.whitelist()
+def make_project(source_name, target_doc=None):
+    def postprocess(source, doc):
+        doc.project_type = "External"
+        doc.project_name = source.name
+
+    doc = get_mapped_doc(
+        "Sales Order",
+        source_name,
+        {
+            "Sales Order": {
+                "doctype": "Project",
+                # Allow docstatus to be either 0 or 1
+                "validation": {"docstatus": ["in", [0, 1]]},
+                "field_map": {
+                    "name": "sales_order",
+                    "base_grand_total": "estimated_costing",
+                    "net_total": "total_sales_amount",
+                },
+            },
+        },
+        target_doc,
+        postprocess,
+    )
+
+    return doc
+
