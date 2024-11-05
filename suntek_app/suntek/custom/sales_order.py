@@ -1,7 +1,7 @@
 import frappe
 from erpnext.selling.doctype.sales_order.sales_order import make_project
 
-def on_updatet(doc, method):
+def on_update(doc, method):
     if doc.docstatus == 1 and not doc.amended_from:
     # Create Project from Sales Order
         if not frappe.db.exists("Project", {"project_name": doc.name}):
