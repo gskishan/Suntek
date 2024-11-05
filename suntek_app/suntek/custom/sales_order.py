@@ -3,9 +3,7 @@ import frappe
 
 @frappe.whitelist()
 def auto_project_creation_on_submit(doc, method):
-    # Ensure the document is submitted before creating a project
     if doc.docstatus == 1 and not doc.amended_from:
-        # Create Project from Sales Order
         if not frappe.db.exists("Project", {"project_name": doc.name}):
 
             project_make = make_project(doc)
@@ -15,14 +13,14 @@ def auto_project_creation_on_submit(doc, method):
             doc.db_set("project", project_make.name)
     
         # Create subsidy or discom records if applicable
-        # create_subsidy_or_discom(project_make)
+        create_subsidy_or_discom(project_make)
     elif doc.amended_from and doc.project:
         # Update existing project if present
         project = frappe.get_doc("Project", doc.project)
         project.db_set("sales_order", doc.name)
     
     # Update opportunity linked with the Sales Order
-    # update_opportunity(doc)
+    update_opportunity(doc)
 
 def create_subsidy_or_discom(project):
     """Creates Discom and Subsidy records based on the project's custom type of case."""
