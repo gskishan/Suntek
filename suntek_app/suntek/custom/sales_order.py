@@ -67,6 +67,7 @@ def make_project(source_name, target_doc=None):
     def postprocess(source, doc):
         doc.project_type = "External"
         doc.project_name = source.name
+        frappe.errprint([source.name,source_name.name,"mememem"])
 
     doc = get_mapped_doc(
         "Sales Order",
