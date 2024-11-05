@@ -10,7 +10,6 @@ def auto_project_creation_on_submit(doc, method):
             project_make.custom_poc_person_name = doc.custom_person_name
             project_make.custom_poc_mobile_no = doc.custom_another_mobile_no
             project_make.save()
-            doc.db_set("project", project_make.name)
     
         # Create subsidy or discom records if applicable
         create_subsidy_or_discom(project_make)
