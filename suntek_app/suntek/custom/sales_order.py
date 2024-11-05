@@ -6,10 +6,12 @@ def auto_project_creation_on_submit(doc, method):
     # Ensure the document is submitted before creating a project
     if doc.docstatus == 1 and not doc.amended_from:
         # Create Project from Sales Order
-        project_make = make_project(doc)
-        project_make.custom_poc_person_name = doc.custom_person_name
-        project_make.custom_poc_mobile_no = doc.custom_another_mobile_no
-        project_make.save()
+        if not frappe.db.exists("Project", {"project_name": doc.name}):
+
+            project_make = make_project(doc)
+            project_make.custom_poc_person_name = doc.custom_person_name
+            project_make.custom_poc_mobile_no = doc.custom_another_mobile_no
+            project_make.save()
         
         # Create subsidy or discom records if applicable
         create_subsidy_or_discom(project_make)
@@ -72,7 +74,7 @@ def make_project(source_name, target_doc=None):
         {
             "Sales Order": {
                 "doctype": "Project",
-               
+                # Allow docstatus to be either 0 or 1
                 "validation": {"docstatus": ["in", [0, 1]]},
                 "field_map": {
                     "name": "sales_order",
