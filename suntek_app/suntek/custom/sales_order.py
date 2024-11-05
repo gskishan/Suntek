@@ -9,6 +9,8 @@ def on_update(doc):
             project_make.custom_poc_person_name = doc.custom_person_name
             project_make.custom_poc_mobile_no = doc.custom_another_mobile_no
             project_make.save()
+            self.db_set("project",project.name, update_modified=False)
+
 
         create_subsidy_or_discom(project_make)
     elif doc.amended_from and doc.project:
