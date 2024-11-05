@@ -68,7 +68,6 @@ def make_project(source_name, target_doc=None):
         doc.project_type = "External"
         doc.project_name = source_name.name
         doc.sales_order = source_name.name
-        frappe.errprint([source.name,source_name.name,"mememem"])
 
     doc = get_mapped_doc(
         "Sales Order",
@@ -76,7 +75,6 @@ def make_project(source_name, target_doc=None):
         {
             "Sales Order": {
                 "doctype": "Project",
-                # Allow docstatus to be either 0 or 1
                 "validation": {"docstatus": ["in", [0, 1]]},
                 "field_map": {
                     "name": "sales_order",
