@@ -153,7 +153,7 @@ doc_events = {
     },
     "Sales Order": {
         "on_submit":"suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit",
-	"validate":"suntek_app.suntek.custom.sales_order.validate"
+	# "validate":"suntek_app.suntek.custom.sales_order.validate"
     },
    "Project": {
         "on_update":"suntek_app.suntek.custom.project.on_update",
