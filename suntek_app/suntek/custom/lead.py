@@ -4,25 +4,30 @@ from frappe.model.mapper import get_mapped_doc
 from frappe.utils import get_link_to_form
 import re
 
+
 def change_enquiry_status(doc, method):
-    duplicate_check(doc) 
+    duplicate_check(doc)
     if doc.custom_enquiry_status:
-        doc.status = doc.custom_enquiry_status
+        # doc.status = doc.custom_enquiry_status
+        pass
     if not validate_mobile_number(doc.mobile_no):
         frappe.throw("Invalid mobile number! Please enter a 10-digit number starting with 6, 7, 8, or 9, optionally prefixed by +91 or +91-.")
+
 
 def set_enquiry_name(doc, method):
     if doc.name:
         doc.custom_enquiry_name = doc.name
 
+
 def validate_mobile_number(number):
     # Ensure number is a string before matching
     number = str(number)
-    pattern = r'^(\+91[-]?)?[6-9]\d{9}$'
+    pattern = r"^(\+91[-]?)?[6-9]\d{9}$"
     if re.match(pattern, number):
         return True
     else:
         return False
+
 
 @frappe.whitelist()
 def custom_make_opportunity(source_name, target_doc=None):
@@ -57,6 +62,7 @@ def custom_make_opportunity(source_name, target_doc=None):
 
     return target_doc
 
+
 def _set_missing_values(source, target):
     address = frappe.get_all(
         "Dynamic Link",
@@ -85,6 +91,7 @@ def _set_missing_values(source, target):
 
     if contact:
         target.contact_person = contact[0].parent
+
 
 def duplicate_check(doc):
     mobile_no = str(doc.mobile_no)  # Ensure mobile_no is a string
