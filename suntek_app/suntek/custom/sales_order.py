@@ -55,9 +55,16 @@ def update_opportunity(doc):
         quotation_item = frappe.get_doc("Quotation Item", first_item.quotation_item)
 
         # Check if the quotation item is linked to an opportunity
-        if quotation_item.prevdoc_docname and quotation_item.prevdoc_doctype == "Opportunity":
-            opportunity = frappe.get_doc(quotation_item.prevdoc_doctype, quotation_item.prevdoc_docname)
-            opportunity.db_set("opportunity_amount", doc.rounded_total, update_modified=False)
+        if (
+            quotation_item.prevdoc_docname
+            and quotation_item.prevdoc_doctype == "Opportunity"
+        ):
+            opportunity = frappe.get_doc(
+                quotation_item.prevdoc_doctype, quotation_item.prevdoc_docname
+            )
+            opportunity.db_set(
+                "opportunity_amount", doc.rounded_total, update_modified=False
+            )
 
 
 @frappe.whitelist()

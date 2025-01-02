@@ -1,6 +1,5 @@
 from frappe import _
 
-
 # def update_opportunity_dashboard(data):
 #     return {
 #         "fieldname": "opportunity_name",

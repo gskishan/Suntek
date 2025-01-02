@@ -137,16 +137,27 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
-    "Lead": {"validate": ["suntek_app.suntek.custom.lead.change_enquiry_status", "suntek_app.suntek.custom.lead.set_enquiry_name"]},
+    "Lead": {
+        "validate": [
+            "suntek_app.suntek.custom.lead.change_enquiry_status",
+            "suntek_app.suntek.custom.lead.set_enquiry_name",
+        ]
+    },
     "Opportunity": {
-        "validate": ["suntek_app.suntek.custom.opportunity.change_opportunity_status", "suntek_app.suntek.custom.opportunity.set_opportunity_name"],
+        "validate": [
+            "suntek_app.suntek.custom.opportunity.change_opportunity_status",
+            "suntek_app.suntek.custom.opportunity.set_opportunity_name",
+        ],
         "on_update": "suntek_app.custom_script.opportunity.on_update",
     },
     "Sales Order": {
         "on_submit": "suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit",
         # "validate":"suntek_app.suntek.custom.sales_order.validate"
     },
-    "Project": {"on_update": "suntek_app.suntek.custom.project.on_update", "validate": "suntek_app.suntek.custom.project.validate"},
+    "Project": {
+        "on_update": "suntek_app.suntek.custom.project.on_update",
+        "validate": "suntek_app.suntek.custom.project.validate",
+    },
     "Price List": {"validate": "suntek_app.custom_script.price_list.validate"},
     "Item Price": {"validate": "suntek_app.custom_script.item_price.validate"},
     "Quotation": {
@@ -155,7 +166,10 @@ doc_events = {
     "Employee": {
         "on_update": "suntek_app.custom_script.employee.on_update",
     },
-    "Stock Entry": {"on_submit": "suntek_app.suntek.custom.stock_entry.on_submit", "on_cancel": "suntek_app.suntek.custom.stock_entry.on_cancel"},
+    "Stock Entry": {
+        "on_submit": "suntek_app.suntek.custom.stock_entry.on_submit",
+        "on_cancel": "suntek_app.suntek.custom.stock_entry.on_cancel",
+    },
     "Solar Power Plants": {
         "validate": [
             "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status",

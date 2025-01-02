@@ -1,17 +1,19 @@
 import frappe
 from frappe import _
-from frappe.utils import getdate, cint
+from frappe.utils import cint, getdate
+
 
 def execute(filters=None):
     columns, data = [], []
 
     start_date = filters.get("start_date")
     end_date = filters.get("end_date")
-    
+
     columns = get_columns()
     data = get_data(start_date, end_date)
-    
+
     return columns, data
+
 
 def get_columns():
     return [
@@ -19,45 +21,41 @@ def get_columns():
             "fieldname": "enquiry_owner",
             "label": _("Enquiry Owner"),
             "fieldtype": "Data",
-            "width": 150
+            "width": 150,
         },
         {
             "fieldname": "interested",
             "label": _("Interested"),
             "fieldtype": "Int",
-            "width": 100
+            "width": 100,
         },
         {
             "fieldname": "opportunity",
             "label": _("Opportunity"),
             "fieldtype": "Int",
-            "width": 100
+            "width": 100,
         },
-        {
-            "fieldname": "open",
-            "label": _("Open"),
-            "fieldtype": "Int",
-            "width": 100
-        },
+        {"fieldname": "open", "label": _("Open"), "fieldtype": "Int", "width": 100},
         {
             "fieldname": "quotation",
             "label": _("Quotation"),
             "fieldtype": "Int",
-            "width": 100
+            "width": 100,
         },
         {
             "fieldname": "converted",
             "label": _("Converted"),
             "fieldtype": "Int",
-            "width": 100
+            "width": 100,
         },
         {
             "fieldname": "do_not_contact",
             "label": _("Do Not Contact"),
             "fieldtype": "Int",
-            "width": 150
-        }
+            "width": 150,
+        },
     ]
+
 
 def get_data(start_date, end_date):
     query = """
@@ -77,6 +75,8 @@ def get_data(start_date, end_date):
             `custom_enquiry_owner_name`
     """
 
-    data = frappe.db.sql(query, {"start_date": start_date, "end_date": end_date}, as_dict=1)
-    
+    data = frappe.db.sql(
+        query, {"start_date": start_date, "end_date": end_date}, as_dict=1
+    )
+
     return data

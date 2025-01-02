@@ -6,6 +6,6 @@ def change_power_plant_assigned_status(doc, method):
 
 
 def check_customer_details(doc):
-    if doc.customer and doc.customer_mobile_no and doc.customer_email:
+    if doc.customer and doc.customer_mobile_no:
         return True
     return False
