@@ -13,7 +13,9 @@ def custom_copy_from_template(self):
     Copy tasks from template
     """
     if self.custom_project_template and not frappe.db.get_all(
-        "Task", dict(project=self.name), limit=1
+        "Task",
+        dict(project=self.name),
+        limit=1,
     ):
         # has a template, and no loaded tasks, so lets create
         if not self.expected_start_date:

@@ -19,6 +19,7 @@
    "fieldname": "plant_id",
    "fieldtype": "Data",
    "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Plant ID",
    "reqd": 1,
    "unique": 1
@@ -26,11 +27,15 @@
   {
    "fieldname": "plant_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Plant Name"
   },
   {
    "fieldname": "oem",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "OEM"
   },
   {
@@ -40,6 +45,8 @@
   {
    "fieldname": "customer",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Customer",
    "options": "Customer"
   },
@@ -61,13 +68,15 @@
    "default": "Unassigned",
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Status",
    "options": "Assigned\nUnassigned"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-02 13:17:32.123240",
+ "modified": "2025-01-02 17:34:11.182605",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Solar Power Plants",
@@ -93,12 +102,10 @@
  "states": [
   {
    "color": "Green",
-   "custom": 1,
    "title": "Assigned"
   },
   {
    "color": "Orange",
-   "custom": 1,
    "title": "Unassigned"
   }
  ]
