@@ -1,5 +1,3 @@
-from . import __version__ as app_version
-
 app_name = "suntek_app"
 app_title = "suntek"
 app_publisher = "kishan"
@@ -31,17 +29,17 @@ app_license = "123"
 # include js in doctype views
 
 doctype_js = {
-    "Lead" : "public/js/lead.js",
-    "Opportunity" : "public/js/opportunity.js",
-    "Quotation" : "public/js/quotation.js",
-    "Product Bundle" : "public/js/product_bundle.js",
-    "Project" : "public/js/project.js",
+    "Lead": "public/js/lead.js",
+    "Opportunity": "public/js/opportunity.js",
+    "Quotation": "public/js/quotation.js",
+    "Product Bundle": "public/js/product_bundle.js",
+    "Project": "public/js/project.js",
     "Sales Order": "public/js/sales_order.js",
     "Customer": "public/js/customer.js",
     "Delivery Note": "public/js/delivery_note.js",
     "Material Request": "public/js/material_request.js",
     "Stock Entry": "public/js/stock_entry.js",
-  "BOM": "public/js/bom.js",
+    "BOM": "public/js/bom.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -55,7 +53,7 @@ doctype_js = {
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+# 	"Role": "home_page"
 # }
 
 # Generators
@@ -69,8 +67,8 @@ doctype_js = {
 
 # add methods and filters to jinja environment
 # jinja = {
-#	"methods": "suntek_app.utils.jinja_methods",
-#	"filters": "suntek_app.utils.jinja_filters"
+# 	"methods": "suntek_app.utils.jinja_methods",
+# 	"filters": "suntek_app.utils.jinja_filters"
 # }
 
 # Installation
@@ -112,27 +110,26 @@ doctype_js = {
 # Permissions evaluated in scripted ways
 
 # permission_query_conditions = {
-#	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
+# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
 # }
 #
 # has_permission = {
-#	"Event": "frappe.desk.doctype.event.event.has_permission",
+# 	"Event": "frappe.desk.doctype.event.event.has_permission",
 # }
 
 # DocType Class
 # ---------------
 # Override standard doctype classes
 override_doctype_dashboards = {
-	"Opportunity": "suntek_app.suntek.custom_dashboard.dashboard.update_opportunity_dashboard",
+    "Opportunity": "suntek_app.suntek.custom_dashboard.dashboard.update_opportunity_dashboard",
     "Lead": "suntek_app.suntek.custom_dashboard.dashboard.update_enquiry_dashboard",
 }
 
 
-
 override_doctype_class = {
-	"Contact": "suntek_app.suntek.custom.contact.CustomContact",
-	"Quotation": "suntek_app.custom_script.quotation.CustomQuotation",
-	"Salary Slip": "suntek_app.custom_script.salary_slip.CustomSalarySlip",
+    "Contact": "suntek_app.suntek.custom.contact.CustomContact",
+    "Quotation": "suntek_app.custom_script.quotation.CustomQuotation",
+    "Salary Slip": "suntek_app.custom_script.salary_slip.CustomSalarySlip",
 }
 
 # Document Events
@@ -140,71 +137,62 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
-    "Lead": {
-        "validate": ["suntek_app.suntek.custom.lead.change_enquiry_status",
-                    "suntek_app.suntek.custom.lead.set_enquiry_name"]
-
-    },
+    "Lead": {"validate": ["suntek_app.suntek.custom.lead.change_enquiry_status", "suntek_app.suntek.custom.lead.set_enquiry_name"]},
     "Opportunity": {
-        "validate": ["suntek_app.suntek.custom.opportunity.change_opportunity_status",
-                    "suntek_app.suntek.custom.opportunity.set_opportunity_name"],
-	    "on_update":  "suntek_app.custom_script.opportunity.on_update"
-	    
+        "validate": ["suntek_app.suntek.custom.opportunity.change_opportunity_status", "suntek_app.suntek.custom.opportunity.set_opportunity_name"],
+        "on_update": "suntek_app.custom_script.opportunity.on_update",
     },
     "Sales Order": {
-        "on_submit":"suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit",
-	# "validate":"suntek_app.suntek.custom.sales_order.validate"
+        "on_submit": "suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit",
+        # "validate":"suntek_app.suntek.custom.sales_order.validate"
     },
-   "Project": {
-        "on_update":"suntek_app.suntek.custom.project.on_update",
-	"validate":"suntek_app.suntek.custom.project.validate"
-    },
-    "Price List": {
-	        "validate" : "suntek_app.custom_script.price_list.validate"
-    },
-	"Item Price": {
-	        "validate" : "suntek_app.custom_script.item_price.validate"
-    },
+    "Project": {"on_update": "suntek_app.suntek.custom.project.on_update", "validate": "suntek_app.suntek.custom.project.validate"},
+    "Price List": {"validate": "suntek_app.custom_script.price_list.validate"},
+    "Item Price": {"validate": "suntek_app.custom_script.item_price.validate"},
     "Quotation": {
-		"validate":  "suntek_app.custom_script.quotation.validate",
-	},
-	"Employee": {
-		"on_update":  "suntek_app.custom_script.employee.on_update",
-	},
-	"Stock Entry": {
-        "on_submit":"suntek_app.suntek.custom.stock_entry.on_submit",
-	"on_cancel":"suntek_app.suntek.custom.stock_entry.on_cancel"
+        "validate": "suntek_app.custom_script.quotation.validate",
     },
-
-}   
+    "Employee": {
+        "on_update": "suntek_app.custom_script.employee.on_update",
+    },
+    "Stock Entry": {"on_submit": "suntek_app.suntek.custom.stock_entry.on_submit", "on_cancel": "suntek_app.suntek.custom.stock_entry.on_cancel"},
+    "Solar Power Plants": {
+        "validate": [
+            "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status",
+        ],
+        "before_save": [
+            "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status",
+        ],
+    },
+}
 
 # doc_events = {
-#	"*": {
-#		"on_update": "method",
-#		"on_cancel": "method",
-#		"on_trash": "method"
-#	}
+# 	"*": {
+# 		"on_update": "method",
+# 		"on_cancel": "method",
+# 		"on_trash": "method"
+# 	}
 # }
 
 # Scheduled Tasks
 # ---------------
 
 # scheduler_events = {
-#	"all": [
-#		"suntek_app.tasks.all"
-#	],
-#	"daily": [
-#		"suntek_app.tasks.daily"
-#	],
-#	"hourly": [
-#		"suntek_app.tasks.hourly"
-#	],
-#	"weekly": [
-#		"suntek_app.tasks.weekly"
-#	],
-#	"monthly": [
-#		"suntek_app.tasks.monthly"
-#	],
+# 	"all": [
+# 		"suntek_app.tasks.all"
+# 	],
+# 	"daily": [
+# 		"suntek_app.tasks.daily"
+# 	],
+# 	"hourly": [
+# 		"suntek_app.tasks.hourly"
+# 	],
+# 	"weekly": [
+# 		"suntek_app.tasks.weekly"
+# 	],
+# 	"monthly": [
+# 		"suntek_app.tasks.monthly"
+# 	],
 # }
 
 # Testing
@@ -216,14 +204,14 @@ doc_events = {
 # ------------------------------
 #
 # override_whitelisted_methods = {
-#	"frappe.desk.doctype.event.event.get_events": "suntek_app.event.get_events"
+# 	"frappe.desk.doctype.event.event.get_events": "suntek_app.event.get_events"
 # }
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
 # override_doctype_dashboards = {
-#	"Task": "suntek_app.task.get_dashboard_data"
+# 	"Task": "suntek_app.task.get_dashboard_data"
 # }
 
 # exempt linked doctypes from being automatically cancelled
@@ -249,34 +237,32 @@ doc_events = {
 # --------------------
 
 # user_data_fields = [
-#	{
-#		"doctype": "{doctype_1}",
-#		"filter_by": "{filter_by}",
-#		"redact_fields": ["{field_1}", "{field_2}"],
-#		"partial": 1,
-#	},
-#	{
-#		"doctype": "{doctype_2}",
-#		"filter_by": "{filter_by}",
-#		"partial": 1,
-#	},
-#	{
-#		"doctype": "{doctype_3}",
-#		"strict": False,
-#	},
-#	{
-#		"doctype": "{doctype_4}"
-#	}
+# 	{
+# 		"doctype": "{doctype_1}",
+# 		"filter_by": "{filter_by}",
+# 		"redact_fields": ["{field_1}", "{field_2}"],
+# 		"partial": 1,
+# 	},
+# 	{
+# 		"doctype": "{doctype_2}",
+# 		"filter_by": "{filter_by}",
+# 		"partial": 1,
+# 	},
+# 	{
+# 		"doctype": "{doctype_3}",
+# 		"strict": False,
+# 	},
+# 	{
+# 		"doctype": "{doctype_4}"
+# 	}
 # ]
 
 # Authentication and authorization
 # --------------------------------
 
 # auth_hooks = [
-#	"suntek_app.auth.validate"
+# 	"suntek_app.auth.validate"
 # ]
 
 
-fixtures = [
-    "Custom Field"
-]
+fixtures = ["Custom Field"]
