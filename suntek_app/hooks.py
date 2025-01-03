@@ -278,4 +278,5 @@ fixtures = [
     {"doctype": "Workflow State"},
     {"doctype": "Workflow Action Master"},
     {"doctype": "Notification"},
+    {"doctype": "Webhook"},
 ]

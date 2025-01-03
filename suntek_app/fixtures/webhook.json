@@ -1,0 +1,49 @@
+[
+ {
+  "background_jobs_queue": null,
+  "condition": null,
+  "docstatus": 0,
+  "doctype": "Webhook",
+  "enable_security": 0,
+  "enabled": 1,
+  "is_dynamic_url": 0,
+  "meets_condition": "Yes",
+  "modified": "2024-05-22 12:00:17.918018",
+  "name": "HOOK-0001",
+  "preview_document": null,
+  "preview_request_body": "Select a document to preview request data",
+  "request_method": "POST",
+  "request_structure": "Form URL-Encoded",
+  "request_url": "https://connect.pabbly.com/workflow/sendwebhookdata/IjU3NjUwNTZhMDYzMDA0MzM1MjZkNTUzNDUxM2Ii_pc",
+  "timeout": 5,
+  "webhook_data": [
+   {
+    "fieldname": "first_name",
+    "key": "first_name",
+    "parent": "HOOK-0001",
+    "parentfield": "webhook_data",
+    "parenttype": "Webhook"
+   },
+   {
+    "fieldname": "mobile_no",
+    "key": "mobile_no",
+    "parent": "HOOK-0001",
+    "parentfield": "webhook_data",
+    "parenttype": "Webhook"
+   }
+  ],
+  "webhook_docevent": "on_update",
+  "webhook_doctype": "Lead",
+  "webhook_headers": [
+   {
+    "key": "Content-Type",
+    "parent": "HOOK-0001",
+    "parentfield": "webhook_headers",
+    "parenttype": "Webhook",
+    "value": "application/x-www-form-urlencoded"
+   }
+  ],
+  "webhook_json": null,
+  "webhook_secret": null
+ }
+]
