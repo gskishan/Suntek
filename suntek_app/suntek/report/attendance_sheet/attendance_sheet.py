@@ -1,10 +1,12 @@
 from frappe import _
 
+
 def execute(filters=None):
     columns, data = [], []
     columns = get_columns()
     data = get_custom_enquiry_data(filters)
     return columns, data
+
 
 def get_columns():
     return [
@@ -15,15 +17,46 @@ def get_columns():
             "options": "User",
             "width": "130",
         },
-        {"fieldname": "total_enquiry", "label": _("Total Enquiry's"), "fieldtype": "Int", "width": "130"},
-        {"fieldname": "interested", "label": _("Interested"), "fieldtype": "Int", "width": "100"},
-        {"fieldname": "opportunity", "label": _("Opportunity"), "fieldtype": "Int", "width": "100"},
+        {
+            "fieldname": "total_enquiry",
+            "label": _("Total Enquiry's"),
+            "fieldtype": "Int",
+            "width": "130",
+        },
+        {
+            "fieldname": "interested",
+            "label": _("Interested"),
+            "fieldtype": "Int",
+            "width": "100",
+        },
+        {
+            "fieldname": "opportunity",
+            "label": _("Opportunity"),
+            "fieldtype": "Int",
+            "width": "100",
+        },
         {"fieldname": "open", "label": _("Open"), "fieldtype": "Int", "width": "100"},
-        {"fieldname": "quotation", "label": _("Quotation"), "fieldtype": "Int", "width": "100"},
-        {"fieldname": "converted", "label": _("Converted"), "fieldtype": "Int", "width": "100"},
-        {"fieldname": "do_not_contact", "label": _("Do Not Contact"), "fieldtype": "Int", "width": "120"},
+        {
+            "fieldname": "quotation",
+            "label": _("Quotation"),
+            "fieldtype": "Int",
+            "width": "100",
+        },
+        {
+            "fieldname": "converted",
+            "label": _("Converted"),
+            "fieldtype": "Int",
+            "width": "100",
+        },
+        {
+            "fieldname": "do_not_contact",
+            "label": _("Do Not Contact"),
+            "fieldtype": "Int",
+            "width": "120",
+        },
         {"fieldname": "lost", "label": _("Lost"), "fieldtype": "Int", "width": "80"},
     ]
+
 
 def get_custom_enquiry_data(filters):
     # SQL query to get the enquiry data based on the 'status' field options
@@ -43,8 +76,8 @@ def get_custom_enquiry_data(filters):
     GROUP BY 
         custom_enquiry_owner_name
     """
-    
+
     # Execute the query and fetch the data
     data = frappe.db.sql(query, as_dict=True)
-    
+
     return data

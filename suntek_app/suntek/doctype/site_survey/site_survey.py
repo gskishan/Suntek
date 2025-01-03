@@ -3,11 +3,12 @@
 import frappe
 from frappe.model.document import Document
 
+
 class SiteSurvey(Document):
     def onload(self):
         if self.docstatus == 1:
             self.update_site_survery_status()
-    
+
     def validate(self):
         self.update_site_survey_status_on_save()
 
@@ -24,15 +25,17 @@ class SiteSurvey(Document):
 
     def update_site_survery_status(self):
         self.site_survey_status = "Site Survey Completed"
-        
-    @frappe.whitelist()    
+
+    @frappe.whitelist()
     def get_opportunity_details(self):
         data = None  # Initialize data with None
-        
+
         if self.is_new() and self.custom_project:
             project_doc = frappe.get_doc("Project", self.custom_project)
             so = project_doc.sales_order
-            opportunity = frappe.db.get_value('Sales Order', so, 'custom_opportunity_name')
+            opportunity = frappe.db.get_value(
+                "Sales Order", so, "custom_opportunity_name"
+            )
             op = frappe.get_doc("Opportunity", opportunity)
             self.opportunity_name = op.name
             self.customer_name = project_doc.customer
@@ -41,10 +44,12 @@ class SiteSurvey(Document):
             self.sales_person = op.custom_sales_excecutive
             self.poc_name = project_doc.custom_poc_person_name
             self.poc_contact = project_doc.custom_poc_mobile_no
-            
-            sql = """select parent from `tabDynamic Link` where link_doctype="Lead" and link_name="{0}" and parenttype="Address" """.format(op.party_name)
+
+            sql = """select parent from `tabDynamic Link` where link_doctype="Lead" and link_name="{0}" and parenttype="Address" """.format(
+                op.party_name
+            )
             data = frappe.db.sql(sql, as_dict=True)
-        
+
         if data:
             formattedAddress = frappe.get_doc("Address", data[0].parent)
             lines = []
@@ -64,8 +69,8 @@ class SiteSurvey(Document):
             if formattedAddress.country:
                 lines.append(formattedAddress.country)
 
-            self.site_location = '\n'.join(lines)
-            
+            self.site_location = "\n".join(lines)
+
     def update_opportunity_status_section(self):
         if not self.opportunity_name:
             return
