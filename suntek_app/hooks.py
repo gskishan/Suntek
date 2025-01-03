@@ -279,4 +279,9 @@ doc_events = {
 # ]
 
 
-fixtures = ["Custom Field"]
+fixtures = [
+    {
+        "doctype": "Custom Field",
+        "filters": {"module": "suntek"},
+    },
+]

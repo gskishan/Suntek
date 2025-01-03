@@ -1,5 +1,4 @@
 import frappe
-from erpnext.selling.doctype.quotation.quotation import *
 from erpnext.selling.doctype.quotation.quotation import Quotation
 
 

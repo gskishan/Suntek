@@ -1,5 +1,4 @@
 import frappe
-from frappe.desk.form.assign_to import notify_assignment
 
 
 @frappe.whitelist()
@@ -14,7 +13,6 @@ def get_emp(user):
 
 @frappe.whitelist()
 def on_update(self, method):
-    from frappe.utils import nowdate
 
     data = get_salesman_user(self)
     if data:

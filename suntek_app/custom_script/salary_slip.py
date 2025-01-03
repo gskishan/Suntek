@@ -1,8 +1,5 @@
 import frappe
-from frappe import _
 from frappe.utils import flt
-from hrms.hr.utils import validate_active_employee
-from hrms.payroll.doctype.salary_slip.salary_slip import *
 from hrms.payroll.doctype.salary_slip.salary_slip import SalarySlip
 
 
