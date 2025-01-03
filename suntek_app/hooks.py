@@ -278,10 +278,16 @@ doc_events = {
 # 	"suntek_app.auth.validate"
 # ]
 
-
 fixtures = [
-    {"doctype": "Custom Field", "filters": {"module": "suntek"}},
+    {"doctype": "Custom Field"},  # Remove module filter to get ALL custom fields
     {"doctype": "Property Setter"},
     {"doctype": "Client Script"},
     {"doctype": "Server Script"},
+    {"doctype": "Print Format"},
+    {"doctype": "Report", "filters": {"is_standard": "No"}},
+    {"doctype": "Web Form"},  # Remove module filter to get ALL web forms
+    {"doctype": "Workflow", "filters": {"is_active": 1}},
+    {"doctype": "Workflow State"},
+    {"doctype": "Workflow Action Master"},
+    {"doctype": "Notification"},
 ]
