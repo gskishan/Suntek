@@ -280,8 +280,8 @@ doc_events = {
 
 
 fixtures = [
-    {
-        "doctype": "Custom Field",
-        "filters": {"module": "suntek"},
-    },
+    {"doctype": "Custom Field", "filters": {"module": "suntek"}},
+    {"doctype": "Property Setter"},
+    {"doctype": "Client Script"},
+    {"doctype": "Server Script"},
 ]
