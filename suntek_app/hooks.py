@@ -137,17 +137,9 @@ override_doctype_class = {
 # Hook on document methods and events
 
 doc_events = {
-    "Lead": {
-        "validate": [
-            "suntek_app.suntek.custom.lead.change_enquiry_status",
-            "suntek_app.suntek.custom.lead.set_enquiry_name",
-        ]
-    },
+    "Lead": {"validate": ["suntek_app.suntek.custom.lead.change_enquiry_status", "suntek_app.suntek.custom.lead.set_enquiry_name"]},
     "Opportunity": {
-        "validate": [
-            "suntek_app.suntek.custom.opportunity.change_opportunity_status",
-            "suntek_app.suntek.custom.opportunity.set_opportunity_name",
-        ],
+        "validate": ["suntek_app.suntek.custom.opportunity.change_opportunity_status", "suntek_app.suntek.custom.opportunity.set_opportunity_name"],
         "on_update": "suntek_app.custom_script.opportunity.on_update",
     },
     "Sales Order": {
@@ -171,12 +163,8 @@ doc_events = {
         "on_cancel": "suntek_app.suntek.custom.stock_entry.on_cancel",
     },
     "Solar Power Plants": {
-        "validate": [
-            "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status",
-        ],
-        "before_save": [
-            "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status",
-        ],
+        "validate": ["suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status"],
+        "before_save": ["suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status"],
     },
 }
 
