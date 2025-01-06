@@ -1,21 +1,44 @@
-frappe.ui.form.on('Lead', {
-    refresh: function(frm) {
-        var status = frm.doc.custom_enquiry_status;
-        
-        setTimeout(() => {
-            frm.remove_custom_button('Customer', 'Create');
-            frm.remove_custom_button('Prospect', 'Create');
-            frm.remove_custom_button('Quotation', 'Create');
-            frm.remove_custom_button('Opportunity', 'Create');
-        }, 10);
-        
-        if (status == "Interested") {
-            frm.add_custom_button('Opportunity', function() {
-                frm.trigger("custom_make_opportunity")
-            });
-        }
-    },
-    custom_make_opportunity: async function (frm) {
+frappe.ui.form.on("Lead", {
+	refresh: function (frm) {
+		var status = frm.doc.custom_enquiry_status;
+
+		setTimeout(() => {
+			frm.remove_custom_button("Customer", "Create");
+			frm.remove_custom_button("Prospect", "Create");
+			frm.remove_custom_button("Quotation", "Create");
+			frm.remove_custom_button("Opportunity", "Create");
+		}, 10);
+
+		if (status == "Interested") {
+			frm.add_custom_button("Opportunity", function () {
+				frm.trigger("custom_make_opportunity");
+			});
+		}
+	},
+
+	// Add these dependencies
+	organization_section: function (frm) {
+		let show_section =
+			frm.doc.custom_customer_category &&
+			["Apartments", "Gated Communities", "Government", "C & I"].includes(
+				frm.doc.custom_customer_category
+			);
+		frm.toggle_display("organization_section", show_section);
+	},
+
+	industry: function (frm) {
+		let show_industry =
+			frm.doc.custom_customer_category == "C & I" ||
+			frm.doc.custom_customer_category == "Government";
+		frm.toggle_display("industry", show_industry);
+	},
+
+	custom_customer_category: function (frm) {
+		// Trigger both checks when category changes
+		frm.trigger("organization_section");
+		frm.trigger("industry");
+	},
+	custom_make_opportunity: async function (frm) {
 		let existing_prospect = (
 			await frappe.db.get_value(
 				"Prospect Lead",
@@ -27,9 +50,9 @@ frappe.ui.form.on('Lead', {
 				"Prospect"
 			)
 		).message.name;
-		let fields=[]
+		let fields = [];
 		if (!existing_prospect) {
-			 fields = [
+			fields = [
 				{
 					label: "Create Prospect",
 					fieldname: "create_prospect",
@@ -99,9 +122,9 @@ frappe.ui.form.on('Lead', {
 			});
 		}
 	},
-	custom_company_name:function(frm){
-		if (frm.doc.custom_company_name){
-			cur_frm.set_value("company_name",cur_frm.doc.custom_company_name)
+	custom_company_name: function (frm) {
+		if (frm.doc.custom_company_name) {
+			cur_frm.set_value("company_name", cur_frm.doc.custom_company_name);
 		}
-	}
+	},
 });
