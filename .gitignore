@@ -7,4 +7,3 @@ suntek_app/docs/current
 node_modules/
 .pytest_cache
 .vscode/
-.pyrightconfig.json
