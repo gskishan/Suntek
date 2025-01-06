@@ -5,18 +5,15 @@ import frappe
 from frappe.model.mapper import get_mapped_doc
 
 
-def change_enquiry_status(doc, method):
+def change_enquiry_status(doc):
     duplicate_check(doc)
-    if doc.custom_enquiry_status:
-        # doc.status = doc.custom_enquiry_status
-        pass
     if not validate_mobile_number(doc.mobile_no):
         frappe.throw(
-            "Invalid mobile number! Please enter a 10-digit number starting with 6, 7, 8, or 9, optionally prefixed by +91 or +91-."
+            "Invalid mobile number! Please enter a 10-digit number starting with 6, 7, 8, or 9, optionally prefixed by +91 or +91-.",
         )
 
 
-def set_enquiry_name(doc, method):
+def set_enquiry_name(doc):
     if doc.name:
         doc.custom_enquiry_name = doc.name
 
@@ -97,16 +94,12 @@ def _set_missing_values(source, target):
 
 def duplicate_check(doc):
     mobile_no = str(doc.mobile_no)  # Ensure mobile_no is a string
-    sql = """select * from `tabLead` where mobile_no="{0}" and name!="{1}" """.format(
-        mobile_no, doc.name
-    )
+    sql = """select * from `tabLead` where mobile_no="{0}" and name!="{1}" """.format(mobile_no, doc.name)
     data = frappe.db.sql(sql, as_dict=True)
     if data:
         frappe.errprint(data)
         frappe.throw(
-            "Duplicate mobile no {} already linked to <b>{}</b> ".format(
-                mobile_no, data[0].custom_enquiry_owner_name
-            )
+            "Duplicate mobile no {} already linked to <b>{}</b> ".format(mobile_no, data[0].custom_enquiry_owner_name),
         )
 
 
@@ -150,14 +143,10 @@ def create_lead_from_neodove_dispose():
 
         mobile_no = neodove_data.get("mobile")
         lead_owner = neodove_data.get("agent_email")
-        first_name, middle_name, last_name = extract_first_and_last_name(
-            neodove_data.get("name")
-        )
+        first_name, middle_name, last_name = extract_first_and_last_name(neodove_data.get("name"))
 
         # Check if lead exists with this mobile number
-        existing_lead = frappe.get_list(
-            "Lead", filters={"mobile_no": mobile_no}, fields=["name"], limit=1
-        )
+        existing_lead = frappe.get_list("Lead", filters={"mobile_no": mobile_no}, fields=["name"], limit=1)
 
         if existing_lead:
             # Update existing lead

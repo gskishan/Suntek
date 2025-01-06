@@ -1,0 +1,149 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2024-04-03 12:56:57.664854",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_info",
+  "naming_series",
+  "ambassador_name",
+  "ambassador_mobile_number",
+  "email_id",
+  "gender",
+  "state",
+  "column_break_uvsbh",
+  "district",
+  "aadhaar_card_upload",
+  "pan_card_upload",
+  "type_of_account",
+  "bank_account_detail_section",
+  "bank_name",
+  "bank_account_number",
+  "column_break_h76eu",
+  "ifsc_code",
+  "passbook_or_bank_statement"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_info",
+   "fieldtype": "Section Break",
+   "options": "fa fa-user"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "AMBS-.YYYY.-"
+  },
+  {
+   "fieldname": "ambassador_name",
+   "fieldtype": "Data",
+   "label": "Ambassador Name"
+  },
+  {
+   "fieldname": "ambassador_mobile_number",
+   "fieldtype": "Data",
+   "label": "Ambassador Mobile Number"
+  },
+  {
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "label": "Email ID"
+  },
+  {
+   "fieldname": "gender",
+   "fieldtype": "Link",
+   "label": "Gender",
+   "options": "Gender"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Autocomplete",
+   "label": " State"
+  },
+  {
+   "fieldname": "column_break_uvsbh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "district",
+   "fieldtype": "Data",
+   "label": "District"
+  },
+  {
+   "fieldname": "aadhaar_card_upload",
+   "fieldtype": "Attach",
+   "label": "Aadhaar Card (Upload)"
+  },
+  {
+   "fieldname": "pan_card_upload",
+   "fieldtype": "Attach",
+   "label": "PAN Card (Upload)"
+  },
+  {
+   "fieldname": "type_of_account",
+   "fieldtype": "Select",
+   "label": "Type of Account",
+   "options": "\nRedem\nDonate"
+  },
+  {
+   "fieldname": "bank_account_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Bank Account Detail"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank Name"
+  },
+  {
+   "fieldname": "bank_account_number",
+   "fieldtype": "Data",
+   "label": "Bank Account Number"
+  },
+  {
+   "fieldname": "column_break_h76eu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ifsc_code",
+   "fieldtype": "Data",
+   "label": "IFSC Code"
+  },
+  {
+   "fieldname": "passbook_or_bank_statement",
+   "fieldtype": "Attach",
+   "label": "Passbook or Bank statement "
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-01-03 17:36:42.287147",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "Ambassador",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
