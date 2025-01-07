@@ -1,0 +1,61 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-12-13 16:39:47.155843",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "organization_name",
+  "joining_date",
+  "completion__exit_date",
+  "key_learning",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "organization_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Organization Name"
+  },
+  {
+   "fieldname": "joining_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Joining Date"
+  },
+  {
+   "fieldname": "completion__exit_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Completion / Exit Date"
+  },
+  {
+   "fieldname": "key_learning",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Key Learning"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Amended From",
+   "options": "Internships",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-01-07 11:05:28.502299",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "Internships",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
