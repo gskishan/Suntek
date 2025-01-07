@@ -1,3 +1,4 @@
+from typing import Dict, List
 import frappe
 
 from suntek_app.suntek.utils.validation_utils import convert_date_format, extract_first_and_last_name
@@ -16,6 +17,15 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
     first_name, middle_name, last_name = extract_first_and_last_name(neodove_data.get("name"))
     contact_list_name = get_contact_list_name(neodove_data)
     executive_name = get_executive_name(neodove_data.get("customer_detail_form_response", []))
+    custom_capacity = ""
+    custom_uom = ""
+    form_response: List[Dict] = neodove_data.get("customer_detail_form_response")
+
+    for item in form_response:
+        if item["question_text"] == "Capacity":
+            custom_capacity = item["answer"]
+        if item["question_text"] == "UOM":
+            custom_uom = item["answer"]
 
     lead.update(
         {
@@ -27,6 +37,8 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
             "custom_neodove_lead_stage": lead_stage,
             "custom_executive_name": executive_name or "",
             "mobile_no": neodove_data.get("mobile"),
+            "custom_capacity": custom_capacity,
+            "custom_uom": custom_uom,
         }
     )
 

@@ -1,4 +1,5 @@
 import json
+from typing import Dict, List
 
 import frappe
 from frappe.model.mapper import get_mapped_doc
