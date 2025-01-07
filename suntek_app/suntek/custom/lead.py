@@ -4,12 +4,7 @@ import frappe
 from frappe.model.mapper import get_mapped_doc
 
 from suntek_app.suntek.custom.solar_power_plants import validate_mobile_number
-from suntek_app.suntek.utils.lead_utils import (
-    add_dispose_remarks,
-    get_or_create_lead,
-    process_other_properties,
-    update_lead_basic_info,
-)
+from suntek_app.suntek.utils.lead_utils import add_dispose_remarks, get_or_create_lead, process_other_properties, update_lead_basic_info
 from suntek_app.suntek.utils.neodove_handlers import process_call_recordings
 
 

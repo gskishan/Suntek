@@ -1,10 +1,7 @@
 import frappe
 
-
 from suntek_app.suntek.utils.validation_utils import (
-    convert_date_format,
-    extract_first_and_last_name,
-)
+    convert_date_format, extract_first_and_last_name)
 
 
 def get_or_create_lead(mobile_no):

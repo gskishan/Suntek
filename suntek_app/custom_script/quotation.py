@@ -13,7 +13,8 @@ class CustomQuotation(Quotation):
         if self.items:
             self.with_items = 1
 
-        from erpnext.stock.doctype.packed_item.packed_item import make_packing_list
+        from erpnext.stock.doctype.packed_item.packed_item import \
+            make_packing_list
 
         make_packing_list(self)
 
