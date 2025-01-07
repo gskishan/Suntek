@@ -24,6 +24,7 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
     custom_capacity = ""
     custom_uom = ""
     form_response: List[Dict] = neodove_data.get("customer_detail_form_response")
+    neodove_campaign = neodove_data.get("campaign_name")
 
     for item in form_response:
         if item["question_text"] == "Capacity":
@@ -43,6 +44,7 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
             "mobile_no": neodove_data.get("mobile"),
             "custom_capacity": custom_capacity,
             "custom_uom": custom_uom,
+            "custom_neodove_campaign_name": neodove_campaign,
         }
     )
 
@@ -102,7 +104,7 @@ def process_other_properties(lead, other_properties):
 # Add this function to lead_utils.py
 def get_contact_list_name(data):
     if data.get("other_properties") and len(data["other_properties"]) > 0:
-        return data["other_properties"][0].get("contact_list_name")
+        return data["other_properties"][-1].get("contact_list_name")
     return ""
 
 

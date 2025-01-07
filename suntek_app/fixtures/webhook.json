@@ -45,5 +45,69 @@
   ],
   "webhook_json": null,
   "webhook_secret": null
+ },
+ {
+  "background_jobs_queue": null,
+  "condition": "doc.status != \"Neodove\"",
+  "docstatus": 0,
+  "doctype": "Webhook",
+  "enable_security": 0,
+  "enabled": 0,
+  "is_dynamic_url": 0,
+  "meets_condition": "Select a document to check if it meets conditions.",
+  "modified": "2025-01-07 17:10:44.327971",
+  "name": "Push new leads to Neodove",
+  "preview_document": null,
+  "preview_request_body": "Select a document to preview request data",
+  "request_method": "POST",
+  "request_structure": "JSON",
+  "request_url": "https://webhook.site/923a9713-ed9a-47d8-bace-12331d50ea33",
+  "timeout": 5,
+  "webhook_data": [],
+  "webhook_docevent": "after_insert",
+  "webhook_doctype": "Lead",
+  "webhook_headers": [
+   {
+    "key": "Content-Type",
+    "parent": "Push new leads to Neodove",
+    "parentfield": "webhook_headers",
+    "parenttype": "Webhook",
+    "value": "application/json"
+   }
+  ],
+  "webhook_json": "{\n    \"id\": \"{{ doc.name }}\",\n    \"name\": \"{{ doc.lead_name }}\",\n    \"source\": \"{{ doc.source }}\",\n    \"status\": \"{{ doc.status }}\",\n    \"department\": \"{{ doc.custom_department }}\",\n    \"enquiry_status\": \"{{ doc.custom_enquiry_status }}\",\n    \"customer_category\": \"{{ doc.custom_customer_category }}\",\n    \"mobile_no\": \"{{ doc.mobile_no }}\",\n    \"phone\": \"{{ doc.phone }}\",\n    \"request_type\": \"{{ doc.request_type }}\",\n    \"capacity\": \"{{ doc.custom_capacity }}\",\n    \"uom\": \"{{ doc.custom_uom }}\"\n}",
+  "webhook_secret": null
+ },
+ {
+  "background_jobs_queue": null,
+  "condition": "doc.status != \"Neodove\"",
+  "docstatus": 0,
+  "doctype": "Webhook",
+  "enable_security": 0,
+  "enabled": 0,
+  "is_dynamic_url": 0,
+  "meets_condition": "Select a document to check if it meets conditions.",
+  "modified": "2025-01-07 17:13:11.719602",
+  "name": "Update leads in neodove (on_update)",
+  "preview_document": null,
+  "preview_request_body": "Select a document to preview request data",
+  "request_method": "POST",
+  "request_structure": "JSON",
+  "request_url": "https://webhook.site/923a9713-ed9a-47d8-bace-12331d50ea33",
+  "timeout": 5,
+  "webhook_data": [],
+  "webhook_docevent": "on_update",
+  "webhook_doctype": "Lead",
+  "webhook_headers": [
+   {
+    "key": "Content-Type",
+    "parent": "Update leads in neodove (on_update)",
+    "parentfield": "webhook_headers",
+    "parenttype": "Webhook",
+    "value": "application/json"
+   }
+  ],
+  "webhook_json": "{\n    \"id\": \"{{ doc.name }}\",\n    \"name\": \"{{ doc.first_name }} {{ doc.last_name }}\",\n    \"source\": \"{{ doc.source }}\",\n    \"status\": \"{{ doc.status }}\",\n    \"department\": \"{{ doc.custom_department }}\",\n    \"enquiry_status\": \"{{ doc.custom_enquiry_status }}\",\n    \"customer_category\": \"{{ doc.custom_customer_category }}\",\n    \"mobile_no\": \"{{ doc.mobile_no }}\",\n    \"phone\": \"{{ doc.phone }}\",\n    \"request_type\": \"{{ doc.request_type }}\",\n    \"capacity\": \"{{ doc.custom_capacity }}\",\n    \"uom\": \"{{ doc.custom_uom }}\"\n}",
+  "webhook_secret": null
  }
 ]
