@@ -5,7 +5,7 @@ import frappe
 from frappe.model.mapper import get_mapped_doc
 
 
-def change_enquiry_status(doc):
+def change_enquiry_status(doc, method):
     duplicate_check(doc)
     if not validate_mobile_number(doc.mobile_no):
         frappe.throw(
@@ -13,7 +13,7 @@ def change_enquiry_status(doc):
         )
 
 
-def set_enquiry_name(doc):
+def set_enquiry_name(doc, method):
     if doc.name:
         doc.custom_enquiry_name = doc.name
 
@@ -94,16 +94,12 @@ def _set_missing_values(source, target):
 
 def duplicate_check(doc):
     mobile_no = str(doc.mobile_no)  # Ensure mobile_no is a string
-    sql = """select * from `tabLead` where mobile_no="{0}" and name!="{1}" """.format(
-        mobile_no, doc.name
-    )
+    sql = """select * from `tabLead` where mobile_no="{0}" and name!="{1}" """.format(mobile_no, doc.name)
     data = frappe.db.sql(sql, as_dict=True)
     if data:
         frappe.errprint(data)
         frappe.throw(
-            "Duplicate mobile no {} already linked to <b>{}</b> ".format(
-                mobile_no, data[0].custom_enquiry_owner_name
-            ),
+            "Duplicate mobile no {} already linked to <b>{}</b> ".format(mobile_no, data[0].custom_enquiry_owner_name),
         )
 
 
@@ -135,96 +131,169 @@ def convert_date_format(date_str):
         return None
 
 
+def get_executive_name(customer_detail_form_response):
+    for response in customer_detail_form_response:
+        if response["question_text"] == "EXECUTIVE NAME":
+            return response["answer"]
+    return ""
+
+
+def get_contact_list_name(data):
+    if data.get("other_properties") and len(data["other_properties"]) > 0:
+        return data["other_properties"][0].get("contact_list_name")
+    return ""
+
+
 @frappe.whitelist()
 def create_lead_from_neodove_dispose():
-    return {"success": False, "message": "Not implemented yet"}
-
     try:
-        neodove_data = frappe.request.data
+        # Constants
+        DEFAULT_DEPARTMENT = "All Departments"
+        DEFAULT_SALUTATION = "Mx"
 
-        if isinstance(neodove_data, bytes):
-            neodove_data = json.loads(neodove_data.decode("utf-8"))
+        # Parse request data
+        neodove_data = parse_request_data(frappe.request.data)
 
+        # Extract essential data
         mobile_no = neodove_data.get("mobile")
         lead_owner = neodove_data.get("agent_email")
-        first_name, middle_name, last_name = extract_first_and_last_name(
-            neodove_data.get("name")
-        )
+        lead_stage = neodove_data.get("lead_stage_name")
 
-        # Check if lead exists with this mobile number
-        existing_lead = frappe.get_list(
-            "Lead", filters={"mobile_no": mobile_no}, fields=["name"], limit=1
-        )
-
-        if existing_lead:
-            # Update existing lead
-            lead = frappe.get_doc("Lead", existing_lead[0].name)
-        else:
-            # Create new lead
-            lead = frappe.new_doc("Lead")
-            lead.mobile_no = mobile_no
-
-        # Update common fields
-        lead.first_name = first_name
-        lead.middle_name = middle_name
-        lead.last_name = last_name
-        lead.lead_owner = lead_owner
-
-        # Process other properties
-        if neodove_data.get("other_properties"):
-            properties = neodove_data["other_properties"][0].get("properties", [])
-            for prop in properties:
-                name = prop.get("name", "").lower()
-                value = prop.get("value")
-
-                if name == "enquiry owner name":
-                    lead.custom_enquiry_owner_name = value
-                elif name == "enquiry date":
-                    formatted_date = convert_date_format(value)
-                    if formatted_date:
-                        lead.custom_enquiry_date = formatted_date
-                elif name == "location":
-                    lead.custom_location = value
-                elif name == "uom":
-                    lead.custom_uom = value
-                elif name == "customer category":
-                    lead.custom_customer_category = value
-                elif name == "source":
-                    lead.source = value
-                elif name == "capacity":
-                    lead.custom_capacity = value
-
-        # Handle dispose remarks
-        dispose_remarks = neodove_data.get("dispose_remarks")
-        if dispose_remarks and dispose_remarks.strip():
-            # Create a new row in custom_neodove_remarks table
-            lead.append(
-                "custom_neodove_remarks",
-                {
-                    "remarks": dispose_remarks,
-                    "date": frappe.utils.nowdate(),
-                    "time": frappe.utils.nowtime(),
-                    "agent": neodove_data.get("agent_name"),
-                },
-            )
-
-        # Validate mobile number
+        # Validate mobile number first
         if not validate_mobile_number(mobile_no):
-            frappe.throw(
-                "Invalid mobile number! Please enter a 10-digit number starting with 6, 7, 8, or 9, optionally prefixed by +91 or +91-.",
-            )
+            return {
+                "success": False,
+                "message": "Invalid mobile number! Please enter a 10-digit number starting with 6, 7, 8, or 9, optionally prefixed by +91 or +91-.",
+            }
 
-        if existing_lead:
-            lead.save(ignore_permissions=True)
-            message = "Lead updated successfully"
-        else:
-            lead.insert(ignore_permissions=True)
-            message = "Lead created successfully"
+        lead = get_or_create_lead(mobile_no)
 
+        update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage)
+
+        if neodove_data.get("call_recordings"):
+            process_call_recordings(lead, neodove_data["call_recordings"])
+        if neodove_data.get("other_properties"):
+            process_other_properties(lead, neodove_data["other_properties"])
+        if dispose_remarks := neodove_data.get("dispose_remarks", "").strip():
+            add_dispose_remarks(lead, dispose_remarks, neodove_data.get("agent_name"))
+        if not lead.get("name"):
+            lead.custom_department = DEFAULT_DEPARTMENT
+            lead.salutation = DEFAULT_SALUTATION
+
+        is_new = not bool(lead.get("name"))
+        lead.save(ignore_permissions=True)
         frappe.db.commit()
 
-        return {"success": True, "message": message, "lead_name": lead.name}
+        return {
+            "success": True,
+            "message": "Lead created successfully" if is_new else "Lead updated successfully",
+            "lead_name": lead.name,
+            "custom_executive_name": lead.custom_executive_name,
+        }
 
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Neodove Lead Creation/Update Error")
         return {"success": False, "message": str(e)}
+
+
+def parse_request_data(data):
+    """Parse request data from bytes to JSON if needed"""
+    if isinstance(data, bytes):
+        return json.loads(data.decode("utf-8"))
+    return data
+
+
+def get_or_create_lead(mobile_no):
+    """Get existing lead or create new one"""
+    existing_lead = frappe.get_list("Lead", filters={"mobile_no": mobile_no}, fields=["name"], limit=1)
+    if existing_lead:
+        return frappe.get_doc("Lead", existing_lead[0].name)
+    return frappe.new_doc("Lead")
+
+
+def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
+    """Update basic lead information"""
+    first_name, middle_name, last_name = extract_first_and_last_name(neodove_data.get("name"))
+    contact_list_name = get_contact_list_name(neodove_data)
+    executive_name = get_executive_name(neodove_data.get("customer_detail_form_response", []))
+
+    lead.update(
+        {
+            "first_name": first_name,
+            "middle_name": middle_name,
+            "last_name": last_name,
+            "lead_owner": lead_owner,
+            "custom_contact_list_name": contact_list_name,
+            "custom_neodove_lead_stage": lead_stage,
+            "custom_executive_name": executive_name or "",
+            "mobile_no": neodove_data.get("mobile"),
+        }
+    )
+
+
+def process_call_recordings(lead, recordings):
+    """Process and add call recordings"""
+    for recording in recordings:
+        if not (recording.get("call_duration_in_sec") and recording.get("recording_url")):
+            continue
+
+        if not frappe.get_list("Neodove Call Recordings", filters={"recording_url": recording["recording_url"]}, limit=1):
+            lead.append(
+                "custom_call_recordings",
+                {
+                    "call_duration_in_sec": recording["call_duration_in_sec"],
+                    "recording_url": recording["recording_url"],
+                },
+            )
+
+
+def add_dispose_remarks(lead, remarks, agent_name):
+    """Add dispose remarks to lead"""
+    lead.append(
+        "custom_neodove_remarks",
+        {
+            "remarks": remarks,
+            "date": frappe.utils.nowdate(),
+            "time": frappe.utils.nowtime(),
+            "updated_on": frappe.utils.now_datetime(),
+            "agent": agent_name,
+        },
+    )
+
+
+def process_other_properties(lead, other_properties):
+    """Process and update other properties from Neodove data"""
+    if not other_properties or not isinstance(other_properties, list):
+        return
+
+    first_property = other_properties[0]
+    if not first_property or not isinstance(first_property, dict):
+        return
+
+    properties = first_property.get("properties", [])
+    if not properties:
+        return
+
+    # Map property names to lead fields
+    property_mapping = {
+        "ID": "custom_neodove_id",
+        "Enquiry Owner Name": "custom_enquiry_owner_name",
+        "Enquiry Date": "custom_enquiry_date",
+        "Source": "source",
+        "Location": "custom_location",
+        "UOM": "custom_uom",
+        "Capacity": "custom_capacity",
+    }
+
+    for prop in properties:
+        field_name = property_mapping.get(prop.get("name"))
+        if field_name:
+            value = prop.get("value")
+
+            # Special handling for Enquiry Date
+            if prop.get("name") == "Enquiry Date":
+                value = convert_date_format(value)
+
+            # Update the lead field if we have a value
+            if value:
+                lead.set(field_name, value)
