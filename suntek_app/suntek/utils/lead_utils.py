@@ -1,6 +1,6 @@
 import frappe
 
-from suntek_app.suntek.custom.lead import get_contact_list_name, get_executive_name
+
 from suntek_app.suntek.utils.validation_utils import (
     convert_date_format,
     extract_first_and_last_name,
@@ -87,3 +87,15 @@ def process_other_properties(lead, other_properties):
                 lead.set(field_name, value)
 
 
+# Add this function to lead_utils.py
+def get_contact_list_name(data):
+    if data.get("other_properties") and len(data["other_properties"]) > 0:
+        return data["other_properties"][0].get("contact_list_name")
+    return ""
+
+
+def get_executive_name(customer_detail_form_response):
+    for response in customer_detail_form_response:
+        if response["question_text"] == "EXECUTIVE NAME":
+            return response["answer"]
+    return ""
