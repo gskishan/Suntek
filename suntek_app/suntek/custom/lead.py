@@ -158,6 +158,7 @@ def create_lead_from_neodove_dispose():
             neodove_data = json.loads(neodove_data.decode("utf-8"))
 
         custom_executive_name = None
+        call_recordings = []
 
         mobile_no = neodove_data.get("mobile")
         lead_owner = neodove_data.get("agent_email")
@@ -186,6 +187,48 @@ def create_lead_from_neodove_dispose():
         lead.lead_owner = lead_owner
         lead.custom_contact_list_name = contact_list_name
         lead.custom_neodove_lead_stage = custom_neodove_lead_stage
+
+        # if neodove_data.get("call_recordings"):
+        #     call_recordings = neodove_data.get("call_recordings")
+
+        #     for recording in call_recordings:
+        #         lead.append(
+        #             "custom_call_recordings",
+        #             {
+        #                 "call_duration_in_sec": recording.get("call_duration_in_sec"),
+        #                 "recording_url": recording.get("recording_url"),
+        #                 "enquiry": lead.name,
+        #             },
+        #         )
+
+        if neodove_data.get("call_recordings"):
+            call_recordings = neodove_data.get("call_recordings")
+
+            for recording in call_recordings:
+                if not recording.get("call_duration_in_sec") or not recording.get("recording_url"):
+                    continue
+
+                existing_recording = False
+
+                if recording.get("recording_url"):
+                    existing_recording = frappe.get_list(
+                        "Neodove Call Recordings",
+                        filters={"recording_url": recording.get("recording_url")},
+                        fields=["name"],
+                        limit=1,
+                    )
+
+                if existing_recording:
+                    continue
+
+                lead.append(
+                    "custom_call_recordings",
+                    {
+                        "call_duration_in_sec": recording.get("call_duration_in_sec"),
+                        "recording_url": recording.get("recording_url"),
+                        "enquiry": lead.name,
+                    },
+                )
 
         if custom_executive_name is None:
             custom_executive_name = ""

@@ -1,0 +1,52 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-01-07 12:13:41.064579",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "neodove_call_recording_section",
+  "call_duration_in_sec",
+  "recording_url",
+  "enquiry"
+ ],
+ "fields": [
+  {
+   "fieldname": "neodove_call_recording_section",
+   "fieldtype": "Section Break",
+   "label": "Neodove Call Recording"
+  },
+  {
+   "fieldname": "call_duration_in_sec",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Call Duration (in sec)"
+  },
+  {
+   "fieldname": "recording_url",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Recording URL"
+  },
+  {
+   "fieldname": "enquiry",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Enquiry",
+   "options": "Lead"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-01-07 12:18:26.793368",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "Neodove Call Recordings",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
