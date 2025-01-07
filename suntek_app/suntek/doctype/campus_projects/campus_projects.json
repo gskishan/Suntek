@@ -1,36 +1,42 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2025-01-03 10:42:58.967266",
+ "creation": "2024-12-08 23:49:45.738928",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "remarks",
-  "updated_on"
+  "project_name",
+  "description",
+  "technologies_used"
  ],
  "fields": [
   {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Remarks"
+   "label": "Project Name"
   },
   {
-   "fieldname": "updated_on",
-   "fieldtype": "Datetime",
+   "fieldname": "description",
+   "fieldtype": "Small Text",
    "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Updated on"
+   "label": "Description"
+  },
+  {
+   "fieldname": "technologies_used",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Technologies Used"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-01-07 12:10:36.519388",
+ "modified": "2025-01-07 11:04:24.159933",
  "modified_by": "Administrator",
  "module": "suntek",
- "name": "Neodove Dispose Remarks",
+ "name": "Campus Projects",
  "owner": "Administrator",
  "permissions": [],
  "sort_field": "modified",

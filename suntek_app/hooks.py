@@ -139,7 +139,7 @@ override_doctype_class = {
 doc_events = {
     "Lead": {
         "validate": [
-            "suntek_app.suntek.custom.lead.change_enquiry_status",
+            # "suntek_app.suntek.custom.lead.change_enquiry_status",
             "suntek_app.suntek.custom.lead.set_enquiry_name",
         ]
     },
@@ -171,9 +171,7 @@ doc_events = {
         "on_cancel": "suntek_app.suntek.custom.stock_entry.on_cancel",
     },
     "Solar Power Plants": {
-        "validate": [
-            "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status"
-        ],
+        "validate": ["suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status"],
         "before_save": [
             "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status",
             "suntek_app.suntek.custom.solar_power_plants.check_customer_mobile_number",

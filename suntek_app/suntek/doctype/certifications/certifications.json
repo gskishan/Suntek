@@ -1,0 +1,46 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-12-08 22:50:26.144651",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "certification_name",
+  "institution",
+  "completion_year"
+ ],
+ "fields": [
+  {
+   "fieldname": "certification_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Certification Name"
+  },
+  {
+   "fieldname": "institution",
+   "fieldtype": "Data",
+   "label": "Institution"
+  },
+  {
+   "fieldname": "completion_year",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Completion Year",
+   "non_negative": 1,
+   "precision": "0"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-01-07 11:02:53.255273",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "Certifications",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

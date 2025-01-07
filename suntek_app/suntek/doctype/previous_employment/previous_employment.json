@@ -1,0 +1,68 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-12-08 23:09:55.113660",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company_name",
+  "designation",
+  "joining_date",
+  "releiving_date",
+  "ctc_per_annum",
+  "key_responsibility"
+ ],
+ "fields": [
+  {
+   "fieldname": "company_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Company Name"
+  },
+  {
+   "fieldname": "designation",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Designation"
+  },
+  {
+   "fieldname": "joining_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Joining Date"
+  },
+  {
+   "fieldname": "releiving_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Releiving Date"
+  },
+  {
+   "fieldname": "ctc_per_annum",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "CTC per Annum",
+   "non_negative": 1,
+   "precision": "0"
+  },
+  {
+   "fieldname": "key_responsibility",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Key Responsibility"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-01-07 11:05:06.016702",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "Previous Employment",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
