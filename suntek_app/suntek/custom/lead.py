@@ -5,7 +5,6 @@ from frappe.model.mapper import get_mapped_doc
 
 from suntek_app.suntek.custom.solar_power_plants import validate_mobile_number
 from suntek_app.suntek.utils.lead_utils import add_dispose_remarks, get_or_create_lead, process_other_properties, update_lead_basic_info
-from suntek_app.suntek.utils.neodove_handlers import process_call_recordings
 
 
 def change_enquiry_status(doc, method):
@@ -98,11 +97,11 @@ def duplicate_check(doc):
 
 @frappe.whitelist()
 def create_lead_from_neodove_dispose():
-
     try:
         # Constants
         DEFAULT_DEPARTMENT = "All Departments"
         DEFAULT_SALUTATION = "Mx"
+        DEFAULT_SOURCE = "Neodove"
 
         # Parse request data
         neodove_data = parse_request_data(frappe.request.data)
@@ -119,21 +118,33 @@ def create_lead_from_neodove_dispose():
                 "message": "Invalid mobile number! Please enter a 10-digit number starting with 6, 7, 8, or 9, optionally prefixed by +91 or +91-.",
             }
 
+        # Get or create lead
         lead = get_or_create_lead(mobile_no)
+        is_new = not bool(lead.get("name"))
 
-        update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage)
-
-        if neodove_data.get("call_recordings"):
-            process_call_recordings(lead, neodove_data["call_recordings"])
-        if neodove_data.get("other_properties"):
-            process_other_properties(lead, neodove_data["other_properties"])
-        if dispose_remarks := neodove_data.get("dispose_remarks", "").strip():
-            add_dispose_remarks(lead, dispose_remarks, neodove_data.get("agent_name"))
-        if not lead.get("name"):
+        # Prepare all updates before saving
+        if is_new:
             lead.custom_department = DEFAULT_DEPARTMENT
             lead.salutation = DEFAULT_SALUTATION
+            lead.source = DEFAULT_SOURCE
 
-        is_new = not bool(lead.get("name"))
+        # Update basic info
+        update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage)
+
+        # Process recordings before saving
+        if neodove_data.get("call_recordings"):
+            _prepare_recordings(lead, neodove_data["call_recordings"])
+
+        # Process other properties
+        if neodove_data.get("other_properties"):
+            process_other_properties(lead, neodove_data["other_properties"])
+
+        # Add dispose remarks
+        if dispose_remarks := neodove_data.get("dispose_remarks", "").strip():
+            add_dispose_remarks(lead, dispose_remarks, neodove_data.get("agent_name"))
+
+        # Save everything in one go
+        lead.flags.ignore_validate_update_after_submit = True
         lead.save(ignore_permissions=True)
         frappe.db.commit()
 
@@ -147,6 +158,33 @@ def create_lead_from_neodove_dispose():
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Neodove Lead Creation/Update Error")
         return {"success": False, "message": str(e)}
+
+
+def _prepare_recordings(lead, recordings):
+    """Prepare recordings to be added to lead without saving"""
+    if not recordings:
+        return
+
+    existing_urls = set()
+    if lead.get("custom_call_recordings"):
+        existing_urls = {rec.recording_url for rec in lead.custom_call_recordings}
+
+    for recording in recordings:
+        if not recording.get("recording_url") or recording["recording_url"] in existing_urls:
+            continue
+
+        lead.append(
+            "custom_call_recordings",
+            {
+                "doctype": "Neodove Call Recordings",
+                "call_duration_in_sec": recording.get("call_duration_in_sec") or 0,
+                "recording_url": recording["recording_url"],
+                "enquiry": lead.name if lead.name else None,
+                "parenttype": "Lead",
+                "parentfield": "custom_call_recordings",
+                "parent": lead.name if lead.name else None,
+            },
+        )
 
 
 def parse_request_data(data):
