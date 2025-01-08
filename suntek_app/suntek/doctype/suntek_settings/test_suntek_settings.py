@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestNeodoveCallRecordings(FrappeTestCase):
-    pass
+class TestSuntekSettings(FrappeTestCase):
+	pass

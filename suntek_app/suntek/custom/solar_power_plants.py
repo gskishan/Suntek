@@ -79,8 +79,16 @@ def create_power_plants(plants: List[Dict]):
 
         if frappe.db.exists("Solar Power Plants", {"plant_id": plant_id}):
             # Get existing plant details
-            existing_plant = frappe.get_doc("Solar Power Plants", {"plant_id": plant_id})
-            response["existing"].append({"plant_id": plant_id, "plant_name": existing_plant.plant_name, "oem": existing_plant.oem})
+            existing_plant = frappe.get_doc(
+                "Solar Power Plants", {"plant_id": plant_id}
+            )
+            response["existing"].append(
+                {
+                    "plant_id": plant_id,
+                    "plant_name": existing_plant.plant_name,
+                    "oem": existing_plant.oem,
+                }
+            )
         else:
             try:
                 # Create new plant
@@ -90,7 +98,13 @@ def create_power_plants(plants: List[Dict]):
                 plant.oem = plant_data.get("oem")
                 plant.insert()
 
-                response["created"].append({"plant_id": plant_id, "plant_name": plant.plant_name, "oem": plant.oem})
+                response["created"].append(
+                    {
+                        "plant_id": plant_id,
+                        "plant_name": plant.plant_name,
+                        "oem": plant.oem,
+                    }
+                )
             except Exception as e:
                 frappe.log_error(f"Error creating plant {plant_id}: {str(e)}")
                 continue

@@ -139,9 +139,10 @@ override_doctype_class = {
 doc_events = {
     "Lead": {
         "validate": [
-            # "suntek_app.suntek.custom.lead.change_enquiry_status",
+            "suntek_app.suntek.custom.lead.change_enquiry_status",
             "suntek_app.suntek.custom.lead.set_enquiry_name",
-        ]
+        ],
+        # "before_save": ["suntek_app.suntek.custom.lead.set_assigned_to"],
     },
     "Opportunity": {
         "validate": [
@@ -152,7 +153,7 @@ doc_events = {
     },
     "Sales Order": {
         "on_submit": "suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit",
-        # "validate":"suntek_app.suntek.custom.sales_order.validate"
+        # "validate": "suntek_app.suntek.custom.sales_order.validate",
     },
     "Project": {
         "on_update": "suntek_app.suntek.custom.project.on_update",

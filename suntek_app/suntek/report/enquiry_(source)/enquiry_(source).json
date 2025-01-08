@@ -1,0 +1,67 @@
+{
+	"add_total_row": 1,
+	"columns": [],
+	"creation": "2025-01-08 13:56:25.388448",
+	"disabled": 0,
+	"docstatus": 0,
+	"doctype": "Report",
+	"filters": [],
+	"idx": 0,
+	"is_standard": "Yes",
+	"letterhead": null,
+	"modified": "2025-01-08 13:58:12.458956",
+	"modified_by": "Administrator",
+	"description": "This report shows lead generation data from various sources with UOM-wise breakdowns. It displays total leads, capacities, and conversion rates across different units of measurement (UOM). Filters allow for date range, department, source, and status-based analysis.",
+	"module": "suntek",
+	"name": "Enquiry (Source)",
+	"owner": "Administrator",
+	"prepared_report": 0,
+	"ref_doctype": "Lead",
+	"report_name": "Enquiry (Source)",
+	"report_type": "Script Report",
+	"roles": [
+		{
+			"role": "System Manager"
+		},
+		{
+			"role": "Enquiry User"
+		},
+		{
+			"role": "Support Team"
+		},
+		{
+			"role": "Projects Manager"
+		},
+		{
+			"role": "Field Sales User"
+		},
+		{
+			"role": "Designing User"
+		},
+		{
+			"role": "Employee Self Service"
+		},
+		{
+			"role": "Sales Manager"
+		},
+		{
+			"role": "State Head"
+		},
+		{
+			"role": "Tele-Calling User"
+		},
+		{
+			"role": "CRM Viewer"
+		},
+		{
+			"role": "Sales User"
+		},
+		{
+			"role": "Sales Viewer"
+		},
+		{
+			"role": "Enquiry Manager (Tele-Calling)"
+		}
+	],
+	"timeout": 0
+}

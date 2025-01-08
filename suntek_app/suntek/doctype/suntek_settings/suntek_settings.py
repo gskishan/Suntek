@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class CampusProjects(Document):
-    pass
+class SuntekSettings(Document):
+	pass
