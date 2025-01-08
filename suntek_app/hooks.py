@@ -141,7 +141,8 @@ doc_events = {
         "validate": [
             "suntek_app.suntek.custom.lead.change_enquiry_status",
             "suntek_app.suntek.custom.lead.set_enquiry_name",
-        ]
+        ],
+        # "before_save": ["suntek_app.suntek.custom.lead.set_assigned_to"],
     },
     "Opportunity": {
         "validate": [

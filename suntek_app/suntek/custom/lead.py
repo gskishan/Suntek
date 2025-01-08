@@ -1,15 +1,11 @@
 import json
 
 import frappe
+import werkzeug.wrappers
 from frappe.model.mapper import get_mapped_doc
 
 from suntek_app.suntek.custom.solar_power_plants import validate_mobile_number
-from suntek_app.suntek.utils.lead_utils import (
-    add_dispose_remarks,
-    get_or_create_lead,
-    process_other_properties,
-    update_lead_basic_info,
-)
+from suntek_app.suntek.utils.lead_utils import add_dispose_remarks, get_or_create_lead, process_other_properties, update_lead_basic_info
 
 
 def change_enquiry_status(doc, method):
@@ -105,7 +101,7 @@ def create_lead_from_neodove_dispose():
     try:
         # Constants
         DEFAULT_DEPARTMENT = "All Departments"
-        DEFAULT_SALUTATION = "Mx"
+        DEFAULT_SALUTATION = ""
         DEFAULT_SOURCE = "Neodove"
 
         # Parse request data
@@ -190,6 +186,22 @@ def _prepare_recordings(lead, recordings):
                 "parent": lead.name if lead.name else None,
             },
         )
+
+
+@frappe.whitelist(allow_guest=True)
+def create_lead_from_facebook():
+    print("#########")
+    print(parse_request_data(frappe.request.data))
+    print("#########")
+
+    local_verify_token = frappe.get_doc("Suntek Settings").facebook_verify_token
+
+    if frappe.request.args.get("hub.verify_token") == local_verify_token:
+        challenge = frappe.request.args.get("hub.challenge")
+        response = werkzeug.wrappers.Response()
+        response.mimetype = "text/plain"
+        response.response = challenge
+        return response
 
 
 def parse_request_data(data):
