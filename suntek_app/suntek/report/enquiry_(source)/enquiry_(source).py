@@ -18,8 +18,8 @@ def execute(filters=None):
     # Define columns for the report
     columns = [
         {"fieldname": "source", "label": _("Source"), "fieldtype": "Data", "width": 180},
-        {"fieldname": "total_leads", "label": _("Total Leads"), "fieldtype": "Int", "width": 150},
-        {"fieldname": "total_capacity", "label": _("Total Capacity"), "fieldtype": "Float", "width": 170},
+        {"fieldname": "total_leads", "label": _("Total Leads"), "fieldtype": "Int", "width": 100},
+        {"fieldname": "total_capacity", "label": _("Overall Capacity"), "fieldtype": "Float", "width": 170},
     ]
 
     # Add UOM specific columns

@@ -11,6 +11,7 @@
 	"letterhead": null,
 	"modified": "2025-01-08 13:58:12.458956",
 	"modified_by": "Administrator",
+	"description": "This report shows lead generation data from various sources with UOM-wise breakdowns. It displays total leads, capacities, and conversion rates across different units of measurement (UOM). Filters allow for date range, department, source, and status-based analysis.",
 	"module": "suntek",
 	"name": "Enquiry (Source)",
 	"owner": "Administrator",

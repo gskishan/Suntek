@@ -109,5 +109,37 @@
   ],
   "webhook_json": "{\n    \"id\": \"{{ doc.name }}\",\n    \"name\": \"{{ doc.first_name }} {{ doc.last_name }}\",\n    \"source\": \"{{ doc.source }}\",\n    \"status\": \"{{ doc.status }}\",\n    \"department\": \"{{ doc.custom_department }}\",\n    \"enquiry_status\": \"{{ doc.custom_enquiry_status }}\",\n    \"customer_category\": \"{{ doc.custom_customer_category }}\",\n    \"mobile_no\": \"{{ doc.mobile_no }}\",\n    \"phone\": \"{{ doc.phone }}\",\n    \"request_type\": \"{{ doc.request_type }}\",\n    \"capacity\": \"{{ doc.custom_capacity }}\",\n    \"uom\": \"{{ doc.custom_uom }}\"\n}",
   "webhook_secret": null
+ },
+ {
+  "background_jobs_queue": null,
+  "condition": "",
+  "docstatus": 0,
+  "doctype": "Webhook",
+  "enable_security": 0,
+  "enabled": 1,
+  "is_dynamic_url": 0,
+  "meets_condition": "Yes",
+  "modified": "2025-01-07 17:51:08.241053",
+  "name": "Solar Power Plant Customer Update (JSON)",
+  "preview_document": null,
+  "preview_request_body": "Select a document to preview request data",
+  "request_method": "POST",
+  "request_structure": "JSON",
+  "request_url": "https://devapi.sunteksolar.in/power-plant/webhook/assign-plants/",
+  "timeout": 5,
+  "webhook_data": [],
+  "webhook_docevent": "on_update",
+  "webhook_doctype": "Solar Power Plants",
+  "webhook_headers": [
+   {
+    "key": "Content-Type",
+    "parent": "Solar Power Plant Customer Update (JSON)",
+    "parentfield": "webhook_headers",
+    "parenttype": "Webhook",
+    "value": "application/json"
+   }
+  ],
+  "webhook_json": "{\n    \"plant_id\": \"{{ doc.plant_id }}\",\n    \"plant_name\": \"{{ doc.plant_name }}\",\n    \"customer\": \"{{ doc.customer }}\",\n    \"customer_email\": \"{{ doc.customer_email }}\",\n    \"customer_mobile\": \"{{ doc.customer_mobile }}\"\n}",
+  "webhook_secret": "********************"
  }
 ]
