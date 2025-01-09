@@ -5,10 +5,33 @@ import werkzeug.wrappers
 from frappe.model.mapper import get_mapped_doc
 
 from suntek_app.suntek.custom.solar_power_plants import validate_mobile_number
-from suntek_app.suntek.utils.lead_utils import add_dispose_remarks, get_or_create_lead, process_other_properties, update_lead_basic_info
+from suntek_app.suntek.utils.lead_utils import (
+    add_dispose_remarks,
+    get_next_telecaller,
+    get_or_create_lead,
+    process_other_properties,
+    update_lead_basic_info,
+)
 
 
 def change_enquiry_status(doc, method):
+    if method == "validate" and doc.get_doc_before_save():
+        old_doc = doc.get_doc_before_save()
+        if doc.lead_owner != old_doc.lead_owner:
+            # Lead owner was manually changed
+            user = frappe.get_doc("User", doc.lead_owner)
+            doc.custom_enquiry_owner_name = user.full_name
+            doc.custom_allocated_by = "Manual"
+            return
+
+    if doc.custom_department and not doc.lead_owner:
+        next_telecaller = get_next_telecaller(doc.custom_department)
+        if next_telecaller:
+            doc.lead_owner = next_telecaller
+            user = frappe.get_doc("User", next_telecaller)
+            doc.custom_enquiry_owner_name = user.full_name
+            doc.custom_allocated_by = "System"
+
     duplicate_check(doc)
     if not validate_mobile_number(doc.mobile_no):
         frappe.throw(

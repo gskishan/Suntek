@@ -16,7 +16,21 @@ frappe.ui.form.on("Lead", {
 		}
 	},
 
-	// Add these dependencies
+	source: function (frm) {
+		// Only set department automatically if it's not already set
+		if (frm.doc.source === "Digital Marketing" && !frm.doc.custom_department) {
+			frm.set_value("custom_department", "Telecalling - SESP");
+		}
+	},
+
+	setup: function (frm) {
+		if (frm.is_new()) {
+			if (frm.doc.source === "Digital Marketing" && !frm.doc.custom_department) {
+				frm.set_value("custom_department", "Telecalling - SESP");
+			}
+		}
+	},
+
 	organization_section: function (frm) {
 		let show_section =
 			frm.doc.custom_customer_category &&

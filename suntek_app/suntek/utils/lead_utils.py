@@ -1,9 +1,62 @@
 from typing import Dict, List
-
 import frappe
+from suntek_app.suntek.utils.validation_utils import convert_date_format, extract_first_and_last_name
 
-from suntek_app.suntek.utils.validation_utils import (
-    convert_date_format, extract_first_and_last_name)
+
+def get_next_telecaller(department=None):
+    """Get next telecaller in round-robin fashion, prioritizing department matches"""
+
+    if department:
+        telecallers = frappe.db.sql(
+            """
+            SELECT DISTINCT
+                tq.email,
+                tq.last_assigned
+            FROM 
+                `tabTelecaller Queue` tq
+            INNER JOIN 
+                `tabTelecaller Department` td ON td.parent = tq.name
+            WHERE 
+                tq.is_active = 1
+                AND td.department = %s
+            ORDER BY 
+                COALESCE(tq.last_assigned, '1900-01-01')
+            LIMIT 1
+        """,
+            (department,),
+            as_dict=1,
+        )
+
+        if telecallers:
+            next_telecaller = telecallers[0]
+            frappe.db.set_value("Telecaller Queue", {"email": next_telecaller.email}, "last_assigned", frappe.utils.now_datetime())
+            frappe.db.commit()
+            return next_telecaller.email
+
+    telecallers = frappe.db.sql(
+        """
+        SELECT DISTINCT
+            email,
+            last_assigned
+        FROM 
+            `tabTelecaller Queue`
+        WHERE 
+            is_active = 1
+        ORDER BY 
+            COALESCE(last_assigned, '1900-01-01')
+        LIMIT 1
+    """,
+        as_dict=1,
+    )
+
+    if not telecallers:
+        return None
+
+    next_telecaller = telecallers[0]
+    frappe.db.set_value("Telecaller Queue", {"email": next_telecaller.email}, "last_assigned", frappe.utils.now_datetime())
+    frappe.db.commit()
+
+    return next_telecaller.email
 
 
 def get_or_create_lead(mobile_no):
@@ -74,7 +127,6 @@ def process_other_properties(lead, other_properties):
     if not properties:
         return
 
-    # Map property names to lead fields
     property_mapping = {
         "ID": "custom_neodove_id",
         "Enquiry Owner Name": "custom_enquiry_owner_name",
@@ -90,16 +142,13 @@ def process_other_properties(lead, other_properties):
         if field_name:
             value = prop.get("value")
 
-            # Special handling for Enquiry Date
             if prop.get("name") == "Enquiry Date":
                 value = convert_date_format(value)
 
-            # Update the lead field if we have a value
             if value:
                 lead.set(field_name, value)
 
 
-# Add this function to lead_utils.py
 def get_contact_list_name(data):
     if data.get("other_properties") and len(data["other_properties"]) > 0:
         return data["other_properties"][-1].get("contact_list_name")
