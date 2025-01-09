@@ -6,7 +6,6 @@ from suntek_app.suntek.utils.validation_utils import convert_date_format, extrac
 def get_next_telecaller(department=None):
     """Get next telecaller in round-robin fashion, prioritizing department matches"""
 
-    # First try to get telecallers with matching department
     if department:
         telecallers = frappe.db.sql(
             """
@@ -34,7 +33,6 @@ def get_next_telecaller(department=None):
             frappe.db.commit()
             return next_telecaller.email
 
-    # If no department match found, get any active telecaller
     telecallers = frappe.db.sql(
         """
         SELECT DISTINCT

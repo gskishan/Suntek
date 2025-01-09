@@ -15,7 +15,6 @@ from suntek_app.suntek.utils.lead_utils import (
 
 
 def change_enquiry_status(doc, method):
-    # First check if lead_owner was manually set (comparing with old document)
     if method == "validate" and doc.get_doc_before_save():
         old_doc = doc.get_doc_before_save()
         if doc.lead_owner != old_doc.lead_owner:
@@ -23,23 +22,16 @@ def change_enquiry_status(doc, method):
             user = frappe.get_doc("User", doc.lead_owner)
             doc.custom_enquiry_owner_name = user.full_name
             doc.custom_allocated_by = "Manual"
-            return  # Skip auto-allocation if manually set
+            return
 
-    # First handle department setting for Digital Marketing
-    if doc.source == "Digital Marketing":
-        doc.custom_department = "Telecalling - SESP"
-
-    # Then handle telecaller allocation only if no lead_owner is set
     if doc.custom_department and not doc.lead_owner:
         next_telecaller = get_next_telecaller(doc.custom_department)
         if next_telecaller:
             doc.lead_owner = next_telecaller
-            # Get user's full name
             user = frappe.get_doc("User", next_telecaller)
             doc.custom_enquiry_owner_name = user.full_name
             doc.custom_allocated_by = "System"
 
-    # Continue with other validations
     duplicate_check(doc)
     if not validate_mobile_number(doc.mobile_no):
         frappe.throw(

@@ -31,7 +31,6 @@ frappe.ui.form.on("Lead", {
 		}
 	},
 
-	// Add these dependencies
 	organization_section: function (frm) {
 		let show_section =
 			frm.doc.custom_customer_category &&
