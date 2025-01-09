@@ -1,4 +1,10 @@
-frappe.query_reports["Enquiry (Source)"] = {
+// Copyright (c) 2025, kishan and contributors
+// For license information, please see license.txt
+
+// Copyright (c) 2025, kishan and contributors
+// For license information, please see license.txt
+
+frappe.query_reports["Enquiry (Reference)"] = {
 	filters: [
 		{
 			fieldname: "from_date",
@@ -21,10 +27,10 @@ frappe.query_reports["Enquiry (Source)"] = {
 			options: "Department",
 		},
 		{
-			fieldname: "source",
-			label: __("Source"),
-			fieldtype: "Link",
-			options: "Lead Source",
+			fieldname: "reference_by",
+			label: __("Reference By"),
+			fieldtype: "Select",
+			options: "\nEmployee\nCustomer",
 		},
 		{
 			fieldname: "status",

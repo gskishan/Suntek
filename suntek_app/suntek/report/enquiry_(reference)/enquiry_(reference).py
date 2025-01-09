@@ -1,3 +1,7 @@
+# Copyright (c) 2025, kishan and contributors
+# For license information, please see license.txt
+
+
 import frappe
 from frappe import _
 
@@ -17,7 +21,9 @@ def execute(filters=None):
 
     # Define columns for the report
     columns = [
-        {"fieldname": "source", "label": _("Source"), "fieldtype": "Data", "width": 180},
+        {"fieldname": "reference_by", "label": _("Reference By"), "fieldtype": "Data", "width": 120},
+        {"fieldname": "reference_name", "label": _("Reference Name"), "fieldtype": "Data", "width": 180},
+        {"fieldname": "reference_details", "label": _("Reference Details"), "fieldtype": "Data", "width": 180},
         {"fieldname": "total_leads", "label": _("Total Leads"), "fieldtype": "Int", "width": 100},
         {"fieldname": "total_capacity", "label": _("Overall Capacity"), "fieldtype": "Float", "width": 170},
     ]
@@ -59,14 +65,26 @@ def execute(filters=None):
         if filters.get("to_date"):
             conditions += f" AND custom_enquiry_date <= '{filters.get('to_date')}'"
         if filters.get("department"):
-            conditions += f" AND custom_department = {frappe.db.escape(filters.get('department'))}"
-        if filters.get("source"):
-            conditions += f" AND source = {frappe.db.escape(filters.get('source'))}"
+            conditions += f" AND custom_department = '{filters.get('department')}'"
+        if filters.get("reference_by"):
+            conditions += f" AND custom_reference_by = '{filters.get('reference_by')}'"
         if filters.get("status"):
-            conditions += f" AND status = {frappe.db.escape(filters.get('status'))}"
+            conditions += f" AND status = '{filters.get('status')}'"
 
     # Dynamic SQL query construction
-    select_clauses = ["source"]
+    select_clauses = [
+        "custom_reference_by as reference_by",
+        """CASE 
+            WHEN custom_reference_by = 'Employee' THEN custom_employee_name
+            WHEN custom_reference_by = 'Customer' THEN custom_customer_name
+            ELSE ''
+        END as reference_name""",
+        """CASE 
+            WHEN custom_reference_by = 'Employee' THEN custom_employee_mobile_no
+            WHEN custom_reference_by = 'Customer' THEN custom_customer_mobile_no
+            ELSE ''
+        END as reference_details""",
+    ]
 
     # Add total leads and capacity calculations
     select_clauses.extend(
@@ -109,7 +127,12 @@ def execute(filters=None):
             {', '.join(select_clauses)}
         FROM `tabLead`
         WHERE {conditions}
-        GROUP BY source
+        GROUP BY custom_reference_by, 
+            CASE 
+                WHEN custom_reference_by = 'Employee' THEN custom_employee
+                WHEN custom_reference_by = 'Customer' THEN custom_customer
+                ELSE ''
+            END
         ORDER BY total_leads DESC
         """,
         as_dict=1,
@@ -145,10 +168,10 @@ def get_filters():
             "options": "Department",
         },
         {
-            "fieldname": "source",
-            "label": _("Source"),
-            "fieldtype": "Link",
-            "options": "Lead Source",
+            "fieldname": "reference_by",
+            "label": _("Reference By"),
+            "fieldtype": "Select",
+            "options": "\nEmployee\nCustomer",
         },
         {
             "fieldname": "status",
