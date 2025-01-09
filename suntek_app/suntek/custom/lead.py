@@ -5,17 +5,36 @@ import werkzeug.wrappers
 from frappe.model.mapper import get_mapped_doc
 
 from suntek_app.suntek.custom.solar_power_plants import validate_mobile_number
-from suntek_app.suntek.utils.lead_utils import add_dispose_remarks, get_or_create_lead, process_other_properties, update_lead_basic_info
+from suntek_app.suntek.utils.lead_utils import (
+    add_dispose_remarks,
+    get_next_telecaller,
+    get_or_create_lead,
+    process_other_properties,
+    update_lead_basic_info,
+)
 
 
 def change_enquiry_status(doc, method):
-    duplicate_check(doc)
-    if not validate_mobile_number(doc.mobile_no):
-        frappe.throw(
-            "Invalid mobile number! Please enter a 10-digit number starting with 6, 7, 8, or 9, optionally prefixed by +91 or +91-.",
-        )
-    # if doc.source == "Digital Marketing":
-    #     doc.custom_department = "Telecalling - SESP"
+    print(f"Debug: Method called: {method}")
+    print(f"Debug: Department: {doc.custom_department}")
+
+    # First handle department setting for Digital Marketing
+    if doc.source == "Digital Marketing":
+        doc.custom_department = "Telecalling - SESP"
+        print("Debug: Set department to Telecalling - SESP")
+
+    # Then handle telecaller allocation
+    if doc.custom_department:
+        next_telecaller = get_next_telecaller(doc.custom_department)
+        print(f"Debug: Next telecaller: {next_telecaller}")
+
+        if next_telecaller:
+            doc.lead_owner = next_telecaller
+            # Get user's full name
+            user = frappe.get_doc("User", next_telecaller)
+            doc.custom_enquiry_owner_name = user.full_name
+            doc.custom_allocated_by = "System"
+            print(f"Debug: Allocated to {next_telecaller}")
 
 
 def set_enquiry_name(doc, method):

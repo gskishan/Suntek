@@ -2,8 +2,72 @@ from typing import Dict, List
 
 import frappe
 
-from suntek_app.suntek.utils.validation_utils import (
-    convert_date_format, extract_first_and_last_name)
+from suntek_app.suntek.utils.validation_utils import convert_date_format, extract_first_and_last_name
+
+
+def get_next_telecaller(department=None):
+    """Get next telecaller in round-robin fashion"""
+    print(f"Debug: Attempting to get telecaller for department: {department}")
+
+    # First, let's check if the department exists
+    if department:
+        dept_exists = frappe.db.exists("Department", department)
+        print(f"Debug: Department exists: {dept_exists}")
+
+    # Check telecaller queue entries
+    queue_entries = frappe.db.sql(
+        """
+        SELECT name, email FROM `tabTelecaller Queue` WHERE is_active = 1
+    """,
+        as_dict=1,
+    )
+    print(f"Debug: Active telecaller entries: {queue_entries}")
+
+    # Check department mappings
+    dept_mappings = frappe.db.sql(
+        """
+        SELECT parent, department 
+        FROM `tabTelecaller Department`
+    """,
+        as_dict=1,
+    )
+    print(f"Debug: Department mappings: {dept_mappings}")
+
+    # Now try to get the next telecaller
+    telecallers = frappe.db.sql(
+        """
+        SELECT DISTINCT
+            tq.email,
+            tq.last_assigned
+        FROM 
+            `tabTelecaller Queue` tq
+        INNER JOIN 
+            `tabTelecaller Department` td ON td.parent = tq.name
+        WHERE 
+            tq.is_active = 1
+            AND td.department = %s
+        ORDER BY 
+            COALESCE(tq.last_assigned, '1900-01-01')
+        LIMIT 1
+    """,
+        (department,),
+        as_dict=1,
+    )
+
+    print(f"Debug: Found telecallers: {telecallers}")
+
+    if not telecallers:
+        print("Debug: No telecallers found")
+        return None
+
+    next_telecaller = telecallers[0]
+    print(f"Debug: Selected telecaller: {next_telecaller.email}")
+
+    # Update last_assigned time
+    frappe.db.set_value("Telecaller Queue", {"email": next_telecaller.email}, "last_assigned", frappe.utils.now_datetime())
+    frappe.db.commit()
+
+    return next_telecaller.email
 
 
 def get_or_create_lead(mobile_no):
