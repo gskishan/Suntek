@@ -20,6 +20,8 @@ def execute(filters=None):
         {"fieldname": "source", "label": _("Source"), "fieldtype": "Data", "width": 180},
         {"fieldname": "total_leads", "label": _("Total Leads"), "fieldtype": "Int", "width": 100},
         {"fieldname": "total_capacity", "label": _("Overall Capacity"), "fieldtype": "Float", "width": 170},
+        {"fieldname": "open_leads_capacity_kwp", "label": _("Capacity (Open - kWp)"), "fieldtype": "Float", "width": 210},
+        {"fieldname": "converted_leads_capacity_kwp", "label": _("Capacity (Converted - kWp)"), "fieldtype": "Float", "width": 210},
     ]
 
     # Add UOM specific columns
@@ -77,6 +79,20 @@ def execute(filters=None):
             THEN CAST(custom_capacity AS DECIMAL(10,2)) 
             ELSE 0 
         END) as total_capacity""",
+            """SUM(CASE 
+            WHEN status = 'Open' 
+            AND custom_uom = 'kWp'
+            AND custom_capacity REGEXP '^[0-9]+(\\.[0-9]+)?$'
+            THEN CAST(custom_capacity AS DECIMAL(10,2)) 
+            ELSE 0 
+        END) as open_leads_capacity_kwp""",
+            """SUM(CASE 
+            WHEN status = 'Converted'
+            AND custom_uom = 'kWp'
+            AND custom_capacity REGEXP '^[0-9]+(\\.[0-9]+)?$'
+            THEN CAST(custom_capacity AS DECIMAL(10,2)) 
+            ELSE 0 
+        END) as converted_leads_capacity_kwp""",
         ]
     )
 
