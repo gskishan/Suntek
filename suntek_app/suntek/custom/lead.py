@@ -15,26 +15,36 @@ from suntek_app.suntek.utils.lead_utils import (
 
 
 def change_enquiry_status(doc, method):
-    print(f"Debug: Method called: {method}")
-    print(f"Debug: Department: {doc.custom_department}")
+    # First check if lead_owner was manually set (comparing with old document)
+    if method == "validate" and doc.get_doc_before_save():
+        old_doc = doc.get_doc_before_save()
+        if doc.lead_owner != old_doc.lead_owner:
+            # Lead owner was manually changed
+            user = frappe.get_doc("User", doc.lead_owner)
+            doc.custom_enquiry_owner_name = user.full_name
+            doc.custom_allocated_by = "Manual"
+            return  # Skip auto-allocation if manually set
 
     # First handle department setting for Digital Marketing
     if doc.source == "Digital Marketing":
         doc.custom_department = "Telecalling - SESP"
-        print("Debug: Set department to Telecalling - SESP")
 
-    # Then handle telecaller allocation
-    if doc.custom_department:
+    # Then handle telecaller allocation only if no lead_owner is set
+    if doc.custom_department and not doc.lead_owner:
         next_telecaller = get_next_telecaller(doc.custom_department)
-        print(f"Debug: Next telecaller: {next_telecaller}")
-
         if next_telecaller:
             doc.lead_owner = next_telecaller
             # Get user's full name
             user = frappe.get_doc("User", next_telecaller)
             doc.custom_enquiry_owner_name = user.full_name
             doc.custom_allocated_by = "System"
-            print(f"Debug: Allocated to {next_telecaller}")
+
+    # Continue with other validations
+    duplicate_check(doc)
+    if not validate_mobile_number(doc.mobile_no):
+        frappe.throw(
+            "Invalid mobile number! Please enter a 10-digit number starting with 6, 7, 8, or 9, optionally prefixed by +91 or +91-.",
+        )
 
 
 def set_enquiry_name(doc, method):
