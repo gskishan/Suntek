@@ -14,6 +14,8 @@ def change_enquiry_status(doc, method):
         frappe.throw(
             "Invalid mobile number! Please enter a 10-digit number starting with 6, 7, 8, or 9, optionally prefixed by +91 or +91-.",
         )
+    # if doc.source == "Digital Marketing":
+    #     doc.custom_department = "Telecalling - SESP"
 
 
 def set_enquiry_name(doc, method):

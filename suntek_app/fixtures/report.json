@@ -8,6 +8,115 @@
   "filters": [],
   "is_standard": "No",
   "javascript": null,
+  "json": "{\"filters\":[[\"Lead\",\"lead_owner\",\"!=\",\"suntek.cni@gmail.com\",false]],\"fields\":[[\"name\",\"Lead\"],[\"docstatus\",\"Lead\"],[\"title\",\"Lead\"],[\"image\",\"Lead\"],[\"custom_capacity\",\"Lead\"],[\"lead_owner\",\"Lead\"],[\"status\",\"Lead\"],[\"custom_enquiry_status\",\"Lead\"],[\"company_name\",\"Lead\"],[\"territory\",\"Lead\"]],\"order_by\":\"`tabLead`.`modified` desc\",\"add_totals_row\":0,\"page_length\":20,\"column_widths\":{\"name\":120,\"title\":120,\"image\":120,\"custom_capacity\":120,\"lead_owner\":120,\"status\":120,\"custom_enquiry_status\":120,\"company_name\":120,\"territory\":120},\"group_by\":null}",
+  "letter_head": null,
+  "modified": "2025-01-09 10:42:32.588421",
+  "module": "CRM",
+  "name": "Others Leads",
+  "prepared_report": 0,
+  "query": null,
+  "ref_doctype": "Lead",
+  "reference_report": null,
+  "report_name": "Others Leads",
+  "report_script": null,
+  "report_type": "Report Builder",
+  "roles": [
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "System Manager"
+   },
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Enquiry User"
+   },
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Support Team"
+   },
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Projects Manager"
+   },
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Field Sales User"
+   },
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Designing User"
+   },
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Employee Self Service"
+   },
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Sales Manager"
+   },
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "State Head"
+   },
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Tele-Calling User"
+   },
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "CRM Viewer"
+   },
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Sales User"
+   },
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Sales Viewer"
+   },
+   {
+    "parent": "Others Leads",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Enquiry Manager (Tele-Calling)"
+   }
+  ],
+  "timeout": 0
+ },
+ {
+  "add_total_row": 0,
+  "columns": [],
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Report",
+  "filters": [],
+  "is_standard": "No",
+  "javascript": null,
   "json": null,
   "letter_head": null,
   "modified": "2024-03-06 14:18:15.131276",
