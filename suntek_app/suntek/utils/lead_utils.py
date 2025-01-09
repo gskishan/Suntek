@@ -1,69 +1,60 @@
 from typing import Dict, List
-
 import frappe
-
 from suntek_app.suntek.utils.validation_utils import convert_date_format, extract_first_and_last_name
 
 
 def get_next_telecaller(department=None):
-    """Get next telecaller in round-robin fashion"""
-    print(f"Debug: Attempting to get telecaller for department: {department}")
+    """Get next telecaller in round-robin fashion, prioritizing department matches"""
 
-    # First, let's check if the department exists
+    # First try to get telecallers with matching department
     if department:
-        dept_exists = frappe.db.exists("Department", department)
-        print(f"Debug: Department exists: {dept_exists}")
+        telecallers = frappe.db.sql(
+            """
+            SELECT DISTINCT
+                tq.email,
+                tq.last_assigned
+            FROM 
+                `tabTelecaller Queue` tq
+            INNER JOIN 
+                `tabTelecaller Department` td ON td.parent = tq.name
+            WHERE 
+                tq.is_active = 1
+                AND td.department = %s
+            ORDER BY 
+                COALESCE(tq.last_assigned, '1900-01-01')
+            LIMIT 1
+        """,
+            (department,),
+            as_dict=1,
+        )
 
-    # Check telecaller queue entries
-    queue_entries = frappe.db.sql(
-        """
-        SELECT name, email FROM `tabTelecaller Queue` WHERE is_active = 1
-    """,
-        as_dict=1,
-    )
-    print(f"Debug: Active telecaller entries: {queue_entries}")
+        if telecallers:
+            next_telecaller = telecallers[0]
+            frappe.db.set_value("Telecaller Queue", {"email": next_telecaller.email}, "last_assigned", frappe.utils.now_datetime())
+            frappe.db.commit()
+            return next_telecaller.email
 
-    # Check department mappings
-    dept_mappings = frappe.db.sql(
-        """
-        SELECT parent, department 
-        FROM `tabTelecaller Department`
-    """,
-        as_dict=1,
-    )
-    print(f"Debug: Department mappings: {dept_mappings}")
-
-    # Now try to get the next telecaller
+    # If no department match found, get any active telecaller
     telecallers = frappe.db.sql(
         """
         SELECT DISTINCT
-            tq.email,
-            tq.last_assigned
+            email,
+            last_assigned
         FROM 
-            `tabTelecaller Queue` tq
-        INNER JOIN 
-            `tabTelecaller Department` td ON td.parent = tq.name
+            `tabTelecaller Queue`
         WHERE 
-            tq.is_active = 1
-            AND td.department = %s
+            is_active = 1
         ORDER BY 
-            COALESCE(tq.last_assigned, '1900-01-01')
+            COALESCE(last_assigned, '1900-01-01')
         LIMIT 1
     """,
-        (department,),
         as_dict=1,
     )
 
-    print(f"Debug: Found telecallers: {telecallers}")
-
     if not telecallers:
-        print("Debug: No telecallers found")
         return None
 
     next_telecaller = telecallers[0]
-    print(f"Debug: Selected telecaller: {next_telecaller.email}")
-
-    # Update last_assigned time
     frappe.db.set_value("Telecaller Queue", {"email": next_telecaller.email}, "last_assigned", frappe.utils.now_datetime())
     frappe.db.commit()
 
@@ -138,7 +129,6 @@ def process_other_properties(lead, other_properties):
     if not properties:
         return
 
-    # Map property names to lead fields
     property_mapping = {
         "ID": "custom_neodove_id",
         "Enquiry Owner Name": "custom_enquiry_owner_name",
@@ -154,16 +144,13 @@ def process_other_properties(lead, other_properties):
         if field_name:
             value = prop.get("value")
 
-            # Special handling for Enquiry Date
             if prop.get("name") == "Enquiry Date":
                 value = convert_date_format(value)
 
-            # Update the lead field if we have a value
             if value:
                 lead.set(field_name, value)
 
 
-# Add this function to lead_utils.py
 def get_contact_list_name(data):
     if data.get("other_properties") and len(data["other_properties"]) > 0:
         return data["other_properties"][-1].get("contact_list_name")
