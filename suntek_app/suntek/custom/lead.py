@@ -14,28 +14,26 @@ from suntek_app.suntek.utils.lead_utils import (
 )
 
 
+def before_import(doc, method=None):
+    # Clear the lead_owner field if it's set to the default session user
+    if doc.lead_owner == frappe.session.user:
+        doc.lead_owner = None
+
 def change_enquiry_status(doc, method):
+    try:
+        # Check if round robin is enabled
+        enable_round_robin = frappe.db.get_single_value("Suntek Settings", "enable_round_robin_assignment_to_enquiries")
 
-    if method == "validate" and doc.get_doc_before_save():
-        old_doc = doc.get_doc_before_save()
-        if doc.lead_owner != old_doc.lead_owner:
-            # Lead owner was manually changed
-            user = frappe.get_doc("User", doc.lead_owner)
-            doc.custom_enquiry_owner_name = user.full_name
-            doc.custom_allocated_by = "Manual"
-            return
+        # Only assign if round robin is enabled and lead_owner is not set
+        if enable_round_robin and not doc.lead_owner:
+            next_telecaller = get_next_telecaller()
+            if next_telecaller:
+                doc.lead_owner = next_telecaller
+                user = frappe.get_doc("User", next_telecaller)
+                doc.custom_enquiry_owner_name = user.full_name
 
-    # Check if round robin is enabled
-    enable_round_robin = frappe.db.get_single_value("Suntek Settings", "enable_round_robin_assignment_to_enquiries")
-
-    if enable_round_robin and not doc.lead_owner:
-        next_telecaller = get_next_telecaller()
-
-        if next_telecaller:
-            doc.lead_owner = next_telecaller
-            user = frappe.get_doc("User", next_telecaller)
-            doc.custom_enquiry_owner_name = user.full_name
-            doc.custom_allocated_by = "System"
+    except Exception as e:
+        frappe.log_error(f"Error in change_enquiry_status: {str(e)}", "Lead Assignment")
 
 
 def set_enquiry_name(doc, method):
@@ -121,9 +119,9 @@ def duplicate_check(doc):
 def create_lead_from_neodove_dispose():
     try:
         # Constants
-        DEFAULT_DEPARTMENT = "All Departments"
+        DEFAULT_DEPARTMENT = ""
         DEFAULT_SALUTATION = ""
-        DEFAULT_SOURCE = "Neodove"
+        DEFAULT_SOURCE = ""
 
         # Parse request data
         neodove_data = parse_request_data(frappe.request.data)
