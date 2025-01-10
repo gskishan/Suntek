@@ -4,14 +4,8 @@ from suntek_app.suntek.utils.validation_utils import convert_date_format, extrac
 
 
 def get_next_telecaller():
+    """Get next telecaller for lead assignment"""
     try:
-        # First check if round robin is enabled in Suntek Settings
-        enable_round_robin = frappe.db.get_single_value("Suntek Settings", "enable_round_robin_assignment_to_enquiries")
-
-        if not enable_round_robin:
-            frappe.log_error("Round robin assignment is disabled", "Telecaller Assignment")
-            return None
-
         # Get next active telecaller based on last assigned time
         telecallers = frappe.db.sql(
             """
@@ -63,6 +57,7 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
     custom_uom = ""
     form_response: List[Dict] = neodove_data.get("customer_detail_form_response")
     neodove_campaign = neodove_data.get("campaign_name")
+    city = get_lead_location(neodove_data)
 
     for item in form_response:
         if item["question_text"] == "Capacity":
@@ -83,6 +78,7 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
             "custom_capacity": custom_capacity,
             "custom_uom": custom_uom,
             "custom_neodove_campaign_name": neodove_campaign,
+            "city": city,
         }
     )
 
@@ -130,6 +126,7 @@ def process_other_properties(lead, other_properties):
             value = prop.get("value")
 
             if prop.get("name") == "Enquiry Date":
+                # value = format_date(value)
                 value = convert_date_format(value)
 
             if value:
@@ -137,13 +134,48 @@ def process_other_properties(lead, other_properties):
 
 
 def get_contact_list_name(data):
+    """Get contact list name from Neodove data"""
     if data.get("other_properties") and len(data["other_properties"]) > 0:
         return data["other_properties"][-1].get("contact_list_name")
     return ""
 
 
 def get_executive_name(customer_detail_form_response):
+    """Get executive name from customer detail form response"""
     for response in customer_detail_form_response:
         if response["question_text"] == "EXECUTIVE NAME":
             return response["answer"]
     return ""
+
+
+def get_lead_location(data: dict) -> str:
+    """
+    Get lead location from properties and return it as city
+    Args:
+        data (dict): Input data containing properties
+    Returns:
+        str: City value or empty string if not found
+    """
+    # Early return if data is empty or None
+    if not data:
+        return ""
+
+    city = ""
+
+    # Check custom contact properties first
+    if custom_props := data.get("custom_contact_properties", []):
+        if properties := custom_props[0].get("properties", []):
+            for prop in properties:
+                if prop.get("custom_column_name") == "Location":
+                    city = prop.get("custom_column_value", "")
+                    break
+
+    # Check other properties if location not found
+    if not city and (other_props := data.get("other_properties", [])):
+        if properties := other_props[0].get("properties", []):
+            for prop in properties:
+                if prop.get("name") == "Location":
+                    city = prop.get("value", "")
+                    break
+
+    return city
