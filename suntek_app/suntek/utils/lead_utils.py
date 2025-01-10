@@ -1,49 +1,6 @@
 from typing import Dict, List
 import frappe
-from suntek_app.suntek.utils.validation_utils import convert_date_format, extract_first_and_last_name, format_date
-
-
-# def get_next_telecaller():
-#     try:
-#         # First check if round robin is enabled in Suntek Settings
-#         enable_round_robin = frappe.db.get_single_value("Suntek Settings", "enable_round_robin_assignment_to_enquiries")
-
-#         if not enable_round_robin:
-#             frappe.log_error("Round robin assignment is disabled", "Telecaller Assignment")
-#             return None
-
-#         # Get next active telecaller based on last assigned time
-#         telecallers = frappe.db.sql(
-#             """
-#             SELECT
-#                 email,
-#                 last_assigned
-#             FROM
-#                 `tabTelecaller Queue`
-#             WHERE
-#                 is_active = 1
-#             ORDER BY
-#                 COALESCE(last_assigned, '1900-01-01')
-#             LIMIT 1
-#             """,
-#             as_dict=1,
-#         )
-
-#         if not telecallers:
-#             frappe.log_error("No active telecallers found", "Telecaller Assignment")
-#             return None
-
-#         next_telecaller = telecallers[0]
-
-#         # Update last assigned time
-#         frappe.db.set_value("Telecaller Queue", {"email": next_telecaller.email}, "last_assigned", frappe.utils.now_datetime())
-#         frappe.db.commit()
-
-#         return next_telecaller.email
-
-#     except Exception as e:
-#         frappe.log_error(f"Error in telecaller assignment: {str(e)}", "Telecaller Assignment")
-#         return None
+from suntek_app.suntek.utils.validation_utils import convert_date_format, extract_first_and_last_name
 
 
 def get_next_telecaller():
