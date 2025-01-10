@@ -15,6 +15,7 @@ from suntek_app.suntek.utils.lead_utils import (
 
 
 def before_import(doc, method=None):
+    """Thie function executes when doing a data import, it removes the lead_owner which by default gets set to the person doing data import."""
     # Clear the lead_owner field if it's set to the default session user
     if doc.lead_owner == frappe.session.user:
         doc.lead_owner = None
@@ -38,6 +39,7 @@ def change_enquiry_status(doc, method):
 
 
 def set_enquiry_name(doc, method):
+    """Set custom_enquiry_name to name if not set"""
     if doc.name:
         doc.custom_enquiry_name = doc.name
 
@@ -118,6 +120,7 @@ def duplicate_check(doc):
 
 @frappe.whitelist()
 def create_lead_from_neodove_dispose():
+    """Handles disposed leads from Neodove and creates/updates lead in ERPNext"""
     try:
         # Constants
         DEFAULT_DEPARTMENT = ""

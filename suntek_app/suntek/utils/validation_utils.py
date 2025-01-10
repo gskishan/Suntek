@@ -3,6 +3,7 @@ import re
 
 
 def validate_mobile_number(number):
+    """Validate mobile number. It should be 10 digits and start with 6-9"""
     number = str(number)
     pattern = r"^(\+91[-]?)?[6-9]\d{9}$"
     if re.match(pattern, number):
@@ -12,6 +13,7 @@ def validate_mobile_number(number):
 
 
 def extract_first_and_last_name(name: str):
+    """Extract first, middle and last name from full name"""
     if not name:
         return "", "", ""
 

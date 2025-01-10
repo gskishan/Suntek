@@ -4,6 +4,7 @@ from suntek_app.suntek.utils.validation_utils import convert_date_format, extrac
 
 
 def get_next_telecaller():
+    """Get next telecaller for lead assignment"""
     try:
         # Get next active telecaller based on last assigned time
         telecallers = frappe.db.sql(
@@ -133,12 +134,14 @@ def process_other_properties(lead, other_properties):
 
 
 def get_contact_list_name(data):
+    """Get contact list name from Neodove data"""
     if data.get("other_properties") and len(data["other_properties"]) > 0:
         return data["other_properties"][-1].get("contact_list_name")
     return ""
 
 
 def get_executive_name(customer_detail_form_response):
+    """Get executive name from customer detail form response"""
     for response in customer_detail_form_response:
         if response["question_text"] == "EXECUTIVE NAME":
             return response["answer"]
