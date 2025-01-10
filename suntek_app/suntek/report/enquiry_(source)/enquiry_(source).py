@@ -33,6 +33,15 @@ def execute(filters=None):
                     "fieldtype": "Int",
                     "width": 150,
                 },
+                {"fieldname": "open_leads", "label": _("Open"), "fieldtype": "Int", "width": 100},
+                {"fieldname": "replied_leads", "label": _("Replied"), "fieldtype": "Int", "width": 100},
+                {"fieldname": "opportunity_leads", "label": _("Opportunity"), "fieldtype": "Int", "width": 120},
+                {"fieldname": "quotation_leads", "label": _("Quotation"), "fieldtype": "Int", "width": 120},
+                {"fieldname": "interested_leads", "label": _("Interested"), "fieldtype": "Int", "width": 120},
+                {"fieldname": "converted_leads", "label": _("Converted"), "fieldtype": "Int", "width": 120},
+                {"fieldname": "lost_quotation_leads", "label": _("Lost Quotation"), "fieldtype": "Int", "width": 130},
+                {"fieldname": "do_not_contact_leads", "label": _("Do Not Contact"), "fieldtype": "Int", "width": 130},
+                {"fieldname": "conversion_rate", "label": _("Conversion Rate %"), "fieldtype": "Percent", "width": 150},
                 {
                     "fieldname": f"total_capacity_{uom_name.lower().replace(' ', '_')}",
                     "label": _(f"Total Capacity ({uom_name})"),
@@ -99,7 +108,16 @@ def execute(filters=None):
 
     # Add status calculations
     select_clauses.extend(
-        ["SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) as open_leads", "SUM(CASE WHEN status = 'Converted' THEN 1 ELSE 0 END) as converted_leads"]
+        [
+            "SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) as open_leads",
+            "SUM(CASE WHEN status = 'Replied' THEN 1 ELSE 0 END) as replied_leads",
+            "SUM(CASE WHEN status = 'Opportunity' THEN 1 ELSE 0 END) as opportunity_leads",
+            "SUM(CASE WHEN status = 'Quotation' THEN 1 ELSE 0 END) as quotation_leads",
+            "SUM(CASE WHEN status = 'Interested' THEN 1 ELSE 0 END) as interested_leads",
+            "SUM(CASE WHEN status = 'Converted' THEN 1 ELSE 0 END) as converted_leads",
+            "SUM(CASE WHEN status = 'Lost Quotation' THEN 1 ELSE 0 END) as lost_quotation_leads",
+            "SUM(CASE WHEN status = 'Do Not Contact' THEN 1 ELSE 0 END) as do_not_contact_leads",
+        ]
     )
 
     # Get data from database
