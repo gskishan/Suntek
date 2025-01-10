@@ -120,6 +120,13 @@ doctype_js = {
 # DocType Class
 # ---------------
 # Override standard doctype classes
+
+
+website_context = {"google_analytics_id": "GTM-NQTF7J7D"}
+
+
+app_include_js = ["/assets/suntek_app/js/suntek.js"]
+
 override_doctype_dashboards = {
     "Opportunity": "suntek_app.suntek.custom_dashboard.dashboard.update_opportunity_dashboard",
     "Lead": "suntek_app.suntek.custom_dashboard.dashboard.update_enquiry_dashboard",

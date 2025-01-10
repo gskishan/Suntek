@@ -15,6 +15,7 @@ from suntek_app.suntek.utils.lead_utils import (
 
 
 def change_enquiry_status(doc, method):
+
     if method == "validate" and doc.get_doc_before_save():
         old_doc = doc.get_doc_before_save()
         if doc.lead_owner != old_doc.lead_owner:
@@ -24,19 +25,17 @@ def change_enquiry_status(doc, method):
             doc.custom_allocated_by = "Manual"
             return
 
-    if doc.custom_department and not doc.lead_owner:
-        next_telecaller = get_next_telecaller(doc.custom_department)
+    # Check if round robin is enabled
+    enable_round_robin = frappe.db.get_single_value("Suntek Settings", "enable_round_robin_assignment_to_enquiries")
+
+    if enable_round_robin and not doc.lead_owner:
+        next_telecaller = get_next_telecaller()
+
         if next_telecaller:
             doc.lead_owner = next_telecaller
             user = frappe.get_doc("User", next_telecaller)
             doc.custom_enquiry_owner_name = user.full_name
             doc.custom_allocated_by = "System"
-
-    duplicate_check(doc)
-    if not validate_mobile_number(doc.mobile_no):
-        frappe.throw(
-            "Invalid mobile number! Please enter a 10-digit number starting with 6, 7, 8, or 9, optionally prefixed by +91 or +91-.",
-        )
 
 
 def set_enquiry_name(doc, method):
@@ -113,7 +112,6 @@ def duplicate_check(doc):
     sql = """select * from `tabLead` where mobile_no="{0}" and name!="{1}" """.format(mobile_no, doc.name)
     data = frappe.db.sql(sql, as_dict=True)
     if data:
-        frappe.errprint(data)
         frappe.throw(
             "Duplicate mobile no {} already linked to <b>{}</b> ".format(mobile_no, data[0].custom_enquiry_owner_name),
         )
@@ -213,9 +211,6 @@ def _prepare_recordings(lead, recordings):
 
 @frappe.whitelist(allow_guest=True)
 def create_lead_from_facebook():
-    print("#########")
-    print(parse_request_data(frappe.request.data))
-    print("#########")
 
     local_verify_token = frappe.get_doc("Suntek Settings").facebook_verify_token
 

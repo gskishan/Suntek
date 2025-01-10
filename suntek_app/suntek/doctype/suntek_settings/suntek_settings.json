@@ -1,28 +1,30 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2025-01-08 11:49:11.260066",
+ "creation": "2025-01-09 17:52:32.923048",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "facebook_section_section",
-  "facebook_verify_token"
+  "enquiry_settings_section",
+  "enable_round_robin_assignment_to_enquiries"
  ],
  "fields": [
   {
-   "fieldname": "facebook_section_section",
-   "fieldtype": "Section Break",
-   "label": "Facebook Section"
+   "default": "1",
+   "fieldname": "enable_round_robin_assignment_to_enquiries",
+   "fieldtype": "Check",
+   "label": "Enable Round Robin Assignment to Enquiries"
   },
   {
-   "fieldname": "facebook_verify_token",
-   "fieldtype": "Data",
-   "label": "Facebook Verify Token"
+   "fieldname": "enquiry_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Enquiry Settings"
   }
  ],
  "index_web_pages_for_search": 1,
+ "issingle": 1,
  "links": [],
- "modified": "2025-01-08 11:49:44.095669",
+ "modified": "2025-01-09 17:54:12.903579",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Suntek Settings",
@@ -32,10 +34,8 @@
    "create": 1,
    "delete": 1,
    "email": 1,
-   "export": 1,
    "print": 1,
    "read": 1,
-   "report": 1,
    "role": "System Manager",
    "share": 1,
    "write": 1
