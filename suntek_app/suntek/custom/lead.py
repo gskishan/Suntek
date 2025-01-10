@@ -19,6 +19,7 @@ def before_import(doc, method=None):
     if doc.lead_owner == frappe.session.user:
         doc.lead_owner = None
 
+
 def change_enquiry_status(doc, method):
     try:
         # Check if round robin is enabled
@@ -106,7 +107,7 @@ def _set_missing_values(source, target):
 
 
 def duplicate_check(doc):
-    mobile_no = str(doc.mobile_no)  # Ensure mobile_no is a string
+    mobile_no = str(doc.mobile_no)
     sql = """select * from `tabLead` where mobile_no="{0}" and name!="{1}" """.format(mobile_no, doc.name)
     data = frappe.db.sql(sql, as_dict=True)
     if data:
@@ -121,7 +122,7 @@ def create_lead_from_neodove_dispose():
         # Constants
         DEFAULT_DEPARTMENT = ""
         DEFAULT_SALUTATION = ""
-        DEFAULT_SOURCE = ""
+        DEFAULT_SOURCE = "Direct"
 
         # Parse request data
         neodove_data = parse_request_data(frappe.request.data)
@@ -225,3 +226,73 @@ def parse_request_data(data):
     if isinstance(data, bytes):
         return json.loads(data.decode("utf-8"))
     return data
+
+
+@frappe.whitelist()
+def bulk_assign_unassigned_leads():
+    """
+    Bulk assign unassigned leads using round robin assignment
+    Returns dict with success status and message
+    """
+    try:
+        # Get all unassigned leads
+        unassigned_leads = frappe.get_all("Lead", filters={"lead_owner": ["in", ["", None]], "status": ["!=", "Converted"]}, fields=["name"])
+
+        if not unassigned_leads:
+            frappe.msgprint("No unassigned leads found")
+            return
+
+        # Get active telecallers first
+        telecallers = frappe.db.sql(
+            """
+            SELECT email FROM `tabTelecaller Queue`
+            WHERE is_active = 1
+            ORDER BY COALESCE(last_assigned, '1900-01-01')
+            """,
+            as_dict=1,
+        )
+
+        if not telecallers:
+            frappe.msgprint("No active telecallers available for assignment")
+            return
+
+        assigned_count = 0
+        failed_count = 0
+        telecaller_index = 0
+        total_telecallers = len(telecallers)
+
+        # Assign leads in round-robin fashion
+        for lead in unassigned_leads:
+            try:
+                current_telecaller = telecallers[telecaller_index]["email"]
+                user = frappe.get_doc("User", current_telecaller)
+
+                # Update lead
+                frappe.db.set_value(
+                    "Lead", lead.name, {"lead_owner": current_telecaller, "custom_enquiry_owner_name": user.full_name}, update_modified=True
+                )
+
+                # Update last assigned time for the telecaller
+                frappe.db.set_value("Telecaller Queue", {"email": current_telecaller}, "last_assigned", frappe.utils.now_datetime())
+
+                assigned_count += 1
+
+                # Move to next telecaller in round-robin fashion
+                telecaller_index = (telecaller_index + 1) % total_telecallers
+
+            except Exception as e:
+                failed_count += 1
+                frappe.log_error(message=f"Failed to assign lead {lead.name}: {str(e)}", title="Lead Assignment Error")
+                continue
+
+        frappe.db.commit()
+
+        # Show success message
+        if assigned_count > 0:
+            frappe.msgprint(f"Successfully assigned {assigned_count} leads")
+        if failed_count > 0:
+            frappe.msgprint(f"Failed to assign {failed_count} leads. Check error log for details.", indicator="yellow")
+
+    except Exception as e:
+        frappe.log_error(message=f"Error in bulk lead assignment: {str(e)}", title="Bulk Lead Assignment Error")
+        frappe.msgprint("Error in bulk assignment. Check error log for details", indicator="red")
