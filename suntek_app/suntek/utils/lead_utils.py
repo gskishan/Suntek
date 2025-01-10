@@ -3,39 +3,19 @@ import frappe
 from suntek_app.suntek.utils.validation_utils import convert_date_format, extract_first_and_last_name
 
 
-def get_next_telecaller(department=None):
-    """Get next telecaller in round-robin fashion, prioritizing department matches"""
+def get_next_telecaller():
+    """Get next telecaller in round-robin fashion based on is_active status"""
 
-    if department:
-        telecallers = frappe.db.sql(
-            """
-            SELECT DISTINCT
-                tq.email,
-                tq.last_assigned
-            FROM 
-                `tabTelecaller Queue` tq
-            INNER JOIN 
-                `tabTelecaller Department` td ON td.parent = tq.name
-            WHERE 
-                tq.is_active = 1
-                AND td.department = %s
-            ORDER BY 
-                COALESCE(tq.last_assigned, '1900-01-01')
-            LIMIT 1
-        """,
-            (department,),
-            as_dict=1,
-        )
+    # First check if round robin is enabled in Suntek Settings
+    enable_round_robin = frappe.db.get_single_value("Suntek Settings", "enable_round_robin_assignment_to_enquiries")
 
-        if telecallers:
-            next_telecaller = telecallers[0]
-            frappe.db.set_value("Telecaller Queue", {"email": next_telecaller.email}, "last_assigned", frappe.utils.now_datetime())
-            frappe.db.commit()
-            return next_telecaller.email
+    if not enable_round_robin:
+        return None
 
+    # Get next active telecaller based on last assigned time
     telecallers = frappe.db.sql(
         """
-        SELECT DISTINCT
+        SELECT
             email,
             last_assigned
         FROM 
@@ -45,7 +25,7 @@ def get_next_telecaller(department=None):
         ORDER BY 
             COALESCE(last_assigned, '1900-01-01')
         LIMIT 1
-    """,
+        """,
         as_dict=1,
     )
 
@@ -53,6 +33,8 @@ def get_next_telecaller(department=None):
         return None
 
     next_telecaller = telecallers[0]
+
+    # Update last assigned time
     frappe.db.set_value("Telecaller Queue", {"email": next_telecaller.email}, "last_assigned", frappe.utils.now_datetime())
     frappe.db.commit()
 
