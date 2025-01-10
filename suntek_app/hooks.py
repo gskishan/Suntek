@@ -10,7 +10,7 @@ app_license = "123"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/suntek_app/css/suntek_app.css"
-app_include_js = "/assets/suntek_app/js/suntek_app.js"
+# app_include_js = "/assets/suntek_app/js/suntek_app.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/suntek_app/css/suntek_app.css"
@@ -20,11 +20,12 @@ app_include_js = "/assets/suntek_app/js/suntek_app.js"
 # website_theme_scss = "suntek_app/public/scss/website"
 
 # include js, css files in header of web form
+
 # webform_include_js = {"doctype": "public/js/doctype.js"}
 # webform_include_css = {"doctype": "public/css/doctype.css"}
 
 # include js in page
-# page_js = {"page" : "public/js/file.js"}
+# page_js = {"doctype": "public/js/doctype.js"}
 
 # include js in doctype views
 
@@ -42,6 +43,12 @@ doctype_js = {
     "BOM": "public/js/bom.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+
+doctype_list_js = {
+    "Lead": "public/js/lead_list.js",
+}
+
+
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -122,10 +129,11 @@ doctype_js = {
 # Override standard doctype classes
 
 
-website_context = {
-    "google_analytics_id": "G-KFS9KH8LC7",
-    "facebook_pixel_id": "1385332509097665",
-}
+# website_context = {
+#     "google_analytics_id": "G-KFS9KH8LC7",
+#     "facebook_pixel_id": "1385332509097665",
+#     "google_tag_manager_id": "GTM-T452DBWT",
+# }
 
 # app_include_js = [
 #     "/assets/suntek_app/js/analytics.js",
@@ -158,6 +166,9 @@ doc_events = {
         "before_save": [
             "suntek_app.suntek.custom.lead.change_enquiry_status",
         ],
+        "before_insert": [
+            "suntek_app.suntek.custom.lead.before_import"
+        ]
         # "before_save": ["suntek_app.suntek.custom.lead.set_assigned_to"],
     },
     "Opportunity": {
