@@ -10,7 +10,7 @@ app_license = "123"
 
 # include js, css files in header of desk.html
 # app_include_css = "/assets/suntek_app/css/suntek_app.css"
-# app_include_js = "/assets/suntek_app/js/suntek_app.js"
+app_include_js = "/assets/suntek_app/js/suntek_app.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/suntek_app/css/suntek_app.css"
@@ -122,10 +122,16 @@ doctype_js = {
 # Override standard doctype classes
 
 
-website_context = {"google_analytics_id": "GTM-NQTF7J7D"}
+website_context = {
+    "google_analytics_id": "G-KFS9KH8LC7",
+    "facebook_pixel_id": "1385332509097665",
+}
 
-
-app_include_js = ["/assets/suntek_app/js/suntek.js"]
+# app_include_js = [
+#     "/assets/suntek_app/js/analytics.js",
+#     "./public/js/suntek.js",
+# ]
+# web_include_js = ["/assets/suntek_app/js/analytics.js"]
 
 override_doctype_dashboards = {
     "Opportunity": "suntek_app.suntek.custom_dashboard.dashboard.update_opportunity_dashboard",
