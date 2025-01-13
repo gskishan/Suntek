@@ -115,6 +115,41 @@ erpnext.LeadFunnel = class LeadFunnel {
 			return;
 		}
 
+		// Add hover interaction handling
+		this.elements.canvas.on("mousemove", function (e) {
+			const rect = this.getBoundingClientRect();
+			const x = e.clientX - rect.left;
+			const y = e.clientY - rect.top;
+
+			let hoveredSection = null;
+			let currentY = 20;
+
+			me.options.data.forEach((d, i) => {
+				const section_width = max_width * d.width_factor;
+				const x_start = (me.options.width - section_width) / 2;
+				const x_end = x_start + section_width;
+				const section_height = d.height;
+
+				if (x >= x_start && x <= x_end && y >= currentY && y <= currentY + section_height) {
+					hoveredSection = i;
+				}
+				currentY += section_height;
+			});
+
+			// Redraw with hover effect
+			me.redrawFunnel(hoveredSection);
+		});
+
+		this.redrawFunnel();
+	}
+
+	redrawFunnel(hoveredIndex = null) {
+		const context = this.elements.context;
+		const max_width = this.options.width * 0.4;
+		let y = 20;
+
+		context.clearRect(0, 0, this.options.width, this.options.height);
+
 		this.options.data.forEach((d, i) => {
 			const section_width = max_width * d.width_factor;
 			const x_start = (this.options.width - section_width) / 2;
@@ -124,6 +159,14 @@ erpnext.LeadFunnel = class LeadFunnel {
 			context.beginPath();
 			context.fillStyle = d.color;
 			context.strokeStyle = d.color;
+
+			// Add hover effect
+			if (i === hoveredIndex) {
+				context.save();
+				context.shadowColor = "rgba(0, 0, 0, 0.5)";
+				context.shadowBlur = 15;
+				context.fillStyle = this.adjustColor(d.color, 20); // Lighten color on hover
+			}
 
 			if (i === 0) {
 				context.moveTo(x_start, y);
@@ -136,20 +179,24 @@ erpnext.LeadFunnel = class LeadFunnel {
 				context.lineTo(prev_x_end, y);
 			}
 
-			// Draw bottom of section
 			const next_y = y + d.height;
 			context.lineTo(x_end, next_y);
 			context.lineTo(x_start, next_y);
 			context.closePath();
 			context.fill();
 
-			// Draw legend
+			if (i === hoveredIndex) {
+				context.restore();
+			}
+
+			// Draw legend with hover effect
 			this.draw_legend(
 				x_mid,
 				y + d.height / 2,
 				this.options.width,
 				this.options.height,
-				d.value + " - " + d.title
+				d.value + " - " + d.title,
+				i === hoveredIndex
 			);
 
 			y = next_y;
@@ -163,6 +210,7 @@ erpnext.LeadFunnel = class LeadFunnel {
 		const container_width = $(this.elements.funnel_wrapper).width();
 		const window_height = $(window).height();
 
+		// Reduce the overall width by using a smaller multiplier
 		this.options.width = Math.min(container_width * 0.8, 1200);
 		this.options.height = Math.min(window_height * 0.75, 900);
 		this.options.data = this.options.data.sort((a, b) => b.value - a.value);
@@ -170,20 +218,21 @@ erpnext.LeadFunnel = class LeadFunnel {
 		const min_height = (this.options.height * 0.1) / (this.options.data?.length || 1);
 		const height = this.options.height * 0.9;
 		const max_value = Math.max(...this.options.data.map((d) => d.value));
-		// const total_value = this.options.data.reduce((sum, d) => sum + d.value, 0);
 
+		// Adjust the width factor calculation to make sections more compact
 		$.each(this.options.data, function (i, d) {
 			d.height = height / me.options.data.length + min_height;
-			d.width_factor = Math.sqrt(d.value / max_value);
+			// Add a minimum width factor and reduce the overall width variation
+			d.width_factor = Math.min(0.9, 0.3 + 0.6 * Math.sqrt(d.value / max_value)); // This creates a more controlled range
 		});
 
 		this.elements.funnel_wrapper.empty();
 
 		const container = $(
-			'<div style="display: flex; justify-content: flex-start; width: 100%; padding-left: 10%;"></div>'
+			'<div style="display: flex; justify-content: center; width: 100%;">' // Changed to center alignment
 		).appendTo(this.elements.funnel_wrapper);
 
-		// Create new canvas
+		// Create new canvas with adjusted positioning
 		this.elements.canvas = $("<canvas></canvas>")
 			.appendTo(container)
 			.attr("width", this.options.width)
@@ -198,6 +247,25 @@ erpnext.LeadFunnel = class LeadFunnel {
 		this.elements.context.strokeStyle = "#fff";
 	}
 
+	adjustColor(color, percent) {
+		const num = parseInt(color.replace("#", ""), 16),
+			amt = Math.round(2.55 * percent),
+			R = (num >> 16) + amt,
+			G = ((num >> 8) & 0x00ff) + amt,
+			B = (num & 0x0000ff) + amt;
+		return (
+			"#" +
+			(
+				0x1000000 +
+				(R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+				(G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+				(B < 255 ? (B < 1 ? 0 : B) : 255)
+			)
+				.toString(16)
+				.slice(1)
+		);
+	}
+
 	draw_triangle(x_start, x_mid, x_end, y, height) {
 		var context = this.elements.context;
 		context.beginPath();
@@ -208,13 +276,12 @@ erpnext.LeadFunnel = class LeadFunnel {
 		context.closePath();
 		context.fill();
 	}
-
-	draw_legend(x_mid, y_mid, width, height, title) {
+	draw_legend(x_mid, y_mid, width, height, title, isHovered) {
 		var context = this.elements.context;
 		if (y_mid == 0) y_mid = 7;
 
 		const line_start = x_mid;
-		const line_end = width * 0.75;
+		const line_end = width * 0.7;
 
 		context.beginPath();
 		context.moveTo(line_start, y_mid);
@@ -223,13 +290,13 @@ erpnext.LeadFunnel = class LeadFunnel {
 		context.stroke();
 
 		context.beginPath();
-		context.arc(line_end, y_mid, 5, 0, Math.PI * 2, false);
+		context.arc(line_end, y_mid, isHovered ? 7 : 5, 0, Math.PI * 2, false);
 		context.closePath();
 		context.fill();
 
 		context.fillStyle = getComputedStyle(document.body).getPropertyValue("--text-color");
 		context.textBaseline = "middle";
-		context.font = "1.1em sans-serif";
+		context.font = isHovered ? "bold 1.1em sans-serif" : "1em sans-serif";
 		context.fillText(__(title), line_end + 15, y_mid);
 	}
 };
