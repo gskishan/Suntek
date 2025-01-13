@@ -41,7 +41,11 @@ erpnext.LeadFunnel = class LeadFunnel {
 			}),
 		};
 
-		this.elements.no_data = $('<div class="alert alert-warning">' + __("No Data") + "</div>")
+		this.elements.no_data = $(
+			'<div class="alert alert-warning" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">' +
+				__("No Data Available") +
+				"</div>"
+		)
 			.toggle(false)
 			.appendTo(this.elements.layout);
 
