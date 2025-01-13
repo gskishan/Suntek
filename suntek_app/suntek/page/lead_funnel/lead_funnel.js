@@ -59,7 +59,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 			to_date: frappe.datetime.get_today(),
 		};
 
-		// set defaults and bind on change
 		$.each(["from_date", "to_date"], function (i, field) {
 			me.elements[field].val(frappe.datetime.str_to_user(me.options[field]));
 			me.elements[field].on("change", function () {
@@ -115,7 +114,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 			return;
 		}
 
-		// Add hover interaction handling
 		this.elements.canvas.on("mousemove", function (e) {
 			const rect = this.getBoundingClientRect();
 			const x = e.clientX - rect.left;
@@ -136,7 +134,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 				currentY += section_height;
 			});
 
-			// Redraw with hover effect
 			me.redrawFunnel(hoveredSection);
 		});
 
@@ -145,14 +142,16 @@ erpnext.LeadFunnel = class LeadFunnel {
 
 	redrawFunnel(hoveredIndex = null) {
 		const context = this.elements.context;
-		const max_width = this.options.width * 0.4;
+		const max_width = this.options.width * 0.35;
 		let y = 20;
 
 		context.clearRect(0, 0, this.options.width, this.options.height);
 
+		const funnel_offset = this.options.width * 0.15;
+
 		this.options.data.forEach((d, i) => {
 			const section_width = max_width * d.width_factor;
-			const x_start = (this.options.width - section_width) / 2;
+			const x_start = funnel_offset + (max_width - section_width) / 2;
 			const x_end = x_start + section_width;
 			const x_mid = (x_start + x_end) / 2;
 
@@ -160,12 +159,11 @@ erpnext.LeadFunnel = class LeadFunnel {
 			context.fillStyle = d.color;
 			context.strokeStyle = d.color;
 
-			// Add hover effect
 			if (i === hoveredIndex) {
 				context.save();
 				context.shadowColor = "rgba(0, 0, 0, 0.5)";
 				context.shadowBlur = 15;
-				context.fillStyle = this.adjustColor(d.color, 20); // Lighten color on hover
+				context.fillStyle = this.adjustColor(d.color, 20);
 			}
 
 			if (i === 0) {
@@ -173,7 +171,7 @@ erpnext.LeadFunnel = class LeadFunnel {
 				context.lineTo(x_end, y);
 			} else {
 				const prev_width = max_width * this.options.data[i - 1].width_factor;
-				const prev_x_start = (this.options.width - prev_width) / 2;
+				const prev_x_start = funnel_offset + (max_width - prev_width) / 2;
 				const prev_x_end = prev_x_start + prev_width;
 				context.moveTo(prev_x_start, y);
 				context.lineTo(prev_x_end, y);
@@ -189,7 +187,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 				context.restore();
 			}
 
-			// Draw legend with hover effect
 			this.draw_legend(
 				x_mid,
 				y + d.height / 2,
@@ -210,29 +207,24 @@ erpnext.LeadFunnel = class LeadFunnel {
 		const container_width = $(this.elements.funnel_wrapper).width();
 		const window_height = $(window).height();
 
-		// Reduce the overall width by using a smaller multiplier
-		this.options.width = Math.min(container_width * 0.8, 1200);
+		this.options.width = Math.min(container_width * 0.9, 1400);
 		this.options.height = Math.min(window_height * 0.75, 900);
 		this.options.data = this.options.data.sort((a, b) => b.value - a.value);
 
 		const min_height = (this.options.height * 0.1) / (this.options.data?.length || 1);
 		const height = this.options.height * 0.9;
-		const max_value = Math.max(...this.options.data.map((d) => d.value));
 
-		// Adjust the width factor calculation to make sections more compact
 		$.each(this.options.data, function (i, d) {
 			d.height = height / me.options.data.length + min_height;
-			// Add a minimum width factor and reduce the overall width variation
-			d.width_factor = Math.min(0.9, 0.3 + 0.6 * Math.sqrt(d.value / max_value)); // This creates a more controlled range
+			d.width_factor = 0.9 - (i / (me.options.data.length - 1)) * 0.7;
 		});
 
 		this.elements.funnel_wrapper.empty();
 
 		const container = $(
-			'<div style="display: flex; justify-content: center; width: 100%;">' // Changed to center alignment
+			'<div style="display: flex; justify-content: flex-start; width: 100%;">'
 		).appendTo(this.elements.funnel_wrapper);
 
-		// Create new canvas with adjusted positioning
 		this.elements.canvas = $("<canvas></canvas>")
 			.appendTo(container)
 			.attr("width", this.options.width)
@@ -276,12 +268,13 @@ erpnext.LeadFunnel = class LeadFunnel {
 		context.closePath();
 		context.fill();
 	}
+
 	draw_legend(x_mid, y_mid, width, height, title, isHovered) {
 		var context = this.elements.context;
 		if (y_mid == 0) y_mid = 7;
 
 		const line_start = x_mid;
-		const line_end = width * 0.7;
+		const line_end = width * 0.6;
 
 		context.beginPath();
 		context.moveTo(line_start, y_mid);
