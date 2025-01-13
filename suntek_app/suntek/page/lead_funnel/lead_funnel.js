@@ -18,7 +18,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 
 	setup(wrapper) {
 		var me = this;
-
 		this.company_field = wrapper.page.add_field({
 			fieldtype: "Link",
 			fieldname: "company",
@@ -31,7 +30,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 				me.get_data();
 			},
 		});
-
 		this.elements = {
 			layout: $(wrapper).find(".layout-main"),
 			from_date: wrapper.page.add_date(__("From Date")),
@@ -40,7 +38,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 				me.get_data();
 			}),
 		};
-
 		this.elements.no_data = $(
 			'<div class="alert alert-warning" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">' +
 				__("No Data Available") +
@@ -48,16 +45,34 @@ erpnext.LeadFunnel = class LeadFunnel {
 		)
 			.toggle(false)
 			.appendTo(this.elements.layout);
-
 		this.elements.funnel_wrapper = $(
 			'<div class="funnel-wrapper text-center" style="width: 100%; padding: 20px;"></div>'
 		).appendTo(this.elements.layout);
-
 		this.company = frappe.defaults.get_user_default("company");
 		this.options = {
 			from_date: frappe.datetime.add_months(frappe.datetime.get_today(), -1),
 			to_date: frappe.datetime.get_today(),
 		};
+		this.lead_owner_field = wrapper.page.add_field({
+			fieldtype: "Link",
+			fieldname: "lead_owner",
+			options: "User",
+			label: __("Lead Owner"),
+			change: function () {
+				me.lead_owner = this.value;
+				me.get_data();
+			},
+		});
+		this.source_field = wrapper.page.add_field({
+			fieldtype: "Link",
+			fieldname: "source",
+			options: "Lead Source",
+			label: __("Source"),
+			change: function () {
+				me.source = this.value;
+				me.get_data();
+			},
+		});
 
 		$.each(["from_date", "to_date"], function (i, field) {
 			me.elements[field].val(frappe.datetime.str_to_user(me.options[field]));
@@ -85,6 +100,8 @@ erpnext.LeadFunnel = class LeadFunnel {
 				from_date: this.options.from_date,
 				to_date: this.options.to_date,
 				company: this.company,
+				lead_owner: this.lead_owner || "",
+				source: this.source || "",
 			},
 			btn: btn,
 			callback: function (r) {
@@ -95,7 +112,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 			},
 		});
 	}
-
 	render() {
 		this.render_funnel();
 	}
