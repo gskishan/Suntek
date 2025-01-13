@@ -11,11 +11,11 @@ frappe.pages["lead-funnel"].on_page_load = function (wrapper) {
 
 erpnext.LeadFunnel = class LeadFunnel {
 	constructor(wrapper) {
-		var me = this;
-		me.setup(wrapper);
-		frappe.run_serially([() => me.get_data(), () => me.render()]);
+		this.$wrapper = $(wrapper);
+		this.bodyTextColor = getComputedStyle(document.body).getPropertyValue("--text-color");
+		this.setup(wrapper);
+		frappe.run_serially([() => this.get_data(), () => this.render()]);
 	}
-
 	setup(wrapper) {
 		var me = this;
 		this.company_field = wrapper.page.add_field({
