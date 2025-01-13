@@ -1,7 +1,7 @@
+from typing import Dict, List, Optional
+
 import frappe
 from frappe import _
-from frappe.utils import cint, now_datetime
-from typing import List, Dict, Optional, Any
 
 LEAD_STATUSES = {
     "Open": "#2C9BC8",
