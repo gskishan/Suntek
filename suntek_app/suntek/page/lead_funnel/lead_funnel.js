@@ -150,8 +150,8 @@ erpnext.LeadFunnel = class LeadFunnel {
 
 	redrawFunnel(hoveredIndex = null) {
 		const context = this.elements.context;
-		const max_width = this.options.width * 0.4; // Triangle base width
-		let y = 20; // Starting y position
+		const max_width = this.options.width * 0.4;
+		let y = 20;
 
 		context.clearRect(0, 0, this.options.width, this.options.height);
 
@@ -161,19 +161,14 @@ erpnext.LeadFunnel = class LeadFunnel {
 		}
 
 		const funnel_offset = this.options.width * 0.05;
-		const total_height = this.options.height - y;
 		const triangle_base = max_width;
 		const triangle_height = this.options.height - y;
 
 		this.options.data.forEach((d, i) => {
 			const current_y_ratio = (y - 20) / triangle_height;
 			const next_y_ratio = (y + d.height - 20) / triangle_height;
-
-			// Calculate widths for current and next level of the section
 			const current_width = triangle_base * (1 - current_y_ratio);
 			const next_width = triangle_base * (1 - next_y_ratio);
-
-			// Calculate x coordinates
 			const x_start = funnel_offset + (max_width - current_width) / 2;
 			const x_end = x_start + current_width;
 			const next_x_start = funnel_offset + (max_width - next_width) / 2;
@@ -181,7 +176,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 
 			context.fillStyle = d.color;
 
-			// Apply hover effects
 			if (i === hoveredIndex) {
 				context.save();
 				context.shadowColor = "rgba(0, 0, 0, 0.5)";
@@ -189,17 +183,14 @@ erpnext.LeadFunnel = class LeadFunnel {
 				context.fillStyle = this.adjustColor(d.color, 20);
 			}
 
-			// Draw section
 			context.beginPath();
 			context.moveTo(x_start, y);
 			context.lineTo(x_end, y);
 
 			if (i === this.options.data.length - 1) {
-				// Last section - draw triangle
 				const finalX = funnel_offset + max_width / 2;
 				context.lineTo(finalX, y + d.height);
 			} else {
-				// Other sections - draw trapezoid
 				context.lineTo(next_x_end, y + d.height);
 				context.lineTo(next_x_start, y + d.height);
 			}
@@ -211,7 +202,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 				context.restore();
 			}
 
-			// Draw legend
 			const x_mid = (x_start + x_end) / 2;
 			this.draw_legend(
 				x_mid,
@@ -229,17 +219,12 @@ erpnext.LeadFunnel = class LeadFunnel {
 	prepare_funnel() {
 		var me = this;
 		this.elements.no_data.toggle(false);
-
-		// Increase the width by 15%
 		this.options.width = (($(this.elements.funnel_wrapper).width() * 2.0) / 3.0) * 1.5;
-		// Height of equilateral triangle = width * √3/2, also increased proportionally
 		this.options.height = ((Math.sqrt(3) * this.options.width * 0.4) / 2.0) * 1.5;
 
-		// Rest of the calculations remain the same
 		const total_value = this.options.data.reduce((sum, d) => sum + d.value, 0);
-		const total_height = this.options.height - 20; // Account for top padding
+		const total_height = this.options.height - 20;
 
-		// Calculate height for each section proportionally
 		$.each(this.options.data, function (i, d) {
 			d.height = (total_height * d.value) / total_value;
 		});
@@ -280,21 +265,12 @@ erpnext.LeadFunnel = class LeadFunnel {
 	draw_triangle(x_start, x_mid, x_end, y, height) {
 		var context = this.elements.context;
 		context.beginPath();
-
-		// Draw the top line of the section
 		context.moveTo(x_start, y);
 		context.lineTo(x_end, y);
-
-		// Draw lines to the bottom point
 		context.lineTo(x_mid, height);
 		context.lineTo(x_start, y);
-
-		// Close and fill the path
 		context.closePath();
 		context.fill();
-
-		// Add a white stroke to separate sections
-		// context.strokeStyle = "#fff";
 		context.stroke();
 	}
 	draw_legend(x_mid, y_mid, width, height, title, isHovered) {
@@ -305,7 +281,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 		const line_start = x_mid;
 		const line_end = funnel_width + (width - funnel_width) * 0.6;
 
-		// Use the current fillStyle (which is the section color) for the line
 		context.strokeStyle = context.fillStyle;
 
 		context.beginPath();
@@ -313,14 +288,11 @@ erpnext.LeadFunnel = class LeadFunnel {
 		context.lineTo(line_end, y_mid);
 		context.closePath();
 		context.stroke();
-
-		// Draw the circle with the same color as the section
 		context.beginPath();
 		context.arc(line_end, y_mid, isHovered ? 7 : 5, 0, Math.PI * 2, false);
 		context.closePath();
 		context.fill();
 
-		// Reset to text color for the text
 		context.fillStyle = getComputedStyle(document.body).getPropertyValue("--text-color");
 		context.textBaseline = "middle";
 		context.font = isHovered ? "bold 1.1em sans-serif" : "1em sans-serif";
