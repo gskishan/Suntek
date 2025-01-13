@@ -38,7 +38,7 @@ def get_funnel_data(from_date, to_date, company, lead_owner=None, source=None):
     others_count = frappe.db.sql(
         """
         SELECT COUNT(*) as count 
-        FROM `tabLead`
+        FROM `tabLead` 
         WHERE status NOT IN ('Open', 'Interested', 'Quotation', 'Converted', 'Do Not Contact')
         AND (date(`creation`) between %s and %s)
         AND company = %s

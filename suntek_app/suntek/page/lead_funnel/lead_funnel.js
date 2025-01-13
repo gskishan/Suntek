@@ -313,6 +313,11 @@ erpnext.LeadFunnel = class LeadFunnel {
 		context.textBaseline = "middle";
 		context.font = isHovered ? "bold 1.1em sans-serif" : "1em sans-serif";
 		context.fillText(__(title), line_end + 15, y_mid);
+
+		// if (isHovered) {
+		// 	const tooltipData = this.getToolTipData(title);
+		// 	this.drawtooltip(x_mid, y_mid, tooltipData);
+		// }
 	}
 };
 
