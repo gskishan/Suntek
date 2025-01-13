@@ -105,31 +105,66 @@ erpnext.LeadFunnel = class LeadFunnel {
 		this.prepare_funnel();
 		this.elements.context.clearRect(0, 0, this.options.width, this.options.height);
 
-		var context = this.elements.context,
-			max_width = this.options.width * 0.8,
-			y = 20;
-
 		if (!this.options.data || !this.options.data.length) {
 			this.elements.no_data.toggle(true);
 			return;
 		}
 
+		// Improved hover detection with proper scaling
 		this.elements.canvas.on("mousemove", function (e) {
 			const rect = this.getBoundingClientRect();
-			const x = e.clientX - rect.left;
-			const y = e.clientY - rect.top;
+			const boundingBox = this.getBoundingClientRect();
+			const scaleX = this.width / boundingBox.width;
+			const scaleY = this.height / boundingBox.height;
 
-			let hoveredSection = null;
+			// Get mouse position relative to canvas
+			const mouseX = (e.clientX - boundingBox.left) * scaleX;
+			const mouseY = (e.clientY - boundingBox.top) * scaleY;
+
+			const funnel_offset = me.options.width * 0.05;
+			const max_width = me.options.width * 0.4;
 			let currentY = 20;
+			let hoveredSection = null;
 
+			// Check each section
 			me.options.data.forEach((d, i) => {
 				const section_width = max_width * d.width_factor;
-				const x_start = (me.options.width - section_width) / 2;
+				const x_start = funnel_offset + (max_width - section_width) / 2;
 				const x_end = x_start + section_width;
 				const section_height = d.height;
 
-				if (x >= x_start && x <= x_end && y >= currentY && y <= currentY + section_height) {
-					hoveredSection = i;
+				// For the first section
+				if (i === 0) {
+					const prev_width = section_width;
+					const prev_x_start = x_start;
+					const prev_x_end = x_end;
+
+					if (
+						mouseY >= currentY &&
+						mouseY <= currentY + section_height &&
+						mouseX >= prev_x_start &&
+						mouseX <= prev_x_end
+					) {
+						hoveredSection = i;
+					}
+				}
+				// For other sections
+				else {
+					const prev_width = max_width * me.options.data[i - 1].width_factor;
+					const prev_x_start = funnel_offset + (max_width - prev_width) / 2;
+					const prev_x_end = prev_x_start + prev_width;
+
+					// Calculate trapezoid points
+					const points = [
+						{ x: prev_x_start, y: currentY },
+						{ x: prev_x_end, y: currentY },
+						{ x: x_end, y: currentY + section_height },
+						{ x: x_start, y: currentY + section_height },
+					];
+
+					if (isPointInTrapezoid(mouseX, mouseY, points)) {
+						hoveredSection = i;
+					}
 				}
 				currentY += section_height;
 			});
@@ -137,17 +172,21 @@ erpnext.LeadFunnel = class LeadFunnel {
 			me.redrawFunnel(hoveredSection);
 		});
 
+		this.elements.canvas.on("mouseout", function () {
+			me.redrawFunnel(null);
+		});
+
 		this.redrawFunnel();
 	}
 
 	redrawFunnel(hoveredIndex = null) {
 		const context = this.elements.context;
-		const max_width = this.options.width * 0.35;
+		const max_width = this.options.width * 0.4; // Reduced width for funnel
 		let y = 20;
 
 		context.clearRect(0, 0, this.options.width, this.options.height);
 
-		const funnel_offset = this.options.width * 0.15;
+		const funnel_offset = this.options.width * 0.05; // Move funnel to left
 
 		this.options.data.forEach((d, i) => {
 			const section_width = max_width * d.width_factor;
@@ -207,16 +246,17 @@ erpnext.LeadFunnel = class LeadFunnel {
 		const container_width = $(this.elements.funnel_wrapper).width();
 		const window_height = $(window).height();
 
-		this.options.width = Math.min(container_width * 0.9, 1400);
+		this.options.width = Math.min(container_width * 0.95, 1600);
 		this.options.height = Math.min(window_height * 0.75, 900);
 		this.options.data = this.options.data.sort((a, b) => b.value - a.value);
 
 		const min_height = (this.options.height * 0.1) / (this.options.data?.length || 1);
 		const height = this.options.height * 0.9;
 
+		// Calculate width factors for triangle shape
 		$.each(this.options.data, function (i, d) {
 			d.height = height / me.options.data.length + min_height;
-			d.width_factor = 0.9 - (i / (me.options.data.length - 1)) * 0.7;
+			d.width_factor = 1 - i / (me.options.data.length - 1);
 		});
 
 		this.elements.funnel_wrapper.empty();
@@ -273,8 +313,9 @@ erpnext.LeadFunnel = class LeadFunnel {
 		var context = this.elements.context;
 		if (y_mid == 0) y_mid = 7;
 
+		const funnel_width = width * 0.4;
 		const line_start = x_mid;
-		const line_end = width * 0.6;
+		const line_end = funnel_width + (width - funnel_width) * 0.6; // Position labels after funnel
 
 		context.beginPath();
 		context.moveTo(line_start, y_mid);
@@ -293,3 +334,17 @@ erpnext.LeadFunnel = class LeadFunnel {
 		context.fillText(__(title), line_end + 15, y_mid);
 	}
 };
+
+function isPointInTrapezoid(x, y, points) {
+	let inside = false;
+	for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+		const xi = points[i].x,
+			yi = points[i].y;
+		const xj = points[j].x,
+			yj = points[j].y;
+
+		const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+		if (intersect) inside = !inside;
+	}
+	return inside;
+}
