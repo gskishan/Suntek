@@ -1,20 +1,15 @@
-# suntek/suntek/doctype/lead_funnel/lead_funnel.py
-
 import frappe
 from frappe import _
 from typing import Dict, List, Optional, Tuple
 
 LEAD_STATUSES = {
-    "Open": "#2E86C1",  # Strong blue - beginning of funnel
-    "Lead": "#3498DB",  # Lighter blue - early stage
-    "Replied": "#1ABC9C",  # Turquoise - showing engagement
-    "Interested": "#F1C40F",  # Yellow - warming up
-    "Opportunity": "#E67E22",  # Orange - getting warmer
-    "Quotation": "#D35400",  # Deep orange - close to conversion
-    "Converted": "#27AE60",  # Green - success
-    "Lost": "#E74C3C",  # Red - negative outcome
-    "Do Not Contact": "#95A5A6",  # Gray - neutral/inactive
-    "Others": "#7F8C8D",  # Darker gray - miscellaneous
+    "Open": "#2E86C1",
+    "Interested": "#F1C40F",
+    "Opportunity": "#E67E22",
+    "Quotation": "#D35400",
+    "Converted": "#27AE60",
+    "Do Not Contact": "#95A5A6",
+    "Others": "#7F8C8D",
 }
 
 
@@ -22,13 +17,19 @@ class LeadFunnel:
     def __init__(self):
         self.filters = {}
 
-    def get_lead_data(self, from_date: str, to_date: str, company: str, lead_owner: Optional[str] = None, source: Optional[str] = None) -> List[Dict]:
+    def get_lead_data(
+        self,
+        from_date: str,
+        to_date: str,
+        company: str,
+        lead_owner: Optional[str] = None,
+        source: Optional[str] = None,
+    ) -> List[Dict]:
         """
         Get lead funnel data with owner details for tooltip
         """
         base_filters = self._get_base_filters(from_date, to_date, company)
         additional_conditions, additional_values = self._get_additional_filters(lead_owner, source)
-
         status_counts, others_count, owner_details = self._get_lead_counts(base_filters, additional_conditions, additional_values)
 
         return self._prepare_funnel_data(status_counts, others_count, owner_details)
@@ -39,7 +40,11 @@ class LeadFunnel:
         """
         return (from_date, to_date, company)
 
-    def _get_additional_filters(self, lead_owner: Optional[str], source: Optional[str]) -> Tuple[str, List]:
+    def _get_additional_filters(
+        self,
+        lead_owner: Optional[str],
+        source: Optional[str],
+    ) -> Tuple[str, List]:
         """
         Prepare additional filters based on lead owner and source
         """
@@ -58,13 +63,17 @@ class LeadFunnel:
 
         return additional_conditions, values
 
-    def _get_lead_counts(self, base_filters: Tuple, additional_conditions: str, additional_values: List) -> Tuple[Dict, int, Dict]:
+    def _get_lead_counts(
+        self,
+        base_filters: Tuple,
+        additional_conditions: str,
+        additional_values: List,
+    ) -> Tuple[Dict, int, Dict]:
         """
         Get lead counts and owner details for each status
         """
         main_statuses = tuple(LEAD_STATUSES.keys() - {"Others"})
 
-        # Query for main statuses with owner details
         status_data = frappe.db.sql(
             """
             SELECT 
@@ -86,7 +95,6 @@ class LeadFunnel:
             as_dict=1,
         )
 
-        # Process main status results
         status_counts = {}
         owner_details = {}
 
@@ -97,9 +105,13 @@ class LeadFunnel:
                 owner_details[status] = []
 
             status_counts[status] += row.count
-            owner_details[status].append({"owner": row.lead_owner or "Not Assigned", "count": row.owner_count})
+            owner_details[status].append(
+                {
+                    "owner": row.lead_owner or "Not Assigned",
+                    "count": row.owner_count,
+                }
+            )
 
-        # Query for other statuses
         others_data = frappe.db.sql(
             """
             SELECT 
@@ -125,21 +137,24 @@ class LeadFunnel:
 
         return status_counts, others_count, owner_details
 
-    def _prepare_funnel_data(self, status_counts: Dict, others_count: int, owner_details: Dict) -> List[Dict]:
+    def _prepare_funnel_data(
+        self,
+        status_counts: Dict,
+        others_count: int,
+        owner_details: Dict,
+    ) -> List[Dict]:
         """
         Prepare final funnel data with owner details for tooltip, sorted by value (descending)
         """
-        # Create data list and sort by value in descending order
+
         data = [
             {"title": _(status), "value": count, "color": LEAD_STATUSES[status], "owners": owner_details[status]}
             for status, count in status_counts.items()
             if count > 0
         ]
 
-        # Sort data by value in descending order
         data.sort(key=lambda x: x["value"], reverse=True)
 
-        # Add others category at the end if it exists
         if others_count:
             data.append({"title": _("Others"), "value": others_count, "color": LEAD_STATUSES["Others"], "owners": owner_details["Others"]})
 
@@ -147,7 +162,13 @@ class LeadFunnel:
 
 
 @frappe.whitelist()
-def get_funnel_data(from_date: str, to_date: str, company: str, lead_owner: Optional[str] = None, source: Optional[str] = None) -> List[Dict]:
+def get_funnel_data(
+    from_date: str,
+    to_date: str,
+    company: str,
+    lead_owner: Optional[str] = None,
+    source: Optional[str] = None,
+) -> List[Dict]:
     """
     API endpoint to get lead funnel data
     """
