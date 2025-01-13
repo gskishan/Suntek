@@ -110,14 +110,10 @@ erpnext.LeadFunnel = class LeadFunnel {
 			return;
 		}
 
-		// Improved hover detection with proper scaling
 		this.elements.canvas.on("mousemove", function (e) {
-			const rect = this.getBoundingClientRect();
 			const boundingBox = this.getBoundingClientRect();
 			const scaleX = this.width / boundingBox.width;
 			const scaleY = this.height / boundingBox.height;
-
-			// Get mouse position relative to canvas
 			const mouseX = (e.clientX - boundingBox.left) * scaleX;
 			const mouseY = (e.clientY - boundingBox.top) * scaleY;
 
@@ -126,16 +122,13 @@ erpnext.LeadFunnel = class LeadFunnel {
 			let currentY = 20;
 			let hoveredSection = null;
 
-			// Check each section
 			me.options.data.forEach((d, i) => {
 				const section_width = max_width * d.width_factor;
 				const x_start = funnel_offset + (max_width - section_width) / 2;
 				const x_end = x_start + section_width;
 				const section_height = d.height;
 
-				// For the first section
 				if (i === 0) {
-					const prev_width = section_width;
 					const prev_x_start = x_start;
 					const prev_x_end = x_end;
 
@@ -147,14 +140,11 @@ erpnext.LeadFunnel = class LeadFunnel {
 					) {
 						hoveredSection = i;
 					}
-				}
-				// For other sections
-				else {
+				} else {
 					const prev_width = max_width * me.options.data[i - 1].width_factor;
 					const prev_x_start = funnel_offset + (max_width - prev_width) / 2;
 					const prev_x_end = prev_x_start + prev_width;
 
-					// Calculate trapezoid points
 					const points = [
 						{ x: prev_x_start, y: currentY },
 						{ x: prev_x_end, y: currentY },
@@ -181,12 +171,12 @@ erpnext.LeadFunnel = class LeadFunnel {
 
 	redrawFunnel(hoveredIndex = null) {
 		const context = this.elements.context;
-		const max_width = this.options.width * 0.4; // Reduced width for funnel
+		const max_width = this.options.width * 0.4;
 		let y = 20;
 
 		context.clearRect(0, 0, this.options.width, this.options.height);
 
-		const funnel_offset = this.options.width * 0.05; // Move funnel to left
+		const funnel_offset = this.options.width * 0.05;
 
 		this.options.data.forEach((d, i) => {
 			const section_width = max_width * d.width_factor;
@@ -253,7 +243,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 		const min_height = (this.options.height * 0.1) / (this.options.data?.length || 1);
 		const height = this.options.height * 0.9;
 
-		// Calculate width factors for triangle shape
 		$.each(this.options.data, function (i, d) {
 			d.height = height / me.options.data.length + min_height;
 			d.width_factor = 1 - i / (me.options.data.length - 1);
@@ -315,7 +304,7 @@ erpnext.LeadFunnel = class LeadFunnel {
 
 		const funnel_width = width * 0.4;
 		const line_start = x_mid;
-		const line_end = funnel_width + (width - funnel_width) * 0.6; // Position labels after funnel
+		const line_end = funnel_width + (width - funnel_width) * 0.6;
 
 		context.beginPath();
 		context.moveTo(line_start, y_mid);
