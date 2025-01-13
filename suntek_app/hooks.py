@@ -25,7 +25,7 @@ app_license = "123"
 # webform_include_css = {"doctype": "public/css/doctype.css"}
 
 # include js in page
-# page_js = {"doctype": "public/js/doctype.js"}
+page_js = {"lead_funnel": "public/js/lead_funnel.js"}
 
 # include js in doctype views
 
@@ -129,18 +129,6 @@ doctype_list_js = {
 # Override standard doctype classes
 
 
-# website_context = {
-#     "google_analytics_id": "G-KFS9KH8LC7",
-#     "facebook_pixel_id": "1385332509097665",
-#     "google_tag_manager_id": "GTM-T452DBWT",
-# }
-
-# app_include_js = [
-#     "/assets/suntek_app/js/analytics.js",
-#     "./public/js/suntek.js",
-# ]
-# web_include_js = ["/assets/suntek_app/js/analytics.js"]
-
 override_doctype_dashboards = {
     "Opportunity": "suntek_app.suntek.custom_dashboard.dashboard.update_opportunity_dashboard",
     "Lead": "suntek_app.suntek.custom_dashboard.dashboard.update_enquiry_dashboard",
@@ -166,9 +154,7 @@ doc_events = {
         "before_save": [
             "suntek_app.suntek.custom.lead.change_enquiry_status",
         ],
-        "before_insert": [
-            "suntek_app.suntek.custom.lead.before_import"
-        ]
+        "before_insert": ["suntek_app.suntek.custom.lead.before_import"],
         # "before_save": ["suntek_app.suntek.custom.lead.set_assigned_to"],
     },
     "Opportunity": {

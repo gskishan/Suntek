@@ -6,7 +6,6 @@ from suntek_app.suntek.utils.validation_utils import convert_date_format, extrac
 def get_next_telecaller():
     """Get next telecaller for lead assignment"""
     try:
-        # Get next active telecaller based on last assigned time
         telecallers = frappe.db.sql(
             """
             SELECT
