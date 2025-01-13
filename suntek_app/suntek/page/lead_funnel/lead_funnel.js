@@ -11,14 +11,13 @@ frappe.pages["lead-funnel"].on_page_load = function (wrapper) {
 
 erpnext.LeadFunnel = class LeadFunnel {
 	constructor(wrapper) {
-		var me = this;
-		me.setup(wrapper);
-		frappe.run_serially([() => me.get_data(), () => me.render()]);
+		this.$wrapper = $(wrapper);
+		this.bodyTextColor = getComputedStyle(document.body).getPropertyValue("--text-color");
+		this.setup(wrapper);
+		frappe.run_serially([() => this.get_data(), () => this.render()]);
 	}
-
 	setup(wrapper) {
 		var me = this;
-
 		this.company_field = wrapper.page.add_field({
 			fieldtype: "Link",
 			fieldname: "company",
@@ -31,7 +30,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 				me.get_data();
 			},
 		});
-
 		this.elements = {
 			layout: $(wrapper).find(".layout-main"),
 			from_date: wrapper.page.add_date(__("From Date")),
@@ -40,7 +38,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 				me.get_data();
 			}),
 		};
-
 		this.elements.no_data = $(
 			'<div class="alert alert-warning" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">' +
 				__("No Data Available") +
@@ -48,16 +45,34 @@ erpnext.LeadFunnel = class LeadFunnel {
 		)
 			.toggle(false)
 			.appendTo(this.elements.layout);
-
 		this.elements.funnel_wrapper = $(
 			'<div class="funnel-wrapper text-center" style="width: 100%; padding: 20px;"></div>'
 		).appendTo(this.elements.layout);
-
 		this.company = frappe.defaults.get_user_default("company");
 		this.options = {
 			from_date: frappe.datetime.add_months(frappe.datetime.get_today(), -1),
 			to_date: frappe.datetime.get_today(),
 		};
+		this.lead_owner_field = wrapper.page.add_field({
+			fieldtype: "Link",
+			fieldname: "lead_owner",
+			options: "User",
+			label: __("Lead Owner"),
+			change: function () {
+				me.lead_owner = this.value;
+				me.get_data();
+			},
+		});
+		this.source_field = wrapper.page.add_field({
+			fieldtype: "Link",
+			fieldname: "source",
+			options: "Lead Source",
+			label: __("Source"),
+			change: function () {
+				me.source = this.value;
+				me.get_data();
+			},
+		});
 
 		$.each(["from_date", "to_date"], function (i, field) {
 			me.elements[field].val(frappe.datetime.str_to_user(me.options[field]));
@@ -85,6 +100,8 @@ erpnext.LeadFunnel = class LeadFunnel {
 				from_date: this.options.from_date,
 				to_date: this.options.to_date,
 				company: this.company,
+				lead_owner: this.lead_owner || "",
+				source: this.source || "",
 			},
 			btn: btn,
 			callback: function (r) {
@@ -95,7 +112,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 			},
 		});
 	}
-
 	render() {
 		this.render_funnel();
 	}
@@ -117,46 +133,25 @@ erpnext.LeadFunnel = class LeadFunnel {
 			const mouseX = (e.clientX - boundingBox.left) * scaleX;
 			const mouseY = (e.clientY - boundingBox.top) * scaleY;
 
-			const funnel_offset = me.options.width * 0.05;
-			const max_width = me.options.width * 0.4;
 			let currentY = 20;
 			let hoveredSection = null;
 
 			me.options.data.forEach((d, i) => {
-				const section_width = max_width * d.width_factor;
-				const x_start = funnel_offset + (max_width - section_width) / 2;
-				const x_end = x_start + section_width;
-				const section_height = d.height;
+				const height = d.height;
+				const y_start = currentY;
+				const y_end = currentY + height;
 
-				if (i === 0) {
-					const prev_x_start = x_start;
-					const prev_x_end = x_end;
+				if (mouseY >= y_start && mouseY <= y_end) {
+					const current_y_ratio = (y_start - 20) / (me.options.height - 20);
+					const section_width = me.options.width * 0.4 * (1 - current_y_ratio);
+					const x_start = me.options.width * 0.05 + (me.options.width * 0.4 - section_width) / 2;
+					const x_end = x_start + section_width;
 
-					if (
-						mouseY >= currentY &&
-						mouseY <= currentY + section_height &&
-						mouseX >= prev_x_start &&
-						mouseX <= prev_x_end
-					) {
-						hoveredSection = i;
-					}
-				} else {
-					const prev_width = max_width * me.options.data[i - 1].width_factor;
-					const prev_x_start = funnel_offset + (max_width - prev_width) / 2;
-					const prev_x_end = prev_x_start + prev_width;
-
-					const points = [
-						{ x: prev_x_start, y: currentY },
-						{ x: prev_x_end, y: currentY },
-						{ x: x_end, y: currentY + section_height },
-						{ x: x_start, y: currentY + section_height },
-					];
-
-					if (isPointInTrapezoid(mouseX, mouseY, points)) {
+					if (mouseX >= x_start && mouseX <= x_end) {
 						hoveredSection = i;
 					}
 				}
-				currentY += section_height;
+				currentY += height;
 			});
 
 			me.redrawFunnel(hoveredSection);
@@ -176,17 +171,26 @@ erpnext.LeadFunnel = class LeadFunnel {
 
 		context.clearRect(0, 0, this.options.width, this.options.height);
 
+		if (!this.options.data || !this.options.data.length) {
+			this.elements.no_data.toggle(true);
+			return;
+		}
+
 		const funnel_offset = this.options.width * 0.05;
+		const triangle_base = max_width;
+		const triangle_height = this.options.height - y;
 
 		this.options.data.forEach((d, i) => {
-			const section_width = max_width * d.width_factor;
-			const x_start = funnel_offset + (max_width - section_width) / 2;
-			const x_end = x_start + section_width;
-			const x_mid = (x_start + x_end) / 2;
+			const current_y_ratio = (y - 20) / triangle_height;
+			const next_y_ratio = (y + d.height - 20) / triangle_height;
+			const current_width = triangle_base * (1 - current_y_ratio);
+			const next_width = triangle_base * (1 - next_y_ratio);
+			const x_start = funnel_offset + (max_width - current_width) / 2;
+			const x_end = x_start + current_width;
+			const next_x_start = funnel_offset + (max_width - next_width) / 2;
+			const next_x_end = next_x_start + next_width;
 
-			context.beginPath();
 			context.fillStyle = d.color;
-			context.strokeStyle = d.color;
 
 			if (i === hoveredIndex) {
 				context.save();
@@ -195,20 +199,18 @@ erpnext.LeadFunnel = class LeadFunnel {
 				context.fillStyle = this.adjustColor(d.color, 20);
 			}
 
-			if (i === 0) {
-				context.moveTo(x_start, y);
-				context.lineTo(x_end, y);
+			context.beginPath();
+			context.moveTo(x_start, y);
+			context.lineTo(x_end, y);
+
+			if (i === this.options.data.length - 1) {
+				const finalX = funnel_offset + max_width / 2;
+				context.lineTo(finalX, y + d.height);
 			} else {
-				const prev_width = max_width * this.options.data[i - 1].width_factor;
-				const prev_x_start = funnel_offset + (max_width - prev_width) / 2;
-				const prev_x_end = prev_x_start + prev_width;
-				context.moveTo(prev_x_start, y);
-				context.lineTo(prev_x_end, y);
+				context.lineTo(next_x_end, y + d.height);
+				context.lineTo(next_x_start, y + d.height);
 			}
 
-			const next_y = y + d.height;
-			context.lineTo(x_end, next_y);
-			context.lineTo(x_start, next_y);
 			context.closePath();
 			context.fill();
 
@@ -216,6 +218,7 @@ erpnext.LeadFunnel = class LeadFunnel {
 				context.restore();
 			}
 
+			const x_mid = (x_start + x_end) / 2;
 			this.draw_legend(
 				x_mid,
 				y + d.height / 2,
@@ -225,47 +228,30 @@ erpnext.LeadFunnel = class LeadFunnel {
 				i === hoveredIndex
 			);
 
-			y = next_y;
+			y += d.height;
 		});
 	}
 
 	prepare_funnel() {
 		var me = this;
 		this.elements.no_data.toggle(false);
+		this.options.width = (($(this.elements.funnel_wrapper).width() * 2.0) / 3.0) * 1.5;
+		this.options.height = ((Math.sqrt(3) * this.options.width * 0.4) / 2.0) * 1.5;
 
-		const container_width = $(this.elements.funnel_wrapper).width();
-		const window_height = $(window).height();
-
-		this.options.width = Math.min(container_width * 0.95, 1600);
-		this.options.height = Math.min(window_height * 0.75, 900);
-		this.options.data = this.options.data.sort((a, b) => b.value - a.value);
-
-		const min_height = (this.options.height * 0.1) / (this.options.data?.length || 1);
-		const height = this.options.height * 0.9;
+		const total_value = this.options.data.reduce((sum, d) => sum + d.value, 0);
+		const total_height = this.options.height - 20;
 
 		$.each(this.options.data, function (i, d) {
-			d.height = height / me.options.data.length + min_height;
-			d.width_factor = 1 - i / (me.options.data.length - 1);
+			d.height = (total_height * d.value) / total_value;
 		});
 
 		this.elements.funnel_wrapper.empty();
-
-		const container = $(
-			'<div style="display: flex; justify-content: flex-start; width: 100%;">'
-		).appendTo(this.elements.funnel_wrapper);
-
 		this.elements.canvas = $("<canvas></canvas>")
-			.appendTo(container)
-			.attr("width", this.options.width)
-			.attr("height", this.options.height)
-			.css({
-				"max-width": "100%",
-				height: "auto",
-			});
+			.appendTo(this.elements.funnel_wrapper)
+			.attr("width", $(this.elements.funnel_wrapper).width())
+			.attr("height", this.options.height);
 
 		this.elements.context = this.elements.canvas.get(0).getContext("2d");
-		this.elements.context.lineWidth = 2;
-		this.elements.context.strokeStyle = "#fff";
 	}
 
 	adjustColor(color, percent) {
@@ -287,6 +273,11 @@ erpnext.LeadFunnel = class LeadFunnel {
 		);
 	}
 
+	calculateNextSection(currentWidth, currentY, height) {
+		const ratio = (height - currentY) / height;
+		return currentWidth * ratio;
+	}
+
 	draw_triangle(x_start, x_mid, x_end, y, height) {
 		var context = this.elements.context;
 		context.beginPath();
@@ -296,8 +287,8 @@ erpnext.LeadFunnel = class LeadFunnel {
 		context.lineTo(x_start, y);
 		context.closePath();
 		context.fill();
+		context.stroke();
 	}
-
 	draw_legend(x_mid, y_mid, width, height, title, isHovered) {
 		var context = this.elements.context;
 		if (y_mid == 0) y_mid = 7;
@@ -306,12 +297,13 @@ erpnext.LeadFunnel = class LeadFunnel {
 		const line_start = x_mid;
 		const line_end = funnel_width + (width - funnel_width) * 0.6;
 
+		context.strokeStyle = context.fillStyle;
+
 		context.beginPath();
 		context.moveTo(line_start, y_mid);
 		context.lineTo(line_end, y_mid);
 		context.closePath();
 		context.stroke();
-
 		context.beginPath();
 		context.arc(line_end, y_mid, isHovered ? 7 : 5, 0, Math.PI * 2, false);
 		context.closePath();
@@ -321,6 +313,11 @@ erpnext.LeadFunnel = class LeadFunnel {
 		context.textBaseline = "middle";
 		context.font = isHovered ? "bold 1.1em sans-serif" : "1em sans-serif";
 		context.fillText(__(title), line_end + 15, y_mid);
+
+		// if (isHovered) {
+		// 	const tooltipData = this.getToolTipData(title);
+		// 	this.drawtooltip(x_mid, y_mid, tooltipData);
+		// }
 	}
 };
 
