@@ -76,6 +76,32 @@ erpnext.LeadFunnel = class LeadFunnel {
 
 		this.add_filter_buttons(wrapper);
 
+		wrapper.page.add_button(
+			__("Clear Filters"),
+			function () {
+				// Reset all filter buttons
+				$(".date-filter-buttons .btn-selected").removeClass("btn-selected");
+
+				// Reset dates to default
+				me.options.from_date = frappe.datetime.add_months(frappe.datetime.get_today(), -1);
+				me.options.to_date = frappe.datetime.get_today();
+
+				// Update date fields
+				me.elements.from_date.val(frappe.datetime.str_to_user(me.options.from_date));
+				me.elements.to_date.val(frappe.datetime.str_to_user(me.options.to_date));
+
+				// Clear other filters
+				me.lead_owner_field.set_value("");
+				me.source_field.set_value("");
+				me.lead_owner = "";
+				me.source = "";
+
+				// Refresh data
+				me.get_data();
+			},
+			"btn-default btn-sm"
+		);
+
 		$.each(["from_date", "to_date"], function (i, field) {
 			me.elements[field].val(frappe.datetime.str_to_user(me.options[field]));
 			me.elements[field].on("change", function () {
@@ -124,21 +150,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 									flex-wrap: wrap;
 							"></div>
 					</div>
-	
-					<button class="btn btn-default btn-sm clear-filters" style="
-							position: absolute;
-							right: 0;
-							top: 0;
-							display: flex;
-							align-items: center;
-							gap: 5px;
-							padding: 6px 12px;
-							border-radius: 6px;
-							transition: all 0.2s;
-					">
-							<i class="fa fa-times"></i>
-							Clear Filters
-					</button>
 			</div>
 	</div>
 `).insertAfter(wrapper.page.page_form);
@@ -261,34 +272,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 				.appendTo(date_button_group);
 		});
 
-		// Add clear filters button
-		$(`<button class="btn btn-default btn-sm clear-filters" style="
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 6px 12px;
-        border-radius: 6px;
-        transition: all 0.2s;
-        background: var(--control-bg);
-        border: 1px solid var(--border-color);
-    ">
-        <i class="fa fa-times"></i>
-        Clear Filters
-    </button>`)
-			.click(function () {
-				// Reset all filters
-				filter_container.find(".btn-selected").removeClass("btn-selected");
-				me.options.from_date = frappe.datetime.add_months(frappe.datetime.get_today(), -1);
-				me.options.to_date = frappe.datetime.get_today();
-				me.elements.from_date.val(frappe.datetime.str_to_user(me.options.from_date));
-				me.elements.to_date.val(frappe.datetime.str_to_user(me.options.to_date));
-				me.lead_owner = "";
-				me.source = "";
-				me.get_data();
-			})
-			.appendTo(filter_container.find(".filter-sections"));
-
-		// Add custom CSS
 		$("<style>")
 			.prop("type", "text/css")
 			.html(
@@ -457,7 +440,7 @@ erpnext.LeadFunnel = class LeadFunnel {
             border-radius: 12px;
             padding: 1.5rem;
             background: var(--card-bg);
-            max-width: 90%;
+            width: ${this.options.width}px;
             margin: 0 auto;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
         ">
@@ -652,13 +635,9 @@ erpnext.LeadFunnel = class LeadFunnel {
 
 	prepare_funnel() {
 		const isMobile = window.innerWidth <= 768;
+		const wrapperWidth = $(this.elements.funnel_wrapper).width();
 
-		// Adjust width calculation
-		this.options.width = isMobile
-			? $(this.elements.funnel_wrapper).width()
-			: ($(this.elements.funnel_wrapper).width() * 2.0) / 2.0;
-
-		// Calculate height based on width for better proportions
+		this.options.width = isMobile ? wrapperWidth : wrapperWidth;
 		this.options.height = this.options.width * 0.55;
 
 		var me = this;
@@ -674,7 +653,7 @@ erpnext.LeadFunnel = class LeadFunnel {
 		this.elements.funnel_wrapper.empty();
 		this.elements.canvas = $("<canvas></canvas>")
 			.appendTo(this.elements.funnel_wrapper)
-			.attr("width", $(this.elements.funnel_wrapper).width())
+			.attr("width", this.options.width)
 			.attr("height", this.options.height);
 		this.elements.context = this.elements.canvas.get(0).getContext("2d");
 	}
