@@ -3,13 +3,11 @@ from frappe import _
 from typing import Dict, List, Optional, Tuple
 
 LEAD_STATUSES = {
-    "Open": "#2E86C1",
-    "Interested": "#F1C40F",
-    "Opportunity": "#E67E22",
+    "Total Leads": "#2E86C1",
+    "Connected": "#F1C40F",
+    "Interested": "#E67E22",
     "Quotation": "#D35400",
     "Converted": "#27AE60",
-    "Do Not Contact": "#95A5A6",
-    "Others": "#7F8C8D",
 }
 
 
@@ -70,72 +68,87 @@ class LeadFunnel:
         additional_values: List,
     ) -> Tuple[Dict, int, Dict]:
         """
-        Get lead counts and owner details for each status
+        Get lead counts and owner details for each stage
         """
-        main_statuses = tuple(LEAD_STATUSES.keys() - {"Others"})
+        # Get total leads count
+        total_leads_query = """
+            SELECT 
+                COUNT(*) as count,
+                lead_owner,
+                COUNT(lead_owner) as owner_count
+            FROM `tabLead`
+            WHERE (date(`creation`) between %s and %s)
+            AND company = %s
+            {0}
+            GROUP BY lead_owner
+            ORDER BY owner_count DESC
+        """.format(
+            additional_conditions
+        )
 
-        status_data = frappe.db.sql(
-            """
+        total_data = frappe.db.sql(
+            total_leads_query,
+            base_filters + tuple(additional_values),
+            as_dict=1,
+        )
+
+        # Get status-wise counts
+        status_query = """
             SELECT 
                 status,
                 COUNT(*) as count,
                 lead_owner,
                 COUNT(lead_owner) as owner_count
             FROM `tabLead`
-            WHERE status IN %s 
-            AND (date(`creation`) between %s and %s)
+            WHERE (date(`creation`) between %s and %s)
             AND company = %s
             {0}
             GROUP BY status, lead_owner
             ORDER BY status, owner_count DESC
-            """.format(
-                additional_conditions
-            ),
-            (main_statuses,) + base_filters + tuple(additional_values),
+        """.format(
+            additional_conditions
+        )
+
+        status_data = frappe.db.sql(
+            status_query,
+            base_filters + tuple(additional_values),
             as_dict=1,
         )
 
-        status_counts = {}
-        owner_details = {}
+        # Initialize counters
+        total_count = sum(row.count for row in total_data)
+        status_counts = {"Total Leads": total_count, "Connected": 0, "Interested": 0, "Quotation": 0, "Converted": 0}
 
+        owner_details = {status: [] for status in LEAD_STATUSES.keys()}
+
+        # Add owners for total leads
+        owner_details["Total Leads"] = [{"owner": row.lead_owner or "Not Assigned", "count": row.owner_count} for row in total_data]
+
+        # Calculate stage-wise counts
+        open_enquiry_count = sum(row.count for row in status_data if row.status in ["Open", "Enquiry"])
+        do_not_contact_count = sum(row.count for row in status_data if row.status == "Do Not Contact")
+        quotation_count = sum(row.count for row in status_data if row.status == "Quotation")
+        converted_count = sum(row.count for row in status_data if row.status == "Converted")
+
+        # Update status counts
+        status_counts.update(
+            {
+                "Connected": total_count - open_enquiry_count,
+                "Interested": total_count - (open_enquiry_count + do_not_contact_count),
+                "Quotation": quotation_count + converted_count,
+                "Converted": converted_count,
+            }
+        )
+
+        # Update owner details for each stage
         for row in status_data:
-            status = row.status
-            if status not in status_counts:
-                status_counts[status] = 0
-                owner_details[status] = []
+            if row.status == "Converted":
+                owner_details["Converted"].append({"owner": row.lead_owner or "Not Assigned", "count": row.owner_count})
+                owner_details["Quotation"].append({"owner": row.lead_owner or "Not Assigned", "count": row.owner_count})
+            elif row.status == "Quotation":
+                owner_details["Quotation"].append({"owner": row.lead_owner or "Not Assigned", "count": row.owner_count})
 
-            status_counts[status] += row.count
-            owner_details[status].append(
-                {
-                    "owner": row.lead_owner or "Not Assigned",
-                    "count": row.owner_count,
-                }
-            )
-
-        others_data = frappe.db.sql(
-            """
-            SELECT 
-                COUNT(*) as count,
-                lead_owner,
-                COUNT(lead_owner) as owner_count
-            FROM `tabLead`
-            WHERE status NOT IN %s
-            AND (date(`creation`) between %s and %s)
-            AND company = %s
-            {0}
-            GROUP BY lead_owner
-            ORDER BY owner_count DESC
-            """.format(
-                additional_conditions
-            ),
-            (main_statuses,) + base_filters + tuple(additional_values),
-            as_dict=1,
-        )
-
-        others_count = sum(row.count for row in others_data)
-        owner_details["Others"] = [{"owner": row.lead_owner or "Not Assigned", "count": row.owner_count} for row in others_data]
-
-        return status_counts, others_count, owner_details
+        return status_counts, 0, owner_details
 
     def _prepare_funnel_data(
         self,
