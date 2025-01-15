@@ -32,7 +32,7 @@
   "meta_description": null,
   "meta_image": null,
   "meta_title": null,
-  "modified": "2025-01-10 13:51:41.589623",
+  "modified": "2025-01-13 17:28:26.420546",
   "module": "suntek",
   "name": "contact-form-2",
   "payment_button_help": null,
@@ -44,9 +44,9 @@
   "show_attachments": 0,
   "show_list": 0,
   "show_sidebar": 0,
-  "success_message": "\"Thank you for reaching out! Our team will review your submission and get back to you as soon as possible. We appreciate your patience.\"",
+  "success_message": "Thank you for reaching out! Our team will review your submission and get back to you as soon as possible. We appreciate your patience.",
   "success_title": "Your Enquiry Has Been Submitted Successfully!",
-  "success_url": "https://www.sunteksolar.in/",
+  "success_url": "https://www.truzonsolar.com/",
   "title": "Contact Form",
   "web_form_fields": [
    {

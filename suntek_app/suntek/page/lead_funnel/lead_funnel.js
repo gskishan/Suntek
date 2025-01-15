@@ -180,12 +180,10 @@ erpnext.LeadFunnel = class LeadFunnel {
 		const triangle_base = max_width;
 		const triangle_height = this.options.height - y;
 
-		// Store the hovered section data for later
 		let hoveredData = null;
 		let hoveredX = 0;
 		let hoveredY = 0;
 
-		// First pass: Draw all funnel sections
 		this.options.data.forEach((d, i) => {
 			const current_y_ratio = (y - 20) / triangle_height;
 			const next_y_ratio = (y + d.height - 20) / triangle_height;
@@ -195,8 +193,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 			const x_end = x_start + current_width;
 			const next_x_start = funnel_offset + (max_width - next_width) / 2;
 			const next_x_end = next_x_start + next_width;
-
-			// Calculate midpoints for section
 			const x_mid = (x_start + x_end) / 2;
 			const y_mid = y + d.height / 2;
 
@@ -207,7 +203,7 @@ erpnext.LeadFunnel = class LeadFunnel {
 				context.shadowColor = "rgba(0, 0, 0, 0.5)";
 				context.shadowBlur = 15;
 				context.fillStyle = this.adjustColor(d.color, 20);
-				// Store hovered section data
+
 				hoveredData = d;
 				hoveredX = x_mid;
 				hoveredY = y_mid;
@@ -243,22 +239,15 @@ erpnext.LeadFunnel = class LeadFunnel {
 
 			y += d.height;
 		});
-
-		// Second pass: Draw tooltip for hovered section
-		// if (hoveredData) {
-		// 	this.drawTooltip(hoveredX, hoveredY, hoveredData);
-		// }
 	}
 
 	prepare_funnel() {
 		const isMobile = window.innerWidth <= 768;
 
-		// Keep the width calculation the same
 		this.options.width = isMobile
 			? $(this.elements.funnel_wrapper).width()
 			: (($(this.elements.funnel_wrapper).width() * 2.0) / 3.0) * 1.5;
 
-		// Adjust base height calculation
 		const baseHeight = ((Math.sqrt(3) * this.options.width * 0.4) / 2.0) * 1.5;
 		this.options.height = isMobile ? this.options.width * 1.2 : baseHeight * 1.2;
 
@@ -272,9 +261,7 @@ erpnext.LeadFunnel = class LeadFunnel {
 		const total_value = this.options.data.reduce((sum, d) => sum + d.value, 0);
 		const total_height = this.options.height - 20;
 
-		// Apply square root scaling to make larger sections relatively smaller
 		$.each(this.options.data, function (i, d) {
-			// Use square root scaling for height calculation
 			const scaledValue = Math.sqrt(d.value);
 			const totalScaledValues = me.options.data.reduce((sum, d) => sum + Math.sqrt(d.value), 0);
 			d.height = (total_height * scaledValue) / totalScaledValues;
@@ -355,23 +342,19 @@ erpnext.LeadFunnel = class LeadFunnel {
 		const padding = 10;
 		const lineHeight = 20;
 
-		// Format tooltip content
 		const owners = data.owners || [];
 		const lines = [`${data.title}: ${data.value}`].concat(
 			owners.map((o) => `${o.owner}: ${o.count}`)
 		);
 
-		// Calculate tooltip dimensions
 		context.font = "12px sans-serif";
 		const maxWidth = Math.max(...lines.map((line) => context.measureText(line).width));
 		const tooltipWidth = maxWidth + padding * 2;
 		const tooltipHeight = lines.length * lineHeight + padding * 2;
 
-		// Position tooltip
 		let tooltipX = x + 20;
 		let tooltipY = y - tooltipHeight / 2;
 
-		// Ensure tooltip stays within canvas bounds
 		if (tooltipX + tooltipWidth > this.options.width) {
 			tooltipX = x - tooltipWidth - 20;
 		}
@@ -380,7 +363,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 		}
 		if (tooltipY < 5) tooltipY = 5;
 
-		// Draw tooltip background
 		context.save();
 		context.fillStyle = "rgba(0, 0, 0, 0.8)";
 		context.shadowColor = "rgba(0, 0, 0, 0.2)";
@@ -388,7 +370,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 		context.shadowOffsetX = 2;
 		context.shadowOffsetY = 2;
 
-		// Draw rounded rectangle manually
 		const radius = 5;
 		context.beginPath();
 		context.moveTo(tooltipX + radius, tooltipY);
@@ -418,7 +399,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 		context.closePath();
 		context.fill();
 
-		// Draw tooltip text
 		context.fillStyle = "#ffffff";
 		context.textBaseline = "top";
 		lines.forEach((line, index) => {

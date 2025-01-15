@@ -79,9 +79,7 @@ def create_power_plants(plants: List[Dict]):
 
         if frappe.db.exists("Solar Power Plants", {"plant_id": plant_id}):
             # Get existing plant details
-            existing_plant = frappe.get_doc(
-                "Solar Power Plants", {"plant_id": plant_id}
-            )
+            existing_plant = frappe.get_doc("Solar Power Plants", {"plant_id": plant_id})
             response["existing"].append(
                 {
                     "plant_id": plant_id,
