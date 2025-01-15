@@ -436,14 +436,16 @@ erpnext.LeadFunnel = class LeadFunnel {
 	}
 
 	getSimpleDescription(title) {
-		const descriptions = {
-			"Total Leads": "All the leads we received for the given time frame",
-			Connected: "Leads we were able to reach",
-			Interested: "Leads showing interest in our products",
-			Quotation: "Leads that requested pricing",
-			Converted: "Leads that became customers",
-		};
-		return descriptions[title] || "";
+		if (!this._descriptions) {
+			this._descriptions = {
+				"Total Leads": "All the leads we received for the given time frame",
+				Connected: "Leads we were able to reach",
+				Interested: "Leads showing interest in our products",
+				Quotation: "Leads that requested pricing",
+				Converted: "Leads that became customers",
+			};
+		}
+		return this._descriptions[title] || "";
 	}
 
 	showCalculationDetails() {
@@ -558,91 +560,93 @@ erpnext.LeadFunnel = class LeadFunnel {
 	}
 
 	redrawFunnel(hoveredIndex = null) {
-		this.labels = [];
-		const context = this.elements.context;
-		const max_width = this.options.width * 0.6; // Increased width
-		const min_width = max_width * 0.2; // Minimum width for bottom
-		let y = 20;
+		requestAnimationFrame(() => {
+			this.labels = [];
+			const context = this.elements.context;
+			const max_width = this.options.width * 0.6; // Increased width
+			const min_width = max_width * 0.2; // Minimum width for bottom
+			let y = 20;
 
-		context.clearRect(0, 0, this.options.width, this.options.height);
+			context.clearRect(0, 0, this.options.width, this.options.height);
 
-		if (!this.options.data || !this.options.data.length) {
-			this.elements.no_data.toggle(true);
-			return;
-		}
-
-		const funnel_offset = this.options.width * 0.05;
-		const section_height = (this.options.height - y) / this.options.data.length;
-
-		this.options.data.forEach((d, i) => {
-			const isLastTwoSections = i >= this.options.data.length - 2;
-
-			// Calculate widths with curved reduction
-			let current_width, next_width;
-
-			if (isLastTwoSections) {
-				// Last two sections are rectangular and equal width
-				current_width = min_width * 1.5;
-				next_width = min_width * 1.5;
-			} else {
-				const progress = i / (this.options.data.length - 2);
-				current_width = max_width * (1 - progress * 0.7);
-				next_width = max_width * (1 - ((i + 1) / (this.options.data.length - 2)) * 0.7);
+			if (!this.options.data || !this.options.data.length) {
+				this.elements.no_data.toggle(true);
+				return;
 			}
 
-			const x_start = funnel_offset + (max_width - current_width) / 2;
-			const x_end = x_start + current_width;
-			const next_x_start = funnel_offset + (max_width - next_width) / 2;
-			const next_x_end = next_x_start + next_width;
+			const funnel_offset = this.options.width * 0.05;
+			const section_height = (this.options.height - y) / this.options.data.length;
 
-			const current_y = y;
-			const next_y = y + d.height;
+			this.options.data.forEach((d, i) => {
+				const isLastTwoSections = i >= this.options.data.length - 2;
 
-			const x_mid = (x_start + x_end) / 2;
-			const y_mid = y + d.height / 2;
+				// Calculate widths with curved reduction
+				let current_width, next_width;
 
-			context.fillStyle = d.color;
+				if (isLastTwoSections) {
+					// Last two sections are rectangular and equal width
+					current_width = min_width * 1.5;
+					next_width = min_width * 1.5;
+				} else {
+					const progress = i / (this.options.data.length - 2);
+					current_width = max_width * (1 - progress * 0.7);
+					next_width = max_width * (1 - ((i + 1) / (this.options.data.length - 2)) * 0.7);
+				}
 
-			if (i === hoveredIndex) {
-				context.save();
-				context.shadowColor = "rgba(0, 0, 0, 0.5)";
-				context.shadowBlur = 15;
-				context.fillStyle = this.adjustColor(d.color, 20);
-			}
+				const x_start = funnel_offset + (max_width - current_width) / 2;
+				const x_end = x_start + current_width;
+				const next_x_start = funnel_offset + (max_width - next_width) / 2;
+				const next_x_end = next_x_start + next_width;
 
-			// Draw funnel section
-			context.beginPath();
-			context.moveTo(x_start, current_y);
-			context.lineTo(x_end, current_y);
+				const current_y = y;
+				const next_y = y + d.height;
 
-			if (isLastTwoSections) {
-				// Rectangular sections for last two
-				context.lineTo(x_end, next_y);
-				context.lineTo(x_start, next_y);
-			} else {
-				// Trapezoid sections for others
-				context.lineTo(next_x_end, next_y);
-				context.lineTo(next_x_start, next_y);
-			}
+				const x_mid = (x_start + x_end) / 2;
+				const y_mid = y + d.height / 2;
 
-			context.closePath();
-			context.fill();
+				context.fillStyle = d.color;
 
-			if (i === hoveredIndex) {
-				context.restore();
-			}
+				if (i === hoveredIndex) {
+					context.save();
+					context.shadowColor = "rgba(0, 0, 0, 0.5)";
+					context.shadowBlur = 15;
+					context.fillStyle = this.adjustColor(d.color, 20);
+				}
 
-			// Draw legend
-			this.draw_legend(
-				x_mid,
-				y_mid,
-				this.options.width,
-				this.options.height,
-				d.value + " - " + d.title,
-				i === hoveredIndex
-			);
+				// Draw funnel section
+				context.beginPath();
+				context.moveTo(x_start, current_y);
+				context.lineTo(x_end, current_y);
 
-			y += d.height;
+				if (isLastTwoSections) {
+					// Rectangular sections for last two
+					context.lineTo(x_end, next_y);
+					context.lineTo(x_start, next_y);
+				} else {
+					// Trapezoid sections for others
+					context.lineTo(next_x_end, next_y);
+					context.lineTo(next_x_start, next_y);
+				}
+
+				context.closePath();
+				context.fill();
+
+				if (i === hoveredIndex) {
+					context.restore();
+				}
+
+				// Draw legend
+				this.draw_legend(
+					x_mid,
+					y_mid,
+					this.options.width,
+					this.options.height,
+					d.value + " - " + d.title,
+					i === hoveredIndex
+				);
+
+				y += d.height;
+			});
 		});
 	}
 
@@ -676,22 +680,14 @@ erpnext.LeadFunnel = class LeadFunnel {
 	}
 
 	adjustColor(color, percent) {
-		const num = parseInt(color.replace("#", ""), 16),
-			amt = Math.round(2.55 * percent),
-			R = (num >> 16) + amt,
-			G = ((num >> 8) & 0x00ff) + amt,
-			B = (num & 0x0000ff) + amt;
-		return (
-			"#" +
-			(
-				0x1000000 +
-				(R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
-				(G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
-				(B < 255 ? (B < 1 ? 0 : B) : 255)
-			)
-				.toString(16)
-				.slice(1)
-		);
+		const num = parseInt(color.slice(1), 16);
+		const amt = Math.round(2.55 * percent);
+		const rgb = [
+			Math.min(255, Math.max(0, (num >> 16) + amt)),
+			Math.min(255, Math.max(0, ((num >> 8) & 0xff) + amt)),
+			Math.min(255, Math.max(0, (num & 0xff) + amt)),
+		];
+		return "#" + rgb.map((x) => x.toString(16).padStart(2, "0")).join("");
 	}
 
 	draw_legend(x_mid, y_mid, width, height, title, isHovered) {
@@ -747,18 +743,27 @@ erpnext.LeadFunnel = class LeadFunnel {
 		labels.push({ y: adjustedY });
 		context.fillText(__(titleText), line_end + 15, adjustedY);
 	}
+
+	destroy() {
+		$(window).off("resize", this.debouncedRender);
+		this.elements.canvas?.off("mousemove mouseout");
+		this._descriptions = null;
+		this.elements = null;
+	}
 };
 
 function isPointInTrapezoid(x, y, points) {
 	let inside = false;
-	for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
-		const xi = points[i].x,
-			yi = points[i].y;
-		const xj = points[j].x,
-			yj = points[j].y;
+	const len = points.length;
+	for (let i = 0, j = len - 1; i < len; j = i++) {
+		const xi = points[i].x;
+		const yi = points[i].y;
+		const xj = points[j].x;
+		const yj = points[j].y;
 
-		const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
-		if (intersect) inside = !inside;
+		if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+			inside = !inside;
+		}
 	}
 	return inside;
 }
