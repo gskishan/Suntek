@@ -422,7 +422,7 @@ erpnext.LeadFunnel = class LeadFunnel {
 		if (!this._descriptions) {
 			this._descriptions = {
 				"Total Leads": "All the leads we received for the given time frame",
-				Connected: "Leads we were able to reach",
+				Connected: "Leads that have been contacted",
 				Interested: "Leads showing interest in our products",
 				Quotation: "Leads that requested pricing",
 				Converted: "Leads that became customers",
