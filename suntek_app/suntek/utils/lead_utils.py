@@ -1,8 +1,10 @@
-from typing import Dict, List
-
 import frappe
 
-from suntek_app.suntek.utils.validation_utils import convert_date_format, extract_first_and_last_name
+from suntek_app.suntek.utils.validation_utils import (
+    convert_date_format,
+    convert_timestamp_to_date,
+    extract_first_and_last_name,
+)
 
 
 def get_next_telecaller():
@@ -49,15 +51,23 @@ def get_or_create_lead(mobile_no):
 
 
 def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
-    """Update basic lead information"""
+    """Updates basic lead information"""
     first_name, middle_name, last_name = extract_first_and_last_name(neodove_data.get("name"))
     contact_list_name = get_contact_list_name(neodove_data)
-    form_response: List[Dict] = neodove_data.get("customer_detail_form_response")
-    neodove_campaign = neodove_data.get("campaign_name")
     city = get_lead_location(neodove_data)
+
+    form_response = neodove_data.get("customer_detail_form_response")
+    followup_date = neodove_data.get("follow_up_date")
+    neodove_campaign = neodove_data.get("campaign_name")
     neodove_campaign_id = neodove_data.get("campaign_id")
+
     custom_capacity = ""
     custom_uom = ""
+    formatted_date = ""
+
+    if followup_date:
+        formatted_date = convert_timestamp_to_date(str(followup_date))
+        print(f"FORMATTED DATE: {formatted_date}")
 
     for item in form_response:
         if item["question_text"] == "Capacity":
@@ -84,6 +94,7 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
         "city": city,
         "custom_neodove_campaign_id": neodove_campaign_id,
         "custom_neodove_campaign_url": campaign_url,
+        "custom_followup_date": formatted_date,
     }
 
     agent_email = neodove_data.get("agent_email")
@@ -95,18 +106,27 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
     lead.update(update_dict)
 
 
-def add_dispose_remarks(lead, remarks, agent_name):
-    """Add dispose remarks to lead"""
-    lead.append(
-        "custom_neodove_remarks",
-        {
-            "remarks": remarks,
-            "date": frappe.utils.nowdate(),
-            "time": frappe.utils.nowtime(),
-            "updated_on": frappe.utils.now_datetime(),
-            "agent": agent_name,
-        },
-    )
+def add_dispose_remarks(lead, remarks, agent_name, call_recordings=None):
+    """Add dispose remarks and call recordings to lead"""
+    if remarks:
+        lead.append(
+            "custom_neodove_remarks",
+            {
+                "remarks": remarks,
+                "updated_on": frappe.utils.now_datetime(),
+            },
+        )
+
+    if call_recordings:
+        existing_urls = set()
+        if lead.get("custom_call_recordings"):
+            existing_urls = {rec.recording_url for rec in lead.custom_call_recordings}
+        for recording in call_recordings:
+            recording_url = recording.get("recording_url")
+            if recording_url and recording_url not in existing_urls:
+                lead.append(
+                    "custom_call_recordings", {"call_duration_in_sec": recording.get("call_duration_in_sec", 0), "recording_url": recording_url}
+                )
 
 
 def process_other_properties(lead, other_properties):

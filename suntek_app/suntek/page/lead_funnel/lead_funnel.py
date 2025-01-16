@@ -1,6 +1,7 @@
+from typing import Dict, List, Optional, Tuple
+
 import frappe
 from frappe import _
-from typing import Dict, List, Optional, Tuple
 
 LEAD_STATUSES = {
     "Total Leads": "#2E86C1",

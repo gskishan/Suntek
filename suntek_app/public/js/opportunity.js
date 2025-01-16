@@ -284,3 +284,12 @@ frappe.ui.form.on("Month Details", {
 		frm.set_value("custom_recommended_cap_uom", RecommendedCapUom.toFixed(2));
 	},
 });
+
+frappe.ui.form.on("Neodove Dispose Details", {
+	call_recording: function (frm, cdt, cdn) {
+		let row = locals[cdt][cdn];
+		if (row.call_recording_url) {
+			window.open(row.call_recording_url, "_blank");
+		}
+	},
+});

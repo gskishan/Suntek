@@ -155,14 +155,19 @@ doc_events = {
             "suntek_app.suntek.custom.lead.change_enquiry_status",
         ],
         "before_insert": ["suntek_app.suntek.custom.lead.before_import"],
-        # "before_save": ["suntek_app.suntek.custom.lead.set_assigned_to"],
+        "on_update": [
+            "suntek_app.suntek.custom.neodove_integration.send_to_neodove",
+        ],
     },
     "Opportunity": {
         "validate": [
             "suntek_app.suntek.custom.opportunity.change_opportunity_status",
             "suntek_app.suntek.custom.opportunity.set_opportunity_name",
         ],
-        "on_update": "suntek_app.custom_script.opportunity.on_update",
+        "on_update": [
+            "suntek_app.custom_script.opportunity.on_update",
+            "suntek_app.suntek.custom.neodove_integration.send_to_neodove",
+        ],
     },
     "Sales Order": {
         "on_submit": "suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit",
@@ -203,6 +208,12 @@ doc_events = {
 
 # Scheduled Tasks
 # ---------------
+
+scheduler_events = {
+    "daily": [
+        "suntek_app.suntek.utils.lead_utils.update_overdue_followups",
+    ]
+}
 
 # scheduler_events = {
 # 	"all": [

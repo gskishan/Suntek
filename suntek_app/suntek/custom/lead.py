@@ -4,9 +4,7 @@ import frappe
 import werkzeug.wrappers
 from frappe.model.mapper import get_mapped_doc
 
-from suntek_app.suntek.custom.solar_power_plants import validate_mobile_number
 from suntek_app.suntek.utils.lead_utils import (
-    add_dispose_remarks,
     get_next_telecaller,
     get_or_create_lead,
     process_other_properties,
@@ -27,8 +25,13 @@ def change_enquiry_status(doc, method):
             return
 
         enable_round_robin = frappe.db.get_single_value("Suntek Settings", "enable_round_robin_assignment_to_enquiries")
+        if not enable_round_robin:
+            return
 
-        if enable_round_robin:
+        is_import = frappe.flags.in_import if hasattr(frappe.flags, "in_import") else False
+        is_digital_marketing = doc.source == "Digital Marketing"
+
+        if is_import or is_digital_marketing:
             next_telecaller = get_next_telecaller()
             if next_telecaller:
                 doc.lead_owner = next_telecaller
@@ -121,57 +124,30 @@ def duplicate_check(doc):
 
 @frappe.whitelist()
 def create_lead_from_neodove_dispose():
-    """Handles disposed leads from Neodove and creates/updates lead in ERPNext"""
     try:
-
-        DEFAULT_DEPARTMENT = ""
-        DEFAULT_SALUTATION = ""
-        DEFAULT_SOURCE = ""
-
         neodove_data = parse_request_data(frappe.request.data)
+        campaign_id = neodove_data.get("campaign_id")
 
-        mobile_no = neodove_data.get("mobile")
-        lead_owner = neodove_data.get("agent_email")
-        lead_stage = neodove_data.get("lead_stage_name")
+        campaign = frappe.db.get_value(
+            "Neodove Campaign", filters={"campaign_id": campaign_id}, fieldname=["name", "pipeline_name", "campaign_name"], as_dict=1
+        )
 
-        if not validate_mobile_number(mobile_no):
-            return {
-                "success": False,
-                "message": "Invalid mobile number! Please enter a 10-digit number starting with 6, 7, 8, or 9, optionally prefixed by +91 or +91-.",
-            }
+        if not campaign:
+            return {"success": False, "message": f"Campaign not found for campaign_id: {campaign_id}"}
 
-        lead = get_or_create_lead(mobile_no)
-        is_new = not bool(lead.get("name"))
+        if campaign.pipeline_name and campaign.pipeline_name.lower() == "opportunities":
+            return handle_opportunity_update(
+                neodove_data, neodove_data.get("mobile"), neodove_data.get("agent_email"), neodove_data.get("lead_stage_name")
+            )
+        else:
 
-        if is_new:
-            lead.custom_department = DEFAULT_DEPARTMENT
-            lead.salutation = DEFAULT_SALUTATION
-            lead.source = DEFAULT_SOURCE
-
-        update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage)
-
-        if neodove_data.get("call_recordings"):
-            _prepare_recordings(lead, neodove_data["call_recordings"])
-
-        if neodove_data.get("other_properties"):
-            process_other_properties(lead, neodove_data["other_properties"])
-
-        if dispose_remarks := neodove_data.get("dispose_remarks", "").strip():
-            add_dispose_remarks(lead, dispose_remarks, neodove_data.get("agent_name"))
-
-        lead.flags.ignore_validate_update_after_submit = True
-        lead.save(ignore_permissions=True)
-        frappe.db.commit()
-
-        return {
-            "success": True,
-            "message": ("Lead created successfully" if is_new else "Lead updated successfully"),
-            "lead_name": lead.name,
-            "url": lead.custom_neodove_campaign_url,
-        }
+            return handle_lead_update(
+                neodove_data, neodove_data.get("mobile"), neodove_data.get("agent_email"), neodove_data.get("lead_stage_name"), "", "", ""
+            )
 
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "Neodove Lead Creation/Update Error")
+        frappe.logger().error(f"Error in create_lead_from_neodove_dispose: {str(e)}")
+        frappe.log_error(frappe.get_traceback(), "Neodove Lead/Opportunity Creation/Update Error")
         return {"success": False, "message": str(e)}
 
 
@@ -284,3 +260,175 @@ def bulk_assign_unassigned_leads():
     except Exception as e:
         frappe.log_error(message=f"Error in bulk lead assignment: {str(e)}", title="Bulk Lead Assignment Error")
         frappe.msgprint("Error in bulk assignment. Check error log for details", indicator="red")
+
+
+def get_department_from_campaign(campaign_name):
+    """Map campaign names to departments"""
+    department_mapping = {
+        "Domestic Sales": "Domestic (Residential) Sales Team - SESP",
+        "Channel Partner": "Channel Partner - SESP",
+        "Commercial Sales": "Commercial & Industrial (C&I) - SESP",
+    }
+    return department_mapping.get(campaign_name)
+
+
+def handle_opportunity_update(neodove_data, mobile_no, lead_owner, lead_stage):
+    try:
+        existing_opp = frappe.get_list("Opportunity", filters={"contact_mobile": mobile_no}, fields=["name"], limit=1)
+
+        if existing_opp:
+            opp = frappe.get_doc("Opportunity", existing_opp[0].name)
+        else:
+            existing_enquiry = frappe.get_list("Lead", filters={"mobile_no": mobile_no}, fields=["name"], limit=1)
+
+            if not existing_enquiry:
+                return {"success": False, "message": f"No existing enquiry found with mobile number: {mobile_no}"}
+
+            opp = custom_make_opportunity(existing_enquiry[0].name)
+            if not opp:
+                return {"success": False, "message": "Failed to create opportunity from enquiry"}
+
+        opp.opportunity_owner = neodove_data.get("agent_email")
+        owner_name = frappe.db.get_value("User", neodove_data.get("agent_email"), "full_name")
+        if owner_name:
+            opp.custom_opportunity_owner_name = owner_name
+
+        department = get_department_from_campaign(neodove_data.get("campaign_name"))
+        if department:
+            opp.custom_department = department
+            opp.flags.ignore_mandatory = False
+        else:
+            opp.flags.ignore_mandatory = True
+
+        if dispose_remarks := neodove_data.get("dispose_remarks", "").strip():
+            opp.append(
+                "custom_neodove_dispose_remarks",
+                {
+                    "remarks": dispose_remarks,
+                    "updated_on": frappe.utils.now_datetime(),
+                },
+            )
+
+        if call_recordings := neodove_data.get("call_recordings"):
+
+            existing_urls = set()
+            if opp.get("custom_call_recordings"):
+                existing_urls = {rec.recording_url for rec in opp.custom_call_recordings}
+
+            now = frappe.utils.now_datetime()
+            for recording in call_recordings:
+                recording_url = recording.get("recording_url")
+                if recording_url and recording_url not in existing_urls:
+                    opp.append(
+                        "custom_call_recordings",
+                        {"call_duration_in_sec": recording.get("call_duration_in_sec", 0), "recording_url": recording_url, "recording_time": now},
+                    )
+
+        if opp.get("custom_call_recordings"):
+            for rec in opp.custom_call_recordings:
+                if not rec.recording_time:
+                    rec.recording_time = frappe.utils.now_datetime()
+
+        neodove_campaign_id = neodove_data.get("campaign_id")
+        pipeline_id = opp.get("custom_pipeline_id_opportunities")
+
+        campaign_url = ""
+        if pipeline_id and neodove_campaign_id:
+            campaign_url = f"https://connect.neodove.com/campaign/{pipeline_id}/{neodove_campaign_id}"
+
+        opp.custom_neodove_lead_stage = lead_stage
+        opp.custom_contact_list_name = (
+            neodove_data.get("other_properties", [{}])[0].get("contact_list_name") if neodove_data.get("other_properties") else ""
+        )
+        opp.custom_neodove_campaign_name = neodove_data.get("campaign_name")
+        opp.custom_neodove_campaign_id = neodove_campaign_id
+        opp.custom_neodove_campaign_url = campaign_url
+
+        opp.flags.ignore_validate_update_after_submit = True
+        opp.save(ignore_permissions=True)
+        frappe.db.commit()
+
+        return {"success": True, "message": "Opportunity updated successfully", "opportunity_name": opp.name}
+
+    except Exception as e:
+        frappe.log_error(
+            title="Opportunity Update Error", message=f"Error updating opportunity for mobile {mobile_no}: {str(e)}\n{frappe.get_traceback()}"
+        )
+        return {"success": False, "message": f"Error updating opportunity: {str(e)}"}
+
+
+def handle_lead_update(neodove_data, mobile_no, lead_owner, lead_stage, DEFAULT_DEPARTMENT, DEFAULT_SALUTATION, DEFAULT_SOURCE):
+    """Handle updates for Lead doctype"""
+    lead = get_or_create_lead(mobile_no)
+    is_new = not bool(lead.get("name"))
+
+    if is_new:
+        lead.custom_department = DEFAULT_DEPARTMENT
+        lead.salutation = DEFAULT_SALUTATION
+        lead.source = DEFAULT_SOURCE
+
+    update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage)
+
+    if dispose_remarks := neodove_data.get("dispose_remarks", "").strip():
+        lead.append(
+            "custom_neodove_remarks",
+            {
+                "remarks": dispose_remarks,
+                "updated_on": frappe.utils.now_datetime(),
+            },
+        )
+
+    if call_recordings := neodove_data.get("call_recordings"):
+
+        existing_urls = set()
+        if lead.get("custom_call_recordings"):
+            existing_urls = {rec.recording_url for rec in lead.custom_call_recordings}
+
+        now = frappe.utils.now_datetime()
+        for recording in call_recordings:
+            recording_url = recording.get("recording_url")
+            if recording_url and recording_url not in existing_urls:
+                lead.append(
+                    "custom_call_recordings",
+                    {"call_duration_in_sec": recording.get("call_duration_in_sec", 0), "recording_url": recording_url, "recording_time": now},
+                )
+
+    if neodove_data.get("other_properties"):
+        process_other_properties(lead, neodove_data["other_properties"])
+
+    if lead.get("custom_call_recordings"):
+        for rec in lead.custom_call_recordings:
+            if not rec.recording_time:
+                rec.recording_time = frappe.utils.now_datetime()
+
+    lead.flags.ignore_validate_update_after_submit = True
+    lead.save(ignore_permissions=True)
+
+    frappe.db.commit()
+
+    return {
+        "success": True,
+        "message": "Lead created successfully" if is_new else "Lead updated successfully",
+        "lead_name": lead.name,
+        "url": lead.custom_neodove_campaign_url,
+    }
+
+
+def _prepare_dispose_details(parent_doc, neodove_data):
+    """Prepare dispose details for lead or opportunity"""
+    if dispose_remarks := neodove_data.get("dispose_remarks", "").strip():
+        if call_recordings := neodove_data.get("call_recordings", []):
+            for recording in call_recordings:
+                parent_doc.append(
+                    "custom_dispose_details",
+                    {
+                        "dispose_remarks": dispose_remarks,
+                        "call_recording": "Click to Play",
+                        "call_duration_in_seconds": recording.get("call_duration_in_sec", 0),
+                        "dispose_time": frappe.utils.now_datetime(),
+                        "call_recording_url": recording.get("recording_url"),
+                    },
+                )
+        else:
+
+            parent_doc.append("custom_dispose_details", {"dispose_remarks": dispose_remarks, "dispose_time": frappe.utils.now_datetime()})

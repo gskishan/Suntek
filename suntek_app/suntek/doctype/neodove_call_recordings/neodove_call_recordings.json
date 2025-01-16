@@ -8,7 +8,8 @@
  "field_order": [
   "neodove_call_recording_section",
   "call_duration_in_sec",
-  "recording_url"
+  "recording_url",
+  "recording_time"
  ],
  "fields": [
   {
@@ -24,15 +25,24 @@
   },
   {
    "fieldname": "recording_url",
-   "fieldtype": "Small Text",
+   "fieldtype": "Attach",
    "in_list_view": 1,
    "label": "Recording URL"
+  },
+  {
+   "fieldname": "recording_time",
+   "fieldtype": "Datetime",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Recording time"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-01-07 12:48:52.004193",
+ "modified": "2025-01-16 16:06:50.289765",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Neodove Call Recordings",

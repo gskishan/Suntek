@@ -1143,5 +1143,46 @@
   "slack_webhook_url": null,
   "subject": "Job Requisition  for {{ doc.name }}",
   "value_changed": "status"
+ },
+ {
+  "attach_print": 0,
+  "channel": "System Notification",
+  "condition": null,
+  "date_changed": null,
+  "days_in_advance": 0,
+  "docstatus": 0,
+  "doctype": "Notification",
+  "document_type": "Lead",
+  "enabled": 1,
+  "event": "Value Change",
+  "is_standard": 0,
+  "message": "You have a follow up scheduled with the enquiry.",
+  "message_type": "Markdown",
+  "method": null,
+  "modified": "2025-01-16 17:45:52.774212",
+  "module": null,
+  "name": "Lead Follow up Scheduled",
+  "print_format": null,
+  "property_value": null,
+  "recipients": [
+   {
+    "bcc": null,
+    "cc": null,
+    "condition": null,
+    "parent": "Lead Follow up Scheduled",
+    "parentfield": "recipients",
+    "parenttype": "Notification",
+    "receiver_by_document_field": null,
+    "receiver_by_role": "Sales User"
+   }
+  ],
+  "send_system_notification": 1,
+  "send_to_all_assignees": 0,
+  "sender": null,
+  "sender_email": null,
+  "set_property_after_alert": null,
+  "slack_webhook_url": null,
+  "subject": "{{ doc.name }} has a follow up scheduled",
+  "value_changed": "custom_followup_date"
  }
 ]

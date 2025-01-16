@@ -1,6 +1,8 @@
 import datetime
 import re
 
+import frappe
+
 
 def validate_mobile_number(number):
     """Validate mobile number. It should be 10 digits and start with 6-9"""
@@ -57,4 +59,17 @@ def format_date(date_string):
         date_obj = datetime.datetime(int(year), int(month), int(day))
         return date_obj.strftime("%Y-%m-%d")
     except Exception:
+        return None
+
+
+def convert_timestamp_to_date(timestamp_ms):
+    """Convert millisecond timestamp to yyyy-mm-dd format for database storage"""
+    if not timestamp_ms:
+        return None
+
+    try:
+        timestamp_str = str(timestamp_ms).strip()
+        date_obj = datetime.datetime.fromtimestamp(float(timestamp_str) / 1000)
+        return date_obj.strftime("%Y-%m-%d")
+    except (ValueError, TypeError, OSError):
         return None
