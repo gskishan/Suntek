@@ -44,11 +44,9 @@ def format_date(date_string):
     if not date_string:
         return None
     try:
-        # First check if it's already in YYYY-MM-DD format
+
         if "-" in date_string and len(date_string.split("-")[0]) == 4:
             return date_string
-
-        # Handle DD-MM-YYYY format
         if "-" in date_string:
             day, month, year = date_string.split("-")
         elif "/" in date_string:
@@ -56,7 +54,6 @@ def format_date(date_string):
         else:
             return None
 
-        # Convert to datetime and then to string in correct format
         date_obj = datetime.datetime(int(year), int(month), int(day))
         return date_obj.strftime("%Y-%m-%d")
     except Exception:

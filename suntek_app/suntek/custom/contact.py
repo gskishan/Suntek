@@ -6,11 +6,8 @@ from frappe.utils import cstr
 
 class CustomContact(Contact):
     def autoname(self):
-        # concat first and last name
         self.name = " ".join(
-            filter(
-                None, [cstr(self.get(f)).strip() for f in ["first_name", "last_name"]]
-            ),
+            filter(None, [cstr(self.get(f)).strip() for f in ["first_name", "last_name"]]),
         )
 
         if frappe.db.exists("Contact", self.name):

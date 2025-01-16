@@ -74,6 +74,34 @@ erpnext.LeadFunnel = class LeadFunnel {
 			},
 		});
 
+		this.add_filter_buttons(wrapper);
+
+		wrapper.page.add_button(
+			__("Clear Filters"),
+			function () {
+				// Reset all filter buttons
+				$(".date-filter-buttons .btn-selected").removeClass("btn-selected");
+
+				// Reset dates to default
+				me.options.from_date = frappe.datetime.add_months(frappe.datetime.get_today(), -1);
+				me.options.to_date = frappe.datetime.get_today();
+
+				// Update date fields
+				me.elements.from_date.val(frappe.datetime.str_to_user(me.options.from_date));
+				me.elements.to_date.val(frappe.datetime.str_to_user(me.options.to_date));
+
+				// Clear other filters
+				me.lead_owner_field.set_value("");
+				me.source_field.set_value("");
+				me.lead_owner = "";
+				me.source = "";
+
+				// Refresh data
+				me.get_data();
+			},
+			"btn-default btn-sm"
+		);
+
 		$.each(["from_date", "to_date"], function (i, field) {
 			me.elements[field].val(frappe.datetime.str_to_user(me.options[field]));
 			me.elements[field].on("change", function () {
@@ -86,6 +114,208 @@ erpnext.LeadFunnel = class LeadFunnel {
 		$(window).resize(function () {
 			me.render();
 		});
+	}
+
+	add_filter_buttons(wrapper) {
+		const me = this;
+
+		const filter_container = $(`
+		<div class="filter-container" style="
+			margin: 0 -15px;
+			padding: 15px;
+			background: var(--fg-color);
+			border-bottom: 1px solid var(--border-color);
+		">
+			<div class="filter-sections" style="
+					display: flex;
+					flex-wrap: wrap;
+					gap: 24px;
+					align-items: flex-start;
+					position: relative;
+			">
+					<div class="date-filters" style="
+							display: flex;
+							flex-direction: column;
+							gap: 12px;
+					">
+							<label style="
+									font-size: 0.9em;
+									color: var(--text-muted);
+									margin-bottom: 0;
+									padding-left: 1px;
+							">Quick Filters</label>
+							<div class="button-group date-filter-buttons" style="
+									display: flex;
+									gap: 12px;
+									flex-wrap: wrap;
+							"></div>
+					</div>
+			</div>
+	</div>
+`).insertAfter(wrapper.page.page_form);
+
+		// Add date filter buttons
+		const date_button_group = filter_container.find(".date-filter-buttons");
+		const date_filters = [
+			{
+				label: "Today",
+				icon: "calendar",
+				action: () => {
+					const today = frappe.datetime.get_today();
+					me.set_date_filter(today, today);
+				},
+			},
+			{
+				label: "Yesterday",
+				icon: "calendar",
+				action: () => {
+					const yesterday = frappe.datetime.add_days(frappe.datetime.get_today(), -1);
+					me.set_date_filter(yesterday, yesterday);
+				},
+			},
+			{
+				label: "This Week",
+				icon: "calendar",
+				action: () => {
+					const today = frappe.datetime.get_today();
+					const week_start = frappe.datetime.add_days(
+						today,
+						-frappe.datetime.get_day_diff(today, frappe.datetime.week_start())
+					);
+					me.set_date_filter(week_start, today);
+				},
+			},
+			{
+				label: "Last Week",
+				icon: "calendar",
+				action: () => {
+					const today = frappe.datetime.get_today();
+					const week_start = frappe.datetime.add_days(
+						today,
+						-frappe.datetime.get_day_diff(today, frappe.datetime.week_start()) - 7
+					);
+					const week_end = frappe.datetime.add_days(week_start, 6);
+					me.set_date_filter(week_start, week_end);
+				},
+			},
+			{
+				label: "This Month",
+				icon: "calendar",
+				action: () => {
+					const today = frappe.datetime.get_today();
+					const month_start = frappe.datetime.month_start();
+					me.set_date_filter(month_start, today);
+				},
+			},
+			{
+				label: "Last Month",
+				icon: "calendar",
+				action: () => {
+					const today = frappe.datetime.get_today();
+					const last_month_start = frappe.datetime.add_months(frappe.datetime.month_start(), -1);
+					const last_month_end = frappe.datetime.add_days(frappe.datetime.month_start(), -1);
+					me.set_date_filter(last_month_start, last_month_end);
+				},
+			},
+			{
+				label: "This Quarter",
+				icon: "calendar",
+				action: () => {
+					const today = frappe.datetime.get_today();
+					const quarter_start = frappe.datetime.quarter_start();
+					me.set_date_filter(quarter_start, today);
+				},
+			},
+			{
+				label: "This FY",
+				icon: "calendar",
+				action: () => {
+					const today = frappe.datetime.get_today();
+					const year = frappe.datetime.str_to_obj(today).getFullYear();
+					let fiscal_year_start, fiscal_year_end;
+
+					if (frappe.datetime.str_to_obj(today).getMonth() < 3) {
+						fiscal_year_start = year - 1 + "-04-01";
+						fiscal_year_end = year + "-03-31";
+					} else {
+						fiscal_year_start = year + "-04-01";
+						fiscal_year_end = year + 1 + "-03-31";
+					}
+
+					me.set_date_filter(fiscal_year_start, fiscal_year_end);
+				},
+			},
+		];
+
+		// Add buttons for date filters
+		date_filters.forEach((filter) => {
+			$(`<button class="btn btn-default btn-sm" style="
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: var(--control-bg);
+            border: 1px solid var(--border-color);
+            min-width: 100px;
+            justify-content: center;
+        ">
+            <i class="fa fa-${filter.icon}"></i>
+            ${filter.label}
+        </button>`)
+				.click(function () {
+					date_button_group.find(".btn-selected").removeClass("btn-selected");
+					$(this).addClass("btn-selected");
+					filter.action();
+				})
+				.appendTo(date_button_group);
+		});
+
+		$("<style>")
+			.prop("type", "text/css")
+			.html(
+				`
+            .btn-selected {
+                background: var(--primary) !important;
+                color: white !important;
+                border-color: var(--primary) !important;
+            }
+            .custom-filter-buttons .btn:hover,
+            .date-filter-buttons .btn:hover,
+            .clear-filters:hover {
+                background: var(--fg-hover-color);
+                transform: translateY(-1px);
+                box-shadow: var(--shadow-sm);
+            }
+            .filter-container {
+                box-shadow: var(--shadow-sm);
+            }
+            .filter-sections {
+                position: relative;
+            }
+            .clear-filters {
+                position: absolute;
+                right: 0;
+                top: 0;
+            }
+        `
+			)
+			.appendTo("head");
+	}
+
+	// Helper method to set date filters
+	set_date_filter(from_date, to_date) {
+		const me = this;
+		me.options.from_date = from_date;
+		me.options.to_date = to_date;
+
+		// Update the date fields
+		me.elements.from_date.val(frappe.datetime.str_to_user(from_date));
+		me.elements.to_date.val(frappe.datetime.str_to_user(to_date));
+
+		// Refresh the data
+		me.get_data();
 	}
 
 	get_data(btn) {
@@ -114,6 +344,7 @@ erpnext.LeadFunnel = class LeadFunnel {
 	}
 	render() {
 		this.render_funnel();
+		this.showCalculationDetails();
 	}
 
 	render_funnel() {
@@ -133,25 +364,48 @@ erpnext.LeadFunnel = class LeadFunnel {
 			const mouseX = (e.clientX - boundingBox.left) * scaleX;
 			const mouseY = (e.clientY - boundingBox.top) * scaleY;
 
-			let currentY = 20;
 			let hoveredSection = null;
+			let y = 20;
 
+			// Check each section for hover
 			me.options.data.forEach((d, i) => {
-				const height = d.height;
-				const y_start = currentY;
-				const y_end = currentY + height;
+				const max_width = me.options.width * 0.6;
+				const min_width = max_width * 0.2;
+				const funnel_offset = me.options.width * 0.05;
+				const isLastTwoSections = i >= me.options.data.length - 2;
 
-				if (mouseY >= y_start && mouseY <= y_end) {
-					const current_y_ratio = (y_start - 20) / (me.options.height - 20);
-					const section_width = me.options.width * 0.4 * (1 - current_y_ratio);
-					const x_start = me.options.width * 0.05 + (me.options.width * 0.4 - section_width) / 2;
-					const x_end = x_start + section_width;
-
-					if (mouseX >= x_start && mouseX <= x_end) {
-						hoveredSection = i;
-					}
+				// Calculate current and next widths
+				let current_width, next_width;
+				if (isLastTwoSections) {
+					current_width = min_width * 1.5;
+					next_width = min_width * 1.5;
+				} else {
+					const progress = i / (me.options.data.length - 2);
+					current_width = max_width * (1 - progress * 0.7);
+					next_width = max_width * (1 - ((i + 1) / (me.options.data.length - 2)) * 0.7);
 				}
-				currentY += height;
+
+				// Calculate coordinates for hit detection
+				const x_start = funnel_offset + (max_width - current_width) / 2;
+				const x_end = x_start + current_width;
+				const next_x_start = funnel_offset + (max_width - next_width) / 2;
+				const next_x_end = next_x_start + next_width;
+				const current_y = y;
+				const next_y = y + d.height;
+
+				// Create trapezoid points
+				const points = [
+					{ x: x_start, y: current_y },
+					{ x: x_end, y: current_y },
+					{ x: next_x_end, y: next_y },
+					{ x: next_x_start, y: next_y },
+				];
+
+				if (isPointInTrapezoid(mouseX, mouseY, points)) {
+					hoveredSection = i;
+				}
+
+				y += d.height;
 			});
 
 			me.redrawFunnel(hoveredSection);
@@ -164,131 +418,257 @@ erpnext.LeadFunnel = class LeadFunnel {
 		this.redrawFunnel();
 	}
 
-	redrawFunnel(hoveredIndex = null) {
-		const context = this.elements.context;
-		const max_width = this.options.width * 0.4;
-		let y = 20;
-
-		context.clearRect(0, 0, this.options.width, this.options.height);
-
-		if (!this.options.data || !this.options.data.length) {
-			this.elements.no_data.toggle(true);
-			return;
+	getSimpleDescription(title) {
+		if (!this._descriptions) {
+			this._descriptions = {
+				"Total Leads": "All the leads we received for the given time frame",
+				Connected: "Leads we were able to reach",
+				Interested: "Leads showing interest in our products",
+				Quotation: "Leads that requested pricing",
+				Converted: "Leads that became customers",
+			};
 		}
+		return this._descriptions[title] || "";
+	}
 
-		const funnel_offset = this.options.width * 0.05;
-		const triangle_base = max_width;
-		const triangle_height = this.options.height - y;
+	showCalculationDetails() {
+		$(".calculation-details").remove();
 
-		this.options.data.forEach((d, i) => {
-			const current_y_ratio = (y - 20) / triangle_height;
-			const next_y_ratio = (y + d.height - 20) / triangle_height;
-			const current_width = triangle_base * (1 - current_y_ratio);
-			const next_width = triangle_base * (1 - next_y_ratio);
-			const x_start = funnel_offset + (max_width - current_width) / 2;
-			const x_end = x_start + current_width;
-			const next_x_start = funnel_offset + (max_width - next_width) / 2;
-			const next_x_end = next_x_start + next_width;
+		const calculationHTML = `
+        <div class="calculation-details mt-4" style="
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            background: var(--card-bg);
+            width: ${this.options.width}px;
+            margin: 0 auto;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        ">
+            <h6 style="
+                color: var(--heading-color);
+                font-size: 1.1em;
+                margin-bottom: 1rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 1px solid var(--border-color);
+            ">Legend</h6>
+            <table class="table calculation-table" style="
+                border-collapse: separate;
+                border-spacing: 0 0.5rem;
+                width: 100%;
+                margin-bottom: 0;
+            ">
+                <tbody>
+                    ${this.options.data
+											.map(
+												(d) => `
+                        <tr style="
+                            background: var(--fg-color);
+                            transition: all 0.2s ease;
+                            border-radius: 8px;
+                        ">
+                            <td style="
+                                border: none; 
+                                padding: 1rem;
+                                color: var(--text-color);
+                                width: 25%;
+                                font-weight: 500;
+                                vertical-align: middle;
+                                border-top-left-radius: 8px;
+                                border-bottom-left-radius: 8px;
+                            ">
+                                <div style="display: flex; align-items: center;">
+                                    <span style="
+                                        display: inline-block;
+                                        width: 14px;
+                                        height: 14px;
+                                        background-color: ${d.color};
+                                        border-radius: 50%;
+                                        margin-right: 12px;
+                                        box-shadow: 0 0 0 2px rgba(var(--text-rgb), 0.1);
+                                    "></span>
+                                    <span>${d.title}</span>
+                                </div>
+                            </td>
+                            <td style="
+                                border: none;
+                                padding: 1rem;
+                                color: var(--text-muted);
+                                font-size: 0.95em;
+                                width: 60%;
+                                vertical-align: middle;
+                            ">
+                                ${this.getSimpleDescription(d.title)}
+                            </td>
+                            <td style="
+                                border: none;
+                                padding: 1rem;
+                                color: var(--text-color);
+                                font-weight: 600;
+                                text-align: right;
+                                vertical-align: middle;
+                                border-top-right-radius: 8px;
+                                border-bottom-right-radius: 8px;
+                            ">
+                                ${d.value}
+                            </td>
+                        </tr>
+                    `
+											)
+											.join("")}
+                </tbody>
+            </table>
+        </div>
+    `;
 
-			context.fillStyle = d.color;
+		// Append the calculation details after the funnel
+		$(calculationHTML).insertAfter(this.elements.funnel_wrapper);
 
-			if (i === hoveredIndex) {
-				context.save();
-				context.shadowColor = "rgba(0, 0, 0, 0.5)";
-				context.shadowBlur = 15;
-				context.fillStyle = this.adjustColor(d.color, 20);
+		// Add hover effect
+		$(".calculation-table tr").hover(
+			function () {
+				$(this).css({
+					background: "var(--fg-hover-color)",
+					transform: "scale(1.01)",
+					"box-shadow": "0 4px 8px rgba(0,0,0,0.1)",
+				});
+			},
+			function () {
+				$(this).css({
+					background: "var(--fg-color)",
+					transform: "scale(1)",
+					"box-shadow": "none",
+				});
+			}
+		);
+	}
+
+	redrawFunnel(hoveredIndex = null) {
+		requestAnimationFrame(() => {
+			this.labels = [];
+			const context = this.elements.context;
+			const max_width = this.options.width * 0.6; // Increased width
+			const min_width = max_width * 0.2; // Minimum width for bottom
+			let y = 20;
+
+			context.clearRect(0, 0, this.options.width, this.options.height);
+
+			if (!this.options.data || !this.options.data.length) {
+				this.elements.no_data.toggle(true);
+				return;
 			}
 
-			context.beginPath();
-			context.moveTo(x_start, y);
-			context.lineTo(x_end, y);
+			const funnel_offset = this.options.width * 0.05;
+			const section_height = (this.options.height - y) / this.options.data.length;
 
-			if (i === this.options.data.length - 1) {
-				const finalX = funnel_offset + max_width / 2;
-				context.lineTo(finalX, y + d.height);
-			} else {
-				context.lineTo(next_x_end, y + d.height);
-				context.lineTo(next_x_start, y + d.height);
-			}
+			this.options.data.forEach((d, i) => {
+				const isLastTwoSections = i >= this.options.data.length - 2;
 
-			context.closePath();
-			context.fill();
+				// Calculate widths with curved reduction
+				let current_width, next_width;
 
-			if (i === hoveredIndex) {
-				context.restore();
-			}
+				if (isLastTwoSections) {
+					// Last two sections are rectangular and equal width
+					current_width = min_width * 1.5;
+					next_width = min_width * 1.5;
+				} else {
+					const progress = i / (this.options.data.length - 2);
+					current_width = max_width * (1 - progress * 0.7);
+					next_width = max_width * (1 - ((i + 1) / (this.options.data.length - 2)) * 0.7);
+				}
 
-			const x_mid = (x_start + x_end) / 2;
-			this.draw_legend(
-				x_mid,
-				y + d.height / 2,
-				this.options.width,
-				this.options.height,
-				d.value + " - " + d.title,
-				i === hoveredIndex
-			);
+				const x_start = funnel_offset + (max_width - current_width) / 2;
+				const x_end = x_start + current_width;
+				const next_x_start = funnel_offset + (max_width - next_width) / 2;
+				const next_x_end = next_x_start + next_width;
 
-			y += d.height;
+				const current_y = y;
+				const next_y = y + d.height;
+
+				const x_mid = (x_start + x_end) / 2;
+				const y_mid = y + d.height / 2;
+
+				context.fillStyle = d.color;
+
+				if (i === hoveredIndex) {
+					context.save();
+					context.shadowColor = "rgba(0, 0, 0, 0.5)";
+					context.shadowBlur = 15;
+					context.fillStyle = this.adjustColor(d.color, 20);
+				}
+
+				// Draw funnel section
+				context.beginPath();
+				context.moveTo(x_start, current_y);
+				context.lineTo(x_end, current_y);
+
+				if (isLastTwoSections) {
+					// Rectangular sections for last two
+					context.lineTo(x_end, next_y);
+					context.lineTo(x_start, next_y);
+				} else {
+					// Trapezoid sections for others
+					context.lineTo(next_x_end, next_y);
+					context.lineTo(next_x_start, next_y);
+				}
+
+				context.closePath();
+				context.fill();
+
+				if (i === hoveredIndex) {
+					context.restore();
+				}
+
+				// Draw legend
+				this.draw_legend(
+					x_mid,
+					y_mid,
+					this.options.width,
+					this.options.height,
+					d.value + " - " + d.title,
+					i === hoveredIndex
+				);
+
+				y += d.height;
+			});
 		});
 	}
 
 	prepare_funnel() {
+		const isMobile = window.innerWidth <= 768;
+		const wrapperWidth = $(this.elements.funnel_wrapper).width();
+
+		this.options.width = isMobile ? wrapperWidth : wrapperWidth;
+		this.options.height = this.options.width * 0.55;
+
 		var me = this;
 		this.elements.no_data.toggle(false);
-		this.options.width = (($(this.elements.funnel_wrapper).width() * 2.0) / 3.0) * 1.5;
-		this.options.height = ((Math.sqrt(3) * this.options.width * 0.4) / 2.0) * 1.5;
 
 		const total_value = this.options.data.reduce((sum, d) => sum + d.value, 0);
 		const total_height = this.options.height - 20;
 
 		$.each(this.options.data, function (i, d) {
-			d.height = (total_height * d.value) / total_value;
+			d.height = (d.value / total_value) * total_height * 0.9;
 		});
 
 		this.elements.funnel_wrapper.empty();
 		this.elements.canvas = $("<canvas></canvas>")
 			.appendTo(this.elements.funnel_wrapper)
-			.attr("width", $(this.elements.funnel_wrapper).width())
+			.attr("width", this.options.width)
 			.attr("height", this.options.height);
-
 		this.elements.context = this.elements.canvas.get(0).getContext("2d");
 	}
 
 	adjustColor(color, percent) {
-		const num = parseInt(color.replace("#", ""), 16),
-			amt = Math.round(2.55 * percent),
-			R = (num >> 16) + amt,
-			G = ((num >> 8) & 0x00ff) + amt,
-			B = (num & 0x0000ff) + amt;
-		return (
-			"#" +
-			(
-				0x1000000 +
-				(R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
-				(G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
-				(B < 255 ? (B < 1 ? 0 : B) : 255)
-			)
-				.toString(16)
-				.slice(1)
-		);
+		const num = parseInt(color.slice(1), 16);
+		const amt = Math.round(2.55 * percent);
+		const rgb = [
+			Math.min(255, Math.max(0, (num >> 16) + amt)),
+			Math.min(255, Math.max(0, ((num >> 8) & 0xff) + amt)),
+			Math.min(255, Math.max(0, (num & 0xff) + amt)),
+		];
+		return "#" + rgb.map((x) => x.toString(16).padStart(2, "0")).join("");
 	}
 
-	calculateNextSection(currentWidth, currentY, height) {
-		const ratio = (height - currentY) / height;
-		return currentWidth * ratio;
-	}
-
-	draw_triangle(x_start, x_mid, x_end, y, height) {
-		var context = this.elements.context;
-		context.beginPath();
-		context.moveTo(x_start, y);
-		context.lineTo(x_end, y);
-		context.lineTo(x_mid, height);
-		context.lineTo(x_start, y);
-		context.closePath();
-		context.fill();
-		context.stroke();
-	}
 	draw_legend(x_mid, y_mid, width, height, title, isHovered) {
 		var context = this.elements.context;
 		if (y_mid == 0) y_mid = 7;
@@ -309,28 +689,60 @@ erpnext.LeadFunnel = class LeadFunnel {
 		context.closePath();
 		context.fill();
 
+		// Calculate percentage
+		const total = this.options.data[0].value; // First stage is total
+		const value = parseInt(title.split(" - ")[0]);
+		const percentage = ((value / total) * 100).toFixed(1);
+
+		// Original title text and percentage
+		const titleText = title + ` (${percentage}%)`;
+
 		context.fillStyle = getComputedStyle(document.body).getPropertyValue("--text-color");
 		context.textBaseline = "middle";
 		context.font = isHovered ? "bold 1.1em sans-serif" : "1em sans-serif";
-		context.fillText(__(title), line_end + 15, y_mid);
 
-		// if (isHovered) {
-		// 	const tooltipData = this.getToolTipData(title);
-		// 	this.drawtooltip(x_mid, y_mid, tooltipData);
-		// }
+		const labelHeight = parseInt(context.font); // Get font size
+		const labels = this.labels || (this.labels = []);
+
+		// Check for collisions and adjust position
+		const minLabelSpacing = isHovered ? 35 : 25;
+		let adjustedY = y_mid;
+		let collision = true;
+		while (collision) {
+			collision = false;
+			for (let label of labels) {
+				if (Math.abs(label.y - adjustedY) < minLabelSpacing) {
+					adjustedY += minLabelSpacing;
+					collision = true;
+					break;
+				}
+			}
+		}
+
+		labels.push({ y: adjustedY });
+		context.fillText(__(titleText), line_end + 15, adjustedY);
+	}
+
+	destroy() {
+		$(window).off("resize", this.debouncedRender);
+		this.elements.canvas?.off("mousemove mouseout");
+		this._descriptions = null;
+		this.elements = null;
 	}
 };
 
 function isPointInTrapezoid(x, y, points) {
 	let inside = false;
-	for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
-		const xi = points[i].x,
-			yi = points[i].y;
-		const xj = points[j].x,
-			yj = points[j].y;
+	const len = points.length;
+	for (let i = 0, j = len - 1; i < len; j = i++) {
+		const xi = points[i].x;
+		const yi = points[i].y;
+		const xj = points[j].x;
+		const yj = points[j].y;
 
-		const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
-		if (intersect) inside = !inside;
+		if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+			inside = !inside;
+		}
 	}
 	return inside;
 }

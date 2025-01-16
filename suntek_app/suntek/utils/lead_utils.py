@@ -2,8 +2,7 @@ from typing import Dict, List
 
 import frappe
 
-from suntek_app.suntek.utils.validation_utils import (
-    convert_date_format, extract_first_and_last_name)
+from suntek_app.suntek.utils.validation_utils import convert_date_format, extract_first_and_last_name
 
 
 def get_next_telecaller():
@@ -31,7 +30,6 @@ def get_next_telecaller():
 
         next_telecaller = telecallers[0]
 
-        # Update last assigned time
         frappe.db.set_value("Telecaller Queue", {"email": next_telecaller.email}, "last_assigned", frappe.utils.now_datetime())
         frappe.db.commit()
 
@@ -54,12 +52,12 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
     """Update basic lead information"""
     first_name, middle_name, last_name = extract_first_and_last_name(neodove_data.get("name"))
     contact_list_name = get_contact_list_name(neodove_data)
-    executive_name = get_executive_name(neodove_data.get("customer_detail_form_response", []))
-    custom_capacity = ""
-    custom_uom = ""
     form_response: List[Dict] = neodove_data.get("customer_detail_form_response")
     neodove_campaign = neodove_data.get("campaign_name")
     city = get_lead_location(neodove_data)
+    neodove_campaign_id = neodove_data.get("campaign_id")
+    custom_capacity = ""
+    custom_uom = ""
 
     for item in form_response:
         if item["question_text"] == "Capacity":
@@ -67,22 +65,34 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
         if item["question_text"] == "UOM":
             custom_uom = item["answer"]
 
-    lead.update(
-        {
-            "first_name": first_name,
-            "middle_name": middle_name,
-            "last_name": last_name,
-            "lead_owner": lead_owner,
-            "custom_contact_list_name": contact_list_name,
-            "custom_neodove_lead_stage": lead_stage,
-            "custom_executive_name": executive_name or "",
-            "mobile_no": neodove_data.get("mobile"),
-            "custom_capacity": custom_capacity,
-            "custom_uom": custom_uom,
-            "custom_neodove_campaign_name": neodove_campaign,
-            "city": city,
-        }
-    )
+    pipeline_id = lead.get("custom_pipeline_id_enquiries")
+    campaign_url = ""
+
+    if pipeline_id and neodove_campaign_id:
+        campaign_url = f"https://connect.neodove.com/campaign/{pipeline_id}/{neodove_campaign_id}"
+
+    update_dict = {
+        "first_name": first_name,
+        "middle_name": middle_name,
+        "last_name": last_name,
+        "custom_contact_list_name": contact_list_name,
+        "custom_neodove_lead_stage": lead_stage,
+        "mobile_no": neodove_data.get("mobile"),
+        "custom_capacity": custom_capacity,
+        "custom_uom": custom_uom,
+        "custom_neodove_campaign_name": neodove_campaign,
+        "city": city,
+        "custom_neodove_campaign_id": neodove_campaign_id,
+        "custom_neodove_campaign_url": campaign_url,
+    }
+
+    agent_email = neodove_data.get("agent_email")
+    current_lead_owner = lead.get("lead_owner")
+
+    if not current_lead_owner or (agent_email and current_lead_owner != agent_email):
+        update_dict["lead_owner"] = lead_owner
+
+    lead.update(update_dict)
 
 
 def add_dispose_remarks(lead, remarks, agent_name):
@@ -114,7 +124,6 @@ def process_other_properties(lead, other_properties):
 
     property_mapping = {
         "ID": "custom_neodove_id",
-        "Enquiry Owner Name": "custom_enquiry_owner_name",
         "Enquiry Date": "custom_enquiry_date",
         "Source": "source",
         "Location": "custom_location",
@@ -128,7 +137,7 @@ def process_other_properties(lead, other_properties):
             value = prop.get("value")
 
             if prop.get("name") == "Enquiry Date":
-                # value = format_date(value)
+
                 value = convert_date_format(value)
 
             if value:
@@ -142,14 +151,6 @@ def get_contact_list_name(data):
     return ""
 
 
-def get_executive_name(customer_detail_form_response):
-    """Get executive name from customer detail form response"""
-    for response in customer_detail_form_response:
-        if response["question_text"] == "EXECUTIVE NAME":
-            return response["answer"]
-    return ""
-
-
 def get_lead_location(data: dict) -> str:
     """
     Get lead location from properties and return it as city
@@ -158,13 +159,12 @@ def get_lead_location(data: dict) -> str:
     Returns:
         str: City value or empty string if not found
     """
-    # Early return if data is empty or None
+
     if not data:
         return ""
 
     city = ""
 
-    # Check custom contact properties first
     if custom_props := data.get("custom_contact_properties", []):
         if properties := custom_props[0].get("properties", []):
             for prop in properties:
@@ -172,7 +172,6 @@ def get_lead_location(data: dict) -> str:
                     city = prop.get("custom_column_value", "")
                     break
 
-    # Check other properties if location not found
     if not city and (other_props := data.get("other_properties", [])):
         if properties := other_props[0].get("properties", []):
             for prop in properties:

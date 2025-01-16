@@ -1,131 +1,189 @@
-from typing import Dict, List, Optional
-
 import frappe
 from frappe import _
+from typing import Dict, List, Optional, Tuple
 
 LEAD_STATUSES = {
-    "Open": "#2C9BC8",
-    "Interested": "#4CAF50",
-    "Quotation": "#9C27B0",
-    "Converted": "#28A745",
-    "Do Not Contact": "#DC3545",
-    "Others": "#FD7E14",
+    "Total Leads": "#2E86C1",
+    "Connected": "#F1C40F",
+    "Interested": "#E67E22",
+    "Quotation": "#D35400",
+    "Converted": "#27AE60",
 }
 
-CACHE_TTL = 300  # 5 minutes
 
+class LeadFunnel:
+    def __init__(self):
+        self.filters = {}
 
-def validate_filters(from_date: str, to_date: str, company: str) -> None:
-    """Validate input filters for the funnel data query."""
-    if from_date and to_date and (from_date >= to_date):
-        frappe.throw(_("To Date must be greater than From Date"))
-    if not company:
-        frappe.throw(_("Please Select a Company"))
-
-
-def build_conditions(lead_owner: Optional[str] = None, source: Optional[str] = None) -> tuple:
-    """Build SQL conditions and values for filtering."""
-    conditions = []
-    values = []
-
-    if lead_owner:
-        conditions.append("lead_owner = %s")
-        values.append(lead_owner)
-
-    if source:
-        conditions.append("source = %s")
-        values.append(source)
-
-    return (" AND " + " AND ".join(conditions)) if conditions else "", values
-
-
-def get_lead_counts(base_filters: tuple, additional_conditions: str, additional_values: List) -> Dict:
-    """Get counts for each lead status."""
-    main_statuses = tuple(LEAD_STATUSES.keys() - {"Others"})
-
-    # Get counts for other statuses in a single query
-    others_count = frappe.db.sql(
+    def get_lead_data(
+        self,
+        from_date: str,
+        to_date: str,
+        company: str,
+        lead_owner: Optional[str] = None,
+        source: Optional[str] = None,
+    ) -> List[Dict]:
         """
-        SELECT COUNT(*) as count 
-        FROM `tabLead` 
-        WHERE status NOT IN %s
-        AND (date(`creation`) between %s and %s)
-        AND company = %s
-        {}
-    """.format(
-            additional_conditions
-        ),
-        (main_statuses,) + base_filters + tuple(additional_values),
-    )[0][0]
-
-    # Get counts for main statuses in a single query
-    status_counts = frappe.db.sql(
+        Get lead funnel data with owner details for tooltip
         """
-        SELECT status, COUNT(*) as count 
-        FROM `tabLead`
-        WHERE status IN %s 
-        AND (date(`creation`) between %s and %s)
-        AND company = %s
-        {}
-        GROUP BY status
-    """.format(
+        base_filters = self._get_base_filters(from_date, to_date, company)
+        additional_conditions, additional_values = self._get_additional_filters(lead_owner, source)
+        status_counts, others_count, owner_details = self._get_lead_counts(base_filters, additional_conditions, additional_values)
+
+        return self._prepare_funnel_data(status_counts, others_count, owner_details)
+
+    def _get_base_filters(self, from_date: str, to_date: str, company: str) -> Tuple:
+        """
+        Prepare base filters for lead query
+        """
+        return (from_date, to_date, company)
+
+    def _get_additional_filters(
+        self,
+        lead_owner: Optional[str],
+        source: Optional[str],
+    ) -> Tuple[str, List]:
+        """
+        Prepare additional filters based on lead owner and source
+        """
+        conditions = []
+        values = []
+
+        if lead_owner:
+            conditions.append("lead_owner = %s")
+            values.append(lead_owner)
+
+        if source:
+            conditions.append("source = %s")
+            values.append(source)
+
+        additional_conditions = f"AND {' AND '.join(conditions)}" if conditions else ""
+
+        return additional_conditions, values
+
+    def _get_lead_counts(
+        self,
+        base_filters: Tuple,
+        additional_conditions: str,
+        additional_values: List,
+    ) -> Tuple[Dict, int, Dict]:
+        """
+        Get lead counts and owner details for each stage
+        """
+        # Get total leads count
+        total_leads_query = """
+            SELECT 
+                COUNT(*) as count,
+                lead_owner,
+                COUNT(lead_owner) as owner_count
+            FROM `tabLead`
+            WHERE (date(`creation`) between %s and %s)
+            AND company = %s
+            {0}
+            GROUP BY lead_owner
+            ORDER BY owner_count DESC
+        """.format(
             additional_conditions
-        ),
-        (main_statuses,) + base_filters + tuple(additional_values),
-    )
+        )
 
-    return dict(status_counts), others_count
+        total_data = frappe.db.sql(
+            total_leads_query,
+            base_filters + tuple(additional_values),
+            as_dict=1,
+        )
 
+        # Get status-wise counts
+        status_query = """
+            SELECT 
+                status,
+                COUNT(*) as count,
+                lead_owner,
+                COUNT(lead_owner) as owner_count
+            FROM `tabLead`
+            WHERE (date(`creation`) between %s and %s)
+            AND company = %s
+            {0}
+            GROUP BY status, lead_owner
+            ORDER BY status, owner_count DESC
+        """.format(
+            additional_conditions
+        )
 
-def get_cache_key(from_date: str, to_date: str, company: str, lead_owner: Optional[str] = None, source: Optional[str] = None) -> str:
-    """Generate a unique cache key based on parameters"""
-    key_parts = ["lead_funnel", f"from_{from_date}", f"to_{to_date}", f"company_{company}"]
-    if lead_owner:
-        key_parts.append(f"owner_{lead_owner}")
-    if source:
-        key_parts.append(f"source_{source}")
-    return ":".join(key_parts)
+        status_data = frappe.db.sql(
+            status_query,
+            base_filters + tuple(additional_values),
+            as_dict=1,
+        )
 
+        # Initialize counters
+        total_count = sum(row.count for row in total_data)
+        status_counts = {"Total Leads": total_count, "Connected": 0, "Interested": 0, "Quotation": 0, "Converted": 0}
 
-@frappe.whitelist()
-def get_funnel_data(from_date: str, to_date: str, company: str, lead_owner: Optional[str] = None, source: Optional[str] = None) -> List[Dict]:
-    """Get funnel data for leads with improved caching."""
+        owner_details = {status: [] for status in LEAD_STATUSES.keys()}
 
-    # Generate cache key
-    cache_key = get_cache_key(from_date, to_date, company, lead_owner, source)
+        # Add owners for total leads
+        owner_details["Total Leads"] = [{"owner": row.lead_owner or "Not Assigned", "count": row.owner_count} for row in total_data]
 
-    try:
-        # Attempt to get cached data
-        cached_data = frappe.cache().get_value(cache_key)
-        if cached_data:
-            return cached_data
+        # Calculate stage-wise counts
+        open_enquiry_count = sum(row.count for row in status_data if row.status in ["Open", "Enquiry"])
+        do_not_contact_count = sum(row.count for row in status_data if row.status == "Do Not Contact")
+        quotation_count = sum(row.count for row in status_data if row.status == "Quotation")
+        converted_count = sum(row.count for row in status_data if row.status == "Converted")
 
-        # Validate filters
-        validate_filters(from_date, to_date, company)
+        # Update status counts
+        status_counts.update(
+            {
+                "Connected": total_count - open_enquiry_count,
+                "Interested": total_count - (open_enquiry_count + do_not_contact_count),
+                "Quotation": quotation_count + converted_count,
+                "Converted": converted_count,
+            }
+        )
 
-        # Get fresh data
-        additional_conditions, additional_values = build_conditions(lead_owner, source)
-        base_filters = (from_date, to_date, company)
-        status_counts, others_count = get_lead_counts(base_filters, additional_conditions, additional_values)
+        # Update owner details for each stage
+        for row in status_data:
+            if row.status == "Converted":
+                owner_details["Converted"].append({"owner": row.lead_owner or "Not Assigned", "count": row.owner_count})
+                owner_details["Quotation"].append({"owner": row.lead_owner or "Not Assigned", "count": row.owner_count})
+            elif row.status == "Quotation":
+                owner_details["Quotation"].append({"owner": row.lead_owner or "Not Assigned", "count": row.owner_count})
 
-        # Prepare response data
-        data = [{"title": _(status), "value": count, "color": LEAD_STATUSES[status]} for status, count in status_counts.items() if count > 0]
+        return status_counts, 0, owner_details
+
+    def _prepare_funnel_data(
+        self,
+        status_counts: Dict,
+        others_count: int,
+        owner_details: Dict,
+    ) -> List[Dict]:
+        """
+        Prepare final funnel data with owner details for tooltip, sorted by value (descending)
+        """
+
+        data = [
+            {"title": _(status), "value": count, "color": LEAD_STATUSES[status], "owners": owner_details[status]}
+            for status, count in status_counts.items()
+            if count > 0
+        ]
+
+        data.sort(key=lambda x: x["value"], reverse=True)
 
         if others_count:
-            data.append({"title": _("Others"), "value": others_count, "color": LEAD_STATUSES["Others"]})
-
-        # Cache the results
-        frappe.cache().set_value(key=cache_key, val=data, expires_in_sec=CACHE_TTL)
+            data.append({"title": _("Others"), "value": others_count, "color": LEAD_STATUSES["Others"], "owners": owner_details["Others"]})
 
         return data
 
-    except Exception as e:
-        frappe.log_error(f"Lead Funnel Error: {str(e)}", "get_funnel_data")
-        raise
 
-
-def clear_lead_funnel_cache() -> None:
-    """Clear all lead funnel related caches"""
-    keys = frappe.cache().get_keys("lead_funnel*")
-    for key in keys:
-        frappe.cache().delete_value(key)
+@frappe.whitelist()
+def get_funnel_data(
+    from_date: str,
+    to_date: str,
+    company: str,
+    lead_owner: Optional[str] = None,
+    source: Optional[str] = None,
+) -> List[Dict]:
+    """
+    API endpoint to get lead funnel data
+    """
+    funnel = LeadFunnel()
+    return funnel.get_lead_data(from_date, to_date, company, lead_owner, source)

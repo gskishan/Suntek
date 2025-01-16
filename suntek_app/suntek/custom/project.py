@@ -17,9 +17,9 @@ def custom_copy_from_template(self):
         dict(project=self.name),
         limit=1,
     ):
-        # has a template, and no loaded tasks, so lets create
+
         if not self.expected_start_date:
-            # project starts today
+
             self.expected_start_date = today()
 
         template = frappe.get_doc("Project Template", self.custom_project_template)
@@ -27,7 +27,6 @@ def custom_copy_from_template(self):
         if not self.project_type:
             self.project_type = template.project_type
 
-        # create tasks from template
         project_tasks = []
         tmp_task_details = []
         for task in template.tasks:
