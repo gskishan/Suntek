@@ -276,34 +276,37 @@ erpnext.LeadFunnel = class LeadFunnel {
 			.prop("type", "text/css")
 			.html(
 				`
-            .btn-selected {
-                background: var(--primary) !important;
-                color: white !important;
-                border-color: var(--primary) !important;
-            }
-            .custom-filter-buttons .btn:hover,
-            .date-filter-buttons .btn:hover,
-            .clear-filters:hover {
-                background: var(--fg-hover-color);
-                transform: translateY(-1px);
-                box-shadow: var(--shadow-sm);
-            }
-            .filter-container {
-                box-shadow: var(--shadow-sm);
-            }
-            .filter-sections {
-                position: relative;
-            }
-            .clear-filters {
-                position: absolute;
-                right: 0;
-                top: 0;
-            }
-        `
+			.btn-selected {
+				background: var(--primary) !important;
+				color: white !important;
+				border-color: var(--primary) !important;
+			}
+			.custom-filter-buttons .btn:hover,
+			.date-filter-buttons .btn:hover,
+			.clear-filters:hover {
+				background: var(--fg-hover-color);
+				transform: translateY(-1px);
+				box-shadow: var(--shadow-sm);
+			}
+			.filter-container {
+				box-shadow: var(--shadow-sm);
+			}
+			.filter-sections {
+				position: relative;
+			}
+			.clear-filters {
+				position: absolute;
+				right: 0;
+				top: 0;
+			}
+		`
 			)
 			.appendTo("head");
 	}
 
+	resetAnimationCache() {
+		this._animatedValues = {};
+	}
 	// Helper method to set date filters
 	set_date_filter(from_date, to_date) {
 		const me = this;
@@ -336,12 +339,16 @@ erpnext.LeadFunnel = class LeadFunnel {
 			btn: btn,
 			callback: function (r) {
 				if (!r.exc) {
+					me.options.oldData = me.options.data;
 					me.options.data = r.message;
+					// Reset animation cache before rendering
+					me.resetAnimationCache();
 					me.render();
 				}
 			},
 		});
 	}
+
 	render() {
 		this.render_funnel();
 		this.showCalculationDetails();
@@ -431,6 +438,28 @@ erpnext.LeadFunnel = class LeadFunnel {
 		return this._descriptions[title] || "";
 	}
 
+	animate_number(start, end, duration, callback) {
+		const startTime = performance.now();
+		const change = end - start;
+
+		const animate = (currentTime) => {
+			const elapsed = currentTime - startTime;
+			const progress = Math.min(elapsed / duration, 1);
+
+			// Easing function for smooth animation
+			const easeOutQuad = (t) => t * (2 - t);
+			const currentValue = Math.round(start + change * easeOutQuad(progress));
+
+			callback(currentValue);
+
+			if (progress < 1) {
+				requestAnimationFrame(animate);
+			}
+		};
+
+		requestAnimationFrame(animate);
+	}
+
 	showCalculationDetails() {
 		$(".calculation-details").remove();
 
@@ -499,7 +528,7 @@ erpnext.LeadFunnel = class LeadFunnel {
                             ">
                                 ${this.getSimpleDescription(d.title)}
                             </td>
-                            <td style="
+                            <td class="value-cell" data-value="${d.value}" style="
                                 border: none;
                                 padding: 1rem;
                                 color: var(--text-color);
@@ -509,7 +538,7 @@ erpnext.LeadFunnel = class LeadFunnel {
                                 border-top-right-radius: 8px;
                                 border-bottom-right-radius: 8px;
                             ">
-                                ${d.value}
+                                0
                             </td>
                         </tr>
                     `
@@ -522,6 +551,15 @@ erpnext.LeadFunnel = class LeadFunnel {
 
 		// Append the calculation details after the funnel
 		$(calculationHTML).insertAfter(this.elements.funnel_wrapper);
+
+		// Animate the numbers in the table
+		$(".calculation-table .value-cell").each((i, cell) => {
+			const $cell = $(cell);
+			const finalValue = parseInt($cell.data("value"));
+			this.animate_number(0, finalValue, 300, (value) => {
+				$cell.text(value);
+			});
+		});
 
 		// Add hover effect
 		$(".calculation-table tr").hover(
@@ -546,8 +584,8 @@ erpnext.LeadFunnel = class LeadFunnel {
 		requestAnimationFrame(() => {
 			this.labels = [];
 			const context = this.elements.context;
-			const max_width = this.options.width * 0.6; // Increased width
-			const min_width = max_width * 0.2; // Minimum width for bottom
+			const max_width = this.options.width * 0.6;
+			const min_width = max_width * 0.2;
 			let y = 20;
 
 			context.clearRect(0, 0, this.options.width, this.options.height);
@@ -558,8 +596,8 @@ erpnext.LeadFunnel = class LeadFunnel {
 			}
 
 			const funnel_offset = this.options.width * 0.05;
-			const section_height = (this.options.height - y) / this.options.data.length;
 
+			// Draw with animation
 			this.options.data.forEach((d, i) => {
 				const isLastTwoSections = i >= this.options.data.length - 2;
 
@@ -567,7 +605,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 				let current_width, next_width;
 
 				if (isLastTwoSections) {
-					// Last two sections are rectangular and equal width
 					current_width = min_width * 1.5;
 					next_width = min_width * 1.5;
 				} else {
@@ -587,6 +624,7 @@ erpnext.LeadFunnel = class LeadFunnel {
 				const x_mid = (x_start + x_end) / 2;
 				const y_mid = y + d.height / 2;
 
+				// Set fill style with opacity for smooth transition
 				context.fillStyle = d.color;
 
 				if (i === hoveredIndex) {
@@ -602,11 +640,9 @@ erpnext.LeadFunnel = class LeadFunnel {
 				context.lineTo(x_end, current_y);
 
 				if (isLastTwoSections) {
-					// Rectangular sections for last two
 					context.lineTo(x_end, next_y);
 					context.lineTo(x_start, next_y);
 				} else {
-					// Trapezoid sections for others
 					context.lineTo(next_x_end, next_y);
 					context.lineTo(next_x_start, next_y);
 				}
@@ -690,18 +726,17 @@ erpnext.LeadFunnel = class LeadFunnel {
 		context.fill();
 
 		// Calculate percentage
-		const total = this.options.data[0].value; // First stage is total
+		const total = this.options.data[0].value;
 		const value = parseInt(title.split(" - ")[0]);
 		const percentage = ((value / total) * 100).toFixed(1);
-
-		// Original title text and percentage
-		const titleText = title + ` (${percentage}%)`;
+		const titleParts = title.split(" - ");
+		const labelText = titleParts[1];
 
 		context.fillStyle = getComputedStyle(document.body).getPropertyValue("--text-color");
 		context.textBaseline = "middle";
 		context.font = isHovered ? "bold 1.1em sans-serif" : "1em sans-serif";
 
-		const labelHeight = parseInt(context.font); // Get font size
+		const labelHeight = parseInt(context.font);
 		const labels = this.labels || (this.labels = []);
 
 		// Check for collisions and adjust position
@@ -720,7 +755,25 @@ erpnext.LeadFunnel = class LeadFunnel {
 		}
 
 		labels.push({ y: adjustedY });
-		context.fillText(__(titleText), line_end + 15, adjustedY);
+
+		// Animate the number if it's a new value or has changed
+		const key = `${line_end}-${adjustedY}`;
+		if (!this._animatedValues) this._animatedValues = {};
+
+		if (this._animatedValues[key] !== value) {
+			const startValue = 0;
+			this.animate_number(startValue, value, 300, (currentValue) => {
+				context.clearRect(line_end + 15, adjustedY - 15, 200, 30);
+				context.fillText(
+					`${currentValue} - ${labelText} (${((currentValue / total) * 100).toFixed(1)}%)`,
+					line_end + 15,
+					adjustedY
+				);
+			});
+			this._animatedValues[key] = value;
+		} else {
+			context.fillText(__(title + ` (${percentage}%)`), line_end + 15, adjustedY);
+		}
 	}
 
 	destroy() {
