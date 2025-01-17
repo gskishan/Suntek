@@ -12,9 +12,7 @@ def execute(filters=None):
 def data_condition(filters):
     condition = ""
     if filters.get("from_date") and filters.get("to_date"):
-        condition += " AND SO.transaction_date BETWEEN '{0}' AND '{1}' ".format(
-            filters.get("from_date"), filters.get("to_date")
-        )
+        condition += " AND SO.transaction_date BETWEEN '{0}' AND '{1}' ".format(filters.get("from_date"), filters.get("to_date"))
     if filters.get("project"):
         condition += " AND project.name = '{0}' ".format(filters.get("project"))
     if filters.get("company"):

@@ -17,9 +17,7 @@ def data_condition(filters):
     if filters.get("project"):
         condition += " AND p.project = '{0}' ".format(filters.get("project"))
     if filters.get("designing"):
-        condition += " AND p.against_designing = '{0}' ".format(
-            filters.get("designing")
-        )
+        condition += " AND p.against_designing = '{0}' ".format(filters.get("designing"))
 
     return condition
 
