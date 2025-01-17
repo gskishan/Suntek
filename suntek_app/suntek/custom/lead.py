@@ -4,12 +4,8 @@ import frappe
 import werkzeug.wrappers
 from frappe.model.mapper import get_mapped_doc
 
-from suntek_app.suntek.utils.lead_utils import (
-    get_next_telecaller,
-    get_or_create_lead,
-    process_other_properties,
-    update_lead_basic_info,
-)
+from suntek_app.suntek.utils.lead_utils import get_next_telecaller, get_or_create_lead, process_other_properties, update_lead_basic_info
+from suntek_app.suntek.utils.validation_utils import duplicate_check, validate_mobile_number
 
 
 def before_import(doc, method=None):
@@ -22,6 +18,9 @@ def before_import(doc, method=None):
 
 def change_enquiry_status(doc, method):
     try:
+        validate_mobile_number(doc.mobile_no)
+        duplicate_check(doc)
+
         if doc.lead_owner:
             return
 
@@ -39,8 +38,11 @@ def change_enquiry_status(doc, method):
                 user = frappe.get_doc("User", next_telecaller)
                 doc.custom_enquiry_owner_name = user.full_name
 
+    except frappe.ValidationError:
+        raise
     except Exception as e:
         frappe.log_error(f"Error in change_enquiry_status: {str(e)}", "Lead Assignment")
+        frappe.throw(str(e))
 
 
 def set_enquiry_name(doc, method):
@@ -111,16 +113,6 @@ def _set_missing_values(source, target):
 
     if contact:
         target.contact_person = contact[0].parent
-
-
-def duplicate_check(doc):
-    mobile_no = str(doc.mobile_no)
-    sql = """select * from `tabLead` where mobile_no="{0}" and name!="{1}" """.format(mobile_no, doc.name)
-    data = frappe.db.sql(sql, as_dict=True)
-    if data:
-        frappe.throw(
-            "Duplicate mobile no {} already linked to <b>{}</b> ".format(mobile_no, data[0].custom_enquiry_owner_name),
-        )
 
 
 @frappe.whitelist()

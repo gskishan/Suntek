@@ -4,6 +4,16 @@ import re
 import frappe
 
 
+def duplicate_check(doc):
+    mobile_no = str(doc.mobile_no)
+    sql = """select * from `tabLead` where mobile_no="{0}" and name!="{1}" """.format(mobile_no, doc.name)
+    data = frappe.db.sql(sql, as_dict=True)
+    if data:
+        frappe.throw(
+            "Duplicate mobile no {} already linked to <b>{}</b> ".format(mobile_no, data[0].custom_enquiry_owner_name),
+        )
+
+
 def validate_mobile_number(number):
     """Validate mobile number. It should be 10 digits and start with 6-9"""
     number = str(number)

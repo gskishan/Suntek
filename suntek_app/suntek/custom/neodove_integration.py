@@ -1,6 +1,7 @@
+import json
+
 import frappe
 import requests
-import json
 
 
 def send_to_neodove(doc, method=None):
