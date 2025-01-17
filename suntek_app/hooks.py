@@ -158,6 +158,9 @@ doc_events = {
         "on_update": [
             "suntek_app.suntek.custom.neodove_integration.send_to_neodove",
         ],
+        "after_insert": [
+            "suntek_app.suntek.custom.neodove_integration.send_to_neodove",
+        ],
     },
     "Opportunity": {
         "validate": [
@@ -166,6 +169,9 @@ doc_events = {
         ],
         "on_update": [
             "suntek_app.custom_script.opportunity.on_update",
+            "suntek_app.suntek.custom.neodove_integration.send_to_neodove",
+        ],
+        "after_insert": [
             "suntek_app.suntek.custom.neodove_integration.send_to_neodove",
         ],
     },

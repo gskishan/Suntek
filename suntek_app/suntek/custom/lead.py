@@ -412,23 +412,3 @@ def handle_lead_update(neodove_data, mobile_no, lead_owner, lead_stage, DEFAULT_
         "lead_name": lead.name,
         "url": lead.custom_neodove_campaign_url,
     }
-
-
-def _prepare_dispose_details(parent_doc, neodove_data):
-    """Prepare dispose details for lead or opportunity"""
-    if dispose_remarks := neodove_data.get("dispose_remarks", "").strip():
-        if call_recordings := neodove_data.get("call_recordings", []):
-            for recording in call_recordings:
-                parent_doc.append(
-                    "custom_dispose_details",
-                    {
-                        "dispose_remarks": dispose_remarks,
-                        "call_recording": "Click to Play",
-                        "call_duration_in_seconds": recording.get("call_duration_in_sec", 0),
-                        "dispose_time": frappe.utils.now_datetime(),
-                        "call_recording_url": recording.get("recording_url"),
-                    },
-                )
-        else:
-
-            parent_doc.append("custom_dispose_details", {"dispose_remarks": dispose_remarks, "dispose_time": frappe.utils.now_datetime()})
