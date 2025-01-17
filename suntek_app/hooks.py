@@ -157,9 +157,11 @@ doc_events = {
         "before_insert": ["suntek_app.suntek.custom.lead.before_import"],
         "on_update": [
             "suntek_app.suntek.custom.neodove_integration.send_to_neodove",
+            "suntek_app.suntek.page.lead_funnel.lead_funnel.clear_cache",
         ],
         "after_insert": [
             "suntek_app.suntek.custom.neodove_integration.send_to_neodove",
+            "suntek_app.suntek.page.lead_funnel.lead_funnel.clear_cache",
         ],
     },
     "Opportunity": {
