@@ -37,7 +37,7 @@ class LeadFunnel:
         """
         Prepare base filters for lead query
         """
-        return (from_date, to_date, company)
+        return (from_date, to_date, from_date, to_date, company)
 
     def _get_additional_filters(
         self,
@@ -53,7 +53,6 @@ class LeadFunnel:
         if lead_owner:
             conditions.append("lead_owner = %s")
             values.append(lead_owner)
-
         if source:
             conditions.append("source = %s")
             values.append(source)
@@ -71,14 +70,15 @@ class LeadFunnel:
         """
         Get lead counts and owner details for each stage
         """
-        # Get total leads count
+
         total_leads_query = """
             SELECT 
                 COUNT(*) as count,
                 lead_owner,
                 COUNT(lead_owner) as owner_count
             FROM `tabLead`
-            WHERE (date(`creation`) between %s and %s)
+            WHERE (date(`creation`) between %s and %s 
+                OR date(`modified`) between %s and %s)
             AND company = %s
             {0}
             GROUP BY lead_owner
@@ -93,7 +93,6 @@ class LeadFunnel:
             as_dict=1,
         )
 
-        # Get status-wise counts
         status_query = """
             SELECT 
                 status,
@@ -101,7 +100,8 @@ class LeadFunnel:
                 lead_owner,
                 COUNT(lead_owner) as owner_count
             FROM `tabLead`
-            WHERE (date(`creation`) between %s and %s)
+            WHERE (date(`creation`) between %s and %s 
+                OR date(`modified`) between %s and %s)
             AND company = %s
             {0}
             GROUP BY status, lead_owner
@@ -116,22 +116,15 @@ class LeadFunnel:
             as_dict=1,
         )
 
-        # Initialize counters
         total_count = sum(row.count for row in total_data)
         status_counts = {"Total Leads": total_count, "Connected": 0, "Interested": 0, "Quotation": 0, "Converted": 0}
-
         owner_details = {status: [] for status in LEAD_STATUSES.keys()}
-
-        # Add owners for total leads
         owner_details["Total Leads"] = [{"owner": row.lead_owner or "Not Assigned", "count": row.owner_count} for row in total_data]
-
-        # Calculate stage-wise counts
         open_enquiry_count = sum(row.count for row in status_data if row.status in ["Open", "Enquiry"])
         do_not_contact_count = sum(row.count for row in status_data if row.status == "Do Not Contact")
         quotation_count = sum(row.count for row in status_data if row.status == "Quotation")
         converted_count = sum(row.count for row in status_data if row.status == "Converted")
 
-        # Update status counts
         status_counts.update(
             {
                 "Connected": total_count - open_enquiry_count,
@@ -141,7 +134,6 @@ class LeadFunnel:
             }
         )
 
-        # Update owner details for each stage
         for row in status_data:
             if row.status == "Converted":
                 owner_details["Converted"].append({"owner": row.lead_owner or "Not Assigned", "count": row.owner_count})
