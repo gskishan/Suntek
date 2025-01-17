@@ -16,6 +16,17 @@ class LeadFunnel:
     def __init__(self):
         self.filters = {}
 
+    def clear_cache(from_date: str = None, to_date: str = None, company: str = None, lead_owner: str = None, source: str = None) -> None:
+        """
+        Clear the funnel data cache. If no parameters are provided,
+        it will generate a pattern to clear all lead funnel caches.
+        """
+        if all(param is None for param in [from_date, to_date, company, lead_owner, source]):
+            frappe.cache().delete_keys("lead_funnel:*")
+        else:
+            cache_key = get_cache_key(from_date, to_date, company, lead_owner, source)
+            frappe.cache().delete_value(cache_key)
+
     def get_lead_data(
         self,
         from_date: str,
@@ -167,6 +178,11 @@ class LeadFunnel:
         return data
 
 
+def get_cache_key(from_date: str, to_date: str, company: str, lead_owner: str = None, source: str = None) -> str:
+    """Generate a unique cache key based on input parameters"""
+    return f"lead_funnel:|{from_date}|{to_date}|{company}|{lead_owner or ''}|{source or ''}"
+
+
 @frappe.whitelist()
 def get_funnel_data(
     from_date: str,
@@ -178,5 +194,12 @@ def get_funnel_data(
     """
     API endpoint to get lead funnel data
     """
-    funnel = LeadFunnel()
-    return funnel.get_lead_data(from_date, to_date, company, lead_owner, source)
+    cache_key = get_cache_key(from_date, to_date, company, lead_owner, source)
+    funnel_data = frappe.cache().get_value(cache_key)
+
+    if funnel_data is None:
+        funnel = LeadFunnel()
+        funnel_data = funnel.get_lead_data(from_date, to_date, company, lead_owner, source)
+        frappe.cache().set_value(key=cache_key, val=funnel_data, expires_in_sec=300)
+
+    return funnel_data
