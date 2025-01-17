@@ -17,6 +17,7 @@ def before_import(doc, method=None):
 
     if doc.lead_owner == frappe.session.user:
         doc.lead_owner = None
+        doc.custom_enquiry_owner_name = None
 
 
 def change_enquiry_status(doc, method):
