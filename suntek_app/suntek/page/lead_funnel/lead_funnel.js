@@ -354,6 +354,48 @@ erpnext.LeadFunnel = class LeadFunnel {
 		this.showCalculationDetails();
 	}
 
+	openLeadListView(status) {
+		let filters = {
+			company: this.company,
+			creation: ["between", [this.options.from_date, this.options.to_date]],
+		};
+
+		// Add lead owner filter if specified
+		if (this.lead_owner) {
+			filters.lead_owner = this.lead_owner;
+		}
+
+		// Add source filter if specified
+		if (this.source) {
+			filters.source = this.source;
+		}
+
+		// Add status-specific filters
+		switch (status) {
+			case "Total Leads":
+				// No additional filter needed
+				break;
+			case "Connected":
+				filters.status = "Connected";
+				break;
+			case "Interested":
+				filters.status = "Interested";
+				break;
+			case "Quotation":
+				filters.status = "Quotation";
+				break;
+			case "Converted":
+				filters.status = "Converted";
+				break;
+		}
+
+		// Convert filters to URL parameters
+		const filterStr = encodeURIComponent(JSON.stringify(filters));
+
+		// Open Lead list view in new tab with filters
+		window.open(`/app/lead/view/list?filters=${filterStr}`, "_blank");
+	}
+
 	render_funnel() {
 		var me = this;
 		this.prepare_funnel();
@@ -364,6 +406,60 @@ erpnext.LeadFunnel = class LeadFunnel {
 			return;
 		}
 
+		this.elements.canvas.on("click", function (e) {
+			const boundingBox = this.getBoundingClientRect();
+			const scaleX = this.width / boundingBox.width;
+			const scaleY = this.height / boundingBox.height;
+			const mouseX = (e.clientX - boundingBox.left) * scaleX;
+			const mouseY = (e.clientY - boundingBox.top) * scaleY;
+
+			let y = 20;
+			let clickedSection = null;
+
+			// Check each section for click
+			me.options.data.forEach((d, i) => {
+				const max_width = me.options.width * 0.6;
+				const min_width = max_width * 0.2;
+				const funnel_offset = me.options.width * 0.05;
+				const isLastTwoSections = i >= me.options.data.length - 2;
+
+				// Calculate current and next widths
+				let current_width, next_width;
+				if (isLastTwoSections) {
+					current_width = min_width * 1.5;
+					next_width = min_width * 1.5;
+				} else {
+					const progress = i / (me.options.data.length - 2);
+					current_width = max_width * (1 - progress * 0.7);
+					next_width = max_width * (1 - ((i + 1) / (me.options.data.length - 2)) * 0.7);
+				}
+
+				// Calculate coordinates for hit detection
+				const x_start = funnel_offset + (max_width - current_width) / 2;
+				const x_end = x_start + current_width;
+				const next_x_start = funnel_offset + (max_width - next_width) / 2;
+				const next_x_end = next_x_start + next_width;
+				const current_y = y;
+				const next_y = y + d.height;
+
+				const points = [
+					{ x: x_start, y: current_y },
+					{ x: x_end, y: current_y },
+					{ x: next_x_end, y: next_y },
+					{ x: next_x_start, y: next_y },
+				];
+
+				if (isPointInTrapezoid(mouseX, mouseY, points)) {
+					clickedSection = d.title;
+				}
+
+				y += d.height;
+			});
+
+			if (clickedSection) {
+				me.openLeadListView(clickedSection);
+			}
+		});
 		this.elements.canvas.on("mousemove", function (e) {
 			const boundingBox = this.getBoundingClientRect();
 			const scaleX = this.width / boundingBox.width;
@@ -578,6 +674,15 @@ erpnext.LeadFunnel = class LeadFunnel {
 				});
 			}
 		);
+		$(".calculation-table tr").on("click", function () {
+			const title = $(this).find("td:first span:last").text();
+			me.openLeadListView(title);
+		});
+		// Add to showCalculationDetails method where styles are defined
+		$(".calculation-table tr").css("cursor", "pointer");
+
+		// Add to prepare_funnel method after creating canvas
+		this.elements.canvas.css("cursor", "pointer");
 	}
 
 	redrawFunnel(hoveredIndex = null) {
