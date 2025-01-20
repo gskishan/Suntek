@@ -1,6 +1,6 @@
 frappe.ui.form.on("Lead", {
 	refresh: function (frm) {
-		var status = frm.doc.custom_enquiry_status;
+		var status = frm.doc.status;
 
 		setTimeout(() => {
 			frm.remove_custom_button("Customer", "Create");
