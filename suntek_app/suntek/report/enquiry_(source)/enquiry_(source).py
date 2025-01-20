@@ -22,43 +22,30 @@ def execute(filters=None):
         {"fieldname": "total_capacity", "label": _("Overall Capacity"), "fieldtype": "Float", "width": 170},
     ]
 
-    # Add UOM specific columns
-    for uom in uom_list:
-        uom_name = uom.custom_uom
+    # Define statuses
+    statuses = ["Open", "Replied", "Opportunity", "Quotation", "Interested", "Converted", "Lost Quotation", "Do Not Contact"]
+
+    # Add status columns with UOM breakdowns
+    for status in statuses:
+        status_key = status.lower().replace(' ', '_')
         columns.extend(
             [
-                {
-                    "fieldname": f"total_leads_{uom_name.lower().replace(' ', '_')}",
-                    "label": _(f"Total Leads ({uom_name})"),
-                    "fieldtype": "Int",
-                    "width": 150,
-                },
-                {"fieldname": "open_leads", "label": _("Open"), "fieldtype": "Int", "width": 100},
-                {"fieldname": "replied_leads", "label": _("Replied"), "fieldtype": "Int", "width": 100},
-                {"fieldname": "opportunity_leads", "label": _("Opportunity"), "fieldtype": "Int", "width": 120},
-                {"fieldname": "quotation_leads", "label": _("Quotation"), "fieldtype": "Int", "width": 120},
-                {"fieldname": "interested_leads", "label": _("Interested"), "fieldtype": "Int", "width": 120},
-                {"fieldname": "converted_leads", "label": _("Converted"), "fieldtype": "Int", "width": 120},
-                {"fieldname": "lost_quotation_leads", "label": _("Lost Quotation"), "fieldtype": "Int", "width": 130},
-                {"fieldname": "do_not_contact_leads", "label": _("Do Not Contact"), "fieldtype": "Int", "width": 130},
-                {"fieldname": "conversion_rate", "label": _("Conversion Rate %"), "fieldtype": "Percent", "width": 150},
-                {
-                    "fieldname": f"total_capacity_{uom_name.lower().replace(' ', '_')}",
-                    "label": _(f"Total Capacity ({uom_name})"),
-                    "fieldtype": "Float",
-                    "width": 170,
-                },
+                {"fieldname": f"{status_key}_leads", "label": _(f"{status} (Nos)"), "fieldtype": "Int", "width": 150},
             ]
         )
+        # Add UOM specific columns for each status
+        for uom in uom_list:
+            uom_name = uom.custom_uom
+            columns.append(
+                {
+                    "fieldname": f"{status_key}_{uom_name.lower().replace(' ', '_')}",
+                    "label": _(f"{status} ({uom_name})"),
+                    "fieldtype": "Float",
+                    "width": 150,
+                }
+            )
 
-    # Add other columns
-    columns.extend(
-        [
-            {"fieldname": "open_leads", "label": _("Open"), "fieldtype": "Int", "width": 120},
-            {"fieldname": "converted_leads", "label": _("Converted"), "fieldtype": "Int", "width": 140},
-            {"fieldname": "conversion_rate", "label": _("Conversion Rate %"), "fieldtype": "Percent", "width": 160},
-        ]
-    )
+    columns.append({"fieldname": "conversion_rate", "label": _("Conversion Rate %"), "fieldtype": "Percent", "width": 150})
 
     # Build conditions based on filters
     conditions = "1=1"
@@ -82,43 +69,36 @@ def execute(filters=None):
         [
             "COUNT(*) as total_leads",
             """SUM(CASE 
-            WHEN custom_capacity REGEXP '^[0-9]+(\\.[0-9]+)?$'
+            WHEN custom_capacity REGEXP '^[0-9]+(\.[0-9]+)?$'
             THEN CAST(custom_capacity AS DECIMAL(10,2)) 
             ELSE 0 
         END) as total_capacity""",
         ]
     )
 
-    # Add UOM specific calculations
-    for uom in uom_list:
-        uom_name = uom.custom_uom
-        field_name = uom_name.lower().replace(" ", "_")
+    # Add status and UOM specific calculations
+    for status in statuses:
+        status_key = status.lower().replace(' ', '_')
 
-        select_clauses.extend(
-            [
-                f"""SUM(CASE WHEN custom_uom = '{uom_name}' THEN 1 ELSE 0 END) 
-                as total_leads_{field_name}""",
-                f"""SUM(CASE 
-                WHEN custom_uom = '{uom_name}' AND custom_capacity REGEXP '^[0-9]+(\\.[0-9]+)?$'
-                THEN CAST(custom_capacity AS DECIMAL(10,2)) 
-                ELSE 0 
-            END) as total_capacity_{field_name}""",
-            ]
-        )
+        # Add count for status
+        select_clauses.append(f"SUM(CASE WHEN status = '{status}' THEN 1 ELSE 0 END) as {status_key}_leads")
 
-    # Add status calculations
-    select_clauses.extend(
-        [
-            "SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) as open_leads",
-            "SUM(CASE WHEN status = 'Replied' THEN 1 ELSE 0 END) as replied_leads",
-            "SUM(CASE WHEN status = 'Opportunity' THEN 1 ELSE 0 END) as opportunity_leads",
-            "SUM(CASE WHEN status = 'Quotation' THEN 1 ELSE 0 END) as quotation_leads",
-            "SUM(CASE WHEN status = 'Interested' THEN 1 ELSE 0 END) as interested_leads",
-            "SUM(CASE WHEN status = 'Converted' THEN 1 ELSE 0 END) as converted_leads",
-            "SUM(CASE WHEN status = 'Lost Quotation' THEN 1 ELSE 0 END) as lost_quotation_leads",
-            "SUM(CASE WHEN status = 'Do Not Contact' THEN 1 ELSE 0 END) as do_not_contact_leads",
-        ]
-    )
+        # Add UOM specific calculations for each status
+        for uom in uom_list:
+            uom_name = uom.custom_uom
+            uom_key = uom_name.lower().replace(' ', '_')
+
+            select_clauses.append(
+                f"""
+                SUM(CASE 
+                    WHEN status = '{status}' 
+                    AND custom_uom = '{uom_name}' 
+                    AND custom_capacity REGEXP '^[0-9]+(\.[0-9]+)?$'
+                    THEN CAST(custom_capacity AS DECIMAL(10,2)) 
+                    ELSE 0 
+                END) as {status_key}_{uom_key}
+            """
+            )
 
     # Get data from database
     data = frappe.db.sql(
