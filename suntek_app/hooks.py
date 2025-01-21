@@ -217,11 +217,6 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-scheduler_events = {
-    "daily": [
-        "suntek_app.suntek.utils.lead_utils.update_overdue_followups",
-    ]
-}
 
 # scheduler_events = {
 # 	"all": [
