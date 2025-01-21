@@ -1153,13 +1153,13 @@
   "docstatus": 0,
   "doctype": "Notification",
   "document_type": "Lead",
-  "enabled": 1,
+  "enabled": 0,
   "event": "Value Change",
   "is_standard": 0,
   "message": "You have a follow up scheduled with the enquiry.",
   "message_type": "Markdown",
   "method": null,
-  "modified": "2025-01-16 17:45:52.774212",
+  "modified": "2025-01-20 16:49:07.713778",
   "module": null,
   "name": "Lead Follow up Scheduled",
   "print_format": null,
@@ -1172,8 +1172,18 @@
     "parent": "Lead Follow up Scheduled",
     "parentfield": "recipients",
     "parenttype": "Notification",
-    "receiver_by_document_field": null,
+    "receiver_by_document_field": "",
     "receiver_by_role": "Sales User"
+   },
+   {
+    "bcc": null,
+    "cc": null,
+    "condition": null,
+    "parent": "Lead Follow up Scheduled",
+    "parentfield": "recipients",
+    "parenttype": "Notification",
+    "receiver_by_document_field": null,
+    "receiver_by_role": "Administrator"
    }
   ],
   "send_system_notification": 1,
@@ -1182,7 +1192,7 @@
   "sender_email": null,
   "set_property_after_alert": null,
   "slack_webhook_url": null,
-  "subject": "{{ doc.name }} has a follow up scheduled",
+  "subject": "Lead has a follow up scheduled",
   "value_changed": "custom_followup_date"
  }
 ]
