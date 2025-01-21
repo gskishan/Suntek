@@ -8,9 +8,13 @@
   "enquiry_settings_section",
   "enable_round_robin_assignment_to_enquiries",
   "neodove_settings_section",
+  "enable_neodove_integration",
   "send_lead_enquiry_data_to_neodove_after_update",
+  "generate_neodove_webhook_secret",
+  "column_break_slzy",
   "default_campaign_enquiries",
-  "integration_url"
+  "integration_url",
+  "neodove_webhook_secret"
  ],
  "fields": [
   {
@@ -46,12 +50,32 @@
    "fieldname": "integration_url",
    "fieldtype": "Data",
    "label": "Integration URL"
+  },
+  {
+   "fieldname": "neodove_webhook_secret",
+   "fieldtype": "Password",
+   "label": "Neodove Webhook Secret"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_neodove_integration",
+   "fieldtype": "Check",
+   "label": "Enable Neodove Integration"
+  },
+  {
+   "fieldname": "column_break_slzy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "generate_neodove_webhook_secret",
+   "fieldtype": "Button",
+   "label": "Generate Neodove Webhook Secret"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-01-17 10:41:32.409250",
+ "modified": "2025-01-21 13:21:32.743546",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Suntek Settings",

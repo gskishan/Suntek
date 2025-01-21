@@ -1,6 +1,8 @@
 import frappe
 
-from suntek_app.suntek.utils.validation_utils import convert_date_format, convert_timestamp_to_date, extract_first_and_last_name
+from suntek_app.suntek.utils.validation_utils import (
+    convert_date_format, convert_timestamp_to_date,
+    extract_first_and_last_name)
 
 
 def get_next_telecaller():

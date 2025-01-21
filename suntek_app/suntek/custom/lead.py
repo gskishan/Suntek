@@ -1,15 +1,26 @@
+import hmac
 import json
 
 import frappe
 import werkzeug.wrappers
 from frappe.model.mapper import get_mapped_doc
 
-from suntek_app.suntek.utils.lead_utils import get_next_telecaller, get_or_create_lead, process_other_properties, update_lead_basic_info
-from suntek_app.suntek.utils.validation_utils import duplicate_check, validate_mobile_number
+from suntek_app.suntek.utils.lead_utils import (
+    get_next_telecaller,
+    get_or_create_lead,
+    process_other_properties,
+    update_lead_basic_info,
+)
+from suntek_app.suntek.utils.validation_utils import (
+    duplicate_check,
+    validate_mobile_number,
+)
 
 
 def before_import(doc, method=None):
     """Thie function executes when doing a data import, it removes the lead_owner which by default gets set to the person doing data import."""
+
+    duplicate_check(doc)
 
     if doc.lead_owner == frappe.session.user:
         doc.lead_owner = None
@@ -115,60 +126,101 @@ def _set_missing_values(source, target):
         target.contact_person = contact[0].parent
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def create_lead_from_neodove_dispose():
+    """Handle incoming Neodove webhook requests to create/update leads or opportunities"""
     try:
-        neodove_data = parse_request_data(frappe.request.data)
-        campaign_id = neodove_data.get("campaign_id")
 
-        campaign = frappe.db.get_value(
-            "Neodove Campaign", filters={"campaign_id": campaign_id}, fieldname=["name", "pipeline_name", "campaign_name"], as_dict=1
+        is_enabled = frappe.get_doc('Suntek Settings').get_value('enable_neodove_integration')
+
+        if not is_enabled:
+            frappe.throw("Neodove integration is disabled")
+
+        frappe.set_user("Administrator")
+
+        api_key = frappe.request.headers.get('X-Neodove-API-Key')
+        if not api_key:
+            return _error_response('API key missing', 401)
+
+        if not _validate_api_key(api_key):
+            return _error_response('Invalid API key', 401)
+
+        neodove_data = parse_request_data(frappe.request.data)
+
+        print(json.dumps(neodove_data, indent=4))
+        campaign_id = neodove_data.get("campaign_id")
+        if not campaign_id:
+            return _error_response('Campaign ID is required')
+
+        campaign = _get_campaign_info(campaign_id)
+        if not campaign:
+            return _error_response(f"Campaign not found: {campaign_id}")
+
+        mobile = neodove_data.get("mobile")
+        agent_email = neodove_data.get("agent_email")
+        lead_stage = neodove_data.get("lead_stage_name")
+
+        result = (
+            handle_opportunity_update(neodove_data, mobile, agent_email, lead_stage)
+            if campaign.pipeline_name and campaign.pipeline_name.lower() == "opportunities"
+            else handle_lead_update(neodove_data, mobile, agent_email, lead_stage, "", "", "")
         )
 
-        if not campaign:
-            return {"success": False, "message": f"Campaign not found for campaign_id: {campaign_id}"}
-
-        if campaign.pipeline_name and campaign.pipeline_name.lower() == "opportunities":
-            return handle_opportunity_update(
-                neodove_data, neodove_data.get("mobile"), neodove_data.get("agent_email"), neodove_data.get("lead_stage_name")
-            )
-        else:
-
-            return handle_lead_update(
-                neodove_data, neodove_data.get("mobile"), neodove_data.get("agent_email"), neodove_data.get("lead_stage_name"), "", "", ""
-            )
+        return result
 
     except Exception as e:
-        frappe.logger().error(f"Error in create_lead_from_neodove_dispose: {str(e)}")
-        frappe.log_error(frappe.get_traceback(), "Neodove Lead/Opportunity Creation/Update Error")
-        return {"success": False, "message": str(e)}
+        frappe.log_error(message=f"Neodove webhook error: {str(e)}\n{frappe.get_traceback()}", title="Neodove Webhook Error")
+        return _error_response(str(e))
+    finally:
+        frappe.set_user("Guest")
 
 
-def _prepare_recordings(lead, recordings):
-    """Prepare recordings to be added to lead without saving"""
-    if not recordings:
-        return
+def _validate_api_key(api_key: str) -> bool:
+    """Validate API key with optimized caching"""
+    CACHE_KEY = "neodove_webhook_secret"
+    CACHE_TTL = 3600
 
-    existing_urls = set()
-    if lead.get("custom_call_recordings"):
-        existing_urls = {rec.recording_url for rec in lead.custom_call_recordings}
+    try:
 
-    for recording in recordings:
-        if not recording.get("recording_url") or recording["recording_url"] in existing_urls:
-            continue
+        stored_key = frappe.cache().get_value(CACHE_KEY)
 
-        lead.append(
-            "custom_call_recordings",
-            {
-                "doctype": "Neodove Call Recordings",
-                "call_duration_in_sec": recording.get("call_duration_in_sec") or 0,
-                "recording_url": recording["recording_url"],
-                "enquiry": lead.name if lead.name else None,
-                "parenttype": "Lead",
-                "parentfield": "custom_call_recordings",
-                "parent": lead.name if lead.name else None,
-            },
+        if stored_key and hmac.compare_digest(api_key, stored_key):
+            return True
+
+        current_key = frappe.get_doc('Suntek Settings').get_password("neodove_webhook_secret")
+
+        if current_key and current_key != stored_key:
+            frappe.cache().set_value(CACHE_KEY, current_key, expires_in_sec=CACHE_TTL)
+
+        return hmac.compare_digest(api_key, current_key) if current_key else False
+
+    except Exception as e:
+        frappe.log_error(f"API key validation error: {str(e)}", "Neodove Webhook")
+        return False
+
+
+def _get_campaign_info(campaign_id: str) -> dict:
+    """Get campaign info with caching"""
+    CACHE_KEY = f"neodove_campaign_{campaign_id}"
+    CACHE_TTL = 300
+
+    campaign = frappe.cache().get_value(CACHE_KEY)
+    if not campaign:
+        campaign = frappe.db.get_value(
+            "Neodove Campaign",
+            filters={"campaign_id": campaign_id},
+            fieldname=["name", "pipeline_name", "campaign_name"],
+            as_dict=1,
         )
+        if campaign:
+            frappe.cache().set_value(CACHE_KEY, campaign, expires_in_sec=CACHE_TTL)
+
+    return campaign
+
+
+def _error_response(message: str, status_code: int = 400) -> dict:
+    """Standardized error response"""
+    return {"success": False, "message": message, "status_code": status_code}
 
 
 @frappe.whitelist(allow_guest=True)
@@ -356,7 +408,8 @@ def handle_lead_update(neodove_data, mobile_no, lead_owner, lead_stage, DEFAULT_
     is_new = not bool(lead.get("name"))
 
     if is_new:
-        lead.custom_department = DEFAULT_DEPARTMENT
+        if not lead.get("custom_department"):
+            lead.custom_department = "Tele Sales - SESP"
         lead.salutation = DEFAULT_SALUTATION
         lead.source = DEFAULT_SOURCE
 
