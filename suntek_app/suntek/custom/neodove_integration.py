@@ -13,6 +13,9 @@ def send_to_neodove(doc, method=None):
         if not setting_value:
             return
 
+        if doc.doctype == "Lead" and doc.custom_department != "Tele Sales - SESP":
+            return
+
         campaign_id = doc.get("custom_neodove_campaign_id")
         if not campaign_id:
             campaign_id = frappe.db.get_single_value("Suntek Settings", "default_campaign_enquiries")
@@ -31,7 +34,7 @@ def send_to_neodove(doc, method=None):
                 "Enquiry Source": doc.source or "",
                 "status": doc.status or "",
                 "department": doc.custom_department or "",
-                "enquiry status": doc.custom_enquiry_status or "",
+                "enquiry status": doc.status or "",
                 "customer category": doc.custom_customer_category or "",
                 "mobile": doc.mobile_no or "",
                 "phone": doc.phone or "",
@@ -46,7 +49,7 @@ def send_to_neodove(doc, method=None):
                 "Enquiry Source": doc.source or "",
                 "status": doc.status or "",
                 "department": doc.custom_department or "",
-                "enquiry status": doc.custom_enquiry_status or "",
+                "enquiry status": doc.status or "",
                 "customer category": doc.custom_customer_category or "",
                 "mobile": doc.contact_mobile or "",
                 "phone": doc.contact_phone or "",
