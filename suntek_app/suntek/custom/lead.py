@@ -146,9 +146,8 @@ def create_lead_from_neodove_dispose():
             return _error_response('Invalid API key', 401)
 
         neodove_data = parse_request_data(frappe.request.data)
-
-        print(json.dumps(neodove_data, indent=4))
         campaign_id = neodove_data.get("campaign_id")
+
         if not campaign_id:
             return _error_response('Campaign ID is required')
 
