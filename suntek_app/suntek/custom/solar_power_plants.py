@@ -84,7 +84,7 @@ def send_webhook(data: Dict) -> bool:
 
         try:
             settings = frappe.get_doc("Suntek Settings")
-            django_api_url = f"{settings.get('django_api_url')}/webhook/assign-plants/"
+            django_api_url = f"{settings.get('django_api_url')}power-plant/webhook/assign-plants/"
             api_token = settings.get_password("solar_ambassador_api_token")
 
             if not django_api_url or not api_token:
