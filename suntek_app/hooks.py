@@ -207,6 +207,11 @@ doc_events = {
             "suntek_app.suntek.custom.solar_power_plants.handle_solar_ambassador_webhook",
         ],
     },
+    "Issue": {
+        "on_update": [
+            "suntek_app.suntek.custom.issue.send_issue_update_to_ambassador_api",
+        ]
+    },
 }
 
 # doc_events = {
