@@ -136,7 +136,7 @@ def create_lead_from_neodove_dispose():
         if not is_enabled:
             frappe.throw("Neodove integration is disabled")
 
-        frappe.set_user("Administrator")
+        frappe.set_user("developer@suntek.co.in")
 
         api_key = frappe.request.headers.get('X-Neodove-API-Key')
         if not api_key:
