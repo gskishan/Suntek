@@ -56,7 +56,7 @@ def send_issue_update_to_ambassador_api(doc, method):
     }
 
     settings = frappe.get_doc("Suntek Settings")
-    django_api_url = f"{settings.get("django_api_url")}webhook/issue-updated"
+    django_api_url = f"{settings.get('django_api_url')}webhook/issue-updated/"
     api_token = settings.get_password("solar_ambassador_api_token")
 
     if not django_api_url or not api_token:
