@@ -1,7 +1,9 @@
 import re
-from typing import Dict, List
+from typing import Dict
 
 import frappe
+import time
+import requests
 
 
 def change_power_plant_assigned_status(doc, method):
@@ -16,14 +18,11 @@ def customer_contains_mobile_number(doc):
     return bool(doc.customer_mobile_no)
 
 
+MOBILE_NUMBER_PATTERN = re.compile(r"^(\+91[-]?)?[6-9]\d{9}$")
+
+
 def validate_mobile_number(number):
-    # Ensure number is a string before matching
-    number = str(number)
-    pattern = r"^(\+91[-]?)?[6-9]\d{9}$"
-    if re.match(pattern, number):
-        return True
-    else:
-        return False
+    return bool(MOBILE_NUMBER_PATTERN.match(str(number)))
 
 
 def check_customer_mobile_number(doc, method=None):
@@ -39,72 +38,104 @@ def check_customer_mobile_number(doc, method=None):
                 )
 
 
-@frappe.whitelist()
+def handle_solar_ambassador_webhook(doc, method=None):
+    try:
+        old_doc = doc.get_doc_before_save() if method == "on_update" else None
+
+        webhook_data = {
+            "plant_id": doc.plant_id,
+            "plant_name": doc.plant_name,
+        }
+
+        if doc.customer and doc.customer_mobile_no:
+            if not old_doc or not old_doc.customer:
+                webhook_data.update(
+                    {
+                        "customer": doc.customer,
+                        "customer_email": getattr(doc, 'customer_email', None),
+                        "customer_mobile": doc.customer_mobile_no,
+                        "action": "customer_assigned",
+                    }
+                )
+        elif old_doc and old_doc.customer and not doc.customer:
+            webhook_data.update(
+                {"previous_customer": old_doc.customer, "previous_mobile": getattr(old_doc, 'customer_mobile_no', None), "action": "customer_removed"}
+            )
+        else:
+            return
+
+        success = send_webhook(webhook_data)
+        if not success:
+            frappe.log_error(message=f"Failed to send webhook for plant {doc.plant_id}", title="Webhook Error")
+
+    except Exception as e:
+        frappe.log_error(message=f"Error in webhook handler for plant {doc.plant_id}: {str(e)}", title="Webhook Handler Error")
+
+
+def send_webhook(data: Dict) -> bool:
+    max_retries = 3
+    retry_delay = 1
+
+    for attempt in range(max_retries):
+        if attempt > 0:
+            sleep_time = retry_delay * attempt
+            print(f"Waiting {sleep_time} seconds before retry attempt {attempt + 1}...")
+            time.sleep(sleep_time)
+
+        try:
+            settings = frappe.get_doc("Suntek Settings")
+            django_api_url = settings.get("django_api_url")
+            api_token = settings.get_password("solar_ambassador_api_token")
+
+            if not django_api_url or not api_token:
+                frappe.log_error("Django webhook URL or API token not configured in Suntek Settings")
+                return False
+
+            headers = {'X-Django-Server-Authorization': f'Bearer {api_token}', 'Content-Type': 'application/json'}
+
+            response = requests.post(django_api_url, json=data, headers=headers, timeout=10)
+            print(data, response.status_code, response.text)
+            if response.status_code == 200:
+                return True
+
+            if attempt < max_retries - 1:
+                print(f"Webhook attempt {attempt + 1} failed.")
+
+            if attempt == max_retries - 1:
+                frappe.log_error(message=f"Django server webhook failed: Status {response.status_code} - {response.text}", title="Webhook Error")
+
+        except requests.RequestException as e:
+            if attempt < max_retries - 1:
+                print(f"Network error on attempt {attempt + 1}.")
+            if attempt == max_retries - 1:
+                frappe.log_error(message=f"Network error sending webhook: {str(e)}", title="Webhook Network Error")
+        except Exception as e:
+            frappe.log_error(message=f"Unexpected error sending webhook: {str(e)}", title="Webhook Error")
+            return False
+
+    return False
+
+
+@frappe.whitelist(allow_guest=True)
 def create_power_plant(plant_id, plant_name=None, oem=None):
+    """Create power plant and send webhook to Django server"""
     if frappe.db.exists("Solar Power Plants", {"plant_id": plant_id}):
         frappe.throw(f"A Solar Power Plant with ID {plant_id} already exists.")
 
-    plant = frappe.new_doc("Solar Power Plants")
-    plant.plant_id = plant_id
-    plant.plant_name = plant_name
-    plant.oem = oem
-    plant.insert()
-    return plant
+    try:
+        frappe.set_user('developer@suntek.co.in')
 
+        plant = frappe.new_doc("Solar Power Plants")
+        plant.plant_id = plant_id
+        plant.plant_name = plant_name
+        plant.oem = oem
+        plant.insert()
 
-@frappe.whitelist()
-def create_power_plants(plants: List[Dict]):
-    """
-    Create multiple power plants and track existing ones
+        return plant
 
-    Args:
-        plants: List of dictionaries containing plant details
-        {
-            "plants": [
-                {"plant_id": "123", "plant_name": "Plant A", "oem": "Growatt"},
-                {"plant_id": "456", "plant_name": "Plant B", "oem": "Solis"}
-            ]
-        }
-
-    Returns:
-        Dict containing created and existing plants
-    """
-    response = {"created": [], "existing": []}
-
-    for plant_data in plants:
-        plant_id = plant_data.get("plant_id")
-
-        if not plant_id:
-            continue
-
-        if frappe.db.exists("Solar Power Plants", {"plant_id": plant_id}):
-            # Get existing plant details
-            existing_plant = frappe.get_doc("Solar Power Plants", {"plant_id": plant_id})
-            response["existing"].append(
-                {
-                    "plant_id": plant_id,
-                    "plant_name": existing_plant.plant_name,
-                    "oem": existing_plant.oem,
-                }
-            )
-        else:
-            try:
-                # Create new plant
-                plant = frappe.new_doc("Solar Power Plants")
-                plant.plant_id = plant_id
-                plant.plant_name = plant_data.get("plant_name")
-                plant.oem = plant_data.get("oem")
-                plant.insert()
-
-                response["created"].append(
-                    {
-                        "plant_id": plant_id,
-                        "plant_name": plant.plant_name,
-                        "oem": plant.oem,
-                    }
-                )
-            except Exception as e:
-                frappe.log_error(f"Error creating plant {plant_id}: {str(e)}")
-                continue
-
-    return response
+    except Exception as e:
+        frappe.log_error(
+            message=f"Error creating plant {plant_id}: {str(e)}",
+            title="Power Plant Creation Error",
+        )
+        frappe.throw(f"Error creating power plant: {str(e)}")

@@ -5,6 +5,12 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "solar_ambassador_settings_section",
+  "solar_ambassador_api_token",
+  "generate_ambassador_api_key",
+  "column_break_zcvo",
+  "solar_ambassador_integration_status",
+  "django_api_url",
   "enquiry_settings_section",
   "enable_round_robin_assignment_to_enquiries",
   "neodove_settings_section",
@@ -70,12 +76,43 @@
    "fieldname": "generate_neodove_webhook_secret",
    "fieldtype": "Button",
    "label": "Generate Neodove Webhook Secret"
+  },
+  {
+   "fieldname": "solar_ambassador_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Solar Ambassador Settings"
+  },
+  {
+   "fieldname": "solar_ambassador_api_token",
+   "fieldtype": "Password",
+   "label": "Solar Ambassador API Token"
+  },
+  {
+   "fieldname": "generate_ambassador_api_key",
+   "fieldtype": "Button",
+   "label": "Generate Ambassador API Key"
+  },
+  {
+   "fieldname": "column_break_zcvo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Enabled",
+   "fieldname": "solar_ambassador_integration_status",
+   "fieldtype": "Select",
+   "label": "Solar Ambassador Integration Status",
+   "options": "Enabled\nDisabled"
+  },
+  {
+   "fieldname": "django_api_url",
+   "fieldtype": "Data",
+   "label": "Django API URL"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-01-21 17:36:18.442355",
+ "modified": "2025-01-23 16:10:22.466562",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Suntek Settings",

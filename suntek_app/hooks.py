@@ -203,6 +203,9 @@ doc_events = {
             "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status",
             "suntek_app.suntek.custom.solar_power_plants.check_customer_mobile_number",
         ],
+        "on_update": [
+            "suntek_app.suntek.custom.solar_power_plants.handle_solar_ambassador_webhook",
+        ],
     },
 }
 
