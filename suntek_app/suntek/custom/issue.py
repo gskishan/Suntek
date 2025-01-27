@@ -11,44 +11,40 @@ CATEGORY_MAP = {
     "suggestions": "Suggestions",
     "inverter_abnormal": "Inverter Abnormal",
     "storage_machine_failed": "Storage Machine Failed",
-    "monitoring_system_problems": "Monitoring System Problems",
+    "monitoring_system_problems": "Monitoring System Problem",
     "other_questions": "Other Questions",
 }
 
 
 @frappe.whitelist(allow_guest=True)
 def create_issue_from_api():
+    """Create an issue from API request with proper validation and error handling."""
     try:
 
         auth_token = frappe.request.headers.get("X-Django-Server-Authorization")
-        if auth_token:
-            auth_token = auth_token.split(" ")[1]
-        local_token = frappe.get_doc("Suntek Settings").get_password("solar_ambassador_api_token")
-
-        if not auth_token or auth_token != local_token:
+        if not auth_token or auth_token.split(" ")[1] != frappe.get_doc("Suntek Settings").get_password("solar_ambassador_api_token"):
             return create_api_response(401, "error", "Invalid or missing API token")
 
         if frappe.request.method != "POST":
             return create_api_response(405, "error", "Method Not Allowed. Only POST requests are supported.")
 
         frappe.set_user('developer@suntek.co.in')
-
         issue_api_data = parse_request_data(frappe.request.data)
 
-        issue = frappe.new_doc("Issue")
-
         mobile_no = issue_api_data.get("custom_phone_number")
+        if not mobile_no:
+            return create_api_response(400, "error", "Phone number is required")
 
+        customer = frappe.get_doc("Customer", {"mobile_no": mobile_no})
+        print(customer)
+        if not customer:
+            return create_api_response(404, "error", f"Customer with mobile number {mobile_no} not found")
+
+        issue = frappe.new_doc("Issue")
         issue.subject = issue_api_data.get("subject")
         issue.custom_inverter_serial_no = issue_api_data.get("custom_inverter_serial_no")
         issue.custom_source = issue_api_data.get("source", "Customer App")
         issue.custom_mode_of_complaint = issue_api_data.get("custom_mode_of_complaint", "")
-
-        customer = frappe.get_doc("Customer", {"mobile_no": mobile_no})
-
-        if not customer:
-            return create_api_response(404, "error", "Customer not found")
-
         issue.customer = customer.name
 
         custom_product_category = issue_api_data.get("custom_product_category")
@@ -57,16 +53,13 @@ def create_issue_from_api():
                 issue.custom_product_category = value
                 break
 
-        images = issue_api_data.get("custom_images", [])
-
-        if images:
-            for image_url in images:
-                issue.append("custom_images", {"issue_image": image_url})
+        for image_url in issue_api_data.get("custom_images", []):
+            issue.append("custom_images", {"issue_image": image_url})
 
         issue.insert(ignore_permissions=True)
         frappe.db.commit()
 
-        response = create_api_response(
+        return create_api_response(
             201,
             "success",
             "Issue created successfully",
@@ -78,10 +71,20 @@ def create_issue_from_api():
             },
         )
 
-        return response
+    except frappe.ValidationError as e:
+        frappe.log_error(message=str(e), title="Issue Creation Validation Error")
+        print(e)
+        return create_api_response(400, "error", str(e))
 
+    except frappe.PermissionError as e:
+        frappe.log_error(message=str(e), title="Issue Creation Permission Error")
+        return create_api_response(403, "error", str(e))
+    except frappe.DoesNotExistError as e:
+        frappe.log_error(message=str(e), title="Issue Creation Not Found Error")
+        return create_api_response(404, "error", str(e))
     except Exception as e:
         frappe.log_error(message=str(e), title="Issue Creation Error")
+        print(e)
         return create_api_response(500, "error", str(e))
 
 
