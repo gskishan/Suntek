@@ -4,6 +4,8 @@ from typing import Dict
 import frappe
 import time
 import requests
+from suntek_app.suntek.custom.lead import parse_request_data
+from suntek_app.suntek.utils.api_handler import create_api_response
 
 
 def change_power_plant_assigned_status(doc, method):
@@ -59,7 +61,11 @@ def handle_solar_ambassador_webhook(doc, method=None):
                 )
         elif old_doc and old_doc.customer and not doc.customer:
             webhook_data.update(
-                {"previous_customer": old_doc.customer, "previous_mobile": getattr(old_doc, 'customer_mobile_no', None), "action": "customer_removed"}
+                {
+                    "previous_customer": old_doc.customer,
+                    "previous_mobile": getattr(old_doc, 'customer_mobile_no', None),
+                    "action": "customer_removed",
+                }
             )
         else:
             return
@@ -84,7 +90,7 @@ def send_webhook(data: Dict) -> bool:
 
         try:
             settings = frappe.get_doc("Suntek Settings")
-            django_api_url = f"{settings.get('django_api_url')}power-plant/webhook/assign-plants/"
+            django_api_url = f"{settings.get('django_api_url')}/power-plant/webhook/assign-plants/"
             api_token = settings.get_password("solar_ambassador_api_token")
 
             if not django_api_url or not api_token:
@@ -139,3 +145,63 @@ def create_power_plant(plant_id, plant_name=None, oem=None):
             title="Power Plant Creation Error",
         )
         frappe.throw(f"Error creating power plant: {str(e)}")
+
+
+@frappe.whitelist(allow_guest=True)
+def create_power_plant_from_api():
+    """Create a new Solar Power Plant from API request
+
+    Returns:
+        Response: API response with appropriate status code and message
+    """
+    try:
+
+        auth_token = frappe.request.headers.get("X-Django-Server-Authorization")
+        if not auth_token:
+            return create_api_response(401, "error", "Unauthorized")
+
+        auth_token = auth_token.split("Bearer ")[1]
+
+        settings = frappe.get_doc("Suntek Settings")
+        api_token = settings.get_password("solar_ambassador_api_token")
+
+        if auth_token != api_token:
+            return create_api_response(401, "error", "Unauthorized")
+
+        if frappe.request.method != "POST":
+            return create_api_response(405, "error", "Method not allowed")
+
+        data = parse_request_data(frappe.request.data)
+
+        plant_id = data.get("plant_id")
+        if not plant_id:
+            return create_api_response(400, "error", "Plant ID is required")
+
+        if frappe.db.exists("Solar Power Plants", {"plant_id": plant_id}):
+            return create_api_response(409, "error", f"Plant with ID {plant_id} already exists")
+
+        frappe.set_user("developer@suntek.co.in")
+        plant = frappe.get_doc(
+            {"doctype": "Solar Power Plants", "plant_id": plant_id, "plant_name": data.get("plant_name"), "oem": data.get("oem")}
+        ).insert(ignore_permissions=True)
+
+        frappe.db.commit()
+
+        return create_api_response(
+            201,
+            "success",
+            "Power plant created successfully",
+            data={
+                "plant_id": plant.plant_id,
+                "plant_name": plant.plant_name,
+                "oem": plant.oem,
+            },
+        )
+
+    except frappe.PermissionError:
+        return create_api_response(403, "error", "Permission denied")
+    except frappe.ValidationError as e:
+        return create_api_response(400, "error", str(e))
+    except Exception as e:
+        frappe.log_error(message=f"Error creating power plant: {str(e)}", title="Power Plant Creation Error")
+        return create_api_response(500, "error", "Internal server error")
