@@ -84,9 +84,7 @@ def send_webhook(data: Dict) -> bool:
 
     for attempt in range(max_retries):
         if attempt > 0:
-            sleep_time = retry_delay * attempt
-            print(f"Waiting {sleep_time} seconds before retry attempt {attempt + 1}...")
-            time.sleep(sleep_time)
+            time.sleep(retry_delay * attempt)
 
         try:
             settings = frappe.get_doc("Suntek Settings")
@@ -100,19 +98,14 @@ def send_webhook(data: Dict) -> bool:
             headers = {'X-Django-Server-Authorization': f'Bearer {api_token}', 'Content-Type': 'application/json'}
 
             response = requests.post(django_api_url, json=data, headers=headers, timeout=10)
-            print(data, response.status_code, response.text)
+
             if response.status_code == 200:
                 return True
-
-            if attempt < max_retries - 1:
-                print(f"Webhook attempt {attempt + 1} failed.")
 
             if attempt == max_retries - 1:
                 frappe.log_error(message=f"Django server webhook failed: Status {response.status_code} - {response.text}", title="Webhook Error")
 
         except requests.RequestException as e:
-            if attempt < max_retries - 1:
-                print(f"Network error on attempt {attempt + 1}.")
             if attempt == max_retries - 1:
                 frappe.log_error(message=f"Network error sending webhook: {str(e)}", title="Webhook Network Error")
         except Exception as e:

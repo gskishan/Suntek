@@ -63,7 +63,6 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
 
     if followup_date:
         formatted_date = convert_timestamp_to_date(str(followup_date))
-        print(f"FORMATTED DATE: {formatted_date}")
 
     for item in form_response:
         if item["question_text"] == "Capacity":
@@ -98,6 +97,8 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
 
     if not current_lead_owner or (agent_email and current_lead_owner != agent_email):
         update_dict["lead_owner"] = lead_owner
+
+    update_dict["lead_owner"] = lead_owner
 
     lead.update(update_dict)
 

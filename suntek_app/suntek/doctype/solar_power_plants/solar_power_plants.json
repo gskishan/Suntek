@@ -39,7 +39,10 @@
   {
    "fieldname": "oem",
    "fieldtype": "Data",
+   "in_filter": 1,
+   "in_global_search": 1,
    "in_list_view": 1,
+   "in_preview": 1,
    "in_standard_filter": 1,
    "label": "OEM",
    "read_only": 1
@@ -74,7 +77,10 @@
    "default": "Unassigned",
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_filter": 1,
+   "in_global_search": 1,
    "in_list_view": 1,
+   "in_preview": 1,
    "in_standard_filter": 1,
    "label": "Status",
    "options": "Assigned\nUnassigned",
@@ -83,6 +89,9 @@
   {
    "fieldname": "capacity",
    "fieldtype": "Data",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_preview": 1,
    "label": "Capacity",
    "read_only": 1
   },
@@ -94,7 +103,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-27 16:26:13.667290",
+ "modified": "2025-01-28 11:06:30.122944",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Solar Power Plants",
