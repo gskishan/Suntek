@@ -18,8 +18,17 @@ CATEGORY_MAP = {
 def create_issue_from_api():
     """Create an issue from API request with proper validation and error handling.
 
+    Request Headers:
+    ```
+    {
+        "X-Django-Server-Authorization": "Bearer <API_TOKEN>"
+        "Content-Type": "application/json"
+    }
+    ```
+
     Request Body:
-    ```{
+    ```py
+    {
         "custom_phone_number": str,          # Required. Customer's phone number
         "subject": str,                      # Required. Issue subject/title
         "customer_name": str,                # Optional. Name for new customer if not found
@@ -27,15 +36,17 @@ def create_issue_from_api():
         "custom_mode_of_complaint": str,     # Optional. Description of the issue
         "custom_source": str,                # Optional. Source of the issue (defaults to "Customer App")
         "custom_product_category": str,      # Optional. Category of the product issue
-                                            # Valid categories: "advisory", "suggestions",
-                                            # "inverter_abnormal", "storage_machine_failed",
-                                            # "monitoring_system_problems", "other_questions"
+                                             # Valid categories: "advisory", "suggestions",
+                                             # "inverter_abnormal", "storage_machine_failed",
+                                             # "monitoring_system_problems", "other_questions"
         "custom_images": list[str]           # Optional. List of image URLs
-    }```
+    }
+    ```
 
     Returns:
         dict: Response containing status and issue details
-        ```{
+        ```py
+        {
             "status": "success",
             "message": "Issue created successfully",
             "data": {
@@ -45,7 +56,8 @@ def create_issue_from_api():
                 "issue_status": str,  # Status of the issue
                 "mobile_no": str      # Customer's phone number
             }
-        }```
+        }
+        ```
 
     Raises:
         401: Invalid or missing API token
