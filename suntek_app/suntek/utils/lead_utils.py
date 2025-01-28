@@ -99,6 +99,8 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
     if not current_lead_owner or (agent_email and current_lead_owner != agent_email):
         update_dict["lead_owner"] = lead_owner
 
+    update_dict["lead_owner"] = lead_owner
+
     lead.update(update_dict)
 
 
