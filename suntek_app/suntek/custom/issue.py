@@ -1,10 +1,8 @@
 import frappe
 import requests
+
 from suntek_app.suntek.custom.lead import parse_request_data
-
-
 from suntek_app.suntek.utils.api_handler import create_api_response
-
 
 CATEGORY_MAP = {
     "advisory": "Advisory",
@@ -18,7 +16,44 @@ CATEGORY_MAP = {
 
 @frappe.whitelist(allow_guest=True)
 def create_issue_from_api():
-    """Create an issue from API request with proper validation and error handling."""
+    """Create an issue from API request with proper validation and error handling.
+
+    Request Body:
+    ```{
+        "custom_phone_number": str,          # Required. Customer's phone number
+        "subject": str,                      # Required. Issue subject/title
+        "customer_name": str,                # Optional. Name for new customer if not found
+        "custom_inverter_serial_no": str,    # Optional. Serial number of the inverter
+        "custom_mode_of_complaint": str,     # Optional. Description of the issue
+        "custom_source": str,                # Optional. Source of the issue (defaults to "Customer App")
+        "custom_product_category": str,      # Optional. Category of the product issue
+                                            # Valid categories: "advisory", "suggestions",
+                                            # "inverter_abnormal", "storage_machine_failed",
+                                            # "monitoring_system_problems", "other_questions"
+        "custom_images": list[str]           # Optional. List of image URLs
+    }```
+
+    Returns:
+        dict: Response containing status and issue details
+        ```{
+            "status": "success",
+            "message": "Issue created successfully",
+            "data": {
+                "name": str,          # Issue ID
+                "subject": str,       # Issue subject
+                "customer": str,      # Customer ID
+                "issue_status": str,  # Status of the issue
+                "mobile_no": str      # Customer's phone number
+            }
+        }```
+
+    Raises:
+        401: Invalid or missing API token
+        400: Validation error or missing required fields
+        403: Permission error
+        404: Resource not found
+        500: Server error
+    """
     try:
 
         auth_token = frappe.request.headers.get("X-Django-Server-Authorization")
@@ -31,21 +66,40 @@ def create_issue_from_api():
         frappe.set_user('developer@suntek.co.in')
         issue_api_data = parse_request_data(frappe.request.data)
 
+        issue = frappe.new_doc("Issue")
+
         mobile_no = issue_api_data.get("custom_phone_number")
         if not mobile_no:
             return create_api_response(400, "error", "Phone number is required")
 
-        customer = frappe.get_doc("Customer", {"mobile_no": mobile_no})
-        print(customer)
-        if not customer:
-            return create_api_response(404, "error", f"Customer with mobile number {mobile_no} not found")
+        mobile_no = issue_api_data.get("custom_phone_number")
+        if not mobile_no:
+            return create_api_response(400, "error", "Phone number is required")
 
-        issue = frappe.new_doc("Issue")
+        customer = frappe.db.get_value("Customer", {"mobile_no": mobile_no}, ["name", "customer_name"], as_dict=1)
+
+        if customer:
+            issue.customer = customer.name
+            issue.custom_existing_customer = 1
+        else:
+            # Create new customer if not found
+            customer_name = issue_api_data.get("customer_name", f"Customer {mobile_no}")  # Default name if not provided
+
+            new_customer = frappe.new_doc("Customer")
+            new_customer.customer_name = customer_name
+            new_customer.mobile_no = mobile_no
+            new_customer.customer_type = "Individual"
+            new_customer.insert(ignore_permissions=True)
+
+            issue.customer = new_customer.name
+            issue.custom_existing_customer = 0
+
         issue.subject = issue_api_data.get("subject")
         issue.custom_inverter_serial_no = issue_api_data.get("custom_inverter_serial_no")
         issue.custom_source = issue_api_data.get("source", "Customer App")
-        issue.custom_mode_of_complaint = issue_api_data.get("custom_mode_of_complaint", "")
-        issue.customer = customer.name
+        issue.custom_mode_of_complaint = issue_api_data.get(
+            "custom_mode_of_complaint", ""
+        )  # This field is not actually mode of complaint, it is the description in the document
 
         custom_product_category = issue_api_data.get("custom_product_category")
         for key, value in CATEGORY_MAP.items():
@@ -68,12 +122,12 @@ def create_issue_from_api():
                 "subject": issue.subject,
                 "customer": issue.customer,
                 "issue_status": issue.status,
+                "mobile_no": mobile_no,
             },
         )
 
     except frappe.ValidationError as e:
         frappe.log_error(message=str(e), title="Issue Creation Validation Error")
-        print(e)
         return create_api_response(400, "error", str(e))
 
     except frappe.PermissionError as e:
@@ -84,7 +138,6 @@ def create_issue_from_api():
         return create_api_response(404, "error", str(e))
     except Exception as e:
         frappe.log_error(message=str(e), title="Issue Creation Error")
-        print(e)
         return create_api_response(500, "error", str(e))
 
 
