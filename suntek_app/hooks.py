@@ -179,16 +179,28 @@ doc_events = {
     },
     "Sales Order": {
         "on_submit": "suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit",
+        "before_save": [
+            "suntek_app.suntek.custom.sales_order.fetch_attachments_from_opportunity",
+        ],
         # "validate": "suntek_app.suntek.custom.sales_order.validate",
     },
     "Project": {
         "on_update": "suntek_app.suntek.custom.project.on_update",
         "validate": "suntek_app.suntek.custom.project.validate",
+        "before_save": "suntek_app.suntek.custom.project.fetch_attachments_from_sales_order",
     },
     "Price List": {"validate": "suntek_app.custom_script.price_list.validate"},
     "Item Price": {"validate": "suntek_app.custom_script.item_price.validate"},
     "Quotation": {
         "validate": "suntek_app.custom_script.quotation.validate",
+        "before_save": [
+            "suntek_app.suntek.custom.quotation.fetch_attachments_from_opportunity",
+        ],
+    },
+    "Site Survey": {
+        "before_save": [
+            "suntek_app.suntek.custom.site_survey.fetch_attachments_from_opportunity",
+        ]
     },
     "Employee": {
         "on_update": "suntek_app.custom_script.employee.on_update",
@@ -210,6 +222,16 @@ doc_events = {
     "Issue": {
         "on_update": [
             "suntek_app.suntek.custom.issue.send_issue_update_to_ambassador_api",
+        ]
+    },
+    "Designing": {
+        "before_save": [
+            "suntek_app.suntek.custom.designing.fetch_attachments_from_opportunity",
+        ]
+    },
+    "Customer": {
+        "before_save": [
+            "suntek_app.suntek.custom.customer.fetch_attachments_from_opportunity",
         ]
     },
 }
