@@ -68,7 +68,7 @@ def make_project(source_name, target_doc=None):
         doc.project_type = "External"
         doc.project_name = source_name.name
         doc.sales_order = source_name.name
-        # doc.custom_capacity = source_name.custom_capacity
+        doc.custom_capacity = source_name.custom_capacity
 
     doc = get_mapped_doc(
         "Sales Order",
