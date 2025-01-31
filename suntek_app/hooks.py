@@ -336,16 +336,17 @@ doc_events = {
 # ]
 
 fixtures = [
-    {"doctype": "Custom Field"},  # Remove module filter to get ALL custom fields
-    {"doctype": "Property Setter"},
-    {"doctype": "Client Script"},
-    {"doctype": "Server Script"},
-    {"doctype": "Print Format"},
-    {"doctype": "Report", "filters": {"is_standard": "No"}},
-    {"doctype": "Web Form"},  # Remove module filter to get ALL web forms
-    {"doctype": "Workflow", "filters": {"is_active": 1}},
-    {"doctype": "Workflow State"},
-    {"doctype": "Workflow Action Master"},
-    {"doctype": "Notification"},
-    {"doctype": "Webhook"},
+    # {"doctype": "Custom Field"},
+    # {"doctype": "Property Setter"},
+    # {"doctype": "Client Script"},
+    # {"doctype": "Server Script"},
+    # {"doctype": "Print Format"},
+    # {"doctype": "Report", "filters": {"is_standard": "No"}},
+    # {"doctype": "Web Form"},
+    # {"doctype": "Workflow", "filters": {"is_active": 1}},
+    # {"doctype": "Workflow State"},
+    # {"doctype": "Workflow Action Master"},
+    # {"doctype": "Notification"},
+    # {"doctype": "Webhook"},
+    {"doctype": "HD Ticket Template"},
 ]
