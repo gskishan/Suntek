@@ -24,6 +24,7 @@ def auto_project_creation_on_submit(doc, method):
 
 def create_subsidy_or_discom(project):
     """Creates Discom and Subsidy records based on the project's custom type of case."""
+
     if project.custom_type_of_case == "Subsidy":
         # Create Discom record
         discom = frappe.new_doc("Discom")
@@ -68,7 +69,7 @@ def make_project(source_name, target_doc=None):
         doc.project_type = "External"
         doc.project_name = source_name.name
         doc.sales_order = source_name.name
-        # doc.custom_capacity = source_name.custom_capacity
+        doc.custom_capacity = source_name.custom_capacity
 
     doc = get_mapped_doc(
         "Sales Order",
@@ -89,3 +90,41 @@ def make_project(source_name, target_doc=None):
     )
 
     return doc
+
+
+def fetch_attachments_from_opportunity(doc, method):
+    if doc.custom_opportunity_name != "":
+        print("doc.custom_opportunity_name: ", doc.custom_opportunity_name)
+        opportunity = frappe.get_doc("Opportunity", {"name": doc.custom_opportunity_name})
+        print(opportunity)
+        opportunity_attachments = frappe.get_all(
+            "File",
+            filters={"attached_to_doctype": "Opportunity", "attached_to_name": opportunity.name},
+            fields=["file_name", "file_url"],
+        )
+
+        if opportunity_attachments:
+            for attachment in opportunity_attachments:
+                has_attachment = frappe.db.get_value(
+                    "File",
+                    {
+                        "file_url": attachment.file_url,
+                        "attached_to_doctype": "Sales Order",
+                        "attached_to_name": doc.name,
+                    },
+                )
+
+                if not has_attachment:
+                    opportunity_attachment = frappe.get_doc(
+                        {
+                            "doctype": "File",
+                            "file_name": attachment.file_name,
+                            "file_url": attachment.file_url,
+                            "attached_to_doctype": "Sales Order",
+                            "attached_to_name": doc.name,
+                        }
+                    )
+
+                    opportunity_attachment.insert()
+                    opportunity_attachment.reload()
+                    print("opportunity_attachment: ", opportunity_attachment)
