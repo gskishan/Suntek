@@ -153,6 +153,7 @@ doc_events = {
         ],
         "before_save": [
             "suntek_app.suntek.custom.lead.change_enquiry_status",
+            "suntek_app.suntek.custom.lead.set_lead_owner",
         ],
         "before_insert": ["suntek_app.suntek.custom.lead.before_import"],
         "on_update": [

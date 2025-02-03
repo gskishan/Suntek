@@ -27,6 +27,13 @@ def before_import(doc, method=None):
         doc.custom_enquiry_owner_name = None
 
 
+def set_lead_owner(doc, method):
+    """Set lead_owner to current user if not set"""
+    if not doc.lead_owner and doc.is_new():
+        doc.lead_owner = frappe.session.user
+        doc.custom_enquiry_owner_name = frappe.get_value("User", frappe.session.user, "full_name")
+
+
 def change_enquiry_status(doc, method):
     try:
         validate_mobile_number(doc.mobile_no)
