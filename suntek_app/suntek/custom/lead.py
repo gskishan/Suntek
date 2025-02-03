@@ -143,8 +143,6 @@ def create_lead_from_neodove_dispose():
         if not is_enabled:
             frappe.throw("Neodove integration is disabled")
 
-        frappe.set_user("Administrator")
-
         api_key = frappe.request.headers.get('X-Neodove-API-Key')
         if not api_key:
             return _error_response('API key missing', 401)
@@ -166,6 +164,8 @@ def create_lead_from_neodove_dispose():
         agent_email = neodove_data.get("agent_email")
         lead_stage = neodove_data.get("lead_stage_name")
 
+        frappe.set_user(agent_email)
+
         result = (
             handle_opportunity_update(neodove_data, mobile, agent_email, lead_stage)
             if campaign.pipeline_name and campaign.pipeline_name.lower() == "opportunities"
@@ -177,8 +177,6 @@ def create_lead_from_neodove_dispose():
     except Exception as e:
         frappe.log_error(message=f"Neodove webhook error: {str(e)}\n{frappe.get_traceback()}", title="Neodove Webhook Error")
         return _error_response(str(e))
-    finally:
-        frappe.set_user("Guest")
 
 
 def _validate_api_key(api_key: str) -> bool:
