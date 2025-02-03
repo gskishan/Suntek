@@ -22,9 +22,16 @@ def before_import(doc, method=None):
 
     duplicate_check(doc)
 
-    # if doc.lead_owner == frappe.session.user:
-    #     doc.lead_owner = None
-    #     doc.custom_enquiry_owner_name = None
+    if doc.lead_owner == frappe.session.user:
+        doc.lead_owner = None
+        doc.custom_enquiry_owner_name = None
+
+
+def set_lead_owner(doc, method):
+    """Set lead_owner to current user if not set"""
+    if not doc.lead_owner and doc.is_new():
+        doc.lead_owner = frappe.session.user
+        doc.custom_enquiry_owner_name = frappe.get_value("User", frappe.session.user, "full_name")
 
 
 def change_enquiry_status(doc, method):
@@ -136,7 +143,7 @@ def create_lead_from_neodove_dispose():
         if not is_enabled:
             frappe.throw("Neodove integration is disabled")
 
-        # frappe.set_user("developer@suntek.co.in")
+        frappe.set_user("Administrator")
 
         api_key = frappe.request.headers.get('X-Neodove-API-Key')
         if not api_key:
@@ -158,8 +165,6 @@ def create_lead_from_neodove_dispose():
         mobile = neodove_data.get("mobile")
         agent_email = neodove_data.get("agent_email")
         lead_stage = neodove_data.get("lead_stage_name")
-
-        frappe.set_user(agent_email)
 
         result = (
             handle_opportunity_update(neodove_data, mobile, agent_email, lead_stage)
@@ -367,11 +372,7 @@ def handle_opportunity_update(neodove_data, mobile_no, lead_owner, lead_stage):
                 if recording_url and recording_url not in existing_urls:
                     opp.append(
                         "custom_call_recordings",
-                        {
-                            "call_duration_in_sec": recording.get("call_duration_in_sec", 0),
-                            "recording_url": recording_url,
-                            "recording_time": now,
-                        },
+                        {"call_duration_in_sec": recording.get("call_duration_in_sec", 0), "recording_url": recording_url, "recording_time": now},
                     )
 
         if opp.get("custom_call_recordings"):
@@ -441,11 +442,7 @@ def handle_lead_update(neodove_data, mobile_no, lead_owner, lead_stage, DEFAULT_
             if recording_url and recording_url not in existing_urls:
                 lead.append(
                     "custom_call_recordings",
-                    {
-                        "call_duration_in_sec": recording.get("call_duration_in_sec", 0),
-                        "recording_url": recording_url,
-                        "recording_time": now,
-                    },
+                    {"call_duration_in_sec": recording.get("call_duration_in_sec", 0), "recording_url": recording_url, "recording_time": now},
                 )
 
     if neodove_data.get("other_properties"):
