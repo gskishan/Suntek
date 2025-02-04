@@ -23,12 +23,13 @@ class LeadFunnel:
         company: str,
         lead_owner: Optional[str] = None,
         source: Optional[str] = None,
+        department: Optional[str] = None,
     ) -> List[Dict]:
         """
         Get lead funnel data with owner details for tooltip
         """
         base_filters = self._get_base_filters(from_date, to_date, company)
-        additional_conditions, additional_values = self._get_additional_filters(lead_owner, source)
+        additional_conditions, additional_values = self._get_additional_filters(lead_owner, source, department)
         status_counts, others_count, owner_details = self._get_lead_counts(base_filters, additional_conditions, additional_values)
 
         return self._prepare_funnel_data(status_counts, others_count, owner_details)
@@ -37,12 +38,13 @@ class LeadFunnel:
         """
         Prepare base filters for lead query
         """
-        return (from_date, to_date, from_date, to_date, company)
+        return (from_date, to_date, company)
 
     def _get_additional_filters(
         self,
         lead_owner: Optional[str],
         source: Optional[str],
+        department: Optional[str],
     ) -> Tuple[str, List]:
         """
         Prepare additional filters based on lead owner and source
@@ -56,6 +58,9 @@ class LeadFunnel:
         if source:
             conditions.append("source = %s")
             values.append(source)
+        if department:
+            conditions.append("custom_department = %s")
+            values.append(department)
 
         additional_conditions = f"AND {' AND '.join(conditions)}" if conditions else ""
 
@@ -77,20 +82,13 @@ class LeadFunnel:
                 lead_owner,
                 COUNT(lead_owner) as owner_count
             FROM `tabLead`
-            WHERE (date(`creation`) between %s and %s 
-                OR date(`modified`) between %s and %s)
+            WHERE date(`creation`) between %s and %s
             AND company = %s
             {0}
-            GROUP BY lead_owner
+            GROUP BY lead_owner-4
             ORDER BY owner_count DESC
         """.format(
             additional_conditions
-        )
-
-        total_data = frappe.db.sql(
-            total_leads_query,
-            base_filters + tuple(additional_values),
-            as_dict=1,
         )
 
         status_query = """
@@ -100,14 +98,19 @@ class LeadFunnel:
                 lead_owner,
                 COUNT(lead_owner) as owner_count
             FROM `tabLead`
-            WHERE (date(`creation`) between %s and %s 
-                OR date(`modified`) between %s and %s)
+            WHERE date(`creation`) between %s and %s
             AND company = %s
             {0}
             GROUP BY status, lead_owner
             ORDER BY status, owner_count DESC
         """.format(
             additional_conditions
+        )
+
+        total_data = frappe.db.sql(
+            total_leads_query,
+            base_filters + tuple(additional_values),
+            as_dict=1,
         )
 
         status_data = frappe.db.sql(
@@ -167,9 +170,16 @@ class LeadFunnel:
         return data
 
 
-def get_cache_key(from_date: str, to_date: str, company: str, lead_owner: str = None, source: str = None) -> str:
+def get_cache_key(
+    from_date: str,
+    to_date: str,
+    company: str,
+    lead_owner: str = None,
+    source: str = None,
+    department: str = None,
+) -> str:
     """Generate a unique cache key based on input parameters"""
-    return f"lead_funnel:|{from_date}|{to_date}|{company}|{lead_owner or ''}|{source or ''}"
+    return f"lead_funnel:|{from_date}|{to_date}|{company}|{lead_owner or ''}|{source or ''}|{department or ''}"
 
 
 @frappe.whitelist()
@@ -179,28 +189,36 @@ def get_funnel_data(
     company: str,
     lead_owner: Optional[str] = None,
     source: Optional[str] = None,
+    department: Optional[str] = None,
 ) -> List[Dict]:
     """
     API endpoint to get lead funnel data
     """
-    cache_key = get_cache_key(from_date, to_date, company, lead_owner, source)
+    cache_key = get_cache_key(from_date, to_date, company, lead_owner, source, department)
     funnel_data = frappe.cache().get_value(cache_key)
 
     if funnel_data is None:
         funnel = LeadFunnel()
-        funnel_data = funnel.get_lead_data(from_date, to_date, company, lead_owner, source)
+        funnel_data = funnel.get_lead_data(from_date, to_date, company, lead_owner, source, department)
         frappe.cache().set_value(key=cache_key, val=funnel_data, expires_in_sec=30)
 
     return funnel_data
 
 
-def clear_cache(from_date: str = None, to_date: str = None, company: str = None, lead_owner: str = None, source: str = None) -> None:
+def clear_cache(
+    from_date: str = None,
+    to_date: str = None,
+    company: str = None,
+    lead_owner: str = None,
+    source: str = None,
+    department: str = None,
+) -> None:
     """
     Clear the funnel data cache. If no parameters are provided,
     it will generate a pattern to clear all lead funnel caches.
     """
-    if all(param is None for param in [from_date, to_date, company, lead_owner, source]):
+    if all(param is None for param in [from_date, to_date, company, lead_owner, source, department]):
         frappe.cache().delete_keys("lead_funnel:*")
     else:
-        cache_key = get_cache_key(from_date, to_date, company, lead_owner, source)
+        cache_key = get_cache_key(from_date, to_date, company, lead_owner, source, department)
         frappe.cache().delete_value(cache_key)
