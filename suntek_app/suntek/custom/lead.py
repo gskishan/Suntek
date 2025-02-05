@@ -2,13 +2,13 @@ import hmac
 import json
 
 import frappe
-import werkzeug.wrappers
 from frappe.model.mapper import get_mapped_doc
 
 from suntek_app.suntek.utils.lead_utils import (
     get_next_telecaller,
     get_or_create_lead,
     process_other_properties,
+    share_document,
     update_lead_basic_info,
 )
 from suntek_app.suntek.utils.validation_utils import (
@@ -227,19 +227,6 @@ def _error_response(message: str, status_code: int = 400) -> dict:
     return {"success": False, "message": message, "status_code": status_code}
 
 
-@frappe.whitelist(allow_guest=True)
-def create_lead_from_facebook():
-
-    local_verify_token = frappe.get_doc("Suntek Settings").facebook_verify_token
-
-    if frappe.request.args.get("hub.verify_token") == local_verify_token:
-        challenge = frappe.request.args.get("hub.challenge")
-        response = werkzeug.wrappers.Response()
-        response.mimetype = "text/plain"
-        response.response = challenge
-        return response
-
-
 def parse_request_data(data):
     """Parse request data from bytes to JSON if needed"""
     if isinstance(data, bytes):
@@ -395,6 +382,11 @@ def handle_opportunity_update(neodove_data, mobile_no, lead_owner, lead_stage):
 
         opp.flags.ignore_validate_update_after_submit = True
         opp.save(ignore_permissions=True)
+
+        existing_enquiry = frappe.get_list("Lead", filters={"mobile_no": mobile_no}, fields=["name"], limit=1)
+        if existing_enquiry and lead_owner:
+            share_document(doctype="Lead", doc_name=existing_enquiry[0].name, agent_email=lead_owner)
+
         frappe.db.commit()
 
         return {"success": True, "message": "Opportunity updated successfully", "opportunity_name": opp.name}
@@ -442,6 +434,9 @@ def handle_lead_update(neodove_data, mobile_no, lead_owner, lead_stage, DEFAULT_
                     "custom_call_recordings",
                     {"call_duration_in_sec": recording.get("call_duration_in_sec", 0), "recording_url": recording_url, "recording_time": now},
                 )
+
+    if lead.name and lead_owner:
+        share_document(doctype="Lead", doc_name=lead.name, agent_email=lead_owner)
 
     if neodove_data.get("other_properties"):
         process_other_properties(lead, neodove_data["other_properties"])
