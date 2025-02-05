@@ -310,17 +310,21 @@ doc_events = {
 # ]
 
 fixtures = [
-    {"doctype": "Custom Field"},  # Remove module filter to get ALL custom fields
+    {"doctype": "Custom Field"},
     {"doctype": "Property Setter"},
     {"doctype": "Client Script"},
     {"doctype": "Server Script"},
     {"doctype": "Print Format"},
     {"doctype": "Report", "filters": {"is_standard": "No"}},
-    {"doctype": "Web Form"},  # Remove module filter to get ALL web forms
+    {"doctype": "Web Form"},
     {"doctype": "Workflow", "filters": {"is_active": 1}},
     {"doctype": "Workflow State"},
     {"doctype": "Workflow Action Master"},
     {"doctype": "Notification"},
     {"doctype": "Webhook"},
     {"doctype": "HD Ticket Type"},
+    {"doctype": "State"},
+    {"doctype": "City"},
+    {"doctype": "District"},
+    {"doctype": "Dealer"},
 ]
