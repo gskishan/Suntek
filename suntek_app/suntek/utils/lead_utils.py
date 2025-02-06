@@ -3,6 +3,36 @@ import frappe
 from suntek_app.suntek.utils.validation_utils import convert_date_format, convert_timestamp_to_date, extract_first_and_last_name
 
 
+def _set_missing_values(source, target):
+    address = frappe.get_all(
+        "Dynamic Link",
+        {
+            "link_doctype": source.doctype,
+            "link_name": source.name,
+            "parenttype": "Address",
+        },
+        ["parent"],
+        limit=1,
+    )
+
+    contact = frappe.get_all(
+        "Dynamic Link",
+        {
+            "link_doctype": source.doctype,
+            "link_name": source.name,
+            "parenttype": "Contact",
+        },
+        ["parent"],
+        limit=1,
+    )
+
+    if address:
+        target.customer_address = address[0].parent
+
+    if contact:
+        target.contact_person = contact[0].parent
+
+
 def get_next_telecaller():
     """Get next telecaller for lead assignment"""
     try:
@@ -28,7 +58,12 @@ def get_next_telecaller():
 
         next_telecaller = telecallers[0]
 
-        frappe.db.set_value("Telecaller Queue", {"email": next_telecaller.email}, "last_assigned", frappe.utils.now_datetime())
+        frappe.db.set_value(
+            "Telecaller Queue",
+            {"email": next_telecaller.email},
+            "last_assigned",
+            frappe.utils.now_datetime(),
+        )
         frappe.db.commit()
 
         return next_telecaller.email

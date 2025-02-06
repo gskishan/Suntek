@@ -1,9 +1,10 @@
+import hashlib
+import hmac
+import json
+import secrets
+
 import frappe
 from frappe.model.document import Document
-import hmac
-import hashlib
-import secrets
-import json
 
 
 class SuntekSettings(Document):

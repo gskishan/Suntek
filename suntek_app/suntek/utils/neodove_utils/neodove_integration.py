@@ -26,10 +26,10 @@ def send_to_neodove(doc, method=None):
             return
 
         final_url = f"{integration_url}?update=true" if method == "on_update" else integration_url
-
+        print(f"doc.doctype: {doc.doctype}")
         if doc.doctype == "Lead":
             payload = {
-                "id": doc.name,
+                "ERP_LEAD_ID": doc.name,
                 "name": f"{(doc.first_name or '')} {(doc.last_name or '')}".strip(),
                 "Enquiry Source": doc.source or "",
                 "status": doc.status or "",
@@ -42,20 +42,14 @@ def send_to_neodove(doc, method=None):
                 "capacity": doc.custom_capacity or "",
                 "UOM": doc.custom_uom or "",
             }
-        else:
+        elif doc.doctype == "Opportunity":
             payload = {
-                "id": doc.name,
+                "ERP_OPPORTUNITY_ID": doc.name,
                 "name": doc.party_name or "",
-                "Enquiry Source": doc.source or "",
+                "Opportunity Source": doc.source or "",
                 "status": doc.status or "",
-                "department": doc.custom_department or "",
-                "enquiry status": doc.status or "",
-                "customer category": doc.custom_customer_category or "",
                 "mobile": doc.contact_mobile or "",
-                "phone": doc.contact_phone or "",
-                "Request Type": doc.request_type or "",
                 "capacity": doc.custom_capacity or "",
-                "UOM": doc.custom_uom or "",
             }
 
         headers = {"Content-Type": "application/json"}
