@@ -73,30 +73,36 @@ erpnext.LeadFunnel = class LeadFunnel {
 				me.get_data();
 			},
 		});
-
+		this.department_field = wrapper.page.add_field({
+			fieldtype: "Link",
+			fieldname: "department",
+			options: "Department",
+			label: __("Department"),
+			change: function () {
+				me.department = this.value;
+				me.get_data();
+			},
+		});
 		this.add_filter_buttons(wrapper);
 
 		wrapper.page.add_button(
 			__("Clear Filters"),
 			function () {
-				// Reset all filter buttons
 				$(".date-filter-buttons .btn-selected").removeClass("btn-selected");
 
-				// Reset dates to default
 				me.options.from_date = frappe.datetime.add_months(frappe.datetime.get_today(), -1);
 				me.options.to_date = frappe.datetime.get_today();
 
-				// Update date fields
 				me.elements.from_date.val(frappe.datetime.str_to_user(me.options.from_date));
 				me.elements.to_date.val(frappe.datetime.str_to_user(me.options.to_date));
 
-				// Clear other filters
 				me.lead_owner_field.set_value("");
 				me.source_field.set_value("");
+				me.department_field.set_value("");
+				me.department = "";
 				me.lead_owner = "";
 				me.source = "";
 
-				// Refresh data
 				me.get_data();
 			},
 			"btn-default btn-sm"
@@ -154,7 +160,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 	</div>
 `).insertAfter(wrapper.page.page_form);
 
-		// Add date filter buttons
 		const date_button_group = filter_container.find(".date-filter-buttons");
 		const date_filters = [
 			{
@@ -247,7 +252,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 			},
 		];
 
-		// Add buttons for date filters
 		date_filters.forEach((filter) => {
 			$(`<button class="btn btn-default btn-sm" style="
             display: flex;
@@ -307,17 +311,15 @@ erpnext.LeadFunnel = class LeadFunnel {
 	resetAnimationCache() {
 		this._animatedValues = {};
 	}
-	// Helper method to set date filters
+
 	set_date_filter(from_date, to_date) {
 		const me = this;
 		me.options.from_date = from_date;
 		me.options.to_date = to_date;
 
-		// Update the date fields
 		me.elements.from_date.val(frappe.datetime.str_to_user(from_date));
 		me.elements.to_date.val(frappe.datetime.str_to_user(to_date));
 
-		// Refresh the data
 		me.get_data();
 	}
 
@@ -335,13 +337,14 @@ erpnext.LeadFunnel = class LeadFunnel {
 				company: this.company,
 				lead_owner: this.lead_owner || "",
 				source: this.source || "",
+				department: this.department || "",
 			},
 			btn: btn,
 			callback: function (r) {
 				if (!r.exc) {
 					me.options.oldData = me.options.data;
 					me.options.data = r.message;
-					// Reset animation cache before rendering
+
 					me.resetAnimationCache();
 					me.render();
 				}
@@ -355,45 +358,57 @@ erpnext.LeadFunnel = class LeadFunnel {
 	}
 
 	openLeadListView(status) {
-		let filters = {
-			company: this.company,
-			creation: ["between", [this.options.from_date, this.options.to_date]],
-		};
+		let url = window.location.origin + "/app/lead";
+		let params = [];
+		let statusFilter;
 
-		// Add lead owner filter if specified
-		if (this.lead_owner) {
-			filters.lead_owner = this.lead_owner;
-		}
-
-		// Add source filter if specified
-		if (this.source) {
-			filters.source = this.source;
-		}
-
-		// Add status-specific filters
 		switch (status) {
 			case "Total Leads":
-				// No additional filter needed
 				break;
 			case "Connected":
-				filters.status = "Connected";
+				statusFilter = ["not in", ["Enquiry", "Open", null]];
+				params.push("status=" + encodeURIComponent(JSON.stringify(statusFilter)));
 				break;
 			case "Interested":
-				filters.status = "Interested";
+				statusFilter = ["in", ["Interested", "Opportunity", "Quotation"]];
+				params.push("status=" + encodeURIComponent(JSON.stringify(statusFilter)));
 				break;
 			case "Quotation":
-				filters.status = "Quotation";
+				statusFilter = ["in", ["Quotation", "Converted"]];
+				params.push("status=" + encodeURIComponent(JSON.stringify(statusFilter)));
 				break;
 			case "Converted":
-				filters.status = "Converted";
+				statusFilter = ["=", "Converted"];
+				params.push("status=" + encodeURIComponent(JSON.stringify(statusFilter)));
 				break;
 		}
 
-		// Convert filters to URL parameters
-		const filterStr = encodeURIComponent(JSON.stringify(filters));
+		if (this.options.from_date && this.options.to_date) {
+			params.push(
+				"creation=" +
+					encodeURIComponent(
+						JSON.stringify(["Between", [this.options.from_date, this.options.to_date]])
+					)
+			);
+		}
 
-		// Open Lead list view in new tab with filters
-		window.open(`/app/lead/view/list?filters=${filterStr}`, "_blank");
+		if (this.source) {
+			params.push("source=" + encodeURIComponent(this.source));
+		}
+
+		if (this.department) {
+			params.push("custom_department=" + encodeURIComponent(this.department));
+		}
+
+		if (this.lead_owner) {
+			params.push("lead_owner=" + encodeURIComponent(this.lead_owner));
+		}
+
+		if (params.length > 0) {
+			url += "?" + params.join("&");
+		}
+
+		window.open(url, "_blank");
 	}
 
 	render_funnel() {
@@ -416,14 +431,12 @@ erpnext.LeadFunnel = class LeadFunnel {
 			let y = 20;
 			let clickedSection = null;
 
-			// Check each section for click
 			me.options.data.forEach((d, i) => {
 				const max_width = me.options.width * 0.6;
 				const min_width = max_width * 0.2;
 				const funnel_offset = me.options.width * 0.05;
 				const isLastTwoSections = i >= me.options.data.length - 2;
 
-				// Calculate current and next widths
 				let current_width, next_width;
 				if (isLastTwoSections) {
 					current_width = min_width * 1.5;
@@ -434,7 +447,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 					next_width = max_width * (1 - ((i + 1) / (me.options.data.length - 2)) * 0.7);
 				}
 
-				// Calculate coordinates for hit detection
 				const x_start = funnel_offset + (max_width - current_width) / 2;
 				const x_end = x_start + current_width;
 				const next_x_start = funnel_offset + (max_width - next_width) / 2;
@@ -470,14 +482,12 @@ erpnext.LeadFunnel = class LeadFunnel {
 			let hoveredSection = null;
 			let y = 20;
 
-			// Check each section for hover
 			me.options.data.forEach((d, i) => {
 				const max_width = me.options.width * 0.6;
 				const min_width = max_width * 0.2;
 				const funnel_offset = me.options.width * 0.05;
 				const isLastTwoSections = i >= me.options.data.length - 2;
 
-				// Calculate current and next widths
 				let current_width, next_width;
 				if (isLastTwoSections) {
 					current_width = min_width * 1.5;
@@ -488,7 +498,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 					next_width = max_width * (1 - ((i + 1) / (me.options.data.length - 2)) * 0.7);
 				}
 
-				// Calculate coordinates for hit detection
 				const x_start = funnel_offset + (max_width - current_width) / 2;
 				const x_end = x_start + current_width;
 				const next_x_start = funnel_offset + (max_width - next_width) / 2;
@@ -496,7 +505,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 				const current_y = y;
 				const next_y = y + d.height;
 
-				// Create trapezoid points
 				const points = [
 					{ x: x_start, y: current_y },
 					{ x: x_end, y: current_y },
@@ -542,7 +550,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 			const elapsed = currentTime - startTime;
 			const progress = Math.min(elapsed / duration, 1);
 
-			// Easing function for smooth animation
 			const easeOutQuad = (t) => t * (2 - t);
 			const currentValue = Math.round(start + change * easeOutQuad(progress));
 
@@ -645,10 +652,8 @@ erpnext.LeadFunnel = class LeadFunnel {
         </div>
     `;
 
-		// Append the calculation details after the funnel
 		$(calculationHTML).insertAfter(this.elements.funnel_wrapper);
 
-		// Animate the numbers in the table
 		$(".calculation-table .value-cell").each((i, cell) => {
 			const $cell = $(cell);
 			const finalValue = parseInt($cell.data("value"));
@@ -657,7 +662,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 			});
 		});
 
-		// Add hover effect
 		$(".calculation-table tr").hover(
 			function () {
 				$(this).css({
@@ -678,10 +682,9 @@ erpnext.LeadFunnel = class LeadFunnel {
 			const title = $(this).find("td:first span:last").text();
 			me.openLeadListView(title);
 		});
-		// Add to showCalculationDetails method where styles are defined
+
 		$(".calculation-table tr").css("cursor", "pointer");
 
-		// Add to prepare_funnel method after creating canvas
 		this.elements.canvas.css("cursor", "pointer");
 	}
 
@@ -702,11 +705,9 @@ erpnext.LeadFunnel = class LeadFunnel {
 
 			const funnel_offset = this.options.width * 0.05;
 
-			// Draw with animation
 			this.options.data.forEach((d, i) => {
 				const isLastTwoSections = i >= this.options.data.length - 2;
 
-				// Calculate widths with curved reduction
 				let current_width, next_width;
 
 				if (isLastTwoSections) {
@@ -729,7 +730,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 				const x_mid = (x_start + x_end) / 2;
 				const y_mid = y + d.height / 2;
 
-				// Set fill style with opacity for smooth transition
 				context.fillStyle = d.color;
 
 				if (i === hoveredIndex) {
@@ -739,7 +739,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 					context.fillStyle = this.adjustColor(d.color, 20);
 				}
 
-				// Draw funnel section
 				context.beginPath();
 				context.moveTo(x_start, current_y);
 				context.lineTo(x_end, current_y);
@@ -759,7 +758,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 					context.restore();
 				}
 
-				// Draw legend
 				this.draw_legend(
 					x_mid,
 					y_mid,
@@ -830,7 +828,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 		context.closePath();
 		context.fill();
 
-		// Calculate percentage
 		const total = this.options.data[0].value;
 		const value = parseInt(title.split(" - ")[0]);
 		const percentage = ((value / total) * 100).toFixed(1);
@@ -844,7 +841,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 		const labelHeight = parseInt(context.font);
 		const labels = this.labels || (this.labels = []);
 
-		// Check for collisions and adjust position
 		const minLabelSpacing = isHovered ? 35 : 25;
 		let adjustedY = y_mid;
 		let collision = true;
@@ -861,7 +857,6 @@ erpnext.LeadFunnel = class LeadFunnel {
 
 		labels.push({ y: adjustedY });
 
-		// Animate the number if it's a new value or has changed
 		const key = `${line_end}-${adjustedY}`;
 		if (!this._animatedValues) this._animatedValues = {};
 

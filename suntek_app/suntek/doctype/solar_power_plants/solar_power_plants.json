@@ -5,10 +5,12 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "column_break_zqls",
   "plant_id",
   "plant_name",
   "oem",
   "status",
+  "capacity",
   "column_break_chnb",
   "customer",
   "customer_mobile_no",
@@ -21,22 +23,29 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Plant ID",
+   "read_only": 1,
    "reqd": 1,
    "unique": 1
   },
   {
    "fieldname": "plant_name",
    "fieldtype": "Data",
+   "in_filter": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Plant Name"
+   "label": "Plant Name",
+   "read_only": 1
   },
   {
    "fieldname": "oem",
    "fieldtype": "Data",
+   "in_filter": 1,
+   "in_global_search": 1,
    "in_list_view": 1,
+   "in_preview": 1,
    "in_standard_filter": 1,
-   "label": "OEM"
+   "label": "OEM",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_chnb",
@@ -68,15 +77,33 @@
    "default": "Unassigned",
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_filter": 1,
+   "in_global_search": 1,
    "in_list_view": 1,
+   "in_preview": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "Assigned\nUnassigned"
+   "options": "Assigned\nUnassigned",
+   "read_only": 1
+  },
+  {
+   "fieldname": "capacity",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_preview": 1,
+   "label": "Capacity",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_zqls",
+   "fieldtype": "Column Break",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-03 17:37:21.652243",
+ "modified": "2025-01-28 11:06:30.122944",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Solar Power Plants",

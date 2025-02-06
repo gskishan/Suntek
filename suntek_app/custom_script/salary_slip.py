@@ -7,7 +7,8 @@ class CustomSalarySlip(SalarySlip):
 
     @frappe.whitelist()
     def pull_sal_struct(self):
-        from hrms.payroll.doctype.salary_structure.salary_structure import make_salary_slip
+        from hrms.payroll.doctype.salary_structure.salary_structure import \
+            make_salary_slip
 
         rt = 0
         if self.salary_slip_based_on_timesheet:

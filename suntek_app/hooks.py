@@ -42,13 +42,9 @@ doctype_js = {
     "Stock Entry": "public/js/stock_entry.js",
     "BOM": "public/js/bom.js",
 }
+
+
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
-
-doctype_list_js = {
-    "Lead": "public/js/lead_list.js",
-}
-
-
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -154,14 +150,15 @@ doc_events = {
         "before_save": [
             "suntek_app.suntek.custom.lead.change_enquiry_status",
             "suntek_app.suntek.custom.lead.set_lead_owner",
+            "suntek_app.suntek.custom.lead.share_lead_after_insert_with_enquiry_owner",
         ],
         "before_insert": ["suntek_app.suntek.custom.lead.before_import"],
         "on_update": [
-            "suntek_app.suntek.custom.neodove_integration.send_to_neodove",
+            "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
             "suntek_app.suntek.page.lead_funnel.lead_funnel.clear_cache",
         ],
         "after_insert": [
-            "suntek_app.suntek.custom.neodove_integration.send_to_neodove",
+            "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
             "suntek_app.suntek.page.lead_funnel.lead_funnel.clear_cache",
         ],
     },
@@ -172,10 +169,10 @@ doc_events = {
         ],
         "on_update": [
             "suntek_app.custom_script.opportunity.on_update",
-            "suntek_app.suntek.custom.neodove_integration.send_to_neodove",
+            "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
         ],
         "after_insert": [
-            "suntek_app.suntek.custom.neodove_integration.send_to_neodove",
+            "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
         ],
     },
     "Sales Order": {
@@ -310,16 +307,17 @@ doc_events = {
 # ]
 
 fixtures = [
-    {"doctype": "Custom Field"},  # Remove module filter to get ALL custom fields
+    {"doctype": "Custom Field"},
     {"doctype": "Property Setter"},
     {"doctype": "Client Script"},
     {"doctype": "Server Script"},
     {"doctype": "Print Format"},
     {"doctype": "Report", "filters": {"is_standard": "No"}},
-    {"doctype": "Web Form"},  # Remove module filter to get ALL web forms
+    {"doctype": "Web Form"},
     {"doctype": "Workflow", "filters": {"is_active": 1}},
     {"doctype": "Workflow State"},
     {"doctype": "Workflow Action Master"},
     {"doctype": "Notification"},
     {"doctype": "Webhook"},
+    {"doctype": "HD Ticket Type"},
 ]

@@ -1,0 +1,42 @@
+[
+	{
+		"about": null,
+		"docstatus": 0,
+		"doctype": "HD Ticket Template",
+		"fields": [
+			{
+				"fieldname": "priority",
+				"hide_from_customer": 0,
+				"parent": "Default",
+				"parentfield": "fields",
+				"parenttype": "HD Ticket Template",
+				"placeholder": null,
+				"required": 0,
+				"url_method": null
+			},
+			{
+				"fieldname": "ticket_type",
+				"hide_from_customer": 0,
+				"parent": "Default",
+				"parentfield": "fields",
+				"parenttype": "HD Ticket Template",
+				"placeholder": null,
+				"required": 0,
+				"url_method": null
+			},
+			{
+				"fieldname": "custom_doctype",
+				"hide_from_customer": 0,
+				"parent": "Default",
+				"parentfield": "fields",
+				"parenttype": "HD Ticket Template",
+				"placeholder": null,
+				"required": 0,
+				"url_method": null
+			}
+		],
+		"modified": "2025-01-31 17:18:24.517997",
+		"name": "Default",
+		"template_name": "Default"
+	}
+]
