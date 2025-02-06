@@ -191,7 +191,6 @@ def handle_lead_update(neodove_data, mobile_no, lead_owner, lead_stage, DEFAULT_
             read=1,
             write=1,
             share=1,
-            everyone=1,
             notify=1,
         )
 
