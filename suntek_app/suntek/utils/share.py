@@ -2,7 +2,17 @@ import frappe
 from frappe.share import add as add_share
 
 
-def share_document(doctype, doc_name, user_email):
+def share_document(
+    doctype,
+    doc_name,
+    user_email,
+    read: int = 0,
+    write: int = 0,
+    submit: int = 0,
+    share: int = 0,
+    everyone: int = 0,
+    notify: int = 0,
+):
     """Share document with agent if not already shared"""
     try:
         existing_share = frappe.get_all(
@@ -22,12 +32,12 @@ def share_document(doctype, doc_name, user_email):
             doctype=doctype,
             name=doc_name,
             user=user_email,
-            read=1,
-            write=1,
-            submit=0,
-            share=1,
-            everyone=0,
-            notify=1,
+            read=read or 0,
+            write=write or 0,
+            submit=submit or 0,
+            share=share or 0,
+            everyone=everyone or 0,
+            notify=notify or 0,
         )
 
         frappe.db.commit()
