@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestDealer(FrappeTestCase):
+class TestChannelPartner(FrappeTestCase):
     pass
