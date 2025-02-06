@@ -320,8 +320,4 @@ fixtures = [
     {"doctype": "Notification"},
     {"doctype": "Webhook"},
     {"doctype": "HD Ticket Type"},
-    {"doctype": "State"},
-    {"doctype": "City"},
-    {"doctype": "District"},
-    {"doctype": "Dealer"},
 ]
