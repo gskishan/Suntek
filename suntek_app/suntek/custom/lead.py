@@ -4,17 +4,10 @@ import json
 import frappe
 from frappe.model.mapper import get_mapped_doc
 
-from suntek_app.suntek.utils.lead_utils import (
-    get_next_telecaller,
-    get_or_create_lead,
-    process_other_properties,
-    share_document,
-    update_lead_basic_info,
-)
-from suntek_app.suntek.utils.validation_utils import (
-    duplicate_check,
-    validate_mobile_number,
-)
+from suntek_app.suntek.utils.api_handler import create_api_response
+from suntek_app.suntek.utils.lead_utils import get_next_telecaller, get_or_create_lead, process_other_properties, update_lead_basic_info
+from suntek_app.suntek.utils.share import share_document
+from suntek_app.suntek.utils.validation_utils import duplicate_check, validate_mobile_number
 
 
 def before_import(doc, method=None):
@@ -137,28 +130,27 @@ def _set_missing_values(source, target):
 def create_lead_from_neodove_dispose():
     """Handle incoming Neodove webhook requests to create/update leads or opportunities"""
     try:
-
         is_enabled = frappe.get_doc('Suntek Settings').get_value('enable_neodove_integration')
 
         if not is_enabled:
-            frappe.throw("Neodove integration is disabled")
+            return create_api_response(400, "error", "Neodove integration is disabled")
 
         api_key = frappe.request.headers.get('X-Neodove-API-Key')
         if not api_key:
-            return _error_response('API key missing', 401)
+            return create_api_response(401, "error", "API key missing")
 
         if not _validate_api_key(api_key):
-            return _error_response('Invalid API key', 401)
+            return create_api_response(401, "error", "Invalid API key")
 
         neodove_data = parse_request_data(frappe.request.data)
         campaign_id = neodove_data.get("campaign_id")
 
         if not campaign_id:
-            return _error_response('Campaign ID is required')
+            return create_api_response(400, "error", "Campaign ID is required")
 
         campaign = _get_campaign_info(campaign_id)
         if not campaign:
-            return _error_response(f"Campaign not found: {campaign_id}")
+            return create_api_response(404, "error", f"Campaign not found: {campaign_id}")
 
         mobile = neodove_data.get("mobile")
         agent_email = neodove_data.get("agent_email")
@@ -172,11 +164,11 @@ def create_lead_from_neodove_dispose():
             else handle_lead_update(neodove_data, mobile, agent_email, lead_stage, "", "", "")
         )
 
-        return result
+        return create_api_response(200, "success", result["message"], result)
 
     except Exception as e:
         frappe.log_error(message=f"Neodove webhook error: {str(e)}\n{frappe.get_traceback()}", title="Neodove Webhook Error")
-        return _error_response(str(e))
+        return create_api_response(500, "error", str(e))
 
 
 def _validate_api_key(api_key: str) -> bool:
@@ -385,7 +377,7 @@ def handle_opportunity_update(neodove_data, mobile_no, lead_owner, lead_stage):
 
         existing_enquiry = frappe.get_list("Lead", filters={"mobile_no": mobile_no}, fields=["name"], limit=1)
         if existing_enquiry and lead_owner:
-            share_document(doctype="Lead", doc_name=existing_enquiry[0].name, agent_email=lead_owner)
+            share_document(doctype="Lead", doc_name=existing_enquiry[0].name, user_email=lead_owner)
 
         frappe.db.commit()
 
@@ -436,7 +428,7 @@ def handle_lead_update(neodove_data, mobile_no, lead_owner, lead_stage, DEFAULT_
                 )
 
     if lead.name and lead_owner:
-        share_document(doctype="Lead", doc_name=lead.name, agent_email=lead_owner)
+        share_document(doctype="Lead", doc_name=lead.name, user_email=lead_owner)
 
     if neodove_data.get("other_properties"):
         process_other_properties(lead, neodove_data["other_properties"])

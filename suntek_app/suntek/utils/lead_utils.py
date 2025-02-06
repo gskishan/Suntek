@@ -1,6 +1,4 @@
-import json
 import frappe
-from frappe.share import add as add_share
 
 from suntek_app.suntek.utils.validation_utils import convert_date_format, convert_timestamp_to_date, extract_first_and_last_name
 
@@ -30,7 +28,12 @@ def get_next_telecaller():
 
         next_telecaller = telecallers[0]
 
-        frappe.db.set_value("Telecaller Queue", {"email": next_telecaller.email}, "last_assigned", frappe.utils.now_datetime())
+        frappe.db.set_value(
+            "Telecaller Queue",
+            {"email": next_telecaller.email},
+            "last_assigned",
+            frappe.utils.now_datetime(),
+        )
         frappe.db.commit()
 
         return next_telecaller.email
@@ -199,41 +202,3 @@ def get_lead_location(data: dict) -> str:
                     break
 
     return city
-
-
-def share_document(doctype, doc_name, agent_email):
-    """Share document with agent if not already shared"""
-    try:
-        existing_share = frappe.get_all(
-            "DocShare",
-            filters={
-                "share_doctype": doctype,
-                "share_name": doc_name,
-                "user": agent_email,
-            },
-            limit=1,
-        )
-
-        if existing_share:
-            return True
-
-        add_share(
-            doctype=doctype,
-            name=doc_name,
-            user=agent_email,
-            read=1,
-            write=1,
-            submit=0,
-            share=1,
-            everyone=0,
-            notify=1,
-        )
-
-        frappe.db.commit()
-        return True
-    except Exception as e:
-        frappe.log_error(
-            f"Error sharing {doctype} {doc_name} with {agent_email}: {str(e)}",
-            f"{doctype} Sharing Error",
-        )
-        return False
