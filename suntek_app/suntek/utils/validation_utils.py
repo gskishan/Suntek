@@ -17,7 +17,7 @@ def duplicate_check(doc):
 def validate_mobile_number(number):
     """Validate mobile number. It should be 10 digits and start with 6-9"""
     number = str(number)
-    if ' ' in number:  # Check for spaces
+    if ' ' in number:
         return False
     pattern = r"^(\+91[-]?)?[6-9]\d{9}$"
     if re.match(pattern, number):
