@@ -7,8 +7,8 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "dealer_name",
-  "dealer_code",
+  "channel_partner_name",
+  "channel_partner_code",
   "contact_person",
   "email",
   "mobile_number",
@@ -19,6 +19,9 @@
   "credit_limit",
   "status",
   "is_exclusive",
+  "is_experienced",
+  "suntek_mobile_number",
+  "suntek_email",
   "section_break_zuam",
   "contact",
   "dealer_address",
@@ -40,25 +43,25 @@
   "noc_for_stock",
   "column_break_vetk",
   "address_proof",
-  "id_proof",
   "pan",
+  "personal_kyc_section",
+  "id_proof",
+  "pan_card",
+  "column_break_sjnq",
+  "photograph",
+  "electricity_bill",
   "section_break_zker",
-  "other_documents"
+  "other_documents",
+  "pin_codes_tab",
+  "associated_pin_codes"
  ],
  "fields": [
   {
-   "fieldname": "dealer_name",
+   "fieldname": "channel_partner_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Dealer Name",
+   "label": "Channel Partner Name",
    "reqd": 1
-  },
-  {
-   "fieldname": "dealer_code",
-   "fieldtype": "Data",
-   "label": "Dealer Code",
-   "reqd": 1,
-   "unique": 1
   },
   {
    "fieldname": "contact_person",
@@ -107,8 +110,7 @@
    "fieldname": "district",
    "fieldtype": "Link",
    "label": "District",
-   "options": "District",
-   "reqd": 1
+   "options": "District"
   },
   {
    "fetch_from": "district.city",
@@ -122,6 +124,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "default": "Pending Approval",
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
@@ -203,6 +206,7 @@
    "options": "Additional Attachments"
   },
   {
+   "depends_on": "eval:doc.is_experienced == 1",
    "fieldname": "past_experience_tab",
    "fieldtype": "Tab Break",
    "label": "Past Experience"
@@ -211,6 +215,7 @@
    "fieldname": "past_experience",
    "fieldtype": "Table",
    "label": "Past Experience",
+   "mandatory_depends_on": "eval:doc.is_experienced == 1",
    "options": "Past Experience"
   },
   {
@@ -251,25 +256,91 @@
   {
    "fieldname": "address_proof",
    "fieldtype": "Attach",
-   "label": "Address Proof",
+   "label": "Address Proof (Company)",
    "reqd": 1
   },
   {
    "fieldname": "id_proof",
    "fieldtype": "Attach",
-   "label": "ID Proof",
+   "label": "Aadjar Card",
    "reqd": 1
   },
   {
    "fieldname": "pan",
    "fieldtype": "Attach",
-   "label": "PAN",
+   "label": "PAN (Company)",
    "reqd": 1
+  },
+  {
+   "fieldname": "channel_partner_code",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "label": "Channel Partner Code",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "pin_codes_tab",
+   "fieldtype": "Tab Break",
+   "label": "PIN Codes"
+  },
+  {
+   "fieldname": "associated_pin_codes",
+   "fieldtype": "Table",
+   "label": "Associated PIN Codes",
+   "options": "Channel Partner PIN Code Table"
+  },
+  {
+   "fieldname": "personal_kyc_section",
+   "fieldtype": "Section Break",
+   "label": "Personal KYC"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_experienced",
+   "fieldtype": "Check",
+   "label": "Is Experienced"
+  },
+  {
+   "fieldname": "pan_card",
+   "fieldtype": "Attach",
+   "label": "PAN Card",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_sjnq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "photograph",
+   "fieldtype": "Attach Image",
+   "label": "Photograph",
+   "reqd": 1
+  },
+  {
+   "fieldname": "electricity_bill",
+   "fieldtype": "Attach",
+   "label": "Electricity Bill",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.status==\"Active\"",
+   "fieldname": "suntek_mobile_number",
+   "fieldtype": "Phone",
+   "label": "Suntek Mobile Number",
+   "mandatory_depends_on": "eval:doc.status==\"Active\""
+  },
+  {
+   "depends_on": "eval:doc.status==\"Active\"",
+   "fieldname": "suntek_email",
+   "fieldtype": "Data",
+   "label": "Suntek Email",
+   "mandatory_depends_on": "eval:doc.status==\"Active\""
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-06 13:49:50.555716",
+ "modified": "2025-02-06 18:03:02.235389",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Channel Partner",
@@ -289,7 +360,8 @@
    "write": 1
   }
  ],
- "search_fields": "dealer_name",
+ "search_fields": "channel_partner_name",
+ "show_name_in_global_search": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [
@@ -302,5 +374,5 @@
    "title": "Disabled"
   }
  ],
- "title_field": "dealer_name"
+ "title_field": "channel_partner_name"
 }
