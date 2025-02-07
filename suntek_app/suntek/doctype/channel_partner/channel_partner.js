@@ -1,8 +1,23 @@
-// Copyright (c) 2025, kishan and contributors
-// For license information, please see license.txt
-
 frappe.ui.form.on("Channel Partner", {
-	refresh(frm) {},
+	refresh(frm) {
+		if (frm.doc.status === "Active" && !frm.doc.is_user_created && frm.doc.suntek_email) {
+			frm.add_custom_button(__("Create User"), function () {
+				frm.call({
+					doc: frm.doc,
+					method: "create_user",
+					callback: function (r) {
+						if (r.message) {
+							frappe.show_alert({
+								message: __("User created and linked successfully"),
+								indicator: "green",
+							});
+							frm.reload_doc();
+						}
+					},
+				});
+			});
+		}
+	},
 });
 
 frappe.ui.form.on("Channel Partner PIN Code Table", {
@@ -12,11 +27,11 @@ frappe.ui.form.on("Channel Partner PIN Code Table", {
 			frappe.db.get_value(
 				"Channel Partner PIN Codes",
 				row.pin_code,
-				["district", "city"], // Added city to the fields to fetch
+				["district", "city"],
 				(response) => {
 					if (response) {
 						frappe.model.set_value(cdt, cdn, "district", response.district);
-						frappe.model.set_value(cdt, cdn, "city", response.city); // Setting the city value
+						frappe.model.set_value(cdt, cdn, "city", response.city);
 					}
 				}
 			);
