@@ -8,7 +8,8 @@
  "field_order": [
   "city",
   "state",
-  "country"
+  "country",
+  "state_code"
  ],
  "fields": [
   {
@@ -32,11 +33,17 @@
    "label": "State",
    "options": "State",
    "reqd": 1
+  },
+  {
+   "fetch_from": "state.state_code",
+   "fieldname": "state_code",
+   "fieldtype": "Data",
+   "label": "State Code"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-05 15:25:59.643571",
+ "modified": "2025-02-07 16:15:15.940208",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "City",
@@ -56,7 +63,10 @@
    "write": 1
   }
  ],
+ "search_fields": "city, state, state_code",
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "city"
 }

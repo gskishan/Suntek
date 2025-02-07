@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "field:state",
  "creation": "2025-02-05 15:22:48.191672",
@@ -7,6 +8,7 @@
  "engine": "InnoDB",
  "field_order": [
   "state",
+  "state_code",
   "country"
  ],
  "fields": [
@@ -26,11 +28,21 @@
    "label": "Country",
    "options": "Country",
    "reqd": 1
+  },
+  {
+   "fieldname": "state_code",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "State Code",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-05 15:25:48.591514",
+ "modified": "2025-02-07 16:14:38.825155",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "State",
@@ -50,7 +62,9 @@
    "write": 1
   }
  ],
+ "search_fields": "state, state_code",
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "state"
 }

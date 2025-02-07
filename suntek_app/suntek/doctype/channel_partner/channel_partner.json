@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "SES-DLR-.#####",
  "creation": "2025-02-05 15:27:37.646348",
  "default_view": "List",
  "doctype": "DocType",
@@ -10,6 +9,7 @@
   "salutation",
   "first_name",
   "last_name",
+  "channel_partner_firm",
   "channel_partner_name",
   "channel_partner_code",
   "contact_person",
@@ -37,7 +37,9 @@
   "district",
   "country",
   "state",
+  "state_code",
   "city",
+  "district_snake_case",
   "past_experience_tab",
   "past_experience_section",
   "past_experience",
@@ -58,7 +60,8 @@
   "section_break_zker",
   "other_documents",
   "pin_codes_tab",
-  "associated_pin_codes"
+  "associated_pin_codes",
+  "connections_tab"
  ],
  "fields": [
   {
@@ -294,7 +297,7 @@
    "fieldname": "associated_pin_codes",
    "fieldtype": "Table",
    "label": "Associated PIN Codes",
-   "options": "Channel Partner PIN Code Table"
+   "options": "District PIN Code Table"
   },
   {
    "fieldname": "personal_kyc_section",
@@ -347,7 +350,8 @@
    "default": "0",
    "fieldname": "is_user_created",
    "fieldtype": "Check",
-   "label": "Is User Created"
+   "label": "Is User Created",
+   "read_only_depends_on": "eval:doc.is_user_created == 1"
   },
   {
    "fieldname": "first_name",
@@ -369,9 +373,35 @@
   {
    "fieldname": "linked_user",
    "fieldtype": "Link",
-   "hidden": 1,
    "label": "Linked User",
-   "options": "User"
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "connections_tab",
+   "fieldtype": "Tab Break",
+   "label": "Connections",
+   "show_dashboard": 1
+  },
+  {
+   "fetch_from": "district.state_code",
+   "fieldname": "state_code",
+   "fieldtype": "Data",
+   "label": "State Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "district.district_snake_case",
+   "fieldname": "district_snake_case",
+   "fieldtype": "Data",
+   "label": "District Snake Case",
+   "read_only": 1
+  },
+  {
+   "fieldname": "channel_partner_firm",
+   "fieldtype": "Data",
+   "label": "Channel Partner Firm",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -385,11 +415,11 @@
    "link_fieldname": "custom_channel_partner"
   }
  ],
- "modified": "2025-02-07 12:59:20.769576",
+ "modified": "2025-02-07 17:30:35.170019",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Channel Partner",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "By script",
  "owner": "Administrator",
  "permissions": [
   {
