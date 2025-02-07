@@ -20,21 +20,16 @@ frappe.ui.form.on("Channel Partner", {
 	},
 });
 
-frappe.ui.form.on("Channel Partner PIN Code Table", {
+frappe.ui.form.on("District PIN Code Table", {
 	pin_code: function (frm, cdt, cdn) {
 		let row = locals[cdt][cdn];
 		if (row.pin_code) {
-			frappe.db.get_value(
-				"Channel Partner PIN Codes",
-				row.pin_code,
-				["district", "city"],
-				(response) => {
-					if (response) {
-						frappe.model.set_value(cdt, cdn, "district", response.district);
-						frappe.model.set_value(cdt, cdn, "city", response.city);
-					}
+			frappe.db.get_value("District PIN Code", row.pin_code, ["district", "city"], (response) => {
+				if (response) {
+					frappe.model.set_value(cdt, cdn, "district", response.district);
+					frappe.model.set_value(cdt, cdn, "city", response.city);
 				}
-			);
+			});
 		}
 	},
 });

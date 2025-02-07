@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class ChannelPartnerPINCodeTable(Document):
+class DistrictPINCode(Document):
 	pass

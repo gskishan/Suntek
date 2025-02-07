@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestChannelPartnerPINCodes(FrappeTestCase):
+class TestDistrictPINCode(FrappeTestCase):
 	pass

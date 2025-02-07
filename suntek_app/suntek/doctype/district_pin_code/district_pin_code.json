@@ -9,7 +9,8 @@
   "pin_code",
   "district",
   "city",
-  "state"
+  "state",
+  "district_snake_case"
  ],
  "fields": [
   {
@@ -35,14 +36,21 @@
    "fieldname": "state",
    "fieldtype": "Data",
    "label": "State"
+  },
+  {
+   "fetch_from": "district.district_snake_case",
+   "fieldname": "district_snake_case",
+   "fieldtype": "Data",
+   "label": "District Snake Case",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-06 15:47:14.234052",
+ "modified": "2025-02-07 16:57:30.825082",
  "modified_by": "Administrator",
  "module": "suntek",
- "name": "Channel Partner PIN Codes",
+ "name": "District PIN Code",
  "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
