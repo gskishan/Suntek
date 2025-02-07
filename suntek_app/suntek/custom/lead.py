@@ -103,6 +103,8 @@ def custom_make_opportunity(source_name, target_doc=None):
                     "lead_owner": "opportunity_owner",
                     "custom_enquiry_owner_name": "custom_opportunity_owner_name",
                     "notes": "notes",
+                    "custom_channel_partner": "custom_channel_partner",
+                    "custom_channel_partner_name": "custom_channel_partner_name",
                 },
             }
         },

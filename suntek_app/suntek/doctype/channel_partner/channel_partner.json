@@ -7,6 +7,9 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "salutation",
+  "first_name",
+  "last_name",
   "channel_partner_name",
   "channel_partner_code",
   "contact_person",
@@ -20,8 +23,10 @@
   "status",
   "is_exclusive",
   "is_experienced",
+  "is_user_created",
   "suntek_mobile_number",
   "suntek_email",
+  "linked_user",
   "section_break_zuam",
   "contact",
   "dealer_address",
@@ -61,6 +66,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Channel Partner Name",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -77,14 +83,14 @@
   },
   {
    "fieldname": "mobile_number",
-   "fieldtype": "Phone",
+   "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Mobile Number",
    "reqd": 1
   },
   {
    "fieldname": "alternate_number",
-   "fieldtype": "Phone",
+   "fieldtype": "Data",
    "label": "Alternate Number"
   },
   {
@@ -326,7 +332,7 @@
   {
    "depends_on": "eval:doc.status==\"Active\"",
    "fieldname": "suntek_mobile_number",
-   "fieldtype": "Phone",
+   "fieldtype": "Data",
    "label": "Suntek Mobile Number",
    "mandatory_depends_on": "eval:doc.status==\"Active\""
   },
@@ -336,11 +342,50 @@
    "fieldtype": "Data",
    "label": "Suntek Email",
    "mandatory_depends_on": "eval:doc.status==\"Active\""
+  },
+  {
+   "default": "0",
+   "fieldname": "is_user_created",
+   "fieldtype": "Check",
+   "label": "Is User Created"
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "label": "First Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "label": "Last Name"
+  },
+  {
+   "fieldname": "salutation",
+   "fieldtype": "Link",
+   "label": "Salutation",
+   "options": "Salutation"
+  },
+  {
+   "fieldname": "linked_user",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Linked User",
+   "options": "User"
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2025-02-06 18:03:02.235389",
+ "links": [
+  {
+   "link_doctype": "Lead",
+   "link_fieldname": "custom_channel_partner"
+  },
+  {
+   "link_doctype": "Opportunity",
+   "link_fieldname": "custom_channel_partner"
+  }
+ ],
+ "modified": "2025-02-07 12:59:20.769576",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Channel Partner",
