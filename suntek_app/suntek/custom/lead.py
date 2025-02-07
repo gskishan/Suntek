@@ -23,7 +23,6 @@ def share_lead_after_insert_with_enquiry_owner(doc, method=None):
         read=1,
         write=1,
         share=1,
-        everyone=0,
         notify=1,
     )
 
