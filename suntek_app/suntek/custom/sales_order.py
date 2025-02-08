@@ -3,50 +3,49 @@ import frappe
 
 @frappe.whitelist()
 def auto_project_creation_on_submit(doc, method):
+    print(f"custom_type_of_case: {doc.custom_type_of_case}")
     if doc.docstatus == 1 and not doc.amended_from:
+        project_make = None
         if not frappe.db.exists("Project", {"project_name": doc.name}):
-
             project_make = make_project(doc)
             project_make.custom_poc_person_name = doc.custom_person_name
             project_make.custom_poc_mobile_no = doc.custom_another_mobile_no
             project_make.save()
 
-        # Create subsidy or discom records if applicable
-        create_subsidy_or_discom(project_make)
+            if doc.custom_type_of_case == "Subsidy":
+                print(f"Creating subsidy for {project_make.name}")
+                print(f"type of case: {doc.custom_type_of_case}")
+                create_subsidy(project_make)
+            elif doc.custom_type_of_case == "Non Subsidy":
+                print(f"Creating discom for {project_make.name}")
+                print(f"type of case: {doc.custom_type_of_case}")
+                create_discom(project_make)
+
     elif doc.amended_from and doc.project:
-        # Update existing project if present
         project = frappe.get_doc("Project", doc.project)
         project.db_set("sales_order", doc.name)
 
-    # Update opportunity linked with the Sales Order
     update_opportunity(doc)
 
 
-def create_subsidy_or_discom(project):
-    """Creates Discom and Subsidy records based on the project's custom type of case."""
+def create_discom(project):
+    """Creates Discom record based on the project's custom type of case."""
 
-    if project.custom_type_of_case == "Subsidy":
-        # Create Discom record
-        discom = frappe.new_doc("Discom")
-        discom.project_name = project.name
-        discom.sales_order = project.sales_order
-        discom.customer_name = project.customer
-        discom.save()
+    discom = frappe.new_doc("Discom")
+    discom.project_name = project.name
+    discom.sales_order = project.sales_order
+    discom.customer_name = project.customer
+    discom.save()
 
-        # Create Subsidy record
-        subsidy = frappe.new_doc("Subsidy")
-        subsidy.project_name = project.name
-        subsidy.sales_order = project.sales_order
-        subsidy.customer_name = project.customer
-        subsidy.save()
 
-    elif project.custom_type_of_case == "Non Subsidy":
-        # Create only Discom record
-        discom = frappe.new_doc("Discom")
-        discom.project_name = project.name
-        discom.sales_order = project.sales_order
-        discom.customer_name = project.customer
-        discom.save()
+def create_subsidy(project):
+    """Creates Subsidy record based on the project's custom type of case."""
+
+    subsidy = frappe.new_doc("Subsidy")
+    subsidy.project_name = project.name
+    subsidy.sales_order = project.sales_order
+    subsidy.customer_name = project.customer
+    subsidy.save()
 
 
 def update_opportunity(doc):
@@ -55,10 +54,16 @@ def update_opportunity(doc):
     if first_item and first_item.quotation_item:
         quotation_item = frappe.get_doc("Quotation Item", first_item.quotation_item)
 
-        # Check if the quotation item is linked to an opportunity
-        if quotation_item.prevdoc_docname and quotation_item.prevdoc_doctype == "Opportunity":
-            opportunity = frappe.get_doc(quotation_item.prevdoc_doctype, quotation_item.prevdoc_docname)
-            opportunity.db_set("opportunity_amount", doc.rounded_total, update_modified=False)
+        if (
+            quotation_item.prevdoc_docname
+            and quotation_item.prevdoc_doctype == "Opportunity"
+        ):
+            opportunity = frappe.get_doc(
+                quotation_item.prevdoc_doctype, quotation_item.prevdoc_docname
+            )
+            opportunity.db_set(
+                "opportunity_amount", doc.rounded_total, update_modified=False
+            )
 
 
 @frappe.whitelist()
@@ -70,6 +75,8 @@ def make_project(source_name, target_doc=None):
         doc.project_name = source_name.name
         doc.sales_order = source_name.name
         doc.custom_capacity = source_name.custom_capacity
+
+        doc.custom_type_of_case = source_name.custom_type_of_case
 
     doc = get_mapped_doc(
         "Sales Order",
@@ -95,11 +102,16 @@ def make_project(source_name, target_doc=None):
 def fetch_attachments_from_opportunity(doc, method):
     if doc.custom_opportunity_name != "":
         print("doc.custom_opportunity_name: ", doc.custom_opportunity_name)
-        opportunity = frappe.get_doc("Opportunity", {"name": doc.custom_opportunity_name})
+        opportunity = frappe.get_doc(
+            "Opportunity", {"name": doc.custom_opportunity_name}
+        )
         print(opportunity)
         opportunity_attachments = frappe.get_all(
             "File",
-            filters={"attached_to_doctype": "Opportunity", "attached_to_name": opportunity.name},
+            filters={
+                "attached_to_doctype": "Opportunity",
+                "attached_to_name": opportunity.name,
+            },
             fields=["file_name", "file_url"],
         )
 
