@@ -18,7 +18,9 @@ class Designing(Document):
 
     def get_duplicate_item(self):
         item_codes = [item.item_code for item in self.bom]
-        duplicates = [item_code for item_code, count in Counter(item_codes).items() if count > 1]
+        duplicates = [
+            item_code for item_code, count in Counter(item_codes).items() if count > 1
+        ]
         if duplicates:
             frappe.throw("Duplicate Items found: {}".format(", ".join(duplicates)))
 
@@ -31,11 +33,9 @@ class Designing(Document):
         self.update_opportunity_status_section()
 
     def update_designing_on_save(self):
-
         self.designing_status = "Open"
 
     def update_designing_status(self):
-
         self.db_set("designing_status", "Completed")
 
     @frappe.whitelist()
@@ -50,7 +50,9 @@ class Designing(Document):
         if self.is_new() and self.custom_project:
             project_doc = frappe.get_doc("Project", self.custom_project)
             so = project_doc.sales_order
-            opportunity = frappe.db.get_value("Sales Order", so, "custom_opportunity_name")
+            opportunity = frappe.db.get_value(
+                "Sales Order", so, "custom_opportunity_name"
+            )
             op = frappe.get_doc("Opportunity", opportunity)
             self.opportunity_name = op.name
             self.customer_name = project_doc.customer
@@ -198,12 +200,18 @@ def make_bom(source_name, target_doc=None):
 @frappe.whitelist()
 def make_stock_entry(source_name, target_doc=None):
     def update_item(obj, target, source_parent):
-        qty = flt(obj.qty) - flt(obj.transferred) if flt(obj.qty) > flt(obj.transferred) else 0
+        qty = (
+            flt(obj.qty) - flt(obj.transferred)
+            if flt(obj.qty) > flt(obj.transferred)
+            else 0
+        )
         target.qty = qty
         target.against_designing_item = obj.name
         target.against_designing = obj.parent
         target.conversion_factor = 1
-        company = frappe.db.get_value("Project", source_parent.custom_project, "company")
+        company = frappe.db.get_value(
+            "Project", source_parent.custom_project, "company"
+        )
         warehouse = frappe.db.get_value("Company", company, "custom_default_warehouse")
         target.s_warehouse = warehouse
 
@@ -242,7 +250,10 @@ def make_stock_entry(source_name, target_doc=None):
                     "uom": "uom",
                 },
                 "postprocess": update_item,
-                "condition": lambda doc: (flt(doc.transferred, doc.precision("transferred")) < flt(doc.qty, doc.precision("qty"))),
+                "condition": lambda doc: (
+                    flt(doc.transferred, doc.precision("transferred"))
+                    < flt(doc.qty, doc.precision("qty"))
+                ),
             },
         },
         target_doc,

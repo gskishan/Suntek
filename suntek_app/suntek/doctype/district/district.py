@@ -2,7 +2,6 @@ from frappe.model.document import Document
 
 
 class District(Document):
-
     def before_insert(self):
         self.set_district_snake_case()
 

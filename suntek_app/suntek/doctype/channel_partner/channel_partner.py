@@ -16,7 +16,9 @@ class ChannelPartner(Document):
 
     def autoname(self):
         if self.state_code and self.district_snake_case:
-            self.name = make_autoname(f"{self.state_code}-{self.district_snake_case}-.#####")
+            self.name = make_autoname(
+                f"{self.state_code}-{self.district_snake_case}-.#####"
+            )
 
     def before_save(self):
         self.set_channel_partner_code()
@@ -26,14 +28,22 @@ class ChannelPartner(Document):
             self.channel_partner_code = self.name
 
     def make_channel_partner_name(self):
-        self.channel_partner_name = f"{self.first_name}{' ' + self.last_name if self.last_name else ''}"
+        self.channel_partner_name = (
+            f"{self.first_name}{' ' + self.last_name if self.last_name else ''}"
+        )
 
     def validate_mobile_numbers(self):
         if self.mobile_number and not validate_mobile_number(self.mobile_number):
-            frappe.throw("Invalid mobile number. Mobile number should be 10 digits and start with 6-9")
+            frappe.throw(
+                "Invalid mobile number. Mobile number should be 10 digits and start with 6-9"
+            )
 
-        if self.suntek_mobile_number and not validate_mobile_number(self.suntek_mobile_number):
-            frappe.throw("Invalid Suntek mobile number. Mobile number should be 10 digits and start with 6-9")
+        if self.suntek_mobile_number and not validate_mobile_number(
+            self.suntek_mobile_number
+        ):
+            frappe.throw(
+                "Invalid Suntek mobile number. Mobile number should be 10 digits and start with 6-9"
+            )
 
     def handle_user_status(self):
         if self.linked_user:
@@ -56,7 +66,13 @@ class ChannelPartner(Document):
         """
         try:
             user = frappe.new_doc("User")
-            user.update({"first_name": self.first_name, "email": self.suntek_email, "send_welcome_email": 0})
+            user.update(
+                {
+                    "first_name": self.first_name,
+                    "email": self.suntek_email,
+                    "send_welcome_email": 0,
+                }
+            )
             user.flags.ignore_mandatory = True
             user.flags.ignore_permissions = True
             user.insert(ignore_mandatory=True)
@@ -65,8 +81,8 @@ class ChannelPartner(Document):
             user.save()
             frappe.db.commit()
 
-            self.db_set('linked_user', user.name)
-            self.db_set('is_user_created', 1)
+            self.db_set("linked_user", user.name)
+            self.db_set("is_user_created", 1)
 
             return user.name
 

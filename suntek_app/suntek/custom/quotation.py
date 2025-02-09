@@ -4,11 +4,16 @@ import frappe
 def fetch_attachments_from_opportunity(doc, method):
     if doc.custom_opportunity_name != "":
         print("doc.custom_opportunity_name: ", doc.custom_opportunity_name)
-        opportunity = frappe.get_doc("Opportunity", {"name": doc.custom_opportunity_name})
+        opportunity = frappe.get_doc(
+            "Opportunity", {"name": doc.custom_opportunity_name}
+        )
         print(opportunity)
         opportunity_attachments = frappe.get_all(
             "File",
-            filters={"attached_to_doctype": "Opportunity", "attached_to_name": opportunity.name},
+            filters={
+                "attached_to_doctype": "Opportunity",
+                "attached_to_name": opportunity.name,
+            },
             fields=["file_name", "file_url"],
         )
 

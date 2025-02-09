@@ -4,10 +4,10 @@ from suntek_app.suntek.utils.api_handler import create_api_response
 
 
 def get_districts():
-    districts = frappe.cache().get_value('all_districts')
+    districts = frappe.cache().get_value("all_districts")
     if not districts:
-        districts = [d.name for d in frappe.get_all('District', fields=['name'])]
-        frappe.cache().set_value('all_districts', districts, expires_in_sec=3600)
+        districts = [d.name for d in frappe.get_all("District", fields=["name"])]
+        frappe.cache().set_value("all_districts", districts, expires_in_sec=3600)
     return districts
 
 
@@ -25,7 +25,9 @@ def create_channel_partner():
         channel_partner.suntek_email = generate_random_email(is_suntek_email=True)
         channel_partner.email = generate_random_email(is_suntek_email=False)
         channel_partner.status = "Active"
-        channel_partner.contact_person = f"Test Contact Person {generate_random_number()}"
+        channel_partner.contact_person = (
+            f"Test Contact Person {generate_random_number()}"
+        )
 
         districts = get_districts()
         if districts:
@@ -36,11 +38,18 @@ def create_channel_partner():
         channel_partner.insert(ignore_permissions=True, ignore_mandatory=True)
         frappe.db.commit()
 
-        return create_api_response(200, "success", "Channel Partner Created Successfully", channel_partner.as_dict())
+        return create_api_response(
+            200,
+            "success",
+            "Channel Partner Created Successfully",
+            channel_partner.as_dict(),
+        )
     except Exception as e:
         frappe.db.rollback()
         frappe.log_error(frappe.get_traceback(), "Channel Partner Creation Failed")
-        return create_api_response(500, "error", "Channel Partner Creation Failed", str(e))
+        return create_api_response(
+            500, "error", "Channel Partner Creation Failed", str(e)
+        )
 
 
 def generate_random_number():
@@ -48,8 +57,12 @@ def generate_random_number():
 
 
 def generate_mobile_number():
-    return f"{random.randint(6,9)}{random.randint(100000000,999999999)}"
+    return f"{random.randint(6, 9)}{random.randint(100000000, 999999999)}"
 
 
 def generate_random_email(is_suntek_email=False):
-    return f"test{generate_random_number()}@test.com" if not is_suntek_email else f"test{generate_random_number()}@suntek.com"
+    return (
+        f"test{generate_random_number()}@test.com"
+        if not is_suntek_email
+        else f"test{generate_random_number()}@suntek.com"
+    )
