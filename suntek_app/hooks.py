@@ -322,4 +322,5 @@ fixtures = [
     {"doctype": "Notification"},
     {"doctype": "Webhook"},
     {"doctype": "HD Ticket Type"},
+    {"doctype": "Lead Source", "filters": {"source_name": "Channel Partner"}},
 ]
