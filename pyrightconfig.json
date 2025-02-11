@@ -1,6 +1,8 @@
 {
-	"venv": "env",
-	"venvPath": "../../env/",
-	"reportMissingImports": true,
-	"typeCheckingMode": "off"
+  "venv": "env",
+  "venvPath": "../../env/",
+  "reportMissingImports": true,
+  "typeCheckingMode": "off",
+  "reportUnusedFunction": "none",
+  "reportPrivateUsage": false
 }

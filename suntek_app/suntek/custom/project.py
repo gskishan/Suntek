@@ -17,9 +17,7 @@ def custom_copy_from_template(self):
         dict(project=self.name),
         limit=1,
     ):
-
         if not self.expected_start_date:
-
             self.expected_start_date = today()
 
         template = frappe.get_doc("Project Template", self.custom_project_template)
@@ -83,7 +81,10 @@ def fetch_attachments_from_sales_order(doc, method):
         print(sales_order)
         sales_order_attachments = frappe.get_all(
             "File",
-            filters={"attached_to_doctype": "Sales Order", "attached_to_name": sales_order.name},
+            filters={
+                "attached_to_doctype": "Sales Order",
+                "attached_to_name": sales_order.name,
+            },
             fields=["file_name", "file_url"],
         )
 

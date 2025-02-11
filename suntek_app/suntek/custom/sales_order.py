@@ -13,12 +13,9 @@ def auto_project_creation_on_submit(doc, method):
             project_make.save()
 
             if doc.custom_type_of_case == "Subsidy":
-                print(f"Creating subsidy for {project_make.name}")
-                print(f"type of case: {doc.custom_type_of_case}")
                 create_subsidy(project_make)
+                create_discom(project_make)
             elif doc.custom_type_of_case == "Non Subsidy":
-                print(f"Creating discom for {project_make.name}")
-                print(f"type of case: {doc.custom_type_of_case}")
                 create_discom(project_make)
 
     elif doc.amended_from and doc.project:

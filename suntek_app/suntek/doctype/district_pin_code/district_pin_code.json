@@ -10,44 +10,51 @@
   "district",
   "city",
   "state",
-  "district_snake_case"
+  "district_snake_case",
+  "state_code"
  ],
  "fields": [
   {
    "fieldname": "pin_code",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "PIN Code",
+   "reqd": 1,
    "unique": 1
   },
   {
    "fieldname": "district",
    "fieldtype": "Link",
    "label": "District",
-   "options": "District"
+   "options": "District",
+   "reqd": 1
   },
   {
-   "fetch_from": "district.city",
    "fieldname": "city",
    "fieldtype": "Data",
    "label": "City"
   },
   {
-   "fetch_from": "district.state",
    "fieldname": "state",
    "fieldtype": "Data",
    "label": "State"
   },
   {
-   "fetch_from": "district.district_snake_case",
    "fieldname": "district_snake_case",
    "fieldtype": "Data",
    "label": "District Snake Case",
+   "read_only": 1
+  },
+  {
+   "fieldname": "state_code",
+   "fieldtype": "Data",
+   "label": "State Code",
    "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-07 16:57:30.825082",
+ "modified": "2025-02-10 12:14:54.985048",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "District PIN Code",

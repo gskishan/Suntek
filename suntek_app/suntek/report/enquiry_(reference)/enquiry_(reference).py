@@ -21,11 +21,36 @@ def execute(filters=None):
 
     # Define columns for the report
     columns = [
-        {"fieldname": "reference_by", "label": _("Reference By"), "fieldtype": "Data", "width": 120},
-        {"fieldname": "reference_name", "label": _("Reference Name"), "fieldtype": "Data", "width": 180},
-        {"fieldname": "reference_details", "label": _("Reference Details"), "fieldtype": "Data", "width": 180},
-        {"fieldname": "total_leads", "label": _("Total Leads"), "fieldtype": "Int", "width": 100},
-        {"fieldname": "total_capacity", "label": _("Overall Capacity"), "fieldtype": "Float", "width": 170},
+        {
+            "fieldname": "reference_by",
+            "label": _("Reference By"),
+            "fieldtype": "Data",
+            "width": 120,
+        },
+        {
+            "fieldname": "reference_name",
+            "label": _("Reference Name"),
+            "fieldtype": "Data",
+            "width": 180,
+        },
+        {
+            "fieldname": "reference_details",
+            "label": _("Reference Details"),
+            "fieldtype": "Data",
+            "width": 180,
+        },
+        {
+            "fieldname": "total_leads",
+            "label": _("Total Leads"),
+            "fieldtype": "Int",
+            "width": 100,
+        },
+        {
+            "fieldname": "total_capacity",
+            "label": _("Overall Capacity"),
+            "fieldtype": "Float",
+            "width": 170,
+        },
     ]
 
     # Add UOM specific columns
@@ -39,15 +64,60 @@ def execute(filters=None):
                     "fieldtype": "Int",
                     "width": 150,
                 },
-                {"fieldname": "open_leads", "label": _("Open"), "fieldtype": "Int", "width": 100},
-                {"fieldname": "replied_leads", "label": _("Replied"), "fieldtype": "Int", "width": 100},
-                {"fieldname": "opportunity_leads", "label": _("Opportunity"), "fieldtype": "Int", "width": 120},
-                {"fieldname": "quotation_leads", "label": _("Quotation"), "fieldtype": "Int", "width": 120},
-                {"fieldname": "interested_leads", "label": _("Interested"), "fieldtype": "Int", "width": 120},
-                {"fieldname": "converted_leads", "label": _("Converted"), "fieldtype": "Int", "width": 120},
-                {"fieldname": "lost_quotation_leads", "label": _("Lost Quotation"), "fieldtype": "Int", "width": 130},
-                {"fieldname": "do_not_contact_leads", "label": _("Do Not Contact"), "fieldtype": "Int", "width": 130},
-                {"fieldname": "conversion_rate", "label": _("Conversion Rate %"), "fieldtype": "Percent", "width": 150},
+                {
+                    "fieldname": "open_leads",
+                    "label": _("Open"),
+                    "fieldtype": "Int",
+                    "width": 100,
+                },
+                {
+                    "fieldname": "replied_leads",
+                    "label": _("Replied"),
+                    "fieldtype": "Int",
+                    "width": 100,
+                },
+                {
+                    "fieldname": "opportunity_leads",
+                    "label": _("Opportunity"),
+                    "fieldtype": "Int",
+                    "width": 120,
+                },
+                {
+                    "fieldname": "quotation_leads",
+                    "label": _("Quotation"),
+                    "fieldtype": "Int",
+                    "width": 120,
+                },
+                {
+                    "fieldname": "interested_leads",
+                    "label": _("Interested"),
+                    "fieldtype": "Int",
+                    "width": 120,
+                },
+                {
+                    "fieldname": "converted_leads",
+                    "label": _("Converted"),
+                    "fieldtype": "Int",
+                    "width": 120,
+                },
+                {
+                    "fieldname": "lost_quotation_leads",
+                    "label": _("Lost Quotation"),
+                    "fieldtype": "Int",
+                    "width": 130,
+                },
+                {
+                    "fieldname": "do_not_contact_leads",
+                    "label": _("Do Not Contact"),
+                    "fieldtype": "Int",
+                    "width": 130,
+                },
+                {
+                    "fieldname": "conversion_rate",
+                    "label": _("Conversion Rate %"),
+                    "fieldtype": "Percent",
+                    "width": 150,
+                },
                 {
                     "fieldname": f"total_capacity_{uom_name.lower().replace(' ', '_')}",
                     "label": _(f"Total Capacity ({uom_name})"),
@@ -60,9 +130,24 @@ def execute(filters=None):
     # Add other columns
     columns.extend(
         [
-            {"fieldname": "open_leads", "label": _("Open"), "fieldtype": "Int", "width": 120},
-            {"fieldname": "converted_leads", "label": _("Converted"), "fieldtype": "Int", "width": 140},
-            {"fieldname": "conversion_rate", "label": _("Conversion Rate %"), "fieldtype": "Percent", "width": 160},
+            {
+                "fieldname": "open_leads",
+                "label": _("Open"),
+                "fieldtype": "Int",
+                "width": 120,
+            },
+            {
+                "fieldname": "converted_leads",
+                "label": _("Converted"),
+                "fieldtype": "Int",
+                "width": 140,
+            },
+            {
+                "fieldname": "conversion_rate",
+                "label": _("Conversion Rate %"),
+                "fieldtype": "Percent",
+                "width": 160,
+            },
         ]
     )
 
@@ -140,14 +225,17 @@ def execute(filters=None):
 
     # Add status calculations
     select_clauses.extend(
-        ["SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) as open_leads", "SUM(CASE WHEN status = 'Converted' THEN 1 ELSE 0 END) as converted_leads"]
+        [
+            "SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) as open_leads",
+            "SUM(CASE WHEN status = 'Converted' THEN 1 ELSE 0 END) as converted_leads",
+        ]
     )
 
     # Get data from database
     data = frappe.db.sql(
         f"""
         SELECT 
-            {', '.join(select_clauses)}
+            {", ".join(select_clauses)}
         FROM `tabLead`
         WHERE {conditions}
         GROUP BY custom_reference_by, 
@@ -163,7 +251,11 @@ def execute(filters=None):
 
     # Calculate conversion rates
     for row in data:
-        row["conversion_rate"] = (row["converted_leads"] / row["total_leads"] * 100) if row["total_leads"] > 0 else 0
+        row["conversion_rate"] = (
+            (row["converted_leads"] / row["total_leads"] * 100)
+            if row["total_leads"] > 0
+            else 0
+        )
 
     return columns, data
 

@@ -29,8 +29,12 @@ class LeadFunnel:
         Get lead funnel data with owner details for tooltip
         """
         base_filters = self._get_base_filters(from_date, to_date, company)
-        additional_conditions, additional_values = self._get_additional_filters(lead_owner, source, department)
-        status_counts, others_count, owner_details = self._get_lead_counts(base_filters, additional_conditions, additional_values)
+        additional_conditions, additional_values = self._get_additional_filters(
+            lead_owner, source, department
+        )
+        status_counts, others_count, owner_details = self._get_lead_counts(
+            base_filters, additional_conditions, additional_values
+        )
 
         return self._prepare_funnel_data(status_counts, others_count, owner_details)
 
@@ -87,9 +91,7 @@ class LeadFunnel:
             {0}
             GROUP BY lead_owner-4
             ORDER BY owner_count DESC
-        """.format(
-            additional_conditions
-        )
+        """.format(additional_conditions)
 
         status_query = """
             SELECT 
@@ -103,9 +105,7 @@ class LeadFunnel:
             {0}
             GROUP BY status, lead_owner
             ORDER BY status, owner_count DESC
-        """.format(
-            additional_conditions
-        )
+        """.format(additional_conditions)
 
         total_data = frappe.db.sql(
             total_leads_query,
@@ -120,13 +120,30 @@ class LeadFunnel:
         )
 
         total_count = sum(row.count for row in total_data)
-        status_counts = {"Total Leads": total_count, "Connected": 0, "Interested": 0, "Quotation": 0, "Converted": 0}
+        status_counts = {
+            "Total Leads": total_count,
+            "Connected": 0,
+            "Interested": 0,
+            "Quotation": 0,
+            "Converted": 0,
+        }
         owner_details = {status: [] for status in LEAD_STATUSES.keys()}
-        owner_details["Total Leads"] = [{"owner": row.lead_owner or "Not Assigned", "count": row.owner_count} for row in total_data]
-        open_enquiry_count = sum(row.count for row in status_data if row.status in ["Open", "Enquiry"])
-        do_not_contact_count = sum(row.count for row in status_data if row.status == "Do Not Contact")
-        quotation_count = sum(row.count for row in status_data if row.status == "Quotation")
-        converted_count = sum(row.count for row in status_data if row.status == "Converted")
+        owner_details["Total Leads"] = [
+            {"owner": row.lead_owner or "Not Assigned", "count": row.owner_count}
+            for row in total_data
+        ]
+        open_enquiry_count = sum(
+            row.count for row in status_data if row.status in ["Open", "Enquiry"]
+        )
+        do_not_contact_count = sum(
+            row.count for row in status_data if row.status == "Do Not Contact"
+        )
+        quotation_count = sum(
+            row.count for row in status_data if row.status == "Quotation"
+        )
+        converted_count = sum(
+            row.count for row in status_data if row.status == "Converted"
+        )
 
         status_counts.update(
             {
@@ -139,10 +156,25 @@ class LeadFunnel:
 
         for row in status_data:
             if row.status == "Converted":
-                owner_details["Converted"].append({"owner": row.lead_owner or "Not Assigned", "count": row.owner_count})
-                owner_details["Quotation"].append({"owner": row.lead_owner or "Not Assigned", "count": row.owner_count})
+                owner_details["Converted"].append(
+                    {
+                        "owner": row.lead_owner or "Not Assigned",
+                        "count": row.owner_count,
+                    }
+                )
+                owner_details["Quotation"].append(
+                    {
+                        "owner": row.lead_owner or "Not Assigned",
+                        "count": row.owner_count,
+                    }
+                )
             elif row.status == "Quotation":
-                owner_details["Quotation"].append({"owner": row.lead_owner or "Not Assigned", "count": row.owner_count})
+                owner_details["Quotation"].append(
+                    {
+                        "owner": row.lead_owner or "Not Assigned",
+                        "count": row.owner_count,
+                    }
+                )
 
         return status_counts, 0, owner_details
 
@@ -157,7 +189,12 @@ class LeadFunnel:
         """
 
         data = [
-            {"title": _(status), "value": count, "color": LEAD_STATUSES[status], "owners": owner_details[status]}
+            {
+                "title": _(status),
+                "value": count,
+                "color": LEAD_STATUSES[status],
+                "owners": owner_details[status],
+            }
             for status, count in status_counts.items()
             if count > 0
         ]
@@ -165,7 +202,14 @@ class LeadFunnel:
         data.sort(key=lambda x: x["value"], reverse=True)
 
         if others_count:
-            data.append({"title": _("Others"), "value": others_count, "color": LEAD_STATUSES["Others"], "owners": owner_details["Others"]})
+            data.append(
+                {
+                    "title": _("Others"),
+                    "value": others_count,
+                    "color": LEAD_STATUSES["Others"],
+                    "owners": owner_details["Others"],
+                }
+            )
 
         return data
 
@@ -194,12 +238,16 @@ def get_funnel_data(
     """
     API endpoint to get lead funnel data
     """
-    cache_key = get_cache_key(from_date, to_date, company, lead_owner, source, department)
+    cache_key = get_cache_key(
+        from_date, to_date, company, lead_owner, source, department
+    )
     funnel_data = frappe.cache().get_value(cache_key)
 
     if funnel_data is None:
         funnel = LeadFunnel()
-        funnel_data = funnel.get_lead_data(from_date, to_date, company, lead_owner, source, department)
+        funnel_data = funnel.get_lead_data(
+            from_date, to_date, company, lead_owner, source, department
+        )
         frappe.cache().set_value(key=cache_key, val=funnel_data, expires_in_sec=30)
 
     return funnel_data
@@ -217,8 +265,13 @@ def clear_cache(
     Clear the funnel data cache. If no parameters are provided,
     it will generate a pattern to clear all lead funnel caches.
     """
-    if all(param is None for param in [from_date, to_date, company, lead_owner, source, department]):
+    if all(
+        param is None
+        for param in [from_date, to_date, company, lead_owner, source, department]
+    ):
         frappe.cache().delete_keys("lead_funnel:*")
     else:
-        cache_key = get_cache_key(from_date, to_date, company, lead_owner, source, department)
+        cache_key = get_cache_key(
+            from_date, to_date, company, lead_owner, source, department
+        )
         frappe.cache().delete_value(cache_key)

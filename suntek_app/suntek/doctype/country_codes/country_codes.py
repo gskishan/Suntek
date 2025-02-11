@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class AdditionalAttachments(Document):
-    pass
+class CountryCodes(Document):
+	pass

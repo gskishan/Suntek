@@ -1,11 +1,18 @@
 # Copyright (c) 2023, kishan and contributors
 # For license information, please see license.txt
 
+from datetime import datetime
+
 import frappe
 from frappe.model.document import Document
+from frappe.model.naming import make_autoname
 
 
 class Subsidy(Document):
+    def autoname(self):
+        current_year = datetime.now().year
+        self.name = make_autoname("SES-SUBSIDY-{}-.#####".format(current_year))
+
     def after_insert(self):
         self.update_project_on_save()
 
@@ -21,7 +28,9 @@ class Subsidy(Document):
     def update_status_on_project(self):
         if self.project_name:
             project = frappe.get_doc("Project", self.project_name)
-            project.db_set("custom_subsidy_status", self.subsidy_status, update_modified=False)
+            project.db_set(
+                "custom_subsidy_status", self.subsidy_status, update_modified=False
+            )
 
     def update_project_on_save(self):
         # Check if the Discom document is linked to a Project
@@ -38,7 +47,9 @@ class Subsidy(Document):
             project.custom_subsidy_cheque_upload = self.subsidy_cheque_upload
             project.custom_subsidy_cheque_no = self.subsidy_cheque_no
             project.custom_transaction_amount = self.transaction_amount
-            project.custom_transaction_bank_and_branch = self.transaction_bank_and_branch
+            project.custom_transaction_bank_and_branch = (
+                self.transaction_bank_and_branch
+            )
             project.custom_in_principle_no = self.in_principle_no
             project.custom_in_principle_date = self.in_principle_date
             project.custom_tsredco_inspection = self.tsredco_inspection
@@ -62,7 +73,9 @@ class Subsidy(Document):
             project.custom_subsidy_cheque_upload = self.subsidy_cheque_upload
             project.custom_subsidy_cheque_no = self.subsidy_cheque_no
             project.custom_transaction_amount = self.transaction_amount
-            project.custom_transaction_bank_and_branch = self.transaction_bank_and_branch
+            project.custom_transaction_bank_and_branch = (
+                self.transaction_bank_and_branch
+            )
             project.custom_in_principle_no = self.in_principle_no
             project.custom_in_principle_date = self.in_principle_date
             project.custom_tsredco_inspection = self.tsredco_inspection

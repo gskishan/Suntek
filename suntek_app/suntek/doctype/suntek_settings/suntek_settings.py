@@ -18,7 +18,6 @@ def generate_webhook_secret():
         frappe.throw("Not permitted to generate webhook secret")
 
     try:
-
         secret_key = secrets.token_hex(32)
         random_data = json.dumps({"timestamp": secrets.token_hex(8)}).encode()
 
@@ -31,7 +30,10 @@ def generate_webhook_secret():
         return token
 
     except Exception as e:
-        frappe.log_error(message=f"Error generating webhook token: {str(e)}", title="Webhook Token Generation Error")
+        frappe.log_error(
+            message=f"Error generating webhook token: {str(e)}",
+            title="Webhook Token Generation Error",
+        )
         frappe.throw("Error generating webhook token")
 
 

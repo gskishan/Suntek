@@ -17,22 +17,61 @@ def execute(filters=None):
 
     # Define columns for the report
     columns = [
-        {"fieldname": "source", "label": _("Source"), "fieldtype": "Data", "width": 180},
-        {"fieldname": "total_leads", "label": _("Total Leads"), "fieldtype": "Int", "width": 100},
-        {"fieldname": "total_capacity", "label": _("Overall Capacity"), "fieldtype": "Float", "width": 170},
-        {"fieldname": "open_leads_capacity_kwp", "label": _("Capacity (Open - kWp)"), "fieldtype": "Float", "width": 210},
-        {"fieldname": "converted_leads_capacity_kwp", "label": _("Capacity (Converted - kWp)"), "fieldtype": "Float", "width": 210},
+        {
+            "fieldname": "source",
+            "label": _("Source"),
+            "fieldtype": "Data",
+            "width": 180,
+        },
+        {
+            "fieldname": "total_leads",
+            "label": _("Total Leads"),
+            "fieldtype": "Int",
+            "width": 100,
+        },
+        {
+            "fieldname": "total_capacity",
+            "label": _("Overall Capacity"),
+            "fieldtype": "Float",
+            "width": 170,
+        },
+        {
+            "fieldname": "open_leads_capacity_kwp",
+            "label": _("Capacity (Open - kWp)"),
+            "fieldtype": "Float",
+            "width": 210,
+        },
+        {
+            "fieldname": "converted_leads_capacity_kwp",
+            "label": _("Capacity (Converted - kWp)"),
+            "fieldtype": "Float",
+            "width": 210,
+        },
     ]
 
     # Define statuses
-    statuses = ["Open", "Replied", "Opportunity", "Quotation", "Interested", "Converted", "Lost Quotation", "Do Not Contact"]
+    statuses = [
+        "Open",
+        "Replied",
+        "Opportunity",
+        "Quotation",
+        "Interested",
+        "Converted",
+        "Lost Quotation",
+        "Do Not Contact",
+    ]
 
     # Add status columns with UOM breakdowns
     for status in statuses:
-        status_key = status.lower().replace(' ', '_')
+        status_key = status.lower().replace(" ", "_")
         columns.extend(
             [
-                {"fieldname": f"{status_key}_leads", "label": _(f"{status} (Nos)"), "fieldtype": "Int", "width": 150},
+                {
+                    "fieldname": f"{status_key}_leads",
+                    "label": _(f"{status} (Nos)"),
+                    "fieldtype": "Int",
+                    "width": 150,
+                },
             ]
         )
         # Add UOM specific columns for each status
@@ -47,7 +86,14 @@ def execute(filters=None):
                 }
             )
 
-    columns.append({"fieldname": "conversion_rate", "label": _("Conversion Rate %"), "fieldtype": "Percent", "width": 150})
+    columns.append(
+        {
+            "fieldname": "conversion_rate",
+            "label": _("Conversion Rate %"),
+            "fieldtype": "Percent",
+            "width": 150,
+        }
+    )
 
     # Build conditions based on filters
     conditions = "1=1"
@@ -94,15 +140,17 @@ def execute(filters=None):
 
     # Add status and UOM specific calculations
     for status in statuses:
-        status_key = status.lower().replace(' ', '_')
+        status_key = status.lower().replace(" ", "_")
 
         # Add count for status
-        select_clauses.append(f"SUM(CASE WHEN status = '{status}' THEN 1 ELSE 0 END) as {status_key}_leads")
+        select_clauses.append(
+            f"SUM(CASE WHEN status = '{status}' THEN 1 ELSE 0 END) as {status_key}_leads"
+        )
 
         # Add UOM specific calculations for each status
         for uom in uom_list:
             uom_name = uom.custom_uom
-            uom_key = uom_name.lower().replace(' ', '_')
+            uom_key = uom_name.lower().replace(" ", "_")
 
             select_clauses.append(
                 f"""
@@ -120,7 +168,7 @@ def execute(filters=None):
     data = frappe.db.sql(
         f"""
         SELECT 
-            {', '.join(select_clauses)}
+            {", ".join(select_clauses)}
         FROM `tabLead`
         WHERE {conditions}
         GROUP BY source
@@ -131,7 +179,11 @@ def execute(filters=None):
 
     # Calculate conversion rates
     for row in data:
-        row["conversion_rate"] = (row["converted_leads"] / row["total_leads"] * 100) if row["total_leads"] > 0 else 0
+        row["conversion_rate"] = (
+            (row["converted_leads"] / row["total_leads"] * 100)
+            if row["total_leads"] > 0
+            else 0
+        )
 
     return columns, data
 

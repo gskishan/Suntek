@@ -7,8 +7,9 @@ import requests
 def send_to_neodove(doc, method=None):
     """Send document data to Neodove campaign URL"""
     try:
-
-        setting_value = frappe.db.get_single_value("Suntek Settings", "send_lead_enquiry_data_to_neodove_after_update")
+        setting_value = frappe.db.get_single_value(
+            "Suntek Settings", "send_lead_enquiry_data_to_neodove_after_update"
+        )
 
         if not setting_value:
             return
@@ -18,14 +19,24 @@ def send_to_neodove(doc, method=None):
 
         campaign_id = doc.get("custom_neodove_campaign_id")
         if not campaign_id:
-            campaign_id = frappe.db.get_single_value("Suntek Settings", "default_campaign_enquiries")
-            integration_url = frappe.db.get_single_value("Suntek Settings", "integration_url")
+            campaign_id = frappe.db.get_single_value(
+                "Suntek Settings", "default_campaign_enquiries"
+            )
+            integration_url = frappe.db.get_single_value(
+                "Suntek Settings", "integration_url"
+            )
         else:
-            integration_url = frappe.db.get_value("Neodove Campaign", {"campaign_id": campaign_id}, "integration_url")
+            integration_url = frappe.db.get_value(
+                "Neodove Campaign", {"campaign_id": campaign_id}, "integration_url"
+            )
         if not integration_url:
             return
 
-        final_url = f"{integration_url}?update=true" if method == "on_update" else integration_url
+        final_url = (
+            f"{integration_url}?update=true"
+            if method == "on_update"
+            else integration_url
+        )
         print(f"doc.doctype: {doc.doctype}")
         if doc.doctype == "Lead":
             payload = {
@@ -53,14 +64,19 @@ def send_to_neodove(doc, method=None):
             }
 
         headers = {"Content-Type": "application/json"}
-        response = requests.post(final_url, data=json.dumps(payload), headers=headers, timeout=10)
+        response = requests.post(
+            final_url, data=json.dumps(payload), headers=headers, timeout=10
+        )
         response.raise_for_status()
 
-        frappe.logger().debug(f"Neodove Response for {doc.doctype} {doc.name}: {response.text}")
+        frappe.logger().debug(
+            f"Neodove Response for {doc.doctype} {doc.name}: {response.text}"
+        )
 
     except Exception as e:
-
-        frappe.logger().error(f"Error sending to Neodove for {doc.doctype} {doc.name}: {str(e)}")
+        frappe.logger().error(
+            f"Error sending to Neodove for {doc.doctype} {doc.name}: {str(e)}"
+        )
         frappe.log_error(
             title=f"Neodove Error - {doc.doctype}",
             message=f"Error sending {doc.doctype} {doc.name} to Neodove: {str(e)}\nPayload: {payload if 'payload' in locals() else 'Not created'}",

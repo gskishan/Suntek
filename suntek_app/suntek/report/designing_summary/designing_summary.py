@@ -17,7 +17,9 @@ def data_condition(filters):
     if filters.get("project"):
         condition += " AND p.project = '{0}' ".format(filters.get("project"))
     if filters.get("designing"):
-        condition += " AND p.against_designing = '{0}' ".format(filters.get("designing"))
+        condition += " AND p.against_designing = '{0}' ".format(
+            filters.get("designing")
+        )
 
     return condition
 
@@ -81,9 +83,7 @@ FROM
 inner JOIN 
     `tabDesigning Item` c ON c.parent = p.against_designing
 where p.docstatus=1 {}
-    """.format(
-        condition
-    )
+    """.format(condition)
 
     frappe.errprint(sql)
     return frappe.db.sql(sql, as_dict=1)
