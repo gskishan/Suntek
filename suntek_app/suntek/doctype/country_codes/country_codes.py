@@ -5,5 +5,5 @@
 from frappe.model.document import Document
 
 
-class DistrictPINCodeTable(Document):
-    pass
+class CountryCodes(Document):
+	pass

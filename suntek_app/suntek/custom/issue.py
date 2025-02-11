@@ -19,19 +19,28 @@ def validate_auth_token(auth_token: str) -> bool:
         return False
     try:
         token = auth_token.split(" ")[1]
-        return token == frappe.get_doc("Suntek Settings").get_password("solar_ambassador_api_token")
+        return token == frappe.get_doc("Suntek Settings").get_password(
+            "solar_ambassador_api_token"
+        )
     except (IndexError, AttributeError):
         return False
 
 
 def create_or_get_customer(mobile_no, customer_name=None):
-    customer = frappe.db.get_value("Customer", {"mobile_no": mobile_no}, ["name", "customer_name"], as_dict=1)
+    customer = frappe.db.get_value(
+        "Customer", {"mobile_no": mobile_no}, ["name", "customer_name"], as_dict=1
+    )
 
     if customer:
         return customer_name, True
 
     new_customer = frappe.get_doc(
-        {"doctype": "Customer", "customer_name": customer_name or f"Customer {mobile_no}", "mobile_no": mobile_no, "customer_type": "Individual"}
+        {
+            "doctype": "Customer",
+            "customer_name": customer_name or f"Customer {mobile_no}",
+            "mobile_no": mobile_no,
+            "customer_type": "Individual",
+        }
     ).insert(ignore_permissions=True)
 
     return new_customer.name, False
@@ -99,16 +108,20 @@ def create_issue_from_api():
             return create_api_response(401, "error", "Invalid or missing API token")
 
         if frappe.request.method != "POST":
-            return create_api_response(405, "error", "Method Not Allowed. Only POST requests are supported.")
+            return create_api_response(
+                405, "error", "Method Not Allowed. Only POST requests are supported."
+            )
 
-        frappe.set_user('developer@suntek.co.in')
+        frappe.set_user("developer@suntek.co.in")
         issue_api_data = parse_request_data(frappe.request.data)
 
         mobile_no = issue_api_data.get("custom_phone_number")
         if not mobile_no:
             return create_api_response(400, "error", "Phone number is required")
 
-        customer_name, is_existing = create_or_get_customer(mobile_no, issue_api_data.get("customer_name"))
+        customer_name, is_existing = create_or_get_customer(
+            mobile_no, issue_api_data.get("customer_name")
+        )
 
         issue = frappe.get_doc(
             {
@@ -116,11 +129,20 @@ def create_issue_from_api():
                 "customer": customer_name,
                 "custom_existing_customer": 1 if is_existing else 0,
                 "subject": issue_api_data.get("subject"),
-                "custom_inverter_serial_no": issue_api_data.get("custom_inverter_serial_no"),
+                "custom_inverter_serial_no": issue_api_data.get(
+                    "custom_inverter_serial_no"
+                ),
                 "custom_source": issue_api_data.get("source", "Customer App"),
-                "custom_mode_of_complaint": issue_api_data.get("custom_mode_of_complaint", ""),
-                "custom_product_category": get_product_category(issue_api_data.get("custom_product_category")),
-                "custom_images": [{"issue_image": url} for url in issue_api_data.get("custom_images", [])],
+                "custom_mode_of_complaint": issue_api_data.get(
+                    "custom_mode_of_complaint", ""
+                ),
+                "custom_product_category": get_product_category(
+                    issue_api_data.get("custom_product_category")
+                ),
+                "custom_images": [
+                    {"issue_image": url}
+                    for url in issue_api_data.get("custom_images", [])
+                ],
             }
         ).insert(ignore_permissions=True)
 
@@ -139,10 +161,16 @@ def create_issue_from_api():
             },
         )
 
-    except (frappe.ValidationError, frappe.PermissionError, frappe.DoesNotExistError) as e:
+    except (
+        frappe.ValidationError,
+        frappe.PermissionError,
+        frappe.DoesNotExistError,
+    ) as e:
         error_type = e.__class__.__name__.replace("Error", "")
         frappe.log_error(message=str(e), title=f"Issue Creation {error_type} Error")
-        status_code = {"Validation": 400, "Permission": 403, "DoesNotExist": 404}[error_type]
+        status_code = {"Validation": 400, "Permission": 403, "DoesNotExist": 404}[
+            error_type
+        ]
         return create_api_response(status_code, "error", str(e))
     except Exception as e:
         frappe.log_error(message=str(e), title="Issue Creation Error")
@@ -152,11 +180,13 @@ def create_issue_from_api():
 def send_issue_update_to_ambassador_api(doc, method):
     try:
         settings = frappe.get_doc("Suntek Settings")
-        django_api_url = settings.get('django_api_url')
+        django_api_url = settings.get("django_api_url")
         api_token = settings.get_password("solar_ambassador_api_token")
 
         if not (django_api_url and api_token):
-            frappe.log_error("Django webhook URL or API token not configured in Suntek Settings")
+            frappe.log_error(
+                "Django webhook URL or API token not configured in Suntek Settings"
+            )
             return False
 
         response = requests.put(
@@ -178,7 +208,9 @@ def send_issue_update_to_ambassador_api(doc, method):
         )
 
         if response.status_code != 200:
-            frappe.log_error(f"Failed to send webhook for issue {doc.name}: {response.text}")
+            frappe.log_error(
+                f"Failed to send webhook for issue {doc.name}: {response.text}"
+            )
             return False
 
         return True

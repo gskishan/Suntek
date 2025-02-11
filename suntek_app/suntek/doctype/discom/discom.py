@@ -1,11 +1,18 @@
 # Copyright (c) 2023, kishan and contributors
 # For license information, please see license.txt
 
+from datetime import datetime
+
 import frappe
 from frappe.model.document import Document
+from frappe.model.naming import make_autoname
 
 
 class Discom(Document):
+    def autoname(self):
+        current_year = datetime.now().year
+        self.name = make_autoname("SES-DISCOM-{}-.#####".format(current_year))
+
     def after_insert(self):
         self.update_project_on_save()
 
@@ -17,8 +24,12 @@ class Discom(Document):
 
     def update_project_status(self):
         if self.project_name:
-            project = frappe.get_doc("Project", self.project_name, update_modified=False)
-            project.db_set("custom_discom_status", self.discom_status, update_modified=False)
+            project = frappe.get_doc(
+                "Project", self.project_name, update_modified=False
+            )
+            project.db_set(
+                "custom_discom_status", self.discom_status, update_modified=False
+            )
 
     def on_submit(self):
         self.update_project_on_submit()
@@ -39,15 +50,18 @@ class Discom(Document):
             project.custom_net_meter_reg_doc = self.net_meter_reg_doc
             project.custom_feasibility_release_date = self.feasibility_release_date
             project.custom_adede_contact_no = self.adede_contact_no
-            project.custom_work_completion_report_submission_date = self.work_completion_report_submission_date
+            project.custom_work_completion_report_submission_date = (
+                self.work_completion_report_submission_date
+            )
             project.custom_meter_drawn_date = self.meter_drawn_date
             project.custom_material_gatepass_of_meter = self.material_gatepass_of_meter
-            project.custom_net_meter_bill_revise_status = self.net_meter_bill_revise_status
+            project.custom_net_meter_bill_revise_status = (
+                self.net_meter_bill_revise_status
+            )
             project.custom_revised_bill_copy = self.revised_bill_copy
             project.save()
 
     def update_project_on_submit(self):
-
         if self.project_name:
             project = frappe.get_doc("Project", self.project_name)
             project.custom_discom_id = self.name
@@ -63,9 +77,13 @@ class Discom(Document):
             project.custom_net_meter_reg_doc = self.net_meter_reg_doc
             project.custom_feasibility_release_date = self.feasibility_release_date
             project.custom_adede_contact_no = self.adede_contact_no
-            project.custom_work_completion_report_submission_date = self.work_completion_report_submission_date
+            project.custom_work_completion_report_submission_date = (
+                self.work_completion_report_submission_date
+            )
             project.custom_meter_drawn_date = self.meter_drawn_date
             project.custom_material_gatepass_of_meter = self.material_gatepass_of_meter
-            project.custom_net_meter_bill_revise_status = self.net_meter_bill_revise_status
+            project.custom_net_meter_bill_revise_status = (
+                self.net_meter_bill_revise_status
+            )
             project.custom_revised_bill_copy = self.revised_bill_copy
             project.save()

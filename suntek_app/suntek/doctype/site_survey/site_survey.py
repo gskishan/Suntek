@@ -33,7 +33,9 @@ class SiteSurvey(Document):
         if self.is_new() and self.custom_project:
             project_doc = frappe.get_doc("Project", self.custom_project)
             so = project_doc.sales_order
-            opportunity = frappe.db.get_value("Sales Order", so, "custom_opportunity_name")
+            opportunity = frappe.db.get_value(
+                "Sales Order", so, "custom_opportunity_name"
+            )
             op = frappe.get_doc("Opportunity", opportunity)
             self.opportunity_name = op.name
             self.customer_name = project_doc.customer

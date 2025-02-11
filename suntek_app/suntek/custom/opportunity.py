@@ -17,7 +17,9 @@ def set_opportunity_name(doc, method):
 
 
 def vaidate_address(doc):
-    sql = """select name from `tabDynamic Link` where link_doctype="Lead" and link_name="{0}" """.format(doc.party_name)
+    sql = """select name from `tabDynamic Link` where link_doctype="Lead" and link_name="{0}" """.format(
+        doc.party_name
+    )
     if not frappe.db.sql(sql, as_dict=True):
         frappe.throw("Address missing")
 

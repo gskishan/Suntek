@@ -3,13 +3,45 @@ import frappe
 
 def execute(filters=None):
     columns = [
-        {"fieldname": "name", "label": "Lead ID", "fieldtype": "Link", "options": "Lead", "width": 200},
-        {"fieldname": "lead_name", "label": "Lead Name", "fieldtype": "Data", "width": 160},
-        {"fieldname": "custom_department", "label": "Department", "fieldtype": "Data", "width": 160},
+        {
+            "fieldname": "name",
+            "label": "Lead ID",
+            "fieldtype": "Link",
+            "options": "Lead",
+            "width": 200,
+        },
+        {
+            "fieldname": "lead_name",
+            "label": "Lead Name",
+            "fieldtype": "Data",
+            "width": 160,
+        },
+        {
+            "fieldname": "custom_department",
+            "label": "Department",
+            "fieldtype": "Data",
+            "width": 160,
+        },
         {"fieldname": "status", "label": "Status", "fieldtype": "Data", "width": 140},
-        {"fieldname": "lead_owner", "label": "Lead Owner", "fieldtype": "Link", "options": "User", "width": 160},
-        {"fieldname": "custom_enquiry_owner_name", "label": "Enquiry Owner Name", "fieldtype": "Data", "width": 190},
-        {"fieldname": "creation", "label": "Creation Date", "fieldtype": "Date", "width": 140},
+        {
+            "fieldname": "lead_owner",
+            "label": "Lead Owner",
+            "fieldtype": "Link",
+            "options": "User",
+            "width": 160,
+        },
+        {
+            "fieldname": "custom_enquiry_owner_name",
+            "label": "Enquiry Owner Name",
+            "fieldtype": "Data",
+            "width": 190,
+        },
+        {
+            "fieldname": "creation",
+            "label": "Creation Date",
+            "fieldtype": "Date",
+            "width": 140,
+        },
     ]
 
     conditions = ""
@@ -38,9 +70,7 @@ def execute(filters=None):
         FROM tabLead
         WHERE 1=1 {conditions}
         ORDER BY creation desc
-    """.format(
-            conditions=conditions
-        ),
+    """.format(conditions=conditions),
         filters,
         as_dict=1,
     )
@@ -66,13 +96,17 @@ def execute(filters=None):
                 WHEN custom_department = 'Commercial & Industrial (C&I) - SESP' THEN 'C&I'
                 ELSE 'Others'
             END
-    """.format(
-            conditions=conditions
-        ),
+    """.format(conditions=conditions),
         filters,
         as_dict=1,
     )
 
-    chart = {"type": "pie", "data": {"labels": [d.department for d in dept_data], "datasets": [{"values": [d.count for d in dept_data]}]}}
+    chart = {
+        "type": "pie",
+        "data": {
+            "labels": [d.department for d in dept_data],
+            "datasets": [{"values": [d.count for d in dept_data]}],
+        },
+    }
 
     return columns, data, None, chart

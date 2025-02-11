@@ -6,8 +6,14 @@ from frappe.model.mapper import get_mapped_doc
 
 from suntek_app.suntek.utils.api_handler import create_api_response
 from suntek_app.suntek.utils.lead_utils import _set_missing_values, get_next_telecaller
-from suntek_app.suntek.utils.neodove_utils.neodove_handler import handle_lead_update, handle_opportunity_update
-from suntek_app.suntek.utils.validation_utils import duplicate_check, validate_mobile_number
+from suntek_app.suntek.utils.neodove_utils.neodove_handler import (
+    handle_lead_update,
+    handle_opportunity_update,
+)
+from suntek_app.suntek.utils.validation_utils import (
+    duplicate_check,
+    validate_mobile_number,
+)
 from suntek_app.suntek.utils.share import share_document
 
 
@@ -41,7 +47,9 @@ def set_lead_owner(doc, method):
     """Set lead_owner to current user if not set"""
     if not doc.lead_owner and doc.is_new():
         doc.lead_owner = frappe.session.user
-        doc.custom_enquiry_owner_name = frappe.get_value("User", frappe.session.user, "full_name")
+        doc.custom_enquiry_owner_name = frappe.get_value(
+            "User", frappe.session.user, "full_name"
+        )
 
 
 def change_enquiry_status(doc, method):
@@ -52,11 +60,15 @@ def change_enquiry_status(doc, method):
         if doc.lead_owner:
             return
 
-        enable_round_robin = frappe.db.get_single_value("Suntek Settings", "enable_round_robin_assignment_to_enquiries")
+        enable_round_robin = frappe.db.get_single_value(
+            "Suntek Settings", "enable_round_robin_assignment_to_enquiries"
+        )
         if not enable_round_robin:
             return
 
-        is_import = frappe.flags.in_import if hasattr(frappe.flags, "in_import") else False
+        is_import = (
+            frappe.flags.in_import if hasattr(frappe.flags, "in_import") else False
+        )
         is_digital_marketing = doc.source == "Digital Marketing"
 
         if is_import or is_digital_marketing:
@@ -119,12 +131,14 @@ def custom_make_opportunity(source_name, target_doc=None):
 def create_lead_from_neodove_dispose():
     """Handle incoming Neodove webhook requests to create/update leads or opportunities"""
     try:
-        is_enabled = frappe.get_doc('Suntek Settings').get_value('enable_neodove_integration')
+        is_enabled = frappe.get_doc("Suntek Settings").get_value(
+            "enable_neodove_integration"
+        )
 
         if not is_enabled:
             return create_api_response(400, "error", "Neodove integration is disabled")
 
-        api_key = frappe.request.headers.get('X-Neodove-API-Key')
+        api_key = frappe.request.headers.get("X-Neodove-API-Key")
         if not api_key:
             return create_api_response(401, "error", "API key missing")
 
@@ -139,7 +153,9 @@ def create_lead_from_neodove_dispose():
 
         campaign = _get_campaign_info(campaign_id)
         if not campaign:
-            return create_api_response(404, "error", f"Campaign not found: {campaign_id}")
+            return create_api_response(
+                404, "error", f"Campaign not found: {campaign_id}"
+            )
 
         mobile = neodove_data.get("mobile")
         agent_email = neodove_data.get("agent_email")
@@ -149,14 +165,20 @@ def create_lead_from_neodove_dispose():
 
         result = (
             handle_opportunity_update(neodove_data, mobile, agent_email, lead_stage)
-            if campaign.pipeline_name and campaign.pipeline_name.lower() == "opportunities"
-            else handle_lead_update(neodove_data, mobile, agent_email, lead_stage, "", "", "")
+            if campaign.pipeline_name
+            and campaign.pipeline_name.lower() == "opportunities"
+            else handle_lead_update(
+                neodove_data, mobile, agent_email, lead_stage, "", "", ""
+            )
         )
 
         return create_api_response(200, "success", result["message"], result)
 
     except Exception as e:
-        frappe.log_error(message=f"Neodove webhook error: {str(e)}\n{frappe.get_traceback()}", title="Neodove Webhook Error")
+        frappe.log_error(
+            message=f"Neodove webhook error: {str(e)}\n{frappe.get_traceback()}",
+            title="Neodove Webhook Error",
+        )
         return create_api_response(500, "error", str(e))
 
 
@@ -166,13 +188,14 @@ def _validate_api_key(api_key: str) -> bool:
     CACHE_TTL = 3600
 
     try:
-
         stored_key = frappe.cache().get_value(CACHE_KEY)
 
         if stored_key and hmac.compare_digest(api_key, stored_key):
             return True
 
-        current_key = frappe.get_doc('Suntek Settings').get_password("neodove_webhook_secret")
+        current_key = frappe.get_doc("Suntek Settings").get_password(
+            "neodove_webhook_secret"
+        )
 
         if current_key and current_key != stored_key:
             frappe.cache().set_value(CACHE_KEY, current_key, expires_in_sec=CACHE_TTL)

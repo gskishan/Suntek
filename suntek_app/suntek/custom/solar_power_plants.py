@@ -55,7 +55,7 @@ def handle_solar_ambassador_webhook(doc, method=None):
                 webhook_data.update(
                     {
                         "customer": doc.customer,
-                        "customer_email": getattr(doc, 'customer_email', None),
+                        "customer_email": getattr(doc, "customer_email", None),
                         "customer_mobile": doc.customer_mobile_no,
                         "action": "customer_assigned",
                     }
@@ -64,7 +64,7 @@ def handle_solar_ambassador_webhook(doc, method=None):
             webhook_data.update(
                 {
                     "previous_customer": old_doc.customer,
-                    "previous_mobile": getattr(old_doc, 'customer_mobile_no', None),
+                    "previous_mobile": getattr(old_doc, "customer_mobile_no", None),
                     "action": "customer_removed",
                 }
             )
@@ -73,10 +73,16 @@ def handle_solar_ambassador_webhook(doc, method=None):
 
         success = send_webhook(webhook_data)
         if not success:
-            frappe.log_error(message=f"Failed to send webhook for plant {doc.plant_id}", title="Webhook Error")
+            frappe.log_error(
+                message=f"Failed to send webhook for plant {doc.plant_id}",
+                title="Webhook Error",
+            )
 
     except Exception as e:
-        frappe.log_error(message=f"Error in webhook handler for plant {doc.plant_id}: {str(e)}", title="Webhook Handler Error")
+        frappe.log_error(
+            message=f"Error in webhook handler for plant {doc.plant_id}: {str(e)}",
+            title="Webhook Handler Error",
+        )
 
 
 def send_webhook(data: Dict) -> bool:
@@ -89,28 +95,46 @@ def send_webhook(data: Dict) -> bool:
 
         try:
             settings = frappe.get_doc("Suntek Settings")
-            django_api_url = f"{settings.get('django_api_url')}/power-plant/webhook/assign-plants/"
+            django_api_url = (
+                f"{settings.get('django_api_url')}/power-plant/webhook/assign-plants/"
+            )
             api_token = settings.get_password("solar_ambassador_api_token")
 
             if not django_api_url or not api_token:
-                frappe.log_error("Django webhook URL or API token not configured in Suntek Settings")
+                frappe.log_error(
+                    "Django webhook URL or API token not configured in Suntek Settings"
+                )
                 return False
 
-            headers = {'X-Django-Server-Authorization': f'Bearer {api_token}', 'Content-Type': 'application/json'}
+            headers = {
+                "X-Django-Server-Authorization": f"Bearer {api_token}",
+                "Content-Type": "application/json",
+            }
 
-            response = requests.post(django_api_url, json=data, headers=headers, timeout=10)
+            response = requests.post(
+                django_api_url, json=data, headers=headers, timeout=10
+            )
 
             if response.status_code == 200:
                 return True
 
             if attempt == max_retries - 1:
-                frappe.log_error(message=f"Django server webhook failed: Status {response.status_code} - {response.text}", title="Webhook Error")
+                frappe.log_error(
+                    message=f"Django server webhook failed: Status {response.status_code} - {response.text}",
+                    title="Webhook Error",
+                )
 
         except requests.RequestException as e:
             if attempt == max_retries - 1:
-                frappe.log_error(message=f"Network error sending webhook: {str(e)}", title="Webhook Network Error")
+                frappe.log_error(
+                    message=f"Network error sending webhook: {str(e)}",
+                    title="Webhook Network Error",
+                )
         except Exception as e:
-            frappe.log_error(message=f"Unexpected error sending webhook: {str(e)}", title="Webhook Error")
+            frappe.log_error(
+                message=f"Unexpected error sending webhook: {str(e)}",
+                title="Webhook Error",
+            )
             return False
 
     return False
@@ -123,7 +147,7 @@ def create_power_plant(plant_id, plant_name=None, oem=None):
         frappe.throw(f"A Solar Power Plant with ID {plant_id} already exists.")
 
     try:
-        frappe.set_user('developer@suntek.co.in')
+        frappe.set_user("developer@suntek.co.in")
 
         plant = frappe.new_doc("Solar Power Plants")
         plant.plant_id = plant_id
@@ -149,7 +173,6 @@ def create_power_plant_from_api():
         Response: API response with appropriate status code and message
     """
     try:
-
         auth_token = frappe.request.headers.get("X-Django-Server-Authorization")
         if not auth_token:
             return create_api_response(401, "error", "Unauthorized")
@@ -172,11 +195,18 @@ def create_power_plant_from_api():
             return create_api_response(400, "error", "Plant ID is required")
 
         if frappe.db.exists("Solar Power Plants", {"plant_id": plant_id}):
-            return create_api_response(409, "error", f"Plant with ID {plant_id} already exists")
+            return create_api_response(
+                409, "error", f"Plant with ID {plant_id} already exists"
+            )
 
         frappe.set_user("developer@suntek.co.in")
         plant = frappe.get_doc(
-            {"doctype": "Solar Power Plants", "plant_id": plant_id, "plant_name": data.get("plant_name"), "oem": data.get("oem")}
+            {
+                "doctype": "Solar Power Plants",
+                "plant_id": plant_id,
+                "plant_name": data.get("plant_name"),
+                "oem": data.get("oem"),
+            }
         ).insert(ignore_permissions=True)
 
         frappe.db.commit()
@@ -197,5 +227,8 @@ def create_power_plant_from_api():
     except frappe.ValidationError as e:
         return create_api_response(400, "error", str(e))
     except Exception as e:
-        frappe.log_error(message=f"Error creating power plant: {str(e)}", title="Power Plant Creation Error")
+        frappe.log_error(
+            message=f"Error creating power plant: {str(e)}",
+            title="Power Plant Creation Error",
+        )
         return create_api_response(500, "error", "Internal server error")

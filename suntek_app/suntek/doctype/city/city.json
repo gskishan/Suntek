@@ -35,7 +35,6 @@
    "reqd": 1
   },
   {
-   "fetch_from": "state.state_code",
    "fieldname": "state_code",
    "fieldtype": "Data",
    "label": "State Code"
@@ -43,7 +42,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-07 16:15:15.940208",
+ "modified": "2025-02-10 11:20:42.985952",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "City",

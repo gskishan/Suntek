@@ -7,3 +7,5 @@ suntek_app/docs/current
 node_modules/
 .pytest_cache
 .vscode/
+*/.ruff_cache/
+*/.ruff_cache
