@@ -1,11 +1,18 @@
 # Copyright (c) 2023, kishan and contributors
 # For license information, please see license.txt
 
+from datetime import datetime
+
 import frappe
 from frappe.model.document import Document
+from frappe.model.naming import make_autoname
 
 
 class Subsidy(Document):
+    def autoname(self):
+        current_year = datetime.now().year
+        self.name = make_autoname("SES-SUBSIDY-{}-.#####".format(current_year))
+
     def after_insert(self):
         self.update_project_on_save()
 

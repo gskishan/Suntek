@@ -14,6 +14,7 @@ def auto_project_creation_on_submit(doc, method):
 
             if doc.custom_type_of_case == "Subsidy":
                 create_subsidy(project_make)
+                create_discom(project_make)
             elif doc.custom_type_of_case == "Non Subsidy":
                 create_discom(project_make)
 
