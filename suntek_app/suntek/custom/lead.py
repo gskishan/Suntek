@@ -17,6 +17,10 @@ from suntek_app.suntek.utils.validation_utils import (
 from suntek_app.suntek.utils.share import share_document
 
 
+def save_name_changes_to_contact(doc, method=None):
+    pass
+
+
 def share_lead_after_insert_with_enquiry_owner(doc, method=None):
     """Share the document with the lead owner with read, write and share permissions"""
     if doc.is_new():
