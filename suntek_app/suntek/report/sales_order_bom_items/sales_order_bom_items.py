@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
+
 import json
+
 import frappe
 from frappe import _
 
@@ -7,12 +9,37 @@ from frappe import _
 def execute(filters=None):
     if not filters:
         filters = {}
-
     if isinstance(filters, str):
         filters = json.loads(filters)
     columns = get_columns()
-    data = get_data(filters)
+    raw_data = get_data(filters)
+    data = process_data_for_display(raw_data)
     return columns, data
+
+
+def process_data_for_display(raw_data):
+    processed_data = []
+    previous_so = None
+    previous_item = None
+
+    for row in raw_data:
+        current_row = row.copy()
+
+        if previous_so and row["sales_order_no"] == previous_so:
+            current_row["sales_order_no"] = ""
+            current_row["delivery_status"] = ""
+            current_row["billing_status"] = ""
+        if previous_item and row["finished_item_code"] == previous_item:
+            current_row["finished_item_code"] = ""
+            current_row["finished_item_name"] = ""
+            current_row["order_qty"] = ""
+            current_row["bom_no"] = ""
+
+        processed_data.append(current_row)
+        previous_so = row["sales_order_no"]
+        previous_item = row["finished_item_code"]
+
+    return processed_data
 
 
 def get_columns():
@@ -23,6 +50,19 @@ def get_columns():
             "fieldtype": "Link",
             "options": "Sales Order",
             "width": 130,
+        },
+        {
+            "label": _("Delivery Status"),
+            "fieldname": "delivery_status",
+            "fieldtype": "Select",
+            "options": "\nNot Delivered\nFully Delivered\nPartly Delivered\nClosed\nNot Applicable",
+            "width": 140,
+        },
+        {
+            "fieldname": "billing_status",
+            "label": _("Billing Status"),
+            "fieldtype": "Select",
+            "options": "\nNot Billed\nFully Billed\nPartly Bileld\nClosed",
         },
         {
             "label": _("Finished Item Code"),
@@ -79,12 +119,21 @@ def get_columns():
     ]
 
 
+@frappe.whitelist()
 def get_data(filters):
+    if isinstance(filters, str):
+        filters = json.loads(filters)
+    return get_data_internal(filters)
+
+
+def get_data_internal(filters):
     conditions = get_conditions(filters)
 
     query = """
         SELECT 
             so.name as sales_order_no,
+            so.delivery_status as delivery_status,
+            so.billing_status as billing_status,
             soi.item_code as finished_item_code,
             soi.item_name as finished_item_name,
             soi.qty as order_qty,
@@ -123,5 +172,9 @@ def get_conditions(filters):
         conditions.append("so.transaction_date <= %(to_date)s")
     if filters.get("sales_order"):
         conditions.append("so.name = %(sales_order)s")
+    if filters.get("delivery_status"):
+        conditions.append("so.delivery_status = %(delivery_status)s")
+    if filters.get("billing_status"):
+        conditions.append("so.billing_status = %(billing_status)s")
 
     return " AND " + " AND ".join(conditions) if conditions else ""
