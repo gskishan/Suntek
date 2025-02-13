@@ -180,7 +180,6 @@ doc_events = {
         # "validate": "suntek_app.suntek.custom.sales_order.validate",
     },
     "Project": {
-        "on_update": "suntek_app.suntek.custom.project.on_update",
         "validate": "suntek_app.suntek.custom.project.validate",
     },
     "Price List": {"validate": "suntek_app.custom_script.price_list.validate"},
