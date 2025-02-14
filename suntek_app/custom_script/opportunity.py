@@ -1,5 +1,7 @@
 import frappe
 
+from suntek_app.suntek.utils.share import share_document
+
 
 @frappe.whitelist()
 def get_emp(user):
@@ -23,29 +25,27 @@ def on_update(self, method):
                 "allocated_to": data[0].user_id,
             }
             if not frappe.get_all("ToDo", filters=filters):
-                frappe.share.add_docshare(
-                    self.doctype,
-                    self.name,
-                    data[0].user_id,
+                share_document(
+                    doctype=self.doctype,
+                    doc_name=self.name,
+                    user_email=data[0].user_id,
                     write=1,
                     share=1,
-                    flags={"ignore_share_permission": True},
                 )
-
-                # d = frappe.get_doc(
-                #                          {
-                #                              "doctype": "ToDo",
-                #                              "allocated_to": data[0].user_id,
-                #                              "reference_type": self.doctype,
-                #                              "reference_name": self.name,
-                #                              "description":self.customer_name,
-                #                              "priority": "Medium",
-                #                              "status": "Open",
-                #                              "date": nowdate(),
-                #                              "assigned_by": frappe.session.user,
-                #                              "assignment_rule": "",
-                #                          }
-                #                      ).insert(ignore_permissions=True)
+            # d = frappe.get_doc(
+            #                          {
+            #                              "doctype": "ToDo",
+            #                              "allocated_to": data[0].user_id,
+            #                              "reference_type": self.doctype,
+            #                              "reference_name": self.name,
+            #                              "description":self.customer_name,
+            #                              "priority": "Medium",
+            #                              "status": "Open",
+            #                              "date": nowdate(),
+            #                              "assigned_by": frappe.session.user,
+            #                              "assignment_rule": "",
+            #                          }
+            #                      ).insert(ignore_permissions=True)
 
             # 	notify_assignment(
             # 	frappe.session.user,
