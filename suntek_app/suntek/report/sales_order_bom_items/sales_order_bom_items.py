@@ -23,19 +23,25 @@ def process_data_for_display(raw_data):
     previous_item = None
 
     for row in raw_data:
-        current_row = row.copy()
+        curr_row = row.copy()
 
         if previous_so and row["sales_order_no"] == previous_so:
-            current_row["sales_order_no"] = ""
-            current_row["delivery_status"] = ""
-            current_row["billing_status"] = ""
-        if previous_item and row["finished_item_code"] == previous_item:
-            current_row["finished_item_code"] = ""
-            current_row["finished_item_name"] = ""
-            current_row["order_qty"] = ""
-            current_row["bom_no"] = ""
+            curr_row["sales_order_no"] = ""
+            curr_row["customer"] = ""
+            curr_row["project"] = ""
+            curr_row["custom_department"] = ""
+            curr_row["delivery_date"] = ""
+            curr_row["delivery_status"] = ""
+            curr_row["billing_status"] = ""
+            curr_row["custom_remarks"] = ""
 
-        processed_data.append(current_row)
+            if previous_item and row["finished_item_code"] == previous_item:
+                curr_row["finished_item_code"] = ""
+                curr_row["finished_item_name"] = ""
+                curr_row["order_qty"] = ""
+                curr_row["bom_no"] = ""
+
+        processed_data.append(curr_row)
         previous_so = row["sales_order_no"]
         previous_item = row["finished_item_code"]
 
@@ -50,6 +56,33 @@ def get_columns():
             "fieldtype": "Link",
             "options": "Sales Order",
             "width": 130,
+        },
+        {
+            "label": _("Customer"),
+            "fieldname": "customer",
+            "fieldtype": "Link",
+            "options": "Customer",
+            "width": 100,
+        },
+        {
+            "label": _("Project ID"),
+            "fieldname": "project",
+            "fieldtype": "Link",
+            "options": "Project",
+            "width": 100,
+        },
+        {
+            "label": _("Department"),
+            "fieldname": "custom_department",
+            "fieldtype": "Select",
+            "options": "\nDomestic (Residential) Sales Team - SESP\nChannel Partner - SESP\nCommercial & Industrial (C&I) - SESP",
+            "width": 150,
+        },
+        {
+            "label": _("Dispatch Due Date"),
+            "fieldname": "delivery_date",
+            "fieldtype": "Date",
+            "width": 120,
         },
         {
             "label": _("Delivery Status"),
@@ -116,6 +149,12 @@ def get_columns():
             "options": "UOM",
             "width": 80,
         },
+        {
+            "label": _("Remarks"),
+            "fieldname": "custom_remarks",
+            "fieldtype": "Text Editor",
+            "width": 200,
+        },
     ]
 
 
@@ -128,12 +167,16 @@ def get_data(filters):
 
 def get_data_internal(filters):
     conditions = get_conditions(filters)
-
     query = """
         SELECT 
             so.name as sales_order_no,
-            so.delivery_status as delivery_status,
-            so.billing_status as billing_status,
+            so.customer,
+            so.project,
+            so.custom_department,
+            so.delivery_date,
+            so.delivery_status,
+            so.billing_status,
+            so.custom_remarks,
             soi.item_code as finished_item_code,
             soi.item_name as finished_item_name,
             soi.qty as order_qty,
@@ -176,5 +219,7 @@ def get_conditions(filters):
         conditions.append("so.delivery_status = %(delivery_status)s")
     if filters.get("billing_status"):
         conditions.append("so.billing_status = %(billing_status)s")
+    if filters.get("order_type"):
+        conditions.append("so.order_type = %(order_type)s")
 
     return " AND " + " AND ".join(conditions) if conditions else ""

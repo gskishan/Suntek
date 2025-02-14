@@ -33,6 +33,20 @@ frappe.query_reports["Sales Order BOM Items"] = {
             "label": __("Billing Status"),
             "fieldtype": "Select",
             "options": "\nNot Billed\nFully Billed\nPartly Bileld\nClosed"
+        },
+        {
+            "fieldname": "order_type",
+            "label": __("Order Type"),
+            "fieldtype": "Select",
+            "options": "\nSales\nMaintenance\nShopping Card",
+            "width": "100px",
+        }
+        , {
+            "fieldname": "custom_department",
+            "label": __("Department"),
+            "fieldtype": "Select",
+            "options": "\nDomestic (Residential) Sales Team - SESP\nChannel Partner - SESP\nCommercial & Industrial (C&I) - SESP",
+            "width": "100px",
         }
     ],
     onload: function(report) {
@@ -49,18 +63,24 @@ frappe.query_reports["Sales Order BOM Items"] = {
                         let rows = [];
 
                         const headers = [
-                            "Sales Order", "Delivery Status", "Billing Status",
-                            "Finished Item Code", "Finished Item Name", "Order Qty",
-                            "BOM No", "Raw Material Code", "Raw Material Name",
-                            "Raw Material Qty", "UOM"
+                            "Sales Order", "Customer", "Project ID", "Department",
+                            "Dispatch Due Date", "Delivery Status", "Billing Status",
+                            "Remarks", "Finished Item Code", "Finished Item Name",
+                            "Order Qty", "BOM No", "Raw Material Code",
+                            "Raw Material Name", "Raw Material Qty", "UOM"
                         ];
                         rows.push(headers);
 
                         r.message.forEach(row => {
                             rows.push([
                                 row.sales_order_no,
+                                row.customer,
+                                row.project,
+                                row.custom_department,
+                                row.delivery_date,
                                 row.delivery_status,
                                 row.billing_status,
+                                row.custom_remarks,
                                 row.finished_item_code,
                                 row.finished_item_name,
                                 row.order_qty,
@@ -78,4 +98,4 @@ frappe.query_reports["Sales Order BOM Items"] = {
             });
         });
     }
-}
+};
