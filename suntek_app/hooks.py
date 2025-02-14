@@ -152,7 +152,6 @@ doc_events = {
             "suntek_app.suntek.custom.lead.set_lead_owner",
             "suntek_app.suntek.custom.lead.share_lead_after_insert_with_enquiry_owner",
         ],
-        "before_insert": ["suntek_app.suntek.custom.lead.before_import"],
         "on_update": [
             "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
             "suntek_app.suntek.page.lead_funnel.lead_funnel.clear_cache",

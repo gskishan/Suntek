@@ -1,6 +1,5 @@
 frappe.ui.form.on("Opportunity", {
-	refresh: function (frm) {
-		console.log("refreshd");
+	refresh: function(frm) {
 
 		$("#opportunity-activities_tab-tab").css("display", "none");
 		cur_frm.set_df_property("custom_enquiry_status", "options", [
@@ -48,7 +47,7 @@ frappe.ui.form.on("Opportunity", {
 		setTimeout(() => {
 			frm.add_custom_button(
 				__(" Customer"),
-				function () {
+				function() {
 					frappe.model.open_mapped_doc({
 						method: "suntek_app.suntek.custom.opportunity.custom_make_customer",
 						frm: cur_frm,
@@ -60,13 +59,11 @@ frappe.ui.form.on("Opportunity", {
 
 		frm.add_custom_button(
 			__("Site Survey"),
-			function () {
-				frappe.model.with_doctype("Site Survey", function () {
-					console.log(frm.doc.__onload["addr_list"][0]);
+			function() {
+				frappe.model.with_doctype("Site Survey", function() {
 					var siteSurveyDoc = frappe.model.get_new_doc("Site Survey");
 
 					siteSurveyDoc.opportunity_name = frm.doc.name;
-					console.log(siteSurveyDoc.opportunity_name);
 					if (frm.doc.custom_customer_category == "Individual") {
 						siteSurveyDoc.customer_name = frm.doc.contact_person;
 					}
@@ -109,7 +106,7 @@ frappe.ui.form.on("Opportunity", {
 		);
 	},
 
-	custom_customer_category: function (frm) {
+	custom_customer_category: function(frm) {
 		let show_org_section =
 			frm.doc.custom_customer_category &&
 			["Apartments", "Gated Communities", "Government", "C & I"].includes(
@@ -126,19 +123,19 @@ frappe.ui.form.on("Opportunity", {
 		frm.refresh_fields();
 	},
 
-	custom_average_consumption: function (frm) {
+	custom_average_consumption: function(frm) {
 		var averageConsumption = frm.doc.custom_average_consumption;
 		var recommendedCapacityUOM = averageConsumption / 120;
 		frm.set_value("custom_recommended_capacity_uom", recommendedCapacityUOM.toFixed(2));
 	},
 
-	custom_consumption: function (frm, cdt, cdn) {
+	custom_consumption: function(frm, cdt, cdn) {
 		if (frm.doc.custom_consumption == "Detailed") {
 			autopopulate_month(frm);
 		}
 	},
 
-	custom_product_category: function (frm) {
+	custom_product_category: function(frm) {
 		if (frm.doc.custom_product_category == "") {
 			frm.fields_dict.custom_capacity.df.label = "Capacity";
 			frm.set_df_property("custom_product_type", "options", [""]);
@@ -175,23 +172,23 @@ frappe.ui.form.on("Opportunity", {
 		updateProposalField(frm);
 	},
 
-	custom_capacity: function (frm) {
+	custom_capacity: function(frm) {
 		updateProposalField(frm);
 	},
-	custom_product_type: function (frm) {
+	custom_product_type: function(frm) {
 		updateProposalField(frm);
 	},
-	custom_type_of_case: function (frm) {
+	custom_type_of_case: function(frm) {
 		updateProposalField(frm);
 	},
-	opportunity_owner: function (frm) {
+	opportunity_owner: function(frm) {
 		if (frm.doc.opportunity_owner) {
 			frappe.call({
 				method: "suntek_app.custom_script.opportunity.get_emp",
 				args: {
 					user: frm.doc.opportunity_owner,
 				},
-				callback: function (r) {
+				callback: function(r) {
 					if (r.message) {
 						cur_frm.set_value("custom_sales_excecutive", r.message[0].name);
 						cur_frm.set_value("custom_mobile_no", r.message[0].cell_number);
@@ -263,14 +260,13 @@ function autopopulate_month(frm) {
 }
 
 frappe.ui.form.on("Month Details", {
-	qty: function (frm, cdt, cdn) {
+	qty: function(frm, cdt, cdn) {
 		var uniqueMonths = [];
 		var totalQty = 0;
 
-		frm.doc.custom_details.forEach(function (row) {
+		frm.doc.custom_details.forEach(function(row) {
 			if (row.qty > 0 && row.month && !uniqueMonths.includes(row.month)) {
 				totalQty += row.qty;
-				console.log(totalQty);
 				uniqueMonths.push(row.month);
 			}
 		});
@@ -286,7 +282,7 @@ frappe.ui.form.on("Month Details", {
 });
 
 frappe.ui.form.on("Neodove Dispose Details", {
-	call_recording: function (frm, cdt, cdn) {
+	call_recording: function(frm, cdt, cdn) {
 		let row = locals[cdt][cdn];
 		if (row.call_recording_url) {
 			window.open(row.call_recording_url, "_blank");

@@ -10,11 +10,11 @@ from suntek_app.suntek.utils.neodove_utils.neodove_handler import (
     handle_lead_update,
     handle_opportunity_update,
 )
+from suntek_app.suntek.utils.share import share_document
 from suntek_app.suntek.utils.validation_utils import (
     duplicate_check,
     validate_mobile_number,
 )
-from suntek_app.suntek.utils.share import share_document
 
 
 def save_name_changes_to_contact(doc, method=None):
@@ -35,16 +35,6 @@ def share_lead_after_insert_with_enquiry_owner(doc, method=None):
         share=1,
         notify=1,
     )
-
-
-def before_import(doc, method=None):
-    """Thie function executes when doing a data import, it removes the lead_owner which by default gets set to the person doing data import."""
-
-    duplicate_check(doc)
-
-    if doc.lead_owner == frappe.session.user:
-        doc.lead_owner = None
-        doc.custom_enquiry_owner_name = None
 
 
 def set_lead_owner(doc, method):

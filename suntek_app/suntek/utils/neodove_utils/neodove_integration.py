@@ -37,7 +37,6 @@ def send_to_neodove(doc, method=None):
             if method == "on_update"
             else integration_url
         )
-        print(f"doc.doctype: {doc.doctype}")
         if doc.doctype == "Lead":
             payload = {
                 "ERP_LEAD_ID": doc.name,
