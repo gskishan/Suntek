@@ -24,5 +24,6 @@ class SiteEngineer(Document):
         self.department = site_employee.get("department")
 
     def autoname(self):
+        # name to be set as SES-SE-SESPL1234-00001
         employee = self.employee
         self.name = make_autoname("SES-SE-{}-.#####".format(employee))
