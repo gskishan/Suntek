@@ -1,7 +1,5 @@
 import frappe
 
-from suntek_app.suntek.utils.share import share_document
-
 
 @frappe.whitelist()
 def get_emp(user):
@@ -13,48 +11,28 @@ def get_emp(user):
         return data
 
 
-@frappe.whitelist()
-def on_update(self, method):
-    data = get_salesman_user(self)
-    if data:
-        if data[0].user_id:
-            filters = {
-                "reference_type": self.doctype,
-                "reference_name": self.name,
-                "status": "Open",
-                "allocated_to": data[0].user_id,
-            }
-            if not frappe.get_all("ToDo", filters=filters):
-                share_document(
-                    doctype=self.doctype,
-                    doc_name=self.name,
-                    user_email=data[0].user_id,
-                    write=1,
-                    share=1,
-                )
-            # d = frappe.get_doc(
-            #                          {
-            #                              "doctype": "ToDo",
-            #                              "allocated_to": data[0].user_id,
-            #                              "reference_type": self.doctype,
-            #                              "reference_name": self.name,
-            #                              "description":self.customer_name,
-            #                              "priority": "Medium",
-            #                              "status": "Open",
-            #                              "date": nowdate(),
-            #                              "assigned_by": frappe.session.user,
-            #                              "assignment_rule": "",
-            #                          }
-            #                      ).insert(ignore_permissions=True)
-
-            # 	notify_assignment(
-            # 	frappe.session.user,
-            # 	data[0].user_id,
-            # 	self.doctype,
-            # 	self.name,
-            # 	action="ASSIGN",
-            # 	description=self.customer_name,
-            # )
+# @frappe.whitelist()
+# def on_update(self, method):
+#     data = get_salesman_user(self)
+#     if data:
+#         if data[0].user_id:
+#             filters = {
+#                 "reference_type": self.doctype,
+#                 "reference_name": self.name,
+#                 "status": "Open",
+#                 "allocated_to": data[0].user_id,
+#             }
+#             if not frappe.get_all("ToDo", filters=filters):
+#                 frappe.flags.ignore_permissions = True
+#                 frappe.share.add_docshare(
+#                     self.doctype,
+#                     self.name,
+#                     data[0].user_id,
+#                     write=1,
+#                     share=1,
+#                     flags={"ignore_share_permission": True},
+#                 )
+#
 
 
 def get_salesman_user(self):
