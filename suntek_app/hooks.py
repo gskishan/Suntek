@@ -168,7 +168,7 @@ doc_events = {
             "suntek_app.suntek.custom.opportunity.set_opportunity_name",
         ],
         "on_update": [
-            "suntek_app.custom_script.opportunity.on_update",
+            # "suntek_app.custom_script.opportunity.on_update",
             "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
         ],
         "after_insert": [
