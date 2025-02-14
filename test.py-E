@@ -1,5 +1,0 @@
-import frappe
-
-
-def get_sales_orders_with_bom_items():
-    so = frappe.db.get_list("Sales Order")
