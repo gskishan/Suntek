@@ -3,6 +3,7 @@
  "allow_rename": 1,
  "autoname": "field:commit_hash",
  "creation": "2025-02-14 15:46:22.129660",
+ "default_view": "List",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -19,34 +20,43 @@
    "label": "Changelog Data"
   },
   {
+   "columns": 1,
    "fieldname": "commit_hash",
    "fieldtype": "Data",
    "label": "Commit Hash",
    "read_only": 1,
+   "set_only_once": 1,
    "unique": 1
   },
   {
+   "columns": 3,
    "fieldname": "commit_message",
    "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "in_preview": 1,
    "label": "Commit Message",
-   "read_only": 1
+   "read_only": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "author",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Author",
-   "read_only": 1
+   "read_only": 1,
+   "set_only_once": 1
   },
   {
    "fieldname": "timestamp",
    "fieldtype": "Datetime",
    "label": "Timestamp",
-   "read_only": 1
+   "read_only": 1,
+   "set_only_once": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-14 17:06:20.866708",
+ "modified": "2025-02-14 18:08:50.260619",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Changelog",
@@ -66,7 +76,8 @@
    "write": 1
   }
  ],
- "sort_field": "modified",
+ "sort_field": "creation",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "commit_hash"
 }

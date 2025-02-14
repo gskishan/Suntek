@@ -148,6 +148,7 @@ doc_events = {
             "suntek_app.suntek.custom.lead.set_enquiry_name",
         ],
         "before_save": [
+            "suntek_app.suntek.custom.lead.validate_enquiry_mobile_no",
             "suntek_app.suntek.custom.lead.change_enquiry_status",
             "suntek_app.suntek.custom.lead.set_lead_owner",
             "suntek_app.suntek.custom.lead.share_lead_after_insert_with_enquiry_owner",
