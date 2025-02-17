@@ -111,10 +111,11 @@ def get_columns():
             "width": 150,
         },
         {
-            "label": _("Order Qty"),
-            "fieldname": "order_qty",
-            "fieldtype": "Float",
-            "width": 100,
+            "label": _("Warehouse"),
+            "fieldname": "warehouse",
+            "fieldtype": "Link",
+            "options": "Warehouse",
+            "width": 200,
         },
         {
             "label": _("BOM No"),
@@ -143,6 +144,18 @@ def get_columns():
             "width": 120,
         },
         {
+            "label": _("Order Qty"),
+            "fieldname": "order_qty",
+            "fieldtype": "Float",
+            "width": 100,
+        },
+        {
+            "label": _("Available Qty"),
+            "fieldname": "available_qty",
+            "fieldtype": "Float",
+            "width": 120,
+        },
+        {
             "label": _("UOM"),
             "fieldname": "raw_material_uom",
             "fieldtype": "Link",
@@ -167,6 +180,11 @@ def get_data(filters):
 
 def get_data_internal(filters):
     conditions = get_conditions(filters)
+
+    # Set default warehouse if not specified
+    warehouse = filters.get("warehouse") or "Hyderabad Central Warehouse - SESP"
+    filters["warehouse"] = warehouse
+
     query = """
         SELECT 
             so.name as sales_order_no,
@@ -184,13 +202,18 @@ def get_data_internal(filters):
             bom_item.item_code as raw_material_code,
             bom_item.item_name as raw_material_name,
             bom_item.qty as raw_material_qty,
-            bom_item.uom as raw_material_uom
+            bom_item.uom as raw_material_uom,
+            bin.actual_qty as available_qty,
+            bin.warehouse as warehouse
         FROM 
             `tabSales Order` so
         INNER JOIN 
             `tabSales Order Item` soi ON so.name = soi.parent
         LEFT JOIN 
             `tabBOM Item` bom_item ON soi.bom_no = bom_item.parent
+        LEFT JOIN
+            `tabBin` bin ON bom_item.item_code = bin.item_code
+            AND bin.warehouse = %(warehouse)s
         WHERE 
             so.docstatus = 1
             {conditions}
