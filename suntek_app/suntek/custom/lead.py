@@ -18,8 +18,32 @@ from suntek_app.suntek.utils.validation_utils import (
 
 
 def save_name_changes_to_contact(doc, method=None):
-    # TODO: Implement feature to modify the contact related to the enquiry
-    pass
+    contact = frappe.db.get_value(
+        "Contact", {"mobile_no": doc.mobile_no}, ["name"], as_dict=1
+    )
+    if not contact:
+        return
+
+    contact_doc = frappe.get_doc("Contact", contact.name)
+
+    salutations = {s.name for s in frappe.db.get_list("Salutation")}
+    name_parts = doc.lead_name.split()
+    if name_parts and name_parts[0] in salutations:
+        name_parts.pop(0)
+
+    if not name_parts:
+        first_name = middle_name = last_name = ""
+    else:
+        first_name = name_parts[0]
+        last_name = name_parts[-1] if len(name_parts) > 1 else ""
+        middle_name = " ".join(name_parts[1:-1]) if len(name_parts) > 2 else ""
+
+    contact_doc.first_name = first_name
+    contact_doc.last_name = last_name
+    contact_doc.middle_name = middle_name
+
+    contact_doc.save()
+    frappe.db.commit()
 
 
 def share_lead_after_insert_with_enquiry_owner(doc, method=None):

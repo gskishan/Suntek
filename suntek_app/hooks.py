@@ -152,6 +152,7 @@ doc_events = {
             "suntek_app.suntek.custom.lead.change_enquiry_status",
             "suntek_app.suntek.custom.lead.set_lead_owner",
             "suntek_app.suntek.custom.lead.share_lead_after_insert_with_enquiry_owner",
+            "suntek_app.suntek.custom.lead.save_name_changes_to_contact",
         ],
         "on_update": [
             "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
