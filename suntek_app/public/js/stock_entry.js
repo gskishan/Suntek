@@ -1,7 +1,7 @@
 frappe.ui.form.on("Stock Entry", {
-    refresh: function (frm, doc, dt, dn) {
+    refresh: function(frm, doc, dt, dn) {
         frm.add_custom_button(__('Designing'),
-            function () {
+            function() {
                 if (!cur_frm.doc.project) {
                     frappe.throw({
                         title: __("Mandatory"),
@@ -27,9 +27,9 @@ frappe.ui.form.on("Stock Entry", {
             }, __("Get Items From"));
 
     },
-    setup: function (frm) {
-        cur_frm.cscript.onload = function () {
-            frm.set_query("work_order", function () {
+    setup: function(frm) {
+        cur_frm.cscript.onload = function() {
+            frm.set_query("work_order", function() {
                 return {
                     filters: [
                         ["Work Order", "docstatus", "=", 1],
@@ -44,46 +44,44 @@ frappe.ui.form.on("Stock Entry", {
 
         }
     },
-        // stock_entry_type: function (frm) {
-        //     if (frm.doc.stock_entry_type == "Material Transfer to Customer" && frm.doc.project) {
-        //         frappe.db.get_value('Project', cur_frm.doc.project, 'customer',)
-        //             .then(r => {
-        //                 if (r.message["customer"] !== null) {
-        //                     frm.set_value("customer", r.message["customer"]);
-        //                 }
+    // stock_entry_type: function (frm) {
+    //     if (frm.doc.stock_entry_type == "Material Transfer to Customer" && frm.doc.project) {
+    //         frappe.db.get_value('Project', cur_frm.doc.project, 'customer',)
+    //             .then(r => {
+    //                 if (r.message["customer"] !== null) {
+    //                     frm.set_value("customer", r.message["customer"]);
+    //                 }
 
-        //             })
-
-
-        //     }
-        // }
+    //             })
 
 
-    customer: function (frm) {
+    //     }
+    // }
+
+
+    customer: function(frm) {
         if (frm.doc.customer) {
             frappe.call({
-                method:"suntek_app.suntek.custom.stock_entry.get_address_display",
+                method: "suntek_app.suntek.custom.stock_entry.get_address_display",
                 args: {
                     party: frm.doc.customer
                 },
                 callback: function(response) {
                     var address = response.message
-                    console.log(address)
                     if (!response.exc) {
 
                         frm.set_value("customer_address", address.customer_address);
                         frm.set_value("custom_address_display", address.address_display);
                         frm.set_value("custom_shipping_address_name", address.shipping_address_name);
                         frm.set_value("custom_shipping_addresses", address.shipping_address);
-            
+
                     }
                 }
             })
         }
         if (frm.doc.customer) {
-            frm.fields_dict.customer_address.get_query = function (doc, cdt, cdn) {
+            frm.fields_dict.customer_address.get_query = function(doc, cdt, cdn) {
                 var d = locals[cdt][cdn];
-                    console.log(d)
                 return {
                     filters: {
                         "link_doctype": "Customer",
@@ -94,7 +92,7 @@ frappe.ui.form.on("Stock Entry", {
         }
 
         if (frm.doc.customer) {
-            frm.fields_dict.custom_shipping_address_name.get_query = function (doc, cdt, cdn) {
+            frm.fields_dict.custom_shipping_address_name.get_query = function(doc, cdt, cdn) {
                 var d = locals[cdt][cdn];
                 return {
                     filters: {
@@ -104,11 +102,11 @@ frappe.ui.form.on("Stock Entry", {
                 };
             };
         }
-        
-    
+
+
     },
-    customer_address:function(frm){
-        if (frm.doc.customer_address){
+    customer_address: function(frm) {
+        if (frm.doc.customer_address) {
             frappe.call({
                 method: "frappe.client.get",
                 args: {
@@ -116,9 +114,8 @@ frappe.ui.form.on("Stock Entry", {
                     name: frm.doc.customer_address,
                 },
                 callback: function(response) {
-                    if (response.message){
+                    if (response.message) {
                         var address = response.message;
-                        console.log(address)
                         var custom_address_display = '';
                         if (address.address_line1) custom_address_display += address.address_line1 + '\n';
                         if (address.address_line2) custom_address_display += address.address_line2 + '\n';
@@ -132,15 +129,14 @@ frappe.ui.form.on("Stock Entry", {
                         // Use cur_frm.set_value to update the field
                         frm.set_value('custom_address_display', custom_address_display);
                     }
-                    console.log(response)
                 }
             })
 
         }
 
     },
-    custom_shipping_address_name:function(frm){
-        if (frm.doc.custom_shipping_address_name){
+    custom_shipping_address_name: function(frm) {
+        if (frm.doc.custom_shipping_address_name) {
             frappe.call({
                 method: "frappe.client.get",
                 args: {
@@ -148,9 +144,8 @@ frappe.ui.form.on("Stock Entry", {
                     name: frm.doc.custom_shipping_address_name,
                 },
                 callback: function(response) {
-                    if (response.message){
+                    if (response.message) {
                         var address = response.message;
-                        console.log(address)
                         var custom_shipping_address = '';
                         if (address.address_line1) custom_shipping_address += address.address_line1 + '\n';
                         if (address.address_line2) custom_shipping_address += address.address_line2 + '\n';
@@ -164,15 +159,14 @@ frappe.ui.form.on("Stock Entry", {
                         // Use cur_frm.set_value to update the field
                         frm.set_value('custom_shipping_addresses', custom_shipping_address);
                     }
-                    console.log(response)
                 }
             })
 
         }
 
     },
-    custom_dispatch_address_name:function(frm){
-        if (frm.doc.custom_dispatch_address_name){
+    custom_dispatch_address_name: function(frm) {
+        if (frm.doc.custom_dispatch_address_name) {
             frappe.call({
                 method: "frappe.client.get",
                 args: {
@@ -180,9 +174,8 @@ frappe.ui.form.on("Stock Entry", {
                     name: frm.doc.custom_dispatch_address_name,
                 },
                 callback: function(response) {
-                    if (response.message){
+                    if (response.message) {
                         var address = response.message;
-                        console.log(address)
                         var custom_dispatch_address = '';
                         if (address.address_line1) custom_dispatch_address += address.address_line1 + '\n';
                         if (address.address_line2) custom_dispatch_address += address.address_line2 + '\n';
@@ -196,19 +189,17 @@ frappe.ui.form.on("Stock Entry", {
                         // Use cur_frm.set_value to update the field
                         frm.set_value('custom_dispatch_address', custom_dispatch_address);
                     }
-                    console.log(response)
                 }
             })
 
         }
 
     },
-   
-    company: function(frm){
-        if (frm.doc.company){
-            frm.fields_dict.custom_dispatch_address_name.get_query = function (doc, cdt, cdn) {
+
+    company: function(frm) {
+        if (frm.doc.company) {
+            frm.fields_dict.custom_dispatch_address_name.get_query = function(doc, cdt, cdn) {
                 var d = locals[cdt][cdn];
-                    console.log(d)
                 return {
                     filters: {
                         "link_doctype": "Company",

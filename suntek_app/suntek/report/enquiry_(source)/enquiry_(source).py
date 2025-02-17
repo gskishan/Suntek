@@ -11,11 +11,31 @@ def execute(filters=None):
         WHERE custom_uom IS NOT NULL 
         AND custom_uom != ''
         AND TRIM(custom_uom) != ''
+        AND custom_uom = 'kWp'  # First get kWp
+        UNION ALL
+        SELECT DISTINCT custom_uom 
+        FROM `tabLead` 
+        WHERE custom_uom IS NOT NULL 
+        AND custom_uom != ''
+        AND TRIM(custom_uom) != ''
+        AND custom_uom != 'kWp'  # Then get other UOMs
         """,
         as_dict=1,
     )
 
-    # Define columns for the report
+    # Define statuses
+    statuses = [
+        "Open",
+        "Replied",
+        "Opportunity",
+        "Quotation",
+        "Interested",
+        "Converted",
+        "Lost Quotation",
+        "Do Not Contact",
+    ]
+
+    # Define base columns with conversion rate moved up
     columns = [
         {
             "fieldname": "source",
@@ -36,64 +56,52 @@ def execute(filters=None):
             "width": 170,
         },
         {
-            "fieldname": "open_leads_capacity_kwp",
-            "label": _("Capacity (Open - kWp)"),
-            "fieldtype": "Float",
-            "width": 210,
-        },
-        {
-            "fieldname": "converted_leads_capacity_kwp",
-            "label": _("Capacity (Converted - kWp)"),
-            "fieldtype": "Float",
-            "width": 210,
-        },
-    ]
-
-    # Define statuses
-    statuses = [
-        "Open",
-        "Replied",
-        "Opportunity",
-        "Quotation",
-        "Interested",
-        "Converted",
-        "Lost Quotation",
-        "Do Not Contact",
-    ]
-
-    # Add status columns with UOM breakdowns
-    for status in statuses:
-        status_key = status.lower().replace(" ", "_")
-        columns.extend(
-            [
-                {
-                    "fieldname": f"{status_key}_leads",
-                    "label": _(f"{status} (Nos)"),
-                    "fieldtype": "Int",
-                    "width": 150,
-                },
-            ]
-        )
-        # Add UOM specific columns for each status
-        for uom in uom_list:
-            uom_name = uom.custom_uom
-            columns.append(
-                {
-                    "fieldname": f"{status_key}_{uom_name.lower().replace(' ', '_')}",
-                    "label": _(f"{status} ({uom_name})"),
-                    "fieldtype": "Float",
-                    "width": 150,
-                }
-            )
-
-    columns.append(
-        {
             "fieldname": "conversion_rate",
             "label": _("Conversion Rate %"),
             "fieldtype": "Percent",
             "width": 150,
-        }
-    )
+        },
+    ]
+
+    # First add all kWp specific columns
+    for status in statuses:
+        status_key = status.lower().replace(" ", "_")
+        columns.append(
+            {
+                "fieldname": f"{status_key}_kwp",
+                "label": _(f"{status} (kWp)"),
+                "fieldtype": "Float",
+                "width": 150,
+            }
+        )
+
+    # Add status columns with counts
+    for status in statuses:
+        status_key = status.lower().replace(" ", "_")
+        columns.append(
+            {
+                "fieldname": f"{status_key}_leads",
+                "label": _(f"{status} (Nos)"),
+                "fieldtype": "Int",
+                "width": 150,
+            }
+        )
+
+    # Group remaining columns by other UOMs
+    for uom in uom_list:
+        uom_name = uom.custom_uom
+        if uom_name != "kWp":  # Skip kWp as it's already added
+            # Add all status columns for this UOM together
+            for status in statuses:
+                status_key = status.lower().replace(" ", "_")
+                columns.append(
+                    {
+                        "fieldname": f"{status_key}_{uom_name.lower().replace(' ', '_')}",
+                        "label": _(f"{status} ({uom_name})"),
+                        "fieldtype": "Float",
+                        "width": 150,
+                    }
+                )
 
     # Build conditions based on filters
     conditions = "1=1"
@@ -121,48 +129,49 @@ def execute(filters=None):
             THEN CAST(custom_capacity AS DECIMAL(10,2)) 
             ELSE 0 
         END) as total_capacity""",
-            """SUM(CASE 
-            WHEN status = 'Open' 
-            AND custom_uom = 'kWp'
-            AND custom_capacity REGEXP '^[0-9]+(\\.[0-9]+)?$'
-            THEN CAST(custom_capacity AS DECIMAL(10,2)) 
-            ELSE 0 
-        END) as open_leads_capacity_kwp""",
-            """SUM(CASE 
-            WHEN status = 'Converted'
-            AND custom_uom = 'kWp'
-            AND custom_capacity REGEXP '^[0-9]+(\\.[0-9]+)?$'
-            THEN CAST(custom_capacity AS DECIMAL(10,2)) 
-            ELSE 0 
-        END) as converted_leads_capacity_kwp""",
         ]
     )
 
-    # Add status and UOM specific calculations
+    # Add kWp calculations first
     for status in statuses:
         status_key = status.lower().replace(" ", "_")
+        select_clauses.append(
+            f"""
+            SUM(CASE 
+                WHEN status = '{status}' 
+                AND custom_uom = 'kWp' 
+                AND custom_capacity REGEXP '^[0-9]+(\.[0-9]+)?$'
+                THEN CAST(custom_capacity AS DECIMAL(10,2)) 
+                ELSE 0 
+            END) as {status_key}_kwp
+            """
+        )
 
-        # Add count for status
+    # Add status counts
+    for status in statuses:
+        status_key = status.lower().replace(" ", "_")
         select_clauses.append(
             f"SUM(CASE WHEN status = '{status}' THEN 1 ELSE 0 END) as {status_key}_leads"
         )
 
-        # Add UOM specific calculations for each status
-        for uom in uom_list:
-            uom_name = uom.custom_uom
+    # Add other UOM calculations
+    for uom in uom_list:
+        uom_name = uom.custom_uom
+        if uom_name != "kWp":
             uom_key = uom_name.lower().replace(" ", "_")
-
-            select_clauses.append(
-                f"""
-                SUM(CASE 
-                    WHEN status = '{status}' 
-                    AND custom_uom = '{uom_name}' 
-                    AND custom_capacity REGEXP '^[0-9]+(\.[0-9]+)?$'
-                    THEN CAST(custom_capacity AS DECIMAL(10,2)) 
-                    ELSE 0 
-                END) as {status_key}_{uom_key}
-            """
-            )
+            for status in statuses:
+                status_key = status.lower().replace(" ", "_")
+                select_clauses.append(
+                    f"""
+                    SUM(CASE 
+                        WHEN status = '{status}' 
+                        AND custom_uom = '{uom_name}' 
+                        AND custom_capacity REGEXP '^[0-9]+(\.[0-9]+)?$'
+                        THEN CAST(custom_capacity AS DECIMAL(10,2)) 
+                        ELSE 0 
+                    END) as {status_key}_{uom_key}
+                    """
+                )
 
     # Get data from database
     data = frappe.db.sql(

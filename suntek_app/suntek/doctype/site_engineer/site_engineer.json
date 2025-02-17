@@ -22,8 +22,11 @@
   {
    "fieldname": "employee",
    "fieldtype": "Link",
+   "in_list_view": 1,
    "label": "Employee",
-   "options": "Employee"
+   "options": "Employee",
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fieldname": "column_break_lctm",
@@ -56,7 +59,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-11 18:40:29.218020",
+ "modified": "2025-02-14 13:25:43.764646",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Site Engineer",
