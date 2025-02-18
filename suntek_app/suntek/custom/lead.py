@@ -1,20 +1,48 @@
 import hmac
-import json
 
 import frappe
 from frappe.model.mapper import get_mapped_doc
 
-from suntek_app.suntek.utils.api_handler import create_api_response
+from suntek_app.suntek.utils.api_handler import create_api_response, parse_request_data
 from suntek_app.suntek.utils.lead_utils import _set_missing_values, get_next_telecaller
 from suntek_app.suntek.utils.neodove_utils.neodove_handler import (
     handle_lead_update,
     handle_opportunity_update,
 )
+from suntek_app.suntek.utils.share import share_document
 from suntek_app.suntek.utils.validation_utils import (
     duplicate_check,
     validate_mobile_number,
 )
-from suntek_app.suntek.utils.share import share_document
+
+
+def save_name_changes_to_contact(doc, method=None):
+    contact = frappe.db.get_value(
+        "Contact", {"mobile_no": doc.mobile_no}, ["name"], as_dict=1
+    )
+    if not contact:
+        return
+
+    contact_doc = frappe.get_doc("Contact", contact.name)
+
+    salutations = {s.name for s in frappe.db.get_list("Salutation")}
+    name_parts = doc.lead_name.split()
+    if name_parts and name_parts[0] in salutations:
+        name_parts.pop(0)
+
+    if not name_parts:
+        first_name = middle_name = last_name = ""
+    else:
+        first_name = name_parts[0]
+        last_name = name_parts[-1] if len(name_parts) > 1 else ""
+        middle_name = " ".join(name_parts[1:-1]) if len(name_parts) > 2 else ""
+
+    contact_doc.first_name = first_name
+    contact_doc.last_name = last_name
+    contact_doc.middle_name = middle_name
+
+    contact_doc.save()
+    frappe.db.commit()
 
 
 def share_lead_after_insert_with_enquiry_owner(doc, method=None):
@@ -33,14 +61,31 @@ def share_lead_after_insert_with_enquiry_owner(doc, method=None):
     )
 
 
-def before_import(doc, method=None):
-    """Thie function executes when doing a data import, it removes the lead_owner which by default gets set to the person doing data import."""
+def validate_enquiry_mobile_no(doc, method=None):
+    """Validate enquiry's mobile number before save, should be 10 digits, should not contain spaces, should start 6, 7, 8, 9"""
+    try:
+        mobile_no = doc.mobile_no.replace(" ", "")
 
-    duplicate_check(doc)
+        try:
+            int(mobile_no)
+        except ValueError:
+            frappe.throw("Mobile number should contain only digits")
 
-    if doc.lead_owner == frappe.session.user:
-        doc.lead_owner = None
-        doc.custom_enquiry_owner_name = None
+        if len(mobile_no) != 10:
+            frappe.throw("Mobile number should be exactly 10 digits")
+
+        if mobile_no[0] not in "6789":
+            frappe.throw("Mobile number should start with 6, 7, 8 or 9")
+
+        doc.mobile_no = mobile_no
+
+    except Exception as e:
+        frappe.log_error(
+            "Validation Error",
+            f"Error validating enquiry mobile number: {str(e)}",
+            "Lead",
+        )
+        return False
 
 
 def set_lead_owner(doc, method):
@@ -224,10 +269,3 @@ def _get_campaign_info(campaign_id: str) -> dict:
             frappe.cache().set_value(CACHE_KEY, campaign, expires_in_sec=CACHE_TTL)
 
     return campaign
-
-
-def parse_request_data(data):
-    """Parse request data from bytes to JSON if needed"""
-    if isinstance(data, bytes):
-        return json.loads(data.decode("utf-8"))
-    return data

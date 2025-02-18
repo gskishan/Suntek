@@ -1,14 +1,6 @@
 import frappe
-import json
 
-from suntek_app.suntek.utils.api_handler import create_api_response
-
-
-def parse_request_data(data):
-    """Parse request data from bytes to JSON if needed"""
-    if isinstance(data, bytes):
-        return json.loads(data.decode("utf-8"))
-    return data
+from suntek_app.suntek.utils.api_handler import create_api_response, parse_request_data
 
 
 @frappe.whitelist(allow_guest=True)

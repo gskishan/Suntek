@@ -4,6 +4,28 @@
   "doctype": "Client Script",
   "dt": "Lead",
   "enabled": 1,
+  "modified": "2025-01-23 19:28:17.625641",
+  "module": null,
+  "name": "Horizantal View",
+  "script": "function extend_listview_event(doctype, event, callback) {\n    if (!frappe.listview_settings[doctype]) {\n        frappe.listview_settings[doctype] = {};\n    }\n\n    const old_event = frappe.listview_settings[doctype][event];\n    frappe.listview_settings[doctype][event] = function (listview) {\n        if (typeof old_event === \"function\") {\n            old_event(listview);\n        }\n        callback(listview);\n    };\n}\n\nextend_listview_event(\"Lead\", \"refresh\", function (listview) {\n    if (window.innerWidth > 768) {\n        const rows = document.querySelectorAll('.list-row-col');\n        const subjects = document.querySelectorAll('.list-subject');\n        const mainContainer = document.querySelector('.frappe-list');\n        const headers = document.querySelectorAll('.list-row-head, .list-row-container');\n        const flexItems = document.querySelectorAll('.list-row, .level-right');\n\n        // Apply styles to .list-row-col elements\n        rows.forEach(col => {\n            col.style.minWidth = \"180px\";\n            col.style.maxWidth = \"180px\";\n        });\n\n        // Apply styles to .list-subject elements\n        subjects.forEach(col => {\n            col.style.minWidth = \"200px\";\n            col.style.maxWidth = \"200px\";\n        });\n\n        // Apply styles to main container\n        if (mainContainer) {\n            mainContainer.style.overflowX = 'auto';\n        }\n\n        // Apply styles to headers\n        headers.forEach(col => {\n            col.style.width = \"max-content\";\n        });\n\n        // Apply styles to flex items\n        flexItems.forEach(col => {\n            col.style.flex = \"auto\";\n        });\n    }\n});\n",
+  "view": "List"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Lead",
+  "enabled": 1,
+  "modified": "2025-01-29 11:08:03.597752",
+  "module": "suntek",
+  "name": "Show enquiries to respective owners only",
+  "script": "frappe.listview_settings[\"Lead\"] = {\n\tonload: function (listview) {\n\t\tif (!frappe.user.has_role(\"Sales Manager\")) {\n\t\t\tif (frappe.user.has_role(\"Sales User\") || frappe.user.has_role(\"Enquiry User\")) {\n\t\t\t\tlistview.page.add_inner_button(__(\"My Leads\"), function () {\n\t\t\t\t\tlistview.filter_area.clear();\n\t\t\t\t\tlistview.filter_area.add([[\"Lead\", \"lead_owner\", \"=\", frappe.session.user]]);\n\t\t\t\t});\n\t\t\t\tlistview.filter_area.add([[\"Lead\", \"lead_owner\", \"=\", frappe.session.user]]);\n\t\t\t}\n\t\t}\n\t},\n};\n",
+  "view": "List"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Lead",
+  "enabled": 1,
   "modified": "2024-02-19 17:35:56.546765",
   "module": "suntek",
   "name": "Enquiry",

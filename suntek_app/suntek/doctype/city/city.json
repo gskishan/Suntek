@@ -41,8 +41,13 @@
   }
  ],
  "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2025-02-10 11:20:42.985952",
+ "links": [
+  {
+   "link_doctype": "District",
+   "link_fieldname": "city"
+  }
+ ],
+ "modified": "2025-02-11 12:15:04.315820",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "City",

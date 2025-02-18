@@ -148,14 +148,15 @@ doc_events = {
             "suntek_app.suntek.custom.lead.set_enquiry_name",
         ],
         "before_save": [
+            "suntek_app.suntek.custom.lead.validate_enquiry_mobile_no",
             "suntek_app.suntek.custom.lead.change_enquiry_status",
             "suntek_app.suntek.custom.lead.set_lead_owner",
             "suntek_app.suntek.custom.lead.share_lead_after_insert_with_enquiry_owner",
         ],
-        "before_insert": ["suntek_app.suntek.custom.lead.before_import"],
         "on_update": [
             "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
             "suntek_app.suntek.page.lead_funnel.lead_funnel.clear_cache",
+            "suntek_app.suntek.custom.lead.save_name_changes_to_contact",
         ],
         "after_insert": [
             "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
@@ -180,7 +181,6 @@ doc_events = {
         # "validate": "suntek_app.suntek.custom.sales_order.validate",
     },
     "Project": {
-        "on_update": "suntek_app.suntek.custom.project.on_update",
         "validate": "suntek_app.suntek.custom.project.validate",
     },
     "Price List": {"validate": "suntek_app.custom_script.price_list.validate"},
