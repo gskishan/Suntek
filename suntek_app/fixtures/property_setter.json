@@ -3860,22 +3860,6 @@
   "doc_type": "Site Survey",
   "docstatus": 0,
   "doctype": "Property Setter",
-  "doctype_or_field": "DocField",
-  "field_name": "site_engineer",
-  "is_system_generated": 0,
-  "modified": "2025-02-18 16:45:11.857882",
-  "module": null,
-  "name": "Site Survey-site_engineer-default",
-  "property": "default",
-  "property_type": "Text",
-  "row_name": null,
-  "value": "SESPL006"
- },
- {
-  "default_value": null,
-  "doc_type": "Site Survey",
-  "docstatus": 0,
-  "doctype": "Property Setter",
   "doctype_or_field": "DocType",
   "field_name": null,
   "is_system_generated": 0,
@@ -13934,5 +13918,21 @@
   "property_type": "Check",
   "row_name": null,
   "value": "0"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Site Survey",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "site_engineer",
+  "is_system_generated": 0,
+  "modified": "2025-02-18 17:53:10.748854",
+  "module": null,
+  "name": "Site Survey-site_engineer-default",
+  "property": "default",
+  "property_type": "Text",
+  "row_name": null,
+  "value": ""
  }
 ]
