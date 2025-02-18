@@ -1,10 +1,9 @@
 import hmac
-import json
 
 import frappe
 from frappe.model.mapper import get_mapped_doc
 
-from suntek_app.suntek.utils.api_handler import create_api_response
+from suntek_app.suntek.utils.api_handler import create_api_response, parse_request_data
 from suntek_app.suntek.utils.lead_utils import _set_missing_values, get_next_telecaller
 from suntek_app.suntek.utils.neodove_utils.neodove_handler import (
     handle_lead_update,
@@ -270,10 +269,3 @@ def _get_campaign_info(campaign_id: str) -> dict:
             frappe.cache().set_value(CACHE_KEY, campaign, expires_in_sec=CACHE_TTL)
 
     return campaign
-
-
-def parse_request_data(data):
-    """Parse request data from bytes to JSON if needed"""
-    if isinstance(data, bytes):
-        return json.loads(data.decode("utf-8"))
-    return data
