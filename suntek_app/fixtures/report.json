@@ -8,6 +8,85 @@
   "filters": [],
   "is_standard": "No",
   "javascript": null,
+  "json": "{\"columns\":[{\"label\":\"Material Request\",\"fieldname\":\"material_request\",\"fieldtype\":\"Link\",\"options\":\"Material Request\",\"width\":150,\"id\":\"material_request\",\"name\":\"Material Request\",\"editable\":false,\"compareValue\":null},{\"label\":\"Date\",\"fieldname\":\"date\",\"fieldtype\":\"Date\",\"width\":90,\"id\":\"date\",\"name\":\"Date\",\"editable\":false},{\"label\":\"Required By\",\"fieldname\":\"required_date\",\"fieldtype\":\"Date\",\"width\":100,\"id\":\"required_date\",\"name\":\"Required By\",\"editable\":false},{\"label\":\"Item Code\",\"fieldname\":\"item_code\",\"fieldtype\":\"Link\",\"options\":\"Item\",\"width\":100,\"id\":\"item_code\",\"name\":\"Item Code\",\"editable\":false,\"compareValue\":null},{\"label\":\"Item Name\",\"fieldname\":\"item_name\",\"fieldtype\":\"Data\",\"width\":100,\"id\":\"item_name\",\"name\":\"Item Name\",\"editable\":false,\"compareValue\":null},{\"label\":\"Description\",\"fieldname\":\"description\",\"fieldtype\":\"Data\",\"width\":200,\"id\":\"description\",\"name\":\"Description\",\"editable\":false,\"compareValue\":null},{\"fieldname\":\"set_warehouse\",\"fieldtype\":\"Link\",\"label\":\"Set Target Warehouse\",\"insert_after_index\":5,\"link_field\":{\"fieldname\":\"material_request\",\"names\":{}},\"doctype\":\"Material Request\",\"options\":\"Warehouse\",\"width\":100,\"id\":\"set_warehouse\",\"name\":\"Set Target Warehouse\",\"editable\":false,\"compareValue\":null},{\"label\":\"UOM\",\"fieldname\":\"uom\",\"fieldtype\":\"Data\",\"width\":100,\"id\":\"uom\",\"name\":\"UOM\",\"editable\":false,\"compareValue\":null},{\"label\":\"Stock UOM\",\"fieldname\":\"stock_uom\",\"fieldtype\":\"Data\",\"width\":100,\"id\":\"stock_uom\",\"name\":\"Stock UOM\",\"editable\":false,\"compareValue\":null},{\"label\":\"Qty\",\"fieldname\":\"qty\",\"fieldtype\":\"Float\",\"width\":140,\"convertible\":\"qty\",\"id\":\"qty\",\"name\":\"Qty\",\"editable\":false,\"compareValue\":null},{\"label\":\"Qty in Stock UOM\",\"fieldname\":\"stock_qty\",\"fieldtype\":\"Float\",\"width\":140,\"convertible\":\"qty\",\"id\":\"stock_qty\",\"name\":\"Qty in Stock UOM\",\"editable\":false,\"compareValue\":null},{\"label\":\"Ordered Qty\",\"fieldname\":\"ordered_qty\",\"fieldtype\":\"Float\",\"width\":120,\"convertible\":\"qty\",\"id\":\"ordered_qty\",\"name\":\"Ordered Qty\",\"editable\":false,\"compareValue\":null},{\"label\":\"Received Qty\",\"fieldname\":\"received_qty\",\"fieldtype\":\"Float\",\"width\":120,\"convertible\":\"qty\",\"id\":\"received_qty\",\"name\":\"Received Qty\",\"editable\":false,\"compareValue\":null},{\"label\":\"Qty to Receive\",\"fieldname\":\"qty_to_receive\",\"fieldtype\":\"Float\",\"width\":120,\"convertible\":\"qty\",\"id\":\"qty_to_receive\",\"name\":\"Qty to Receive\",\"editable\":false,\"compareValue\":null},{\"label\":\"Qty to Order\",\"fieldname\":\"qty_to_order\",\"fieldtype\":\"Float\",\"width\":120,\"convertible\":\"qty\",\"id\":\"qty_to_order\",\"name\":\"Qty to Order\",\"editable\":false,\"compareValue\":null},{\"label\":\"Company\",\"fieldname\":\"company\",\"fieldtype\":\"Link\",\"options\":\"Company\",\"width\":100,\"id\":\"company\",\"name\":\"Company\",\"editable\":false,\"compareValue\":null}],\"filters\":{\"company\":\"Suntek Energy Systems Pvt. Ltd.\",\"from_date\":\"2025-01-05\",\"to_date\":\"2025-02-05\"}}",
+  "letter_head": null,
+  "modified": "2025-02-06 14:26:42.213280",
+  "module": "Stock",
+  "name": "POs and MRs",
+  "prepared_report": 0,
+  "query": null,
+  "ref_doctype": "Material Request",
+  "reference_report": "Requested Items to Order and Receive",
+  "report_name": "POs and MRs",
+  "report_script": null,
+  "report_type": "Custom Report",
+  "roles": [
+   {
+    "parent": "POs and MRs",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Stock Manager"
+   },
+   {
+    "parent": "POs and MRs",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Purchase Manager"
+   },
+   {
+    "parent": "POs and MRs",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Stock User"
+   },
+   {
+    "parent": "POs and MRs",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Purchase User"
+   },
+   {
+    "parent": "POs and MRs",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Projects Manager"
+   },
+   {
+    "parent": "POs and MRs",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Projects User"
+   },
+   {
+    "parent": "POs and MRs",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Stock Viewer"
+   },
+   {
+    "parent": "POs and MRs",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "System Manager"
+   },
+   {
+    "parent": "POs and MRs",
+    "parentfield": "roles",
+    "parenttype": "Report",
+    "role": "Accounts User"
+   }
+  ],
+  "timeout": 0
+ },
+ {
+  "add_total_row": 0,
+  "columns": [],
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Report",
+  "filters": [],
+  "is_standard": "No",
+  "javascript": null,
   "json": "{\"filters\":[[\"Lead\",\"lead_owner\",\"!=\",\"suntek.cni@gmail.com\",false]],\"fields\":[[\"name\",\"Lead\"],[\"docstatus\",\"Lead\"],[\"title\",\"Lead\"],[\"image\",\"Lead\"],[\"custom_capacity\",\"Lead\"],[\"lead_owner\",\"Lead\"],[\"status\",\"Lead\"],[\"custom_enquiry_status\",\"Lead\"],[\"company_name\",\"Lead\"],[\"territory\",\"Lead\"]],\"order_by\":\"`tabLead`.`modified` desc\",\"add_totals_row\":0,\"page_length\":20,\"column_widths\":{\"name\":120,\"title\":120,\"image\":120,\"custom_capacity\":120,\"lead_owner\":120,\"status\":120,\"custom_enquiry_status\":120,\"company_name\":120,\"territory\":120},\"group_by\":null}",
   "letter_head": null,
   "modified": "2025-01-09 10:42:32.588421",

@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{Designing}-{#####}",
+ "autoname": "Designing-.#####",
  "creation": "2023-11-17 13:06:43.672003",
  "default_view": "List",
  "doctype": "DocType",
@@ -34,11 +34,11 @@
    "options": "Design"
   },
   {
+   "allow_bulk_edit": 1,
    "fieldname": "bom",
    "fieldtype": "Table",
    "label": "BOM",
-   "options": "Designing Item",
-    "allow_bulk_edit": 1
+   "options": "Designing Item"
   },
   {
    "fieldname": "amended_from",
@@ -91,11 +91,11 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-12-13 17:23:15.853977",
+ "modified": "2025-02-17 13:46:31.768648",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Designing",
- "naming_rule": "Expression",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [
   {
