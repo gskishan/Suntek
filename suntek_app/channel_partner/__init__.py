@@ -54,7 +54,3 @@ def setup_channel_partner():
 
         except Exception as e:
             frappe.log_error(f"Error setting up permissions for {doctype}: {str(e)}")
-
-
-def before_migrate():
-    setup_channel_partner()
