@@ -15,6 +15,10 @@
   "column_break_yioui",
   "opportunity_name",
   "site_survey_status",
+  "channel_partner_details_section",
+  "channel_partner",
+  "channel_partner_name",
+  "channel_partner_mobile",
   "section_break_ycske",
   "hand_sketch",
   "column_break_nqpc9",
@@ -101,6 +105,33 @@
    "fieldtype": "Select",
    "label": "Site Survey Status",
    "options": "\nSite Survey Assigned\nSite Survey Completed"
+  },
+  {
+   "depends_on": "eval:doc.channel_partner",
+   "fieldname": "channel_partner_details_section",
+   "fieldtype": "Section Break",
+   "label": "Channel Partner Details"
+  },
+  {
+   "fieldname": "channel_partner",
+   "fieldtype": "Link",
+   "label": "Channel Partner",
+   "options": "Channel Partner",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "channel_partner.channel_partner_name",
+   "fieldname": "channel_partner_name",
+   "fieldtype": "Data",
+   "label": "Channel Partner Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "channel_partner.suntek_mobile_number",
+   "fieldname": "channel_partner_mobile",
+   "fieldtype": "Data",
+   "label": "Channel Partner Mobile",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -111,7 +142,7 @@
    "link_fieldname": "site_survey"
   }
  ],
- "modified": "2023-12-07 18:20:56.354993",
+ "modified": "2025-02-19 16:05:05.118077",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Site Survey",
