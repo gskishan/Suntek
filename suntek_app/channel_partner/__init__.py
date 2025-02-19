@@ -4,29 +4,57 @@ from frappe.permissions import add_permission
 
 def setup_channel_partner():
     if not frappe.db.exists("Role", "Channel Partner"):
-        print("Setting up Roles and Permissions for Channel Partner")
         role = frappe.new_doc("Role")
         role.role_name = "Channel Partner"
         role.desk_access = 1
         role.save(ignore_permissions=True)
 
     doctype_permissions = {
-        "Channel Partner": ["read", "write", "create", "delete"],
-        "Customer": ["read", "write", "create"],
-        "Lead": ["read", "write", "create"],
-        "Opportunity": ["read", "write", "create"],
-        "Site Survey": ["read", "write", "create", "submit"],
-        "Discom": ["read", "write", "create", "Delete"],
+        "Channel Partner": {
+            "permissions": ["read", "write", "create", "delete"],
+        },
+        "Customer": {
+            "permissions": ["read", "write", "create"],
+        },
+        "Lead": {
+            "permissions": ["read", "write", "create"],
+        },
+        "Opportunity": {
+            "permissions": ["read", "write", "create"],
+        },
+        "Discom": {
+            "permissions": ["read", "write", "create"],
+            "if_owner": ["write"],
+        },
     }
 
     role = "Channel Partner"
 
-    for doctype, permissions in doctype_permissions.items():
+    for doctype, config in doctype_permissions.items():
         try:
-            for ptype in permissions:
+            for ptype in config["permissions"]:
                 add_permission(doctype, role, permlevel=0, ptype=ptype)
 
+                if ptype in config.get("if_owner", []):
+                    permission = frappe.get_doc(
+                        {
+                            "doctype": "Custom DocPerm",
+                            "parent": doctype,
+                            "role": role,
+                            "permlevel": 0,
+                            ptype: 1,
+                        }
+                    )
+
+                    if permission:
+                        permission.if_owner = 1
+                        permission.save(ignore_permissions=True)
+
             frappe.db.commit()
-            print("Roles successfully created for Channel Partner")
+
         except Exception as e:
             frappe.log_error(f"Error setting up permissions for {doctype}: {str(e)}")
+
+
+def before_migrate():
+    setup_channel_partner()
