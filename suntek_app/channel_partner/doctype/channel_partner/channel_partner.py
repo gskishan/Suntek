@@ -77,7 +77,7 @@ class ChannelPartner(Document):
             user.flags.ignore_permissions = True
             user.insert(ignore_mandatory=True)
 
-            user.add_roles("Stock User", "System Manager")
+            user.add_roles("Channel Partner", "Stock User", "System Manager")
             user.save()
             frappe.db.commit()
 

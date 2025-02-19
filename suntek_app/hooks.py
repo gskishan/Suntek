@@ -80,8 +80,9 @@ doctype_js = {
 # before_install = "suntek_app.install.before_install"
 # after_install = "suntek_app.install.after_install"
 
-# after_migrate = "suntek_app.channel_partner.after_migrate"
-before_migrate = "suntek_app.channel_partner.before_migrate"
+before_install = "suntek_app.install.before_install"
+
+before_migrate = "suntek_app.migrate.before_migrate"
 
 # Uninstallation
 # ------------
