@@ -34,6 +34,7 @@ def setup_channel_partner():
         try:
             for ptype in config["permissions"]:
                 add_permission(doctype, role, permlevel=0, ptype=ptype)
+                print(f"{doctype}: Permission {ptype} set for role {role}")
 
                 if ptype in config.get("if_owner", []):
                     permission = frappe.get_doc(
@@ -49,6 +50,9 @@ def setup_channel_partner():
                     if permission:
                         permission.if_owner = 1
                         permission.save(ignore_permissions=True)
+                        print(
+                            f"'Only if Creator' enabled for {ptype} permission on {doctype} for role {role}"
+                        )
 
             frappe.db.commit()
 

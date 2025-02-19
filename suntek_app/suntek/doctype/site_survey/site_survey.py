@@ -1,5 +1,3 @@
-# Copyright (c) 2023, kishan and contributors
-# For license information, please see license.txt
 import frappe
 from frappe.model.document import Document
 
@@ -11,6 +9,12 @@ class SiteSurvey(Document):
 
     def validate(self):
         self.update_site_survey_status_on_save()
+
+    def before_insert(self):
+        self.get_channel_partner_from_opportunity()
+
+    def before_save(self):
+        self.get_channel_partner_from_opportunity()
 
     def after_insert(self):
         self.update_site_survey_status_on_save()
@@ -25,6 +29,12 @@ class SiteSurvey(Document):
 
     def update_site_survery_status(self):
         self.site_survey_status = "Site Survey Completed"
+
+    def get_channel_partner_from_opportunity(self):
+        opportunity = frappe.get_doc("Opportunity", self.opportunity_name)
+
+        if opportunity.custom_channel_partner:
+            self.channel_partner = opportunity.custom_channel_partner
 
     @frappe.whitelist()
     def get_opportunity_details(self):
