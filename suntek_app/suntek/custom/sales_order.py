@@ -96,6 +96,18 @@ def make_project(source_name, target_doc=None):
     return doc
 
 
+def get_channel_partner_data(doc, method):
+    opp = frappe.db.get_doc("Opportunity", doc.custom_opportunity_name)
+    if opp.source == "Channel Partner" and opp.custom_channel_partner:
+        doc.custom_channel_partner = opp.custom_channel_partner
+        doc.custom_channel_partner_name = opp.custom_channel_partner_name
+        doc.custom_channel_partner_mobile = opp.custom_channel_partner_suntek_mobile
+
+
+def get_location_data(doc, method):
+    pass
+
+
 def fetch_attachments_from_opportunity(doc, method):
     if doc.custom_opportunity_name != "":
         print("doc.custom_opportunity_name: ", doc.custom_opportunity_name)
