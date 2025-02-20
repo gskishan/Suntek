@@ -2,6 +2,13 @@ import frappe
 from frappe.model.mapper import get_mapped_doc
 
 
+def set_location_data(doc, method):
+    if doc.custom_suntek_state:
+        doc.state = doc.custom_suntek_state
+    if doc.custom_suntek_city:
+        doc.city = doc.custom_suntek_city
+
+
 def change_opportunity_status(doc, method):
     pass
 
@@ -17,7 +24,7 @@ def set_opportunity_name(doc, method):
 
 
 def vaidate_address(doc):
-    sql = """select name from `tabDynamic Link` where link_doctype="Lead" and link_name="{0}" """.format(
+    sql = """select name from `tabDynamic Link` where link_doctype="Lead" and link_name="{}" """.format(
         doc.party_name
     )
     if not frappe.db.sql(sql, as_dict=True):

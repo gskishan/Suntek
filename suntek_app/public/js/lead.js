@@ -14,6 +14,31 @@ frappe.ui.form.on("Lead", {
         frm.trigger("custom_make_opportunity");
       });
     }
+
+    frm.set_query("custom_suntek_city", function () {
+      return {
+        filters: {
+          state: frm.doc.custom_suntek_state,
+        },
+      };
+    });
+    frm.set_query("custom_suntek_district", function () {
+      return {
+        filters: {
+          city: frm.doc.custom_suntek_city,
+        },
+      };
+    });
+
+    frm.set_query("custom_suntek_pin_code", function () {
+      return {
+        filters: {
+          state: frm.doc.custom_suntek_state,
+          city: frm.doc.custom_suntek_city,
+          district: frm.doc.custom_suntek_district,
+        },
+      };
+    });
   },
   before_save: function (frm) {
     if (frm.doc.mobile_no) {
