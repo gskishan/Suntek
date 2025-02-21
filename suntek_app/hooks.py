@@ -26,6 +26,10 @@ before_install = "suntek_app.install.before_install"
 
 before_migrate = "suntek_app.migrate.before_migrate"
 
+override_whitelisted_methods = {
+    "erpnext.selling.doctype.sales_order.sales_order.make_sales_invoice": "suntek_app.overrides.sales_order.make_sales_invoice"
+}
+
 override_doctype_dashboards = {
     "Opportunity": "suntek_app.suntek.custom_dashboard.dashboard.update_opportunity_dashboard",
     "Lead": "suntek_app.suntek.custom_dashboard.dashboard.update_enquiry_dashboard",
