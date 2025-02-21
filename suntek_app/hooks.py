@@ -114,6 +114,9 @@ doc_events = {
     },
 }
 
+fixtures = [{"doctype": "Warehouse Type", "filters": {"name": "Channel Partner"}}]
+
+
 # fixtures = [
 #     {"doctype": "Custom Field"},
 #     {"doctype": "Property Setter"},

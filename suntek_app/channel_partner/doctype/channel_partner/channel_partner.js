@@ -21,6 +21,28 @@ frappe.ui.form.on("Channel Partner", {
         });
       });
     }
+
+    if (
+      frm.doc.status === "Active" &&
+      frm.doc.is_user_created &&
+      !frm.doc.warehouse
+    ) {
+      frm.add_custom_button(__("Create Warehouse"), function () {
+        frm.call({
+          doc: frm.doc,
+          method: "create_channel_partner_warehouse",
+          callback: function (r) {
+            if (r.message) {
+              frappe.show_alert({
+                message: __("Warehouse created successfully"),
+                indicator: "green",
+              });
+              frm.reload_doc();
+            }
+          },
+        });
+      });
+    }
   },
 });
 

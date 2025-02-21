@@ -58,6 +58,60 @@ class ChannelPartner(Document):
                 user.save(ignore_permissions=True)
                 frappe.db.commit()
 
+    def create_warehouse_permission(self, warehouse):
+        try:
+            user_permission = frappe.new_doc("User Permission")
+            user_permission.update(
+                {
+                    "user": self.linked_user,
+                    "allow": "Warehouse",
+                    "for_value": warehouse.name,
+                    "apply_to_all_doctypes": 1,
+                }
+            )
+
+            user_permission.flags.ignore_permissions = True
+            user_permission.insert()
+
+            frappe.db.commit()
+        except Exception as e:
+            frappe.log_error(str(e), "Warehouse Permission Creation Error")
+            frappe.throw(str(e))
+
+    def create_user_permissions(self):
+        restricted_doctypes = [
+            "Lead",
+            "Opportunity",
+            "Quotation",
+            "Sales Order",
+            "Site Survey",
+            "Designing",
+            "Project",
+            "Discom",
+            "Subsidy",
+            "Sales Invoice",
+            "Delivery Note",
+            "Installation Note",
+            "Purchase Order",
+            "Purchase Invoice",
+        ]
+
+        try:
+            for doctype in restricted_doctypes:
+                user_permission = frappe.new_doc("User Permission")
+
+                user_permission.user = self.linked_user
+                user_permission.allow = "Channel Partner"
+                user_permission.for_value = self.name
+                user_permission.apply_to_all_doctypes = 0
+                user_permission.applicable_for = doctype
+
+                user_permission.save()
+
+            frappe.db.commit()
+        except Exception as e:
+            frappe.log_error(str(e), "Channel Partner User Permission Creation Error")
+
     @frappe.whitelist()
     def create_user(self):
         """
@@ -84,8 +138,50 @@ class ChannelPartner(Document):
             self.db_set("linked_user", user.name)
             self.db_set("is_user_created", 1)
 
+            self.create_user_permissions()
+
             return user.name
 
         except Exception as e:
             frappe.log_error(str(e), "User Creation Error")
+            frappe.throw(str(e))
+
+    @frappe.whitelist()
+    def create_channel_partner_warehouse(self):
+        """
+        Creates a warehouse linked to the channel partner
+        """
+
+        try:
+            parent_warehouse = "Channel Partner Parent - SESP"
+
+            if not frappe.db.exists("Warehouse", parent_warehouse):
+                frappe.throw(f"Parent Warehouse '{parent_warehouse}' does not exist")
+
+            warehouse = frappe.new_doc("Warehouse")
+
+            warehouse_name = f"CP-{self.channel_partner_code} - SESP"
+
+            warehouse.update(
+                {
+                    "warehouse_name": warehouse_name,
+                    "parent_warehouse": parent_warehouse,
+                    "company": "Suntek Energy Systems Pvt. Ltd.",
+                }
+            )
+
+            warehouse.flags.ignore_permissions = True
+            warehouse.insert()
+
+            self.db_set("warehouse", warehouse.name)
+
+            frappe.db.commit()
+
+            if self.linked_user and self.warehouse:
+                self.create_warehouse_permission(warehouse=warehouse)
+
+            return warehouse.name
+
+        except Exception as e:
+            frappe.log_error(str(e), "Warehouse creation error")
             frappe.throw(str(e))
