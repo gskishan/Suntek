@@ -5,29 +5,8 @@ app_description = "custom_app"
 app_email = "gskishan"
 app_license = "123"
 
-# Includes in <head>
-# ------------------
-
-# include js, css files in header of desk.html
-# app_include_css = "/assets/suntek_app/css/suntek_app.css"
-# app_include_js = "/assets/suntek_app/js/suntek_app.js"
-
-# include js, css files in header of web template
-# web_include_css = "/assets/suntek_app/css/suntek_app.css"
-# web_include_js = "/assets/suntek_app/js/suntek_app.js"
-
-# include custom scss in every website theme (without file extension ".scss")
-# website_theme_scss = "suntek_app/public/scss/website"
-
-# include js, css files in header of web form
-
-# webform_include_js = {"doctype": "public/js/doctype.js"}
-# webform_include_css = {"doctype": "public/css/doctype.css"}
-
-# include js in page
 page_js = {"lead_funnel": "public/js/lead_funnel.js"}
 
-# include js in doctype views
 
 doctype_js = {
     "Lead": "public/js/lead.js",
@@ -41,89 +20,16 @@ doctype_js = {
     "Material Request": "public/js/material_request.js",
     "Stock Entry": "public/js/stock_entry.js",
     "BOM": "public/js/bom.js",
+    "Channel Partner": "public/js/channel_partner_dashboard.js",
 }
 
+before_install = "suntek_app.install.before_install"
 
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
-# doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
-# doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
+before_migrate = "suntek_app.migrate.before_migrate"
 
-# Home Pages
-# ----------
-
-# application home page (will override Website Settings)
-# home_page = "login"
-
-# website user home page (by Role)
-# role_home_page = {
-# 	"Role": "home_page"
-# }
-
-# Generators
-# ----------
-
-# automatically create page for each record of this doctype
-# website_generators = ["Web Page"]
-
-# Jinja
-# ----------
-
-# add methods and filters to jinja environment
-# jinja = {
-# 	"methods": "suntek_app.utils.jinja_methods",
-# 	"filters": "suntek_app.utils.jinja_filters"
-# }
-
-# Installation
-# ------------
-
-# before_install = "suntek_app.install.before_install"
-# after_install = "suntek_app.install.after_install"
-
-# Uninstallation
-# ------------
-
-# before_uninstall = "suntek_app.uninstall.before_uninstall"
-# after_uninstall = "suntek_app.uninstall.after_uninstall"
-
-# Integration Setup
-# ------------------
-# To set up dependencies/integrations with other apps
-# Name of the app being installed is passed as an argument
-
-# before_app_install = "suntek_app.utils.before_app_install"
-# after_app_install = "suntek_app.utils.after_app_install"
-
-# Integration Cleanup
-# -------------------
-# To clean up dependencies/integrations with other apps
-# Name of the app being uninstalled is passed as an argument
-
-# before_app_uninstall = "suntek_app.utils.before_app_uninstall"
-# after_app_uninstall = "suntek_app.utils.after_app_uninstall"
-
-# Desk Notifications
-# ------------------
-# See frappe.core.notifications.get_notification_config
-
-# notification_config = "suntek_app.notifications.get_notification_config"
-
-# Permissions
-# -----------
-# Permissions evaluated in scripted ways
-
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
-
-# DocType Class
-# ---------------
-# Override standard doctype classes
-
+override_whitelisted_methods = {
+    "erpnext.selling.doctype.sales_order.sales_order.make_sales_invoice": "suntek_app.overrides.sales_order.make_sales_invoice"
+}
 
 override_doctype_dashboards = {
     "Opportunity": "suntek_app.suntek.custom_dashboard.dashboard.update_opportunity_dashboard",
@@ -136,12 +42,10 @@ override_doctype_class = {
     "Quotation": "suntek_app.custom_script.quotation.CustomQuotation",
     "Salary Slip": "suntek_app.custom_script.salary_slip.CustomSalarySlip",
 }
-
-# Document Events
-# ---------------
-# Hook on document methods and events
-
 doc_events = {
+    "Address": {
+        "before_save": ["suntek_app.custom_script.address.add_enquiry_to_links"]
+    },
     "Lead": {
         "validate": [
             "suntek_app.suntek.custom.lead.change_enquiry_status",
@@ -152,6 +56,7 @@ doc_events = {
             "suntek_app.suntek.custom.lead.change_enquiry_status",
             "suntek_app.suntek.custom.lead.set_lead_owner",
             "suntek_app.suntek.custom.lead.share_lead_after_insert_with_enquiry_owner",
+            "suntek_app.suntek.custom.lead.set_state",
         ],
         "on_update": [
             "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
@@ -168,8 +73,10 @@ doc_events = {
             "suntek_app.suntek.custom.opportunity.change_opportunity_status",
             "suntek_app.suntek.custom.opportunity.set_opportunity_name",
         ],
+        "before_save": [
+            "suntek_app.suntek.custom.opportunity.set_location_data",
+        ],
         "on_update": [
-            # "suntek_app.custom_script.opportunity.on_update",
             "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
         ],
         "after_insert": [
@@ -178,10 +85,10 @@ doc_events = {
     },
     "Sales Order": {
         "on_submit": "suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit",
-        # "validate": "suntek_app.suntek.custom.sales_order.validate",
     },
     "Project": {
         "validate": "suntek_app.suntek.custom.project.validate",
+        "before_save": ["suntek_app.suntek.custom.project.get_channel_partner_data"],
     },
     "Price List": {"validate": "suntek_app.custom_script.price_list.validate"},
     "Item Price": {"validate": "suntek_app.custom_script.item_price.validate"},
@@ -207,120 +114,29 @@ doc_events = {
             "suntek_app.suntek.custom.solar_power_plants.handle_solar_ambassador_webhook",
         ],
     },
+    "Issue": {
+        "on_update": [
+            "suntek_app.suntek.custom.issue.send_issue_update_to_ambassador_api"
+        ]
+    },
 }
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
-
-# Scheduled Tasks
-# ---------------
+fixtures = [{"doctype": "Warehouse Type", "filters": {"name": "Channel Partner"}}]
 
 
-# scheduler_events = {
-# 	"all": [
-# 		"suntek_app.tasks.all"
-# 	],
-# 	"daily": [
-# 		"suntek_app.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"suntek_app.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"suntek_app.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"suntek_app.tasks.monthly"
-# 	],
-# }
-
-# Testing
-# -------
-
-# before_tests = "suntek_app.install.before_tests"
-
-# Overriding Methods
-# ------------------------------
-#
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "suntek_app.event.get_events"
-# }
-#
-# each overriding function accepts a `data` argument;
-# generated from the base implementation of the doctype dashboard,
-# along with any modifications made in other Frappe apps
-# override_doctype_dashboards = {
-# 	"Task": "suntek_app.task.get_dashboard_data"
-# }
-
-# exempt linked doctypes from being automatically cancelled
-#
-# auto_cancel_exempted_doctypes = ["Auto Repeat"]
-
-# Ignore links to specified DocTypes when deleting documents
-# -----------------------------------------------------------
-
-# ignore_links_on_delete = ["Communication", "ToDo"]
-
-# Request Events
-# ----------------
-# before_request = ["suntek_app.utils.before_request"]
-# after_request = ["suntek_app.utils.after_request"]
-
-# Job Events
-# ----------
-# before_job = ["suntek_app.utils.before_job"]
-# after_job = ["suntek_app.utils.after_job"]
-
-# User Data Protection
-# --------------------
-
-# user_data_fields = [
-# 	{
-# 		"doctype": "{doctype_1}",
-# 		"filter_by": "{filter_by}",
-# 		"redact_fields": ["{field_1}", "{field_2}"],
-# 		"partial": 1,
-# 	},
-# 	{
-# 		"doctype": "{doctype_2}",
-# 		"filter_by": "{filter_by}",
-# 		"partial": 1,
-# 	},
-# 	{
-# 		"doctype": "{doctype_3}",
-# 		"strict": False,
-# 	},
-# 	{
-# 		"doctype": "{doctype_4}"
-# 	}
+# fixtures = [
+#     {"doctype": "Custom Field"},
+#     {"doctype": "Property Setter"},
+#     {"doctype": "Client Script"},
+#     {"doctype": "Server Script"},
+#     {"doctype": "Print Format"},
+#     {"doctype": "Report", "filters": {"is_standard": "No"}},
+#     {"doctype": "Web Form"},
+#     {"doctype": "Workflow", "filters": {"is_active": 1}},
+#     {"doctype": "Workflow State"},
+#     {"doctype": "Workflow Action Master"},
+#     {"doctype": "Notification"},
+#     {"doctype": "Webhook"},
+#     {"doctype": "HD Ticket Type"},
+#     {"doctype": "Lead Source", "filters": {"source_name": "Channel Partner"}},
 # ]
-
-# Authentication and authorization
-# --------------------------------
-
-# auth_hooks = [
-# 	"suntek_app.auth.validate"
-# ]
-
-fixtures = [
-    {"doctype": "Custom Field"},
-    {"doctype": "Property Setter"},
-    {"doctype": "Client Script"},
-    {"doctype": "Server Script"},
-    {"doctype": "Print Format"},
-    {"doctype": "Report", "filters": {"is_standard": "No"}},
-    {"doctype": "Web Form"},
-    {"doctype": "Workflow", "filters": {"is_active": 1}},
-    {"doctype": "Workflow State"},
-    {"doctype": "Workflow Action Master"},
-    {"doctype": "Notification"},
-    {"doctype": "Webhook"},
-    {"doctype": "HD Ticket Type"},
-    {"doctype": "Lead Source", "filters": {"source_name": "Channel Partner"}},
-]

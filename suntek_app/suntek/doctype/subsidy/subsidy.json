@@ -29,7 +29,11 @@
   "tsredco_inspection_photos",
   "subsidy_cheque_date",
   "pcr_submission_target_date",
-  "amended_from"
+  "amended_from",
+  "section_break_vsli",
+  "channel_partner",
+  "channel_partner_name",
+  "channel_partner_mobile"
  ],
  "fields": [
   {
@@ -154,12 +158,37 @@
    "fieldname": "pcr_submit_date",
    "fieldtype": "Date",
    "label": "PCR Submit Date"
+  },
+  {
+   "fieldname": "section_break_vsli",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "channel_partner",
+   "fieldtype": "Link",
+   "label": "Channel Partner",
+   "options": "Channel Partner",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "channel_partner.channel_partner_name",
+   "fieldname": "channel_partner_name",
+   "fieldtype": "Data",
+   "label": "Channel Partner Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "channel_partner.suntek_mobile_number",
+   "fieldname": "channel_partner_mobile",
+   "fieldtype": "Data",
+   "label": "Channel Partner Mobile",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2024-01-02 11:57:14.433470",
+ "modified": "2025-02-21 16:24:20.035111",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Subsidy",

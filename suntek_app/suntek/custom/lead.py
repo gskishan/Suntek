@@ -16,6 +16,10 @@ from suntek_app.suntek.utils.validation_utils import (
 )
 
 
+def set_state(doc, method):
+    doc.state = doc.custom_suntek_state or ""
+
+
 def save_name_changes_to_contact(doc, method=None):
     contact = frappe.db.get_value(
         "Contact", {"mobile_no": doc.mobile_no}, ["name"], as_dict=1
@@ -162,6 +166,9 @@ def custom_make_opportunity(source_name, target_doc=None):
                     "notes": "notes",
                     "custom_channel_partner": "custom_channel_partner",
                     "custom_channel_partner_name": "custom_channel_partner_name",
+                    "custom_suntek_state": "custom_suntek_state",
+                    "custom_suntek_city": "custom_suntek_city",
+                    "custom_suntek_district": "custom_suntek_district",
                 },
             }
         },
