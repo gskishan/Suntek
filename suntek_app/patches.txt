@@ -1,1 +1,2 @@
 suntek_app.patches.change_crm_workspace_export_module
+suntek_app.patches.set_sfg_in_bom_item
