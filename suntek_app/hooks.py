@@ -20,11 +20,16 @@ doctype_js = {
     "Material Request": "public/js/material_request.js",
     "Stock Entry": "public/js/stock_entry.js",
     "BOM": "public/js/bom.js",
+    "Channel Partner": "public/js/channel_partner_dashboard.js",
 }
 
 before_install = "suntek_app.install.before_install"
 
 before_migrate = "suntek_app.migrate.before_migrate"
+
+override_whitelisted_methods = {
+    "erpnext.selling.doctype.sales_order.sales_order.make_sales_invoice": "suntek_app.overrides.sales_order.make_sales_invoice"
+}
 
 override_doctype_dashboards = {
     "Opportunity": "suntek_app.suntek.custom_dashboard.dashboard.update_opportunity_dashboard",
@@ -83,6 +88,7 @@ doc_events = {
     },
     "Project": {
         "validate": "suntek_app.suntek.custom.project.validate",
+        "before_save": ["suntek_app.suntek.custom.project.get_channel_partner_data"],
     },
     "Price List": {"validate": "suntek_app.custom_script.price_list.validate"},
     "Item Price": {"validate": "suntek_app.custom_script.item_price.validate"},
@@ -108,7 +114,15 @@ doc_events = {
             "suntek_app.suntek.custom.solar_power_plants.handle_solar_ambassador_webhook",
         ],
     },
+    "Issue": {
+        "on_update": [
+            "suntek_app.suntek.custom.issue.send_issue_update_to_ambassador_api"
+        ]
+    },
 }
+
+fixtures = [{"doctype": "Warehouse Type", "filters": {"name": "Channel Partner"}}]
+
 
 # fixtures = [
 #     {"doctype": "Custom Field"},

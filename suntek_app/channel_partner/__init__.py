@@ -58,3 +58,35 @@ def setup_channel_partner():
 
         except Exception as e:
             frappe.log_error(f"Error setting up permissions for {doctype}: {str(e)}")
+
+
+def setup_channel_partner_parent_warehouse_type():
+    if not frappe.db.exists("Warehouse Type", "Channel Partner"):
+        warehouse_type = frappe.new_doc("Warehouse Type")
+
+        warehouse_type.name = "Channel Partner"
+
+        warehouse_type.save()
+        frappe.db.commit()
+
+
+def setup_channel_partner_parent_warehouse():
+    if not frappe.db.exists(
+        "Warehouse",
+        {
+            "name": "Channel Partner Parent - SESP",
+            "is_group": 1,
+        },
+    ):
+        wh = frappe.new_doc("Warehouse")
+
+        wh.warehouse_name = "Channel Partner Parent"
+        wh.company = "Suntek Energy Systems Pvt. Ltd."
+        wh.is_group = 1
+        wh.warehouse_type = "Channel Partner"
+
+        wh.save(ignore_permissions=True)
+
+        frappe.db.commit()
+
+        print(f"Created Channel Partner Parent Warehouse: {wh.name}")

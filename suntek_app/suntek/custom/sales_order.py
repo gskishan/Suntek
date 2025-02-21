@@ -3,7 +3,6 @@ import frappe
 
 @frappe.whitelist()
 def auto_project_creation_on_submit(doc, method):
-    print(f"custom_type_of_case: {doc.custom_type_of_case}")
     if doc.docstatus == 1 and not doc.amended_from:
         project_make = None
         if not frappe.db.exists("Project", {"project_name": doc.name}):
@@ -149,3 +148,14 @@ def fetch_attachments_from_opportunity(doc, method):
                     opportunity_attachment.insert()
                     opportunity_attachment.reload()
                     print("opportunity_attachment: ", opportunity_attachment)
+
+
+@frappe.whitelist()
+def make_sales_invoice(source_name, target_doc=None):
+    from erpnext.selling.doctype.sales_order.sales_order import (
+        make_sales_invoice as _make_sales_invoice,
+    )
+
+    si = _make_sales_invoice(source_name, target_doc)
+
+    return si

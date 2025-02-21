@@ -1,6 +1,3 @@
-# Copyright (c) 2023, kishan and contributors
-# For license information, please see license.txt
-
 from datetime import datetime
 
 import frappe
@@ -12,6 +9,9 @@ class Subsidy(Document):
     def autoname(self):
         current_year = datetime.now().year
         self.name = make_autoname("SES-SUBSIDY-{}-.#####".format(current_year))
+
+    def before_insert(self):
+        self.get_channel_partner_data_on_create()
 
     def after_insert(self):
         self.update_project_on_save()
@@ -31,6 +31,20 @@ class Subsidy(Document):
             project.db_set(
                 "custom_subsidy_status", self.subsidy_status, update_modified=False
             )
+
+    def get_channel_partner_data_on_create(self):
+        try:
+            if self.project_name:
+                project = frappe.get_doc("Project", self.project_name)
+
+            if project and project.custom_channel_partner:
+                self.channel_partner = project.custom_channel_partner
+                self.channel_partner_name = project.custom_channel_partner_name
+                self.channel_partner_mobile = project.custom_channel_partner_mobile
+
+        except Exception as e:
+            frappe.log_error(str(e), "Error fetching channel partner data in Discom")
+            frappe.throw(str(e))
 
     def update_project_on_save(self):
         # Check if the Discom document is linked to a Project
