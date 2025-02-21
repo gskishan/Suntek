@@ -144,6 +144,12 @@ def get_columns():
             "width": 120,
         },
         {
+            "label": _("Is Semi-Finished Good"),
+            "fieldname": "is_sfg",
+            "fieldtype": "Check",
+            "width": 130,
+        },
+        {
             "label": _("Order Qty"),
             "fieldname": "order_qty",
             "fieldtype": "Float",
@@ -204,7 +210,8 @@ def get_data_internal(filters):
             bom_item.qty as raw_material_qty,
             bom_item.uom as raw_material_uom,
             bin.actual_qty as available_qty,
-            bin.warehouse as warehouse
+            bin.warehouse as warehouse,
+            raw_item.custom_is_sfg as is_sfg
         FROM 
             `tabSales Order` so
         INNER JOIN 
@@ -214,6 +221,8 @@ def get_data_internal(filters):
         LEFT JOIN
             `tabBin` bin ON bom_item.item_code = bin.item_code
             AND bin.warehouse = %(warehouse)s
+        LEFT JOIN
+            `tabItem` raw_item ON bom_item.item_code = raw_item.name
         WHERE 
             so.docstatus = 1
             {conditions}
