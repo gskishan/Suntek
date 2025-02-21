@@ -178,42 +178,43 @@ def create_issue_from_api():
 
 
 def send_issue_update_to_ambassador_api(doc, method):
-    try:
-        settings = frappe.get_doc("Suntek Settings")
-        django_api_url = settings.get("django_api_url")
-        api_token = settings.get_password("solar_ambassador_api_token")
+    if doc.custom_source == "Customer App":
+        try:
+            settings = frappe.get_doc("Suntek Settings")
+            django_api_url = settings.get("django_api_url")
+            api_token = settings.get_password("solar_ambassador_api_token")
 
-        if not (django_api_url and api_token):
-            frappe.log_error(
-                "Django webhook URL or API token not configured in Suntek Settings"
+            if not (django_api_url and api_token):
+                frappe.log_error(
+                    "Django webhook URL or API token not configured in Suntek Settings"
+                )
+                return False
+
+            response = requests.put(
+                f"{django_api_url}/support/webhook/issue-updated",
+                json={
+                    "name": doc.name,
+                    "raised_by": doc.raised_by,
+                    "subject": doc.subject,
+                    "customer": doc.customer,
+                    "issue_status": doc.status,
+                    "contact_person": doc.custom_contact_person_name,
+                    "contact_person_phone": doc.custom_contact_person_mobile,
+                    "closed_opening_date": doc.custom_closedpending_date,
+                },
+                headers={
+                    "X-Django-Server-Authorization": f"Bearer {api_token}",
+                    "Content-Type": "application/json",
+                },
             )
+
+            if response.status_code != 200:
+                frappe.log_error(
+                    f"Failed to send webhook for issue {doc.name}: {response.text}"
+                )
+                return False
+
+            return True
+        except Exception as e:
+            frappe.log_error(f"Error in send_issue_update_to_ambassador_api: {str(e)}")
             return False
-
-        response = requests.put(
-            f"{django_api_url}/support/webhook/issue-updated",
-            json={
-                "name": doc.name,
-                "raised_by": doc.raised_by,
-                "subject": doc.subject,
-                "customer": doc.customer,
-                "issue_status": doc.status,
-                "contact_person": doc.custom_contact_person_name,
-                "contact_person_phone": doc.custom_contact_person_mobile,
-                "closed_opening_date": doc.custom_closedpending_date,
-            },
-            headers={
-                "X-Django-Server-Authorization": f"Bearer {api_token}",
-                "Content-Type": "application/json",
-            },
-        )
-
-        if response.status_code != 200:
-            frappe.log_error(
-                f"Failed to send webhook for issue {doc.name}: {response.text}"
-            )
-            return False
-
-        return True
-    except Exception as e:
-        frappe.log_error(f"Error in send_issue_update_to_ambassador_api: {str(e)}")
-        return False

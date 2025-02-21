@@ -3,7 +3,6 @@ import frappe
 
 @frappe.whitelist()
 def auto_project_creation_on_submit(doc, method):
-    print(f"custom_type_of_case: {doc.custom_type_of_case}")
     if doc.docstatus == 1 and not doc.amended_from:
         project_make = None
         if not frappe.db.exists("Project", {"project_name": doc.name}):
