@@ -36,6 +36,15 @@ def custom_copy_from_template(self):
         self.dependency_mapping(tmp_task_details, project_tasks)
 
 
+def get_channel_partner_data(doc, method):
+    sales_order = frappe.get_doc("Sales Order", {"name": doc.sales_order})
+
+    if sales_order.custom_channel_partner:
+        doc.custom_channel_partner = sales_order.custom_channel_partner
+        doc.custom_channel_partner_name = sales_order.custom_channel_partner_name
+        doc.custom_channel_partner_mobile = sales_order.custom_channel_partner_mobile
+
+
 def fetch_attachments_from_sales_order(doc, method):
     if doc.sales_order != "":
         print("doc.sales_order: ", doc.sales_order)

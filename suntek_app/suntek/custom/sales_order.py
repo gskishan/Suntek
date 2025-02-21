@@ -149,3 +149,14 @@ def fetch_attachments_from_opportunity(doc, method):
                     opportunity_attachment.insert()
                     opportunity_attachment.reload()
                     print("opportunity_attachment: ", opportunity_attachment)
+
+
+@frappe.whitelist()
+def make_sales_invoice(source_name, target_doc=None):
+    from erpnext.selling.doctype.sales_order.sales_order import (
+        make_sales_invoice as _make_sales_invoice,
+    )
+
+    si = _make_sales_invoice(source_name, target_doc)
+
+    return si

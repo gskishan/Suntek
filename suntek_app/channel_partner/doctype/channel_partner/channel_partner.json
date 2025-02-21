@@ -40,6 +40,8 @@
   "state_code",
   "city",
   "district_snake_case",
+  "dashboard_tab",
+  "dashboard_html",
   "past_experience_tab",
   "past_experience_section",
   "past_experience",
@@ -61,9 +63,9 @@
   "other_documents",
   "pin_codes_tab",
   "associated_pin_codes",
-  "connections_tab",
   "warehouse_tab",
-  "warehouse"
+  "warehouse",
+  "connections_tab"
  ],
  "fields": [
   {
@@ -415,6 +417,16 @@
    "fieldtype": "Link",
    "label": "Warehouse",
    "options": "Warehouse"
+  },
+  {
+   "fieldname": "dashboard_tab",
+   "fieldtype": "Tab Break",
+   "label": "Dashboard"
+  },
+  {
+   "fieldname": "dashboard_html",
+   "fieldtype": "HTML",
+   "label": "Dashboard HTML"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -426,9 +438,29 @@
   {
    "link_doctype": "Opportunity",
    "link_fieldname": "custom_channel_partner"
+  },
+  {
+   "link_doctype": "Quotation",
+   "link_fieldname": "custom_channel_partner"
+  },
+  {
+   "link_doctype": "Sales Order",
+   "link_fieldname": "custom_channel_partner"
+  },
+  {
+   "link_doctype": "Site Survey",
+   "link_fieldname": "channel_partner"
+  },
+  {
+   "link_doctype": "Sales Invoice",
+   "link_fieldname": "custom_channel_partner"
+  },
+  {
+   "link_doctype": "Project",
+   "link_fieldname": "custom_channel_partner"
   }
  ],
- "modified": "2025-02-21 12:52:06.063127",
+ "modified": "2025-02-21 15:42:45.560802",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner",

@@ -20,6 +20,7 @@ doctype_js = {
     "Material Request": "public/js/material_request.js",
     "Stock Entry": "public/js/stock_entry.js",
     "BOM": "public/js/bom.js",
+    "Channel Partner": "public/js/channel_partner_dashboard.js",
 }
 
 before_install = "suntek_app.install.before_install"
@@ -87,6 +88,7 @@ doc_events = {
     },
     "Project": {
         "validate": "suntek_app.suntek.custom.project.validate",
+        "before_save": ["suntek_app.suntek.custom.project.get_channel_partner_data"],
     },
     "Price List": {"validate": "suntek_app.custom_script.price_list.validate"},
     "Item Price": {"validate": "suntek_app.custom_script.item_price.validate"},
