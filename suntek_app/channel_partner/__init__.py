@@ -8,6 +8,7 @@ def setup_channel_partner():
         role.role_name = "Channel Partner"
         role.desk_access = 1
         role.save(ignore_permissions=True)
+        print("Created Channel Partner role")
 
     doctype_permissions = {
         "Channel Partner": {
@@ -32,27 +33,36 @@ def setup_channel_partner():
 
     for doctype, config in doctype_permissions.items():
         try:
+            existing_perms = frappe.get_all(
+                "Custom DocPerm",
+                filters={"parent": doctype, "role": role},
+                fields=["permlevel", "read", "write", "create", "delete", "if_owner"],
+            )
+
             for ptype in config["permissions"]:
-                add_permission(doctype, role, permlevel=0, ptype=ptype)
-                print(f"{doctype}: Permission {ptype} set for role {role}")
+                perm_exists = False
+                for perm in existing_perms:
+                    if perm.get(ptype):
+                        perm_exists = True
+                        break
 
-                if ptype in config.get("if_owner", []):
-                    permission = frappe.get_doc(
-                        {
-                            "doctype": "Custom DocPerm",
-                            "parent": doctype,
-                            "role": role,
-                            "permlevel": 0,
-                            ptype: 1,
-                        }
-                    )
+                if not perm_exists:
+                    add_permission(doctype, role, permlevel=0, ptype=ptype)
+                    print(f"{doctype}: Added {ptype} permission for role {role}")
 
-                    if permission:
-                        permission.if_owner = 1
-                        permission.save(ignore_permissions=True)
-                        print(
-                            f"'Only if Creator' enabled for {ptype} permission on {doctype} for role {role}"
+                    if ptype in config.get("if_owner", []):
+                        permission = frappe.get_doc(
+                            {
+                                "doctype": "Custom DocPerm",
+                                "parent": doctype,
+                                "role": role,
+                                "permlevel": 0,
+                                ptype: 1,
+                                "if_owner": 1,
+                            }
                         )
+                        permission.save(ignore_permissions=True)
+                        print(f"Added 'Only if Creator' for {ptype} on {doctype}")
 
             frappe.db.commit()
 
@@ -63,30 +73,26 @@ def setup_channel_partner():
 def setup_channel_partner_parent_warehouse_type():
     if not frappe.db.exists("Warehouse Type", "Channel Partner"):
         warehouse_type = frappe.new_doc("Warehouse Type")
-
         warehouse_type.name = "Channel Partner"
-
         warehouse_type.save()
         frappe.db.commit()
+        print("Created Channel Partner warehouse type")
 
 
 def setup_channel_partner_parent_warehouse():
+    warehouse_name = "Channel Partner Parent - SESP"
     if not frappe.db.exists(
         "Warehouse",
         {
-            "name": "Channel Partner Parent - SESP",
+            "name": warehouse_name,
             "is_group": 1,
         },
     ):
         wh = frappe.new_doc("Warehouse")
-
         wh.warehouse_name = "Channel Partner Parent"
         wh.company = "Suntek Energy Systems Pvt. Ltd."
         wh.is_group = 1
         wh.warehouse_type = "Channel Partner"
-
         wh.save(ignore_permissions=True)
-
         frappe.db.commit()
-
         print(f"Created Channel Partner Parent Warehouse: {wh.name}")

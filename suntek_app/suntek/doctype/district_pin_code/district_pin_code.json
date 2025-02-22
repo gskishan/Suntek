@@ -1,80 +1,135 @@
 {
- "actions": [],
- "allow_rename": 1,
- "autoname": "field:pin_code",
- "creation": "2025-02-06 15:45:26.456712",
- "doctype": "DocType",
- "engine": "InnoDB",
- "field_order": [
-  "pin_code",
-  "district",
-  "city",
-  "state",
-  "district_snake_case",
-  "state_code"
- ],
- "fields": [
-  {
-   "fieldname": "pin_code",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "PIN Code",
-   "reqd": 1,
-   "unique": 1
-  },
-  {
-   "fieldname": "district",
-   "fieldtype": "Link",
-   "label": "District",
-   "options": "District",
-   "reqd": 1
-  },
-  {
-   "fieldname": "city",
-   "fieldtype": "Data",
-   "label": "City"
-  },
-  {
-   "fieldname": "state",
-   "fieldtype": "Data",
-   "label": "State"
-  },
-  {
-   "fieldname": "district_snake_case",
-   "fieldtype": "Data",
-   "label": "District Snake Case",
-   "read_only": 1
-  },
-  {
-   "fieldname": "state_code",
-   "fieldtype": "Data",
-   "label": "State Code",
-   "read_only": 1
-  }
- ],
- "index_web_pages_for_search": 1,
- "links": [],
- "modified": "2025-02-10 12:14:54.985048",
- "modified_by": "Administrator",
- "module": "suntek",
- "name": "District PIN Code",
- "naming_rule": "By fieldname",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+    "actions": [],
+    "allow_rename": 1,
+    "autoname": "field:pin_code",
+    "creation": "2025-02-06 15:45:26.456712",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "pin_code",
+        "district",
+        "city",
+        "state",
+        "district_snake_case",
+        "state_code"
+    ],
+    "fields": [
+        {
+            "fieldname": "pin_code",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "PIN Code",
+            "reqd": 1,
+            "unique": 1
+        },
+        {
+            "fieldname": "district",
+            "fieldtype": "Link",
+            "label": "District",
+            "options": "District",
+            "reqd": 1
+        },
+        {
+            "fieldname": "city",
+            "fieldtype": "Data",
+            "label": "City"
+        },
+        {
+            "fieldname": "state",
+            "fieldtype": "Data",
+            "label": "State"
+        },
+        {
+            "fieldname": "district_snake_case",
+            "fieldtype": "Data",
+            "label": "District Snake Case",
+            "read_only": 1
+        },
+        {
+            "fieldname": "state_code",
+            "fieldtype": "Data",
+            "label": "State Code",
+            "read_only": 1
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2025-02-10 12:14:54.985048",
+    "modified_by": "Administrator",
+    "module": "suntek",
+    "name": "District PIN Code",
+    "naming_rule": "By fieldname",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "All",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Sales Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Projects Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Delivery Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Purchase Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": []
 }
