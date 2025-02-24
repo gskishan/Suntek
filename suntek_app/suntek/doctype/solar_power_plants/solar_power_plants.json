@@ -14,7 +14,9 @@
   "column_break_chnb",
   "customer",
   "customer_mobile_no",
-  "customer_email"
+  "customer_email",
+  "section_break_rzkd",
+  "customers"
  ],
  "fields": [
   {
@@ -99,11 +101,21 @@
    "fieldname": "column_break_zqls",
    "fieldtype": "Column Break",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_rzkd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "customers",
+   "fieldtype": "Table",
+   "label": "Customers",
+   "options": "Solar Power Plant Customer"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-24 10:38:50.442162",
+ "modified": "2025-02-24 13:47:36.238761",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Solar Power Plants",

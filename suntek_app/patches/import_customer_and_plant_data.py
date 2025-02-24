@@ -80,6 +80,12 @@ def import_solar_plants():
                                     "plant_name": row["c1"].strip(),
                                     "oem": "Growatt",
                                     "customer": customer,
+                                    "customers": [
+                                        {
+                                            "suntek_customer": customer,
+                                            "mobile_no": phone,
+                                        }
+                                    ],
                                 }
                             )
                             plant.insert(ignore_permissions=True)
