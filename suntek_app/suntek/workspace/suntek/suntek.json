@@ -1,0 +1,107 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"4QIelmSq8R\",\"type\":\"header\",\"data\":{\"text\":\"<span style=\\\"font-size: 18px; letter-spacing: 0.18px;\\\"><b>Power Plants</b></span>\",\"col\":12}},{\"id\":\"KrNnULiZIj\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Unassigned Plants\",\"col\":3}},{\"id\":\"e3FDdzVDeo\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Solar Power Plants\",\"col\":3}},{\"id\":\"clCYRR-qfC\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"KKVUHFLsY5\",\"type\":\"card\",\"data\":{\"card_name\":\"Locations\",\"col\":4}},{\"id\":\"tSkIwEiIZI\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"wnTM9DMVb1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Channel Partners</b></span>\",\"col\":12}},{\"id\":\"Mx1-wADvTm\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Channel Partners\",\"col\":4}},{\"id\":\"4ijT6L8GtT\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Channel Partner Sales Orders\",\"col\":4}}]",
+ "creation": "2025-02-24 16:25:53.925268",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "today",
+ "idx": 0,
+ "indicator_color": "",
+ "is_hidden": 0,
+ "label": "Suntek",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Locations",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cities",
+   "link_count": 0,
+   "link_to": "City",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "States",
+   "link_count": 0,
+   "link_to": "State",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Districts",
+   "link_count": 0,
+   "link_to": "District",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "PIN Codes",
+   "link_count": 0,
+   "link_to": "District PIN Code",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2025-02-24 16:46:52.921030",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "Suntek",
+ "number_cards": [
+  {
+   "label": "Channel Partner Sales Orders",
+   "number_card_name": "Channel Partner Sales Orders"
+  }
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [
+  {
+   "document_type": "Channel Partner",
+   "label": "Channel Partners",
+   "quick_list_filter": "[]"
+  }
+ ],
+ "roles": [],
+ "sequence_id": 12.0,
+ "shortcuts": [
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Solar Power Plants",
+   "link_to": "Solar Power Plants",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Red",
+   "doc_view": "List",
+   "label": "Unassigned Plants",
+   "link_to": "Solar Power Plants",
+   "stats_filter": "[[\"Solar Power Plants\",\"status\",\"=\",\"Unassigned\",false]]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Suntek"
+}
