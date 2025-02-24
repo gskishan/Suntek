@@ -60,6 +60,10 @@ def import_solar_plants():
     plant_count = 0
 
     try:
+        # Explicitly reload the DocType to ensure schema is available
+        frappe.reload_doctype("Solar Power Plants")
+        frappe.reload_doctype("Solar Power Plant Customer")  # Child table doctype
+
         with open("../apps/suntek_app/suntek_app/patches/plant_data.json", "r") as f:
             data_str = f.read()
             data = json.loads(data_str)
@@ -73,21 +77,19 @@ def import_solar_plants():
                         if not frappe.db.exists(
                             "Solar Power Plants", {"plant_id": row["c0"]}
                         ):
-                            plant = frappe.get_doc(
-                                {
-                                    "doctype": "Solar Power Plants",
-                                    "plant_id": row["c0"],
-                                    "plant_name": row["c1"].strip(),
-                                    "oem": "Growatt",
-                                    "customer": customer,
-                                    "customers": [
-                                        {
-                                            "suntek_customer": customer,
-                                            "mobile_no": phone,
-                                        }
-                                    ],
-                                }
+                            # Create the main document
+                            plant = frappe.new_doc("Solar Power Plants")
+                            plant.plant_id = row["c0"]
+                            plant.plant_name = row["c1"].strip()
+                            plant.oem = "Growatt"
+                            plant.customer = customer
+
+                            # Add customer to child table
+                            plant.append(
+                                "customers",
+                                {"suntek_customer": customer, "mobile_no": phone},
                             )
+
                             plant.insert(ignore_permissions=True)
                             frappe.db.commit()
                             plant_count += 1

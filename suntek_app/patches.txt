@@ -1,4 +1,6 @@
 suntek_app.patches.change_crm_workspace_export_module
+
 # suntek_app.patches.set_sfg_in_bom_item
-suntek_app.patches.import_customer_and_plant_data
+
 suntek_app.patches.create_states_and_cities
+# suntek_app.patches.import_plant_data
