@@ -37,7 +37,7 @@ def setup_channel_partner():
         "Sales Invoice Item": {"permissions": ["read", "write", "create"]},
         "Purchase Receipt Item": {"permissions": ["read", "write", "create"]},
         "BOM Item": {"permissions": ["read", "write", "create"]},
-        "BOM": {"permissions", ["read", "write", "create"]},
+        "BOM": {"permissions": ["read", "write", "create"]},
         "Subcontracting Order": {"permissions": ["read", "write", "create"]},
         "Subcontracting BOM": {"permissions": ["read", "write", "create"]},
         "Subcontracting BOM Item": {"permissions": ["read", "write", "create"]},
