@@ -103,7 +103,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-28 11:06:30.122944",
+ "modified": "2025-02-24 10:38:50.442162",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Solar Power Plants",
@@ -124,6 +124,9 @@
   }
  ],
  "quick_entry": 1,
+ "search_fields": "plant_id, plant_name, oem, customer",
+ "show_name_in_global_search": 1,
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [
@@ -135,5 +138,6 @@
    "color": "Orange",
    "title": "Unassigned"
   }
- ]
+ ],
+ "title_field": "plant_id"
 }

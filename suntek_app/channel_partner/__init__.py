@@ -27,6 +27,20 @@ def setup_channel_partner():
             "permissions": ["read", "write", "create"],
             "if_owner": ["write"],
         },
+        "Warehouse": {"permissions": ["read", "write"]},
+        "Warehouse Type": {"permissions": ["read"]},
+        "Sales Order Item": {"permissions": ["read", "write", "create", "delete"]},
+        "Item": {"permissions": ["read", "write"]},
+        "Subcontracting Order Item": {"permissions": ["read", "write", "create"]},
+        "Purchase Order Item": {"permissions": ["read", "write", "create"]},
+        "Purchase Invoice Item": {"permissions": ["read", "write", "create"]},
+        "Sales Invoice Item": {"permissions": ["read", "write", "create"]},
+        "Purchase Receipt Item": {"permissions": ["read", "write", "create"]},
+        "BOM Item": {"permissions": ["read", "write", "create"]},
+        "BOM": {"permissions", ["read", "write", "create"]},
+        "Subcontracting Order": {"permissions": ["read", "write", "create"]},
+        "Subcontracting BOM": {"permissions": ["read", "write", "create"]},
+        "Subcontracting BOM Item": {"permissions": ["read", "write", "create"]},
     }
 
     role = "Channel Partner"
