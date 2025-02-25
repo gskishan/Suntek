@@ -103,16 +103,16 @@ doc_events = {
         "on_cancel": "suntek_app.suntek.custom.stock_entry.on_cancel",
     },
     "Solar Power Plants": {
-        # "validate": [
-        #     "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status"
-        # ],
-        # "before_save": [
-        #     "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status",
-        #     "suntek_app.suntek.custom.solar_power_plants.check_customer_mobile_number",
-        # ],
-        # "on_update": [
-        #     "suntek_app.suntek.custom.solar_power_plants.handle_solar_ambassador_webhook",
-        # ],
+        "validate": [
+            "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status"
+        ],
+        "before_save": [
+            "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status",
+            "suntek_app.suntek.custom.solar_power_plants.check_customer_mobile_number",
+        ],
+        "on_update": [
+            "suntek_app.suntek.custom.solar_power_plants.handle_solar_ambassador_webhook",
+        ],
     },
     "Issue": {
         "on_update": [
