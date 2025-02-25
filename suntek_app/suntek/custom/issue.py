@@ -1,5 +1,8 @@
+import json
+
 import frappe
 import requests
+from bs4 import BeautifulSoup
 
 from suntek_app.suntek.custom.lead import parse_request_data
 from suntek_app.suntek.utils.api_handler import create_api_response
@@ -190,18 +193,28 @@ def send_issue_update_to_ambassador_api(doc, method):
                 )
                 return False
 
+            comments_data = get_comments(doc) or []
+            resolution_details = get_clean_html_content(doc.resolution_details)
+
+            # Prepare webhook payload with comments
+            webhook_data = {
+                "name": doc.name,
+                "raised_by": doc.raised_by,
+                "subject": doc.subject,
+                "customer": doc.customer,
+                "issue_status": doc.status,
+                "contact_person": doc.custom_contact_person_name,
+                "contact_person_phone": doc.custom_contact_person_mobile,
+                "closed_opening_date": doc.custom_closedpending_date,
+                "resolution_details": resolution_details,
+                "comments": comments_data,  # Add comments to webhook payload
+            }
+
+            print(json.dumps(webhook_data, indent=4))
+
             response = requests.put(
                 f"{django_api_url}/support/webhook/issue-updated",
-                json={
-                    "name": doc.name,
-                    "raised_by": doc.raised_by,
-                    "subject": doc.subject,
-                    "customer": doc.customer,
-                    "issue_status": doc.status,
-                    "contact_person": doc.custom_contact_person_name,
-                    "contact_person_phone": doc.custom_contact_person_mobile,
-                    "closed_opening_date": doc.custom_closedpending_date,
-                },
+                json=webhook_data,
                 headers={
                     "X-Django-Server-Authorization": f"Bearer {api_token}",
                     "Content-Type": "application/json",
@@ -218,3 +231,40 @@ def send_issue_update_to_ambassador_api(doc, method):
         except Exception as e:
             frappe.log_error(f"Error in send_issue_update_to_ambassador_api: {str(e)}")
             return False
+
+
+def get_comments(doc, method=None):
+    try:
+        comments = frappe.get_all(
+            "Comment",
+            filters={"reference_doctype": "Issue", "reference_name": doc.name},
+            fields=["content", "creation", "owner"],
+            order_by="creation desc",
+        )
+
+        if comments:
+            comments_data = []
+            for comment in comments:
+                text = get_clean_html_content(comment.content)
+
+                comments_data.append(
+                    {
+                        "content": text,
+                        "owner": comment.owner,
+                        "creation": comment.creation.strftime("%Y-%m-%d %H:%M:%S"),
+                    }
+                )
+
+            return comments_data
+
+    except Exception as e:
+        print(str(e))
+
+
+def get_clean_html_content(html_content):
+    if not html_content:
+        return ""
+
+    soup = BeautifulSoup(html_content, "html.parser")
+    text = soup.find("div", class_="ql-editor").get_text(strip=True)
+    return text

@@ -50,22 +50,51 @@ def handle_solar_ambassador_webhook(doc, method=None):
             "plant_name": doc.plant_name,
         }
 
-        if doc.customer and doc.customer_mobile_no:
-            if not old_doc or not old_doc.customer:
-                webhook_data.update(
-                    {
-                        "customer": doc.customer,
-                        "customer_email": getattr(doc, "customer_email", None),
-                        "customer_mobile": doc.customer_mobile_no,
-                        "action": "customer_assigned",
+        current_customers = {}
+        old_customers = {}
+        customers_data = []
+
+        if doc.customers:
+            for customer in doc.customers:
+                if customer.mobile_no:
+                    customer_data = {
+                        "customer": customer.suntek_customer,
+                        "customer_email": customer.email if customer.email else "",
+                        "customer_mobile": customer.mobile_no,
                     }
-                )
-        elif old_doc and old_doc.customer and not doc.customer:
+                    current_customers[customer.mobile_no] = customer_data
+                    customers_data.append(customer_data)
+
+        if old_doc and old_doc.customers:
+            for customer in old_doc.customers:
+                if customer.mobile_no:
+                    old_customers[customer.mobile_no] = {
+                        "customer": customer.suntek_customer,
+                        "customer_email": customer.email if customer.email else "",
+                        "customer_mobile": customer.mobile_no,
+                    }
+
+        added_mobiles = set(current_customers.keys()) - set(old_customers.keys())
+        removed_mobiles = set(old_customers.keys()) - set(current_customers.keys())
+
+        if added_mobiles:
             webhook_data.update(
                 {
-                    "previous_customer": old_doc.customer,
-                    "previous_mobile": getattr(old_doc, "customer_mobile_no", None),
+                    "action": "customer_assigned",
+                    "customers": customers_data,
+                    "added_customers": [
+                        current_customers[mobile] for mobile in added_mobiles
+                    ],
+                }
+            )
+        elif removed_mobiles:
+            webhook_data.update(
+                {
                     "action": "customer_removed",
+                    "customers": customers_data,
+                    "removed_customers": [
+                        old_customers[mobile] for mobile in removed_mobiles
+                    ],
                 }
             )
         else:

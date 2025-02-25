@@ -7,15 +7,17 @@
  "engine": "InnoDB",
  "field_order": [
   "suntek_customer",
-  "mobile_no"
+  "mobile_no",
+  "email"
  ],
  "fields": [
   {
-   "fetch_from": "customer.mobile_no",
+   "fetch_from": "suntek_customer.mobile_no",
    "fieldname": "mobile_no",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Mobile No"
+   "label": "Mobile No",
+   "reqd": 1
   },
   {
    "fieldname": "suntek_customer",
@@ -27,12 +29,20 @@
    "label": "Customer",
    "options": "Customer",
    "reqd": 1
+  },
+  {
+   "fetch_from": "suntek_customer.email_id",
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Email"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-02-24 13:37:21.902591",
+ "modified": "2025-02-25 11:55:24.956589",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Solar Power Plant Customer",

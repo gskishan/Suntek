@@ -116,7 +116,7 @@ doc_events = {
     },
     "Issue": {
         "on_update": [
-            "suntek_app.suntek.custom.issue.send_issue_update_to_ambassador_api"
+            "suntek_app.suntek.custom.issue.send_issue_update_to_ambassador_api",
         ]
     },
 }

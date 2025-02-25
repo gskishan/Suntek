@@ -107,6 +107,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "description": "If the customer does not have a mobile number, please add it to the Customer doctype as the mobile number is necessary for the customer to have an account on Customer App",
    "fieldname": "customers",
    "fieldtype": "Table",
    "label": "Customers",
@@ -115,7 +116,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-24 13:47:36.238761",
+ "modified": "2025-02-25 11:57:14.577484",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Solar Power Plants",
