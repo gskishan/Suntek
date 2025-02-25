@@ -3,7 +3,7 @@ suntek_app.patches.create_states_and_cities
 
 
 
-# suntek_app.patches.import_plant_data
+suntek_app.patches.import_plant_data
 # suntek_app.patches.set_sfg_in_bom_item
 
 

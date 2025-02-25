@@ -68,17 +68,17 @@ def create_issue_from_api():
     Request Body:
     ```py
     {
-        "custom_phone_number": str,          # Required. Customer's phone number
-        "subject": str,                      # Required. Issue subject/title
-        "customer_name": str,                # Optional. Name for new customer if not found
-        "custom_inverter_serial_no": str,    # Optional. Serial number of the inverter
-        "custom_mode_of_complaint": str,     # Optional. Description of the issue
-        "custom_source": str,                # Optional. Source of the issue (defaults to "Customer App")
-        "custom_product_category": str,      # Optional. Category of the product issue
-                                             # Valid categories: "advisory", "suggestions",
-                                             # "inverter_abnormal", "storage_machine_failed",
-                                             # "monitoring_system_problems", "other_questions"
-        "custom_images": list[str]           # Optional. List of image URLs
+        "custom_phone_number": str,
+        "subject": str,
+        "customer_name": str,
+        "custom_inverter_serial_no": str,
+        "custom_mode_of_complaint": str,
+        "custom_source": str,
+        "custom_product_category": str,
+
+
+
+        "custom_images": list[str]
     }
     ```
 
@@ -89,11 +89,11 @@ def create_issue_from_api():
             "status": "success",
             "message": "Issue created successfully",
             "data": {
-                "name": str,          # Issue ID
-                "subject": str,       # Issue subject
-                "customer": str,      # Customer ID
-                "issue_status": str,  # Status of the issue
-                "mobile_no": str      # Customer's phone number
+                "name": str,
+                "subject": str,
+                "customer": str,
+                "issue_status": str,
+                "mobile_no": str
             }
         }
         ```
@@ -196,7 +196,6 @@ def send_issue_update_to_ambassador_api(doc, method):
             comments_data = get_comments(doc) or []
             resolution_details = get_clean_html_content(doc.resolution_details)
 
-            # Prepare webhook payload with comments
             webhook_data = {
                 "name": doc.name,
                 "raised_by": doc.raised_by,
@@ -207,10 +206,10 @@ def send_issue_update_to_ambassador_api(doc, method):
                 "contact_person_phone": doc.custom_contact_person_mobile,
                 "closed_opening_date": doc.custom_closedpending_date,
                 "resolution_details": resolution_details,
-                "comments": comments_data,  # Add comments to webhook payload
+                "comments": comments_data,
             }
 
-            print(json.dumps(webhook_data, indent=4))
+            print(json.dumps(webhook_data, indent=4))  # TODO: Remove later
 
             response = requests.put(
                 f"{django_api_url}/support/webhook/issue-updated",
@@ -230,6 +229,7 @@ def send_issue_update_to_ambassador_api(doc, method):
             return True
         except Exception as e:
             frappe.log_error(f"Error in send_issue_update_to_ambassador_api: {str(e)}")
+            print(f"Error: {str(e)}")
             return False
 
 

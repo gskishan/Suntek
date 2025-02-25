@@ -1,3 +1,4 @@
+import json
 import re
 import time
 from typing import Dict
@@ -101,6 +102,7 @@ def handle_solar_ambassador_webhook(doc, method=None):
             return
 
         success = send_webhook(webhook_data)
+        print(json.dumps(webhook_data, indent=4))
         if not success:
             frappe.log_error(
                 message=f"Failed to send webhook for plant {doc.plant_id}",

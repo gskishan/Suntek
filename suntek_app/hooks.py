@@ -27,9 +27,9 @@ before_install = "suntek_app.install.before_install"
 
 before_migrate = "suntek_app.migrate.before_migrate"
 
-override_whitelisted_methods = {
-    "erpnext.selling.doctype.sales_order.sales_order.make_sales_invoice": "suntek_app.overrides.sales_order.make_sales_invoice"
-}
+# override_whitelisted_methods = {
+#     "erpnext.selling.doctype.sales_order.sales_order.make_sales_invoice": "suntek_app.overrides.sales_order.make_sales_invoice"
+# }
 
 override_doctype_dashboards = {
     "Opportunity": "suntek_app.suntek.custom_dashboard.dashboard.update_opportunity_dashboard",
@@ -88,7 +88,7 @@ doc_events = {
     },
     "Project": {
         "validate": "suntek_app.suntek.custom.project.validate",
-        "before_save": ["suntek_app.suntek.custom.project.get_channel_partner_data"],
+        # "before_save": ["suntek_app.suntek.custom.project.get_channel_partner_data"],
     },
     "Price List": {"validate": "suntek_app.custom_script.price_list.validate"},
     "Item Price": {"validate": "suntek_app.custom_script.item_price.validate"},
