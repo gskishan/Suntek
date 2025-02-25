@@ -14,7 +14,9 @@
   "column_break_chnb",
   "customer",
   "customer_mobile_no",
-  "customer_email"
+  "customer_email",
+  "section_break_rzkd",
+  "customers"
  ],
  "fields": [
   {
@@ -99,11 +101,22 @@
    "fieldname": "column_break_zqls",
    "fieldtype": "Column Break",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_rzkd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "If the customer does not have a mobile number, please add it to the Customer doctype as the mobile number is necessary for the customer to have an account on Customer App",
+   "fieldname": "customers",
+   "fieldtype": "Table",
+   "label": "Customers",
+   "options": "Solar Power Plant Customer"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-01-28 11:06:30.122944",
+ "modified": "2025-02-25 11:57:14.577484",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Solar Power Plants",
@@ -124,6 +137,9 @@
   }
  ],
  "quick_entry": 1,
+ "search_fields": "plant_id, plant_name, oem, customer",
+ "show_name_in_global_search": 1,
+ "show_title_field_in_link": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [
@@ -135,5 +151,6 @@
    "color": "Orange",
    "title": "Unassigned"
   }
- ]
+ ],
+ "title_field": "plant_id"
 }

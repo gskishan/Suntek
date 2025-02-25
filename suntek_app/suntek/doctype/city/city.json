@@ -1,76 +1,131 @@
 {
- "actions": [],
- "allow_rename": 1,
- "autoname": "field:city",
- "creation": "2025-02-05 15:19:56.829081",
- "doctype": "DocType",
- "engine": "InnoDB",
- "field_order": [
-  "city",
-  "state",
-  "country",
-  "state_code"
- ],
- "fields": [
-  {
-   "fieldname": "city",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "City",
-   "reqd": 1,
-   "unique": 1
-  },
-  {
-   "fetch_from": "state.country",
-   "fieldname": "country",
-   "fieldtype": "Data",
-   "label": "Country"
-  },
-  {
-   "fieldname": "state",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "State",
-   "options": "State",
-   "reqd": 1
-  },
-  {
-   "fieldname": "state_code",
-   "fieldtype": "Data",
-   "label": "State Code"
-  }
- ],
- "index_web_pages_for_search": 1,
- "links": [
-  {
-   "link_doctype": "District",
-   "link_fieldname": "city"
-  }
- ],
- "modified": "2025-02-11 12:15:04.315820",
- "modified_by": "Administrator",
- "module": "suntek",
- "name": "City",
- "naming_rule": "By fieldname",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
- "search_fields": "city, state, state_code",
- "show_title_field_in_link": 1,
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": [],
- "title_field": "city"
+    "actions": [],
+    "allow_rename": 1,
+    "autoname": "field:city",
+    "creation": "2025-02-05 15:19:56.829081",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "city",
+        "state",
+        "country",
+        "state_code"
+    ],
+    "fields": [
+        {
+            "fieldname": "city",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "City",
+            "reqd": 1,
+            "unique": 1
+        },
+        {
+            "fetch_from": "state.country",
+            "fieldname": "country",
+            "fieldtype": "Data",
+            "label": "Country"
+        },
+        {
+            "fieldname": "state",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "State",
+            "options": "State",
+            "reqd": 1
+        },
+        {
+            "fieldname": "state_code",
+            "fieldtype": "Data",
+            "label": "State Code"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [
+        {
+            "link_doctype": "District",
+            "link_fieldname": "city"
+        }
+    ],
+    "modified": "2025-02-11 12:15:04.315820",
+    "modified_by": "Administrator",
+    "module": "suntek",
+    "name": "City",
+    "naming_rule": "By fieldname",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "All",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Sales Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Projects Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Delivery Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Purchase Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "search_fields": "city, state, state_code",
+    "show_title_field_in_link": 1,
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": [],
+    "title_field": "city"
 }
