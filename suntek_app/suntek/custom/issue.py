@@ -238,7 +238,7 @@ def get_comments(doc, method=None):
         comments = frappe.get_all(
             "Comment",
             filters={"reference_doctype": "Issue", "reference_name": doc.name},
-            fields=["content", "creation", "owner"],
+            fields=["name", "content", "creation", "owner"],
             order_by="creation desc",
         )
 
@@ -249,6 +249,7 @@ def get_comments(doc, method=None):
 
                 comments_data.append(
                     {
+                        "comment_id": comment.name,
                         "content": text,
                         "owner": comment.owner,
                         "creation": comment.creation.strftime("%Y-%m-%d %H:%M:%S"),
