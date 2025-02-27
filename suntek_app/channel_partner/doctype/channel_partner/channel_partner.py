@@ -131,7 +131,7 @@ class ChannelPartner(Document):
             user.flags.ignore_permissions = True
             user.insert(ignore_mandatory=True)
 
-            user.add_roles("Channel Partner", "Stock User", "System Manager")
+            user.add_roles("Channel Partner")
             user.save()
             frappe.db.commit()
 
@@ -167,6 +167,9 @@ class ChannelPartner(Document):
                     "warehouse_name": warehouse_name,
                     "parent_warehouse": parent_warehouse,
                     "company": "Suntek Energy Systems Pvt. Ltd.",
+                    "custom_suntek_district": self.district_name,
+                    "custom_suntek_city": self.city,
+                    "custom_suntek_state": self.state,
                 }
             )
 
