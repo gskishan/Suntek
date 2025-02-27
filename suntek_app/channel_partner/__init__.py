@@ -8,7 +8,6 @@ def setup_channel_partner():
         role.role_name = "Channel Partner"
         role.desk_access = 1
         role.save(ignore_permissions=True)
-        print("Created Channel Partner role")
 
     doctype_permissions = {
         "Channel Partner": {
@@ -62,7 +61,6 @@ def setup_channel_partner():
 
                 if not perm_exists:
                     add_permission(doctype, role, permlevel=0, ptype=ptype)
-                    print(f"{doctype}: Added {ptype} permission for role {role}")
 
                     if ptype in config.get("if_owner", []):
                         permission = frappe.get_doc(
@@ -76,7 +74,6 @@ def setup_channel_partner():
                             }
                         )
                         permission.save(ignore_permissions=True)
-                        print(f"Added 'Only if Creator' for {ptype} on {doctype}")
 
             frappe.db.commit()
 
@@ -90,7 +87,6 @@ def setup_channel_partner_parent_warehouse_type():
         warehouse_type.name = "Channel Partner"
         warehouse_type.save()
         frappe.db.commit()
-        print("Created Channel Partner warehouse type")
 
 
 def setup_channel_partner_parent_warehouse():
@@ -109,4 +105,3 @@ def setup_channel_partner_parent_warehouse():
         wh.warehouse_type = "Channel Partner"
         wh.save(ignore_permissions=True)
         frappe.db.commit()
-        print(f"Created Channel Partner Parent Warehouse: {wh.name}")

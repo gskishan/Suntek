@@ -14,7 +14,7 @@ def change_power_plant_assigned_status(doc, method):
 
 
 def check_customer_details(doc):
-    return bool(doc.customer and doc.customer_mobile_no)
+    return bool(doc.customers and len(doc.customers) > 0)
 
 
 def customer_contains_mobile_number(doc):

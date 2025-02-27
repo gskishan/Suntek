@@ -13,4 +13,6 @@ def before_migrate():
 
 
 def after_migrate():
-    pass
+    from suntek_app.migrate.enable import solar_ambassador_integration
+
+    solar_ambassador_integration()
