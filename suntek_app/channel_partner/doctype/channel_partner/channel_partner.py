@@ -112,6 +112,21 @@ class ChannelPartner(Document):
         except Exception as e:
             frappe.log_error(str(e), "Channel Partner User Permission Creation Error")
 
+    def create_department_permission(self):
+        try:
+            user_permission = frappe.new_doc("User Permission")
+
+            user_permission.user = self.linked_user
+            user_permission.allow = "Department"
+            user_permission.for_value = "Channel Partner - SESP"
+            user_permission.apply_to_all_doctypes = 1
+
+            user_permission.save()
+
+            frappe.db.commit()
+        except Exception as e:
+            frappe.log_error(str(e), "Channel Partner Department Permission created")
+
     @frappe.whitelist()
     def create_user(self):
         """
@@ -139,6 +154,7 @@ class ChannelPartner(Document):
             self.db_set("is_user_created", 1)
 
             self.create_user_permissions()
+            self.create_department_permission()
 
             return user.name
 
