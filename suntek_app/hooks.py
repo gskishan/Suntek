@@ -26,6 +26,7 @@ doctype_js = {
 before_install = "suntek_app.install.before_install"
 
 before_migrate = "suntek_app.migrate.before_migrate"
+after_migrate = "suntek_app.migrate.after_migrate"
 
 # override_whitelisted_methods = {
 #     "erpnext.selling.doctype.sales_order.sales_order.make_sales_invoice": "suntek_app.overrides.sales_order.make_sales_invoice"
@@ -103,13 +104,6 @@ doc_events = {
         "on_cancel": "suntek_app.suntek.custom.stock_entry.on_cancel",
     },
     "Solar Power Plants": {
-        "validate": [
-            "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status"
-        ],
-        "before_save": [
-            "suntek_app.suntek.custom.solar_power_plants.change_power_plant_assigned_status",
-            "suntek_app.suntek.custom.solar_power_plants.check_customer_mobile_number",
-        ],
         "on_update": [
             "suntek_app.suntek.custom.solar_power_plants.handle_solar_ambassador_webhook",
         ],
