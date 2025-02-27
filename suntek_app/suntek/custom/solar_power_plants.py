@@ -1,4 +1,3 @@
-import json
 import re
 import time
 from typing import Dict
@@ -60,7 +59,7 @@ def handle_solar_ambassador_webhook(doc, method=None):
                 if customer.mobile_no:
                     customer_data = {
                         "customer": customer.suntek_customer,
-                        "customer_email": customer.email if customer.email else "",
+                        "customer_email": customer.email if customer.email else None,
                         "customer_mobile": customer.mobile_no,
                     }
                     current_customers[customer.mobile_no] = customer_data
@@ -71,7 +70,7 @@ def handle_solar_ambassador_webhook(doc, method=None):
                 if customer.mobile_no:
                     old_customers[customer.mobile_no] = {
                         "customer": customer.suntek_customer,
-                        "customer_email": customer.email if customer.email else "",
+                        "customer_email": customer.email if customer.email else None,
                         "customer_mobile": customer.mobile_no,
                     }
 
@@ -102,7 +101,6 @@ def handle_solar_ambassador_webhook(doc, method=None):
             return
 
         success = send_webhook(webhook_data)
-        print(json.dumps(webhook_data, indent=4))
         if not success:
             frappe.log_error(
                 message=f"Failed to send webhook for plant {doc.plant_id}",
