@@ -79,38 +79,70 @@ class ChannelPartner(Document):
             frappe.throw(str(e))
 
     def create_user_permissions(self):
-        restricted_doctypes = [
-            "Lead",
-            "Opportunity",
-            "Quotation",
-            "Sales Order",
-            "Site Survey",
-            "Designing",
-            "Project",
-            "Discom",
-            "Subsidy",
-            "Sales Invoice",
-            "Delivery Note",
-            "Installation Note",
-            "Purchase Order",
-            "Purchase Invoice",
-        ]
-
+        # restricted_doctypes = [
+        #     "Lead",
+        #     "Opportunity",
+        #     "Quotation",
+        #     "Sales Order",
+        #     "Site Survey",
+        #     "Designing",
+        #     "Project",
+        #     "Discom",
+        #     "Subsidy",
+        #     "Sales Invoice",
+        #     "Delivery Note",
+        #     "Installation Note",
+        #     "Purchase Order",
+        #     "Purchase Invoice",
+        # ]
+        #
+        # try:
+        #     for doctype in restricted_doctypes:
+        #         user_permission = frappe.new_doc("User Permission")
+        #
+        #         user_permission.user = self.linked_user
+        #         user_permission.allow = "Channel Partner"
+        #         user_permission.for_value = self.name
+        #         user_permission.apply_to_all_doctypes = 0
+        #         user_permission.applicable_for = doctype
+        #
+        #         user_permission.save()
+        #
+        #     frappe.db.commit()
         try:
-            for doctype in restricted_doctypes:
-                user_permission = frappe.new_doc("User Permission")
+            user_permission = frappe.new_doc("User Permission")
 
-                user_permission.user = self.linked_user
-                user_permission.allow = "Channel Partner"
-                user_permission.for_value = self.name
-                user_permission.apply_to_all_doctypes = 0
-                user_permission.applicable_for = doctype
+            user_permission.update(
+                {
+                    "user": self.linked_user,
+                    "allow": "Channel Partner",
+                    "for_value": self.name,
+                    "apply_to_all_doctypes": 1,
+                }
+            )
 
-                user_permission.save()
+            user_permission.save()
+
+            frappe.db.commit()
+
+            print(f"User Permission saved: {user_permission.name}")
+        except Exception as e:
+            frappe.log_error(str(e), "Channel Partner User Permission Creation Error")
+
+    def create_department_permission(self):
+        try:
+            user_permission = frappe.new_doc("User Permission")
+
+            user_permission.user = self.linked_user
+            user_permission.allow = "Department"
+            user_permission.for_value = "Channel Partner - SESP"
+            user_permission.apply_to_all_doctypes = 1
+
+            user_permission.save()
 
             frappe.db.commit()
         except Exception as e:
-            frappe.log_error(str(e), "Channel Partner User Permission Creation Error")
+            frappe.log_error(str(e), "Channel Partner Department Permission created")
 
     @frappe.whitelist()
     def create_user(self):
@@ -131,7 +163,7 @@ class ChannelPartner(Document):
             user.flags.ignore_permissions = True
             user.insert(ignore_mandatory=True)
 
-            user.add_roles("Channel Partner", "Stock User", "System Manager")
+            user.add_roles("Channel Partner")
             user.save()
             frappe.db.commit()
 
@@ -139,6 +171,7 @@ class ChannelPartner(Document):
             self.db_set("is_user_created", 1)
 
             self.create_user_permissions()
+            self.create_department_permission()
 
             return user.name
 
@@ -167,6 +200,9 @@ class ChannelPartner(Document):
                     "warehouse_name": warehouse_name,
                     "parent_warehouse": parent_warehouse,
                     "company": "Suntek Energy Systems Pvt. Ltd.",
+                    "custom_suntek_district": self.district_name,
+                    "custom_suntek_city": self.city,
+                    "custom_suntek_state": self.state,
                 }
             )
 
@@ -177,11 +213,18 @@ class ChannelPartner(Document):
 
             frappe.db.commit()
 
-            if self.linked_user and self.warehouse:
-                self.create_warehouse_permission(warehouse=warehouse)
+            # if self.linked_user and self.warehouse:
+            #     self.create_warehouse_permission(warehouse=warehouse)
 
             return warehouse.name
 
         except Exception as e:
             frappe.log_error(str(e), "Warehouse creation error")
             frappe.throw(str(e))
+
+
+@frappe.whitelist()
+def get_channel_partner_data_from_project(project_id):
+    project = frappe.get_doc("Project", project_id)
+
+    return project.custom_channel_partner if project.custom_channel_partner else None
