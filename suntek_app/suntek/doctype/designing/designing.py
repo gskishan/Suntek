@@ -24,6 +24,9 @@ class Designing(Document):
         if duplicates:
             frappe.throw("Duplicate Items found: {}".format(", ".join(duplicates)))
 
+    def before_save(self):
+        self.get_channel_partner_data_from_project()
+
     def after_insert(self):
         self.update_designing_on_save()
         self.update_opportunity_status_section()
@@ -37,6 +40,12 @@ class Designing(Document):
 
     def update_designing_status(self):
         self.db_set("designing_status", "Completed")
+
+    def get_channel_partner_data_from_project(self):
+        project = frappe.get_doc("Project", self.custom_project)
+        self.channel_partner = (
+            project.custom_channel_partner if project.custom_channel_partner else None
+        )
 
     @frappe.whitelist()
     def update_old_status(self):

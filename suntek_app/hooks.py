@@ -47,6 +47,11 @@ doc_events = {
     "Address": {
         "before_save": ["suntek_app.custom_script.address.add_enquiry_to_links"]
     },
+    "BOM": {
+        "before_save": [
+            "suntek_app.custom_script.bom.set_channel_partner_data_in_bom",
+        ]
+    },
     "Lead": {
         "validate": [
             "suntek_app.suntek.custom.lead.change_enquiry_status",

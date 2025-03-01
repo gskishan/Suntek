@@ -79,36 +79,53 @@ class ChannelPartner(Document):
             frappe.throw(str(e))
 
     def create_user_permissions(self):
-        restricted_doctypes = [
-            "Lead",
-            "Opportunity",
-            "Quotation",
-            "Sales Order",
-            "Site Survey",
-            "Designing",
-            "Project",
-            "Discom",
-            "Subsidy",
-            "Sales Invoice",
-            "Delivery Note",
-            "Installation Note",
-            "Purchase Order",
-            "Purchase Invoice",
-        ]
-
+        # restricted_doctypes = [
+        #     "Lead",
+        #     "Opportunity",
+        #     "Quotation",
+        #     "Sales Order",
+        #     "Site Survey",
+        #     "Designing",
+        #     "Project",
+        #     "Discom",
+        #     "Subsidy",
+        #     "Sales Invoice",
+        #     "Delivery Note",
+        #     "Installation Note",
+        #     "Purchase Order",
+        #     "Purchase Invoice",
+        # ]
+        #
+        # try:
+        #     for doctype in restricted_doctypes:
+        #         user_permission = frappe.new_doc("User Permission")
+        #
+        #         user_permission.user = self.linked_user
+        #         user_permission.allow = "Channel Partner"
+        #         user_permission.for_value = self.name
+        #         user_permission.apply_to_all_doctypes = 0
+        #         user_permission.applicable_for = doctype
+        #
+        #         user_permission.save()
+        #
+        #     frappe.db.commit()
         try:
-            for doctype in restricted_doctypes:
-                user_permission = frappe.new_doc("User Permission")
+            user_permission = frappe.new_doc("User Permission")
 
-                user_permission.user = self.linked_user
-                user_permission.allow = "Channel Partner"
-                user_permission.for_value = self.name
-                user_permission.apply_to_all_doctypes = 0
-                user_permission.applicable_for = doctype
+            user_permission.update(
+                {
+                    "user": self.linked_user,
+                    "allow": "Channel Partner",
+                    "for_value": self.name,
+                    "apply_to_all_doctypes": 1,
+                }
+            )
 
-                user_permission.save()
+            user_permission.save()
 
             frappe.db.commit()
+
+            print(f"User Permission saved: {user_permission.name}")
         except Exception as e:
             frappe.log_error(str(e), "Channel Partner User Permission Creation Error")
 
@@ -196,8 +213,8 @@ class ChannelPartner(Document):
 
             frappe.db.commit()
 
-            if self.linked_user and self.warehouse:
-                self.create_warehouse_permission(warehouse=warehouse)
+            # if self.linked_user and self.warehouse:
+            #     self.create_warehouse_permission(warehouse=warehouse)
 
             return warehouse.name
 
