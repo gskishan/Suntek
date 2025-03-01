@@ -7,6 +7,10 @@ from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import flt
 
+from suntek_app.channel_partner.doctype.channel_partner.channel_partner import (
+    get_channel_partner_data_from_project,
+)
+
 
 class Designing(Document):
     def validate(self):
@@ -25,7 +29,7 @@ class Designing(Document):
             frappe.throw("Duplicate Items found: {}".format(", ".join(duplicates)))
 
     def before_save(self):
-        self.get_channel_partner_data_from_project()
+        self.set_channel_partner_data()
 
     def after_insert(self):
         self.update_designing_on_save()
@@ -41,11 +45,11 @@ class Designing(Document):
     def update_designing_status(self):
         self.db_set("designing_status", "Completed")
 
-    def get_channel_partner_data_from_project(self):
-        project = frappe.get_doc("Project", self.custom_project)
-        self.channel_partner = (
-            project.custom_channel_partner if project.custom_channel_partner else None
-        )
+    def set_channel_partner_data(self):
+        if self.custom_project:
+            self.channel_partner = get_channel_partner_data_from_project(
+                self.custom_project
+            )
 
     @frappe.whitelist()
     def update_old_status(self):

@@ -221,3 +221,10 @@ class ChannelPartner(Document):
         except Exception as e:
             frappe.log_error(str(e), "Warehouse creation error")
             frappe.throw(str(e))
+
+
+@frappe.whitelist()
+def get_channel_partner_data_from_project(project_id):
+    project = frappe.get_doc("Project", project_id)
+
+    return project.custom_channel_partner if project.custom_channel_partner else None
