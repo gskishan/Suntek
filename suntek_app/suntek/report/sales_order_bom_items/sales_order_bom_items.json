@@ -9,7 +9,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "letterhead": null,
- "modified": "2025-02-13 12:09:07.838737",
+ "modified": "2025-03-01 10:32:55.257058",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Sales Order BOM Items",
@@ -99,6 +99,12 @@
   },
   {
    "role": "Quality Manager"
+  },
+  {
+   "role": "All"
+  },
+  {
+   "role": "Custom Report User"
   }
  ],
  "timeout": 0

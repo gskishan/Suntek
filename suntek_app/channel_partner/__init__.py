@@ -3,7 +3,9 @@ from frappe.permissions import add_permission
 
 
 def setup_channel_partner():
-    if not frappe.db.exists("Role", "Channel Partner"):
+    role_exists = frappe.db.exists("Role", "Channel Partner")
+
+    if not role_exists:
         role = frappe.new_doc("Role")
         role.role_name = "Channel Partner"
         role.desk_access = 1
@@ -21,6 +23,9 @@ def setup_channel_partner():
         },
         "Opportunity": {
             "permissions": ["read", "write", "create"],
+        },
+        "Sales Order": {
+            "permissions": ["read", "write", "create", "delete"],
         },
         "Discom": {
             "permissions": ["read", "write", "create"],
@@ -44,41 +49,34 @@ def setup_channel_partner():
 
     role = "Channel Partner"
 
+    for doctype in doctype_permissions.keys():
+        frappe.db.delete("Custom DocPerm", {"parent": doctype, "role": role})
+
     for doctype, config in doctype_permissions.items():
         try:
-            existing_perms = frappe.get_all(
-                "Custom DocPerm",
-                filters={"parent": doctype, "role": role},
-                fields=["permlevel", "read", "write", "create", "delete", "if_owner"],
-            )
+            permission = frappe.new_doc("Custom DocPerm")
+            permission.parent = doctype
+            permission.role = role
+            permission.permlevel = 0
+
+            permission.read = 0
+            permission.write = 0
+            permission.create = 0
+            permission.delete = 0
+            permission.export = 1
 
             for ptype in config["permissions"]:
-                perm_exists = False
-                for perm in existing_perms:
-                    if perm.get(ptype):
-                        perm_exists = True
-                        break
+                setattr(permission, ptype, 1)
 
-                if not perm_exists:
-                    add_permission(doctype, role, permlevel=0, ptype=ptype)
+            if "if_owner" in config:
+                permission.if_owner = 1
 
-                    if ptype in config.get("if_owner", []):
-                        permission = frappe.get_doc(
-                            {
-                                "doctype": "Custom DocPerm",
-                                "parent": doctype,
-                                "role": role,
-                                "permlevel": 0,
-                                ptype: 1,
-                                "if_owner": 1,
-                            }
-                        )
-                        permission.save(ignore_permissions=True)
-
+            permission.save(ignore_permissions=True)
             frappe.db.commit()
 
         except Exception as e:
-            frappe.log_error(f"Error setting up permissions for {doctype}: {str(e)}")
+            frappe.log_error(f"Error managing permission for {doctype}: {str(e)}")
+            print(f"Error managing permission for {doctype}: {str(e)}")
 
 
 def setup_channel_partner_parent_warehouse_type():
