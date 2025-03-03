@@ -467,9 +467,25 @@
   {
    "link_doctype": "Project",
    "link_fieldname": "custom_channel_partner"
+  },
+  {
+   "link_doctype": "Designing",
+   "link_fieldname": "channel_partner"
+  },
+  {
+   "link_doctype": "BOM",
+   "link_fieldname": "custom_channel_partner"
+  },
+  {
+   "link_doctype": "Discom",
+   "link_fieldname": "channel_partner"
+  },
+  {
+   "link_doctype": "Subsidy",
+   "link_fieldname": "channel_partner"
   }
  ],
- "modified": "2025-02-27 16:03:20.181196",
+ "modified": "2025-03-03 11:01:53.248224",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner",
