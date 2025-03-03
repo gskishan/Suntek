@@ -104,7 +104,7 @@ doc_events = {
     },
     "Project": {
         "validate": "suntek_app.suntek.custom.project.validate",
-        # "before_save": ["suntek_app.suntek.custom.project.get_channel_partner_data"],
+        "before_save": ["suntek_app.suntek.custom.project.get_channel_partner_data"],
     },
     "Price List": {"validate": "suntek_app.custom_script.price_list.validate"},
     "Item Price": {"validate": "suntek_app.custom_script.item_price.validate"},
