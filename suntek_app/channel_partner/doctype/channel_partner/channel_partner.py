@@ -66,7 +66,7 @@ class ChannelPartner(Document):
                     "user": self.linked_user,
                     "allow": "Warehouse",
                     "for_value": warehouse.name,
-                    "apply_to_all_doctypes": 1,
+                    "applicable_for": "Warehouse",
                 }
             )
 
@@ -213,8 +213,8 @@ class ChannelPartner(Document):
 
             frappe.db.commit()
 
-            # if self.linked_user and self.warehouse:
-            #     self.create_warehouse_permission(warehouse=warehouse)
+            if self.linked_user and self.warehouse:
+                self.create_warehouse_permission(warehouse=warehouse)
 
             return warehouse.name
 

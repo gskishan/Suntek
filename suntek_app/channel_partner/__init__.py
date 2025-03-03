@@ -12,41 +12,34 @@ def setup_channel_partner():
         role.save(ignore_permissions=True)
 
     doctype_permissions = {
-        "Channel Partner": {
-            "permissions": ["read", "write", "create", "delete"],
-        },
-        "Customer": {
-            "permissions": ["read", "write", "create"],
-        },
-        "Lead": {
-            "permissions": ["read", "write", "create"],
-        },
-        "Opportunity": {
-            "permissions": ["read", "write", "create"],
-        },
-        "Sales Order": {
-            "permissions": ["read", "write", "create", "delete"],
-        },
-        "Discom": {
-            "permissions": ["read", "write", "create"],
-            "if_owner": ["write"],
-        },
-        "Warehouse": {"permissions": ["read", "write"]},
-        "Warehouse Type": {"permissions": ["read"]},
-        "Sales Order Item": {"permissions": ["read", "write", "create", "delete"]},
-        "Item": {"permissions": ["read", "write"]},
-        "Subcontracting Order Item": {"permissions": ["read", "write", "create"]},
-        "Purchase Order Item": {"permissions": ["read", "write", "create"]},
-        "Purchase Invoice Item": {"permissions": ["read", "write", "create"]},
-        "Sales Invoice Item": {"permissions": ["read", "write", "create"]},
-        "Purchase Receipt Item": {"permissions": ["read", "write", "create"]},
-        "BOM Item": {"permissions": ["read", "write", "create"]},
         "BOM": {"permissions": ["read", "write", "create"]},
-        "Subcontracting Order": {"permissions": ["read", "write", "create"]},
+        "BOM Item": {"permissions": ["read", "write", "create"]},
+        "Channel Partner": {"permissions": ["read", "write", "create", "delete"]},
+        "Customer": {"permissions": ["read", "write", "create"]},
+        "Delivery Note": {"permissions": ["read", "write", "create"]},
+        "Discom": {"permissions": ["read", "write", "create"]},
+        "GST Return Log": {"permissions": ["read", "write", "create"]},
+        "Item": {"permissions": ["read", "write"]},
+        "Lead": {"permissions": ["read", "write", "create"]},
+        "Opportunity": {"permissions": ["read", "write", "create"]},
+        "Project": {"permissions": ["read", "write", "create"]},
+        "Purchase Invoice Item": {"permissions": ["read", "write", "create"]},
+        "Purchase Order Item": {"permissions": ["read", "write", "create"]},
+        "Purchase Receipt Item": {"permissions": ["read", "write", "create"]},
+        "Sales Invoice": {"permissions": ["read", "write", "create", "submit"]},
+        "Sales Invoice Item": {"permissions": ["read", "write", "create"]},
+        "Sales Order": {"permissions": ["read", "write", "create", "delete"]},
+        "Sales Order Item": {"permissions": ["read", "write", "create", "delete"]},
+        "Stock Entry": {"permissions": ["read", "write", "create"]},
         "Subcontracting BOM": {"permissions": ["read", "write", "create"]},
         "Subcontracting BOM Item": {"permissions": ["read", "write", "create"]},
+        "Subcontracting Order": {"permissions": ["read", "write", "create"]},
+        "Subcontracting Order Item": {"permissions": ["read", "write", "create"]},
+        "Subsidy": {"permissions": ["read", "write", "create"]},
+        "User": {"permissions": ["read"]},
+        "Warehouse": {"permissions": ["read", "write"]},
+        "Warehouse Type": {"permissions": ["read"]},
     }
-
     role = "Channel Partner"
 
     for doctype in doctype_permissions.keys():
@@ -102,4 +95,5 @@ def setup_channel_partner_parent_warehouse():
         wh.is_group = 1
         wh.warehouse_type = "Channel Partner"
         wh.save(ignore_permissions=True)
+
         frappe.db.commit()
