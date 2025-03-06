@@ -5,6 +5,7 @@ from suntek_app.suntek.utils.api_handler import (
     parse_request_data,
     validate_auth_token,
 )
+from suntek_app.suntek.utils.lead_utils import get_next_telecaller
 from suntek_app.suntek.utils.validation_utils import validate_mobile_number
 
 
@@ -38,7 +39,7 @@ def create_lead_from_ambassador():
 
         lead = frappe.new_doc("Lead")
 
-        # lead_owner = get_next_telecaller()
+        lead_owner = get_next_telecaller()
 
         lead.update(
             {
@@ -47,7 +48,7 @@ def create_lead_from_ambassador():
                 "mobile_no": mobile_no,
                 "email_id": email_id,
                 "source": "Ambassador",
-                # "lead_owner": lead_owner,
+                "lead_owner": lead_owner,
             }
         )
 
