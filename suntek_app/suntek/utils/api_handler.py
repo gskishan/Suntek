@@ -19,15 +19,3 @@ def create_api_response(status_code, status, message, data=None):
         response["data"] = data
     frappe.local.response.update(response)
     return build_response("json")
-
-
-def validate_auth_token(auth_token: str) -> bool:
-    if not auth_token:
-        return False
-    try:
-        token = auth_token.split(" ")[1]
-        return token == frappe.get_doc("Suntek Settings").get_password(
-            "solar_ambassador_api_token"
-        )
-    except (IndexError, AttributeError):
-        return False

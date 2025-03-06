@@ -3,73 +3,82 @@ from frappe.permissions import add_permission
 
 
 def setup_channel_partner():
-    role_exists = frappe.db.exists("Role", "Channel Partner")
-
-    if not role_exists:
+    if not frappe.db.exists("Role", "Channel Partner"):
         role = frappe.new_doc("Role")
         role.role_name = "Channel Partner"
         role.desk_access = 1
         role.save(ignore_permissions=True)
 
     doctype_permissions = {
-        "BOM": {"permissions": ["read", "write", "create"]},
-        "BOM Item": {"permissions": ["read", "write", "create"]},
-        "Channel Partner": {"permissions": ["read", "write", "create", "delete"]},
-        "Customer": {"permissions": ["read", "write", "create"]},
-        "Delivery Note": {"permissions": ["read", "write", "create"]},
-        "Discom": {"permissions": ["read", "write", "create"]},
-        "GST Return Log": {"permissions": ["read", "write", "create"]},
-        "Item": {"permissions": ["read", "write"]},
-        "Lead": {"permissions": ["read", "write", "create"]},
-        "Opportunity": {"permissions": ["read", "write", "create"]},
-        "Project": {"permissions": ["read", "write", "create"]},
-        "Purchase Invoice Item": {"permissions": ["read", "write", "create"]},
-        "Purchase Order Item": {"permissions": ["read", "write", "create"]},
-        "Purchase Receipt Item": {"permissions": ["read", "write", "create"]},
-        "Sales Invoice": {"permissions": ["read", "write", "create", "submit"]},
-        "Sales Invoice Item": {"permissions": ["read", "write", "create"]},
-        "Sales Order": {"permissions": ["read", "write", "create", "delete"]},
-        "Sales Order Item": {"permissions": ["read", "write", "create", "delete"]},
-        "Stock Entry": {"permissions": ["read", "write", "create"]},
-        "Subcontracting BOM": {"permissions": ["read", "write", "create"]},
-        "Subcontracting BOM Item": {"permissions": ["read", "write", "create"]},
-        "Subcontracting Order": {"permissions": ["read", "write", "create"]},
-        "Subcontracting Order Item": {"permissions": ["read", "write", "create"]},
-        "Subsidy": {"permissions": ["read", "write", "create"]},
-        "User": {"permissions": ["read"]},
+        "Channel Partner": {
+            "permissions": ["read", "write", "create", "delete"],
+        },
+        "Customer": {
+            "permissions": ["read", "write", "create"],
+        },
+        "Lead": {
+            "permissions": ["read", "write", "create"],
+        },
+        "Opportunity": {
+            "permissions": ["read", "write", "create"],
+        },
+        "Discom": {
+            "permissions": ["read", "write", "create"],
+            "if_owner": ["write"],
+        },
         "Warehouse": {"permissions": ["read", "write"]},
         "Warehouse Type": {"permissions": ["read"]},
+        "Sales Order Item": {"permissions": ["read", "write", "create", "delete"]},
+        "Item": {"permissions": ["read", "write"]},
+        "Subcontracting Order Item": {"permissions": ["read", "write", "create"]},
+        "Purchase Order Item": {"permissions": ["read", "write", "create"]},
+        "Purchase Invoice Item": {"permissions": ["read", "write", "create"]},
+        "Sales Invoice Item": {"permissions": ["read", "write", "create"]},
+        "Purchase Receipt Item": {"permissions": ["read", "write", "create"]},
+        "BOM Item": {"permissions": ["read", "write", "create"]},
+        "BOM": {"permissions": ["read", "write", "create"]},
+        "Subcontracting Order": {"permissions": ["read", "write", "create"]},
+        "Subcontracting BOM": {"permissions": ["read", "write", "create"]},
+        "Subcontracting BOM Item": {"permissions": ["read", "write", "create"]},
     }
-    role = "Channel Partner"
 
-    for doctype in doctype_permissions.keys():
-        frappe.db.delete("Custom DocPerm", {"parent": doctype, "role": role})
+    role = "Channel Partner"
 
     for doctype, config in doctype_permissions.items():
         try:
-            permission = frappe.new_doc("Custom DocPerm")
-            permission.parent = doctype
-            permission.role = role
-            permission.permlevel = 0
-
-            permission.read = 0
-            permission.write = 0
-            permission.create = 0
-            permission.delete = 0
-            permission.export = 1
+            existing_perms = frappe.get_all(
+                "Custom DocPerm",
+                filters={"parent": doctype, "role": role},
+                fields=["permlevel", "read", "write", "create", "delete", "if_owner"],
+            )
 
             for ptype in config["permissions"]:
-                setattr(permission, ptype, 1)
+                perm_exists = False
+                for perm in existing_perms:
+                    if perm.get(ptype):
+                        perm_exists = True
+                        break
 
-            if "if_owner" in config:
-                permission.if_owner = 1
+                if not perm_exists:
+                    add_permission(doctype, role, permlevel=0, ptype=ptype)
 
-            permission.save(ignore_permissions=True)
+                    if ptype in config.get("if_owner", []):
+                        permission = frappe.get_doc(
+                            {
+                                "doctype": "Custom DocPerm",
+                                "parent": doctype,
+                                "role": role,
+                                "permlevel": 0,
+                                ptype: 1,
+                                "if_owner": 1,
+                            }
+                        )
+                        permission.save(ignore_permissions=True)
+
             frappe.db.commit()
 
         except Exception as e:
-            frappe.log_error(f"Error managing permission for {doctype}: {str(e)}")
-            print(f"Error managing permission for {doctype}: {str(e)}")
+            frappe.log_error(f"Error setting up permissions for {doctype}: {str(e)}")
 
 
 def setup_channel_partner_parent_warehouse_type():
@@ -95,5 +104,4 @@ def setup_channel_partner_parent_warehouse():
         wh.is_group = 1
         wh.warehouse_type = "Channel Partner"
         wh.save(ignore_permissions=True)
-
         frappe.db.commit()

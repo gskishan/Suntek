@@ -18,9 +18,7 @@
   "comments",
   "section_break_sothd",
   "bom",
-  "amended_from",
-  "section_break_uovk",
-  "channel_partner"
+  "amended_from"
  ],
  "fields": [
   {
@@ -88,22 +86,12 @@
   {
    "fieldname": "section_break_sothd",
    "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "section_break_uovk",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "channel_partner",
-   "fieldtype": "Link",
-   "label": "Channel Partner",
-   "options": "Channel Partner"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-01 12:02:30.831538",
+ "modified": "2025-02-20 10:20:43.952446",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Designing",
