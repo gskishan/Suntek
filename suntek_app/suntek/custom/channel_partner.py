@@ -1,7 +1,5 @@
 import random
-
 import frappe
-
 from suntek_app.suntek.utils.api_handler import create_api_response
 
 
@@ -68,4 +66,3 @@ def generate_random_email(is_suntek_email=False):
         if not is_suntek_email
         else f"test{generate_random_number()}@suntek.com"
     )
-

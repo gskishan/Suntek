@@ -47,21 +47,6 @@ doc_events = {
     "Address": {
         "before_save": ["suntek_app.custom_script.address.add_enquiry_to_links"]
     },
-    "Delivery Note": {
-        "before_save": [
-            "suntek_app.custom_script.delivery_note.set_channel_partner_data"
-        ]
-    },
-    "Installation Note": {
-        "before_save": [
-            "suntek_app.custom_script.installation_note.set_channel_partner_data"
-        ]
-    },
-    "BOM": {
-        "before_save": [
-            "suntek_app.custom_script.bom.set_channel_partner_data",
-        ]
-    },
     "Lead": {
         "validate": [
             "suntek_app.suntek.custom.lead.change_enquiry_status",
@@ -104,7 +89,7 @@ doc_events = {
     },
     "Project": {
         "validate": "suntek_app.suntek.custom.project.validate",
-        "before_save": ["suntek_app.suntek.custom.project.get_channel_partner_data"],
+        # "before_save": ["suntek_app.suntek.custom.project.get_channel_partner_data"],
     },
     "Price List": {"validate": "suntek_app.custom_script.price_list.validate"},
     "Item Price": {"validate": "suntek_app.custom_script.item_price.validate"},
