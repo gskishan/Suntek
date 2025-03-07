@@ -19,7 +19,7 @@ def create_lead_from_ambassador():
         if not frappe.request.method == "POST":
             return create_api_response(405, "method not allowed", "Method Not Allowed")
 
-        frappe.set_user("Administrator")
+        frappe.set_user("developer@suntek.co.in")
 
         data = parse_request_data(frappe.request.data)
 
