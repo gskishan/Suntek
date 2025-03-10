@@ -55,8 +55,11 @@ def create_lead_from_ambassador():
         lead.save()
         frappe.db.commit()
 
+        response_data = dict(data)
+        response_data["lead_id"] = lead.name
+
         return create_api_response(
-            201, "created", "Lead created successfully", data=data
+            201, "created", "Lead created successfully", data=response_data
         )
 
     return create_api_response(401, "unauthorized", "Missing or Invalid auth")
