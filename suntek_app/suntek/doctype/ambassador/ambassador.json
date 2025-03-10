@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "naming_series:",
  "creation": "2024-04-03 12:56:57.664854",
  "default_view": "List",
  "doctype": "DocType",
@@ -9,17 +8,21 @@
  "engine": "InnoDB",
  "field_order": [
   "basic_info",
-  "naming_series",
   "ambassador_name",
   "ambassador_mobile_number",
   "email_id",
-  "gender",
   "state",
   "column_break_uvsbh",
   "district",
-  "aadhaar_card_upload",
-  "pan_card_upload",
-  "bank_account_detail_section",
+  "type_of_account",
+  "kyc_section",
+  "aadhar_number",
+  "aadhar_front",
+  "aadhar_back",
+  "column_break_cqnh",
+  "pan_number",
+  "pan_card",
+  "bank_account_details_section",
   "bank_name",
   "bank_account_number",
   "column_break_h76eu",
@@ -33,31 +36,23 @@
    "options": "fa fa-user"
   },
   {
-   "fieldname": "naming_series",
-   "fieldtype": "Select",
-   "label": "Series",
-   "options": "AMBS-.YYYY.-"
-  },
-  {
    "fieldname": "ambassador_name",
    "fieldtype": "Data",
-   "label": "Ambassador Name"
+   "in_list_view": 1,
+   "label": "Ambassador Name",
+   "reqd": 1
   },
   {
    "fieldname": "ambassador_mobile_number",
    "fieldtype": "Data",
-   "label": "Ambassador Mobile Number"
+   "in_list_view": 1,
+   "label": "Ambassador Mobile Number",
+   "reqd": 1
   },
   {
    "fieldname": "email_id",
    "fieldtype": "Data",
    "label": "Email ID"
-  },
-  {
-   "fieldname": "gender",
-   "fieldtype": "Link",
-   "label": "Gender",
-   "options": "Gender"
   },
   {
    "fieldname": "state",
@@ -73,21 +68,6 @@
    "fieldtype": "Link",
    "label": "District",
    "options": "District"
-  },
-  {
-   "fieldname": "aadhaar_card_upload",
-   "fieldtype": "Attach",
-   "label": "Aadhaar Card (Upload)"
-  },
-  {
-   "fieldname": "pan_card_upload",
-   "fieldtype": "Attach",
-   "label": "PAN Card (Upload)"
-  },
-  {
-   "fieldname": "bank_account_detail_section",
-   "fieldtype": "Section Break",
-   "label": "Bank Account Detail"
   },
   {
    "fieldname": "bank_name",
@@ -112,15 +92,59 @@
    "fieldname": "passbook_or_bank_statement",
    "fieldtype": "Attach",
    "label": "Passbook or Bank statement "
+  },
+  {
+   "fieldname": "aadhar_front",
+   "fieldtype": "Attach",
+   "label": "Aadhar Front"
+  },
+  {
+   "fieldname": "aadhar_back",
+   "fieldtype": "Attach",
+   "label": "Aadhar Back"
+  },
+  {
+   "fieldname": "kyc_section",
+   "fieldtype": "Section Break",
+   "label": "KYC"
+  },
+  {
+   "fieldname": "aadhar_number",
+   "fieldtype": "Data",
+   "label": "Aadhar Number"
+  },
+  {
+   "fieldname": "column_break_cqnh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pan_number",
+   "fieldtype": "Data",
+   "label": "PAN Number"
+  },
+  {
+   "fieldname": "pan_card",
+   "fieldtype": "Attach",
+   "label": "PAN Card"
+  },
+  {
+   "fieldname": "type_of_account",
+   "fieldtype": "Select",
+   "label": "Type of Account",
+   "options": "Redeem\nDonate"
+  },
+  {
+   "fieldname": "bank_account_details_section",
+   "fieldtype": "Section Break",
+   "label": "Bank Account Details"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-10 14:50:30.611633",
+ "modified": "2025-03-10 16:49:57.133449",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Ambassador",
- "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
