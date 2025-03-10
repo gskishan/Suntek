@@ -5,4 +5,4 @@ suntek_app.patches.set_sfg_in_bom_item
 suntek_app.patches.update_power_plant_assigned_status
 suntek_app.patches.add_ambassador_to_lead_source
 suntek_app.patches.add_channel_partner_customer_group
-
+suntek_app.patches.create_territories_for_existing_districts
