@@ -27,6 +27,7 @@
   "suntek_mobile_number",
   "suntek_email",
   "linked_user",
+  "linked_customer",
   "section_break_zuam",
   "contact",
   "channel_partner_address",
@@ -436,6 +437,13 @@
    "fieldtype": "Data",
    "label": "District Name",
    "read_only": 1
+  },
+  {
+   "fieldname": "linked_customer",
+   "fieldtype": "Link",
+   "label": "Linked Customer",
+   "options": "Customer",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -485,7 +493,7 @@
    "link_fieldname": "channel_partner"
   }
  ],
- "modified": "2025-03-03 11:01:53.248224",
+ "modified": "2025-03-10 11:37:32.962868",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner",
