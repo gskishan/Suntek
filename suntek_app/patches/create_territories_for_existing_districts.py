@@ -6,8 +6,6 @@ def execute():
     created_count = 0
     for district_data in districts:
         try:
-            # This line has the error - you're using frappe.new_doc which creates a new document
-            # Instead, you should use frappe.get_doc to retrieve existing document
             district = frappe.get_doc("District", district_data.name)
 
             if not district.territory:
