@@ -11,11 +11,12 @@
   "ambassador_name",
   "ambassador_mobile_number",
   "email_id",
-  "state",
-  "column_break_uvsbh",
-  "district",
   "type_of_account",
   "status",
+  "column_break_uvsbh",
+  "state",
+  "city",
+  "district",
   "kyc_section",
   "aadhar_number",
   "aadhar_front",
@@ -57,8 +58,9 @@
   },
   {
    "fieldname": "state",
-   "fieldtype": "Autocomplete",
-   "label": " State"
+   "fieldtype": "Link",
+   "label": " State",
+   "options": "State"
   },
   {
    "fieldname": "column_break_uvsbh",
@@ -144,11 +146,17 @@
    "fieldtype": "Select",
    "label": "Status",
    "options": "Active\nInactive"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Link",
+   "label": "City",
+   "options": "City"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-10 17:04:22.129727",
+ "modified": "2025-03-10 17:05:35.065572",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Ambassador",
