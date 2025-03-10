@@ -1,149 +1,156 @@
 {
-    "actions": [],
-    "allow_rename": 1,
-    "creation": "2025-02-05 15:30:40.261640",
-    "doctype": "DocType",
-    "engine": "InnoDB",
-    "field_order": [
-        "district",
-        "city",
-        "state",
-        "country",
-        "state_code",
-        "district_snake_case"
-    ],
-    "fields": [
-        {
-            "fieldname": "district",
-            "fieldtype": "Data",
-            "in_list_view": 1,
-            "label": "District",
-            "reqd": 1,
-            "unique": 1
-        },
-        {
-            "fieldname": "city",
-            "fieldtype": "Link",
-            "in_list_view": 1,
-            "label": "City",
-            "options": "City",
-            "reqd": 1
-        },
-        {
-            "fetch_from": "city.state",
-            "fieldname": "state",
-            "fieldtype": "Data",
-            "in_list_view": 1,
-            "label": "State",
-            "read_only": 1
-        },
-        {
-            "fetch_from": "city.country",
-            "fieldname": "country",
-            "fieldtype": "Data",
-            "label": "Country",
-            "read_only": 1
-        },
-        {
-            "fetch_from": "city.state_code",
-            "fieldname": "state_code",
-            "fieldtype": "Data",
-            "in_list_view": 1,
-            "label": "State Code",
-            "read_only": 1
-        },
-        {
-            "fieldname": "district_snake_case",
-            "fieldtype": "Data",
-            "label": "District (snake_case)"
-        }
-    ],
-    "index_web_pages_for_search": 1,
-    "links": [
-        {
-            "link_doctype": "District PIN Code",
-            "link_fieldname": "district"
-        }
-    ],
-    "modified": "2025-02-10 12:08:20.651715",
-    "modified_by": "Administrator",
-    "module": "suntek",
-    "name": "District",
-    "naming_rule": "By script",
-    "owner": "Administrator",
-    "permissions": [
-        {
-            "create": 1,
-            "delete": 1,
-            "email": 1,
-            "export": 1,
-            "print": 1,
-            "read": 1,
-            "report": 1,
-            "role": "System Manager",
-            "share": 1,
-            "write": 1
-        },
-        {
-            "create": 1,
-            "email": 1,
-            "export": 1,
-            "print": 1,
-            "read": 1,
-            "report": 1,
-            "role": "All",
-            "share": 1,
-            "write": 1
-        },
-        {
-            "create": 1,
-            "email": 1,
-            "export": 1,
-            "print": 1,
-            "read": 1,
-            "report": 1,
-            "role": "Sales Manager",
-            "share": 1,
-            "write": 1
-        },
-        {
-            "create": 1,
-            "email": 1,
-            "export": 1,
-            "print": 1,
-            "read": 1,
-            "report": 1,
-            "role": "Projects Manager",
-            "share": 1,
-            "write": 1
-        },
-        {
-            "create": 1,
-            "email": 1,
-            "export": 1,
-            "print": 1,
-            "read": 1,
-            "report": 1,
-            "role": "Delivery Manager",
-            "share": 1,
-            "write": 1
-        },
-        {
-            "create": 1,
-            "email": 1,
-            "export": 1,
-            "print": 1,
-            "read": 1,
-            "report": 1,
-            "role": "Purchase Manager",
-            "share": 1,
-            "write": 1
-        }
-    ],
-    "search_fields": "district, city, state, state_code, district_snake_case",
-    "show_name_in_global_search": 1,
-    "sort_field": "modified",
-    "sort_order": "DESC",
-    "states": [],
-    "title_field": "district"
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-02-05 15:30:40.261640",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "district",
+  "city",
+  "state",
+  "country",
+  "state_code",
+  "district_snake_case",
+  "territory"
+ ],
+ "fields": [
+  {
+   "fieldname": "district",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "District",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "City",
+   "options": "City",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "city.state",
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "State",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "city.country",
+   "fieldname": "country",
+   "fieldtype": "Data",
+   "label": "Country",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "city.state_code",
+   "fieldname": "state_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "State Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "district_snake_case",
+   "fieldtype": "Data",
+   "label": "District (snake_case)"
+  },
+  {
+   "fieldname": "territory",
+   "fieldtype": "Link",
+   "label": "Territory",
+   "options": "Territory"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [
+  {
+   "link_doctype": "District PIN Code",
+   "link_fieldname": "district"
+  }
+ ],
+ "modified": "2025-03-10 11:13:49.748653",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "District",
+ "naming_rule": "By script",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Projects Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Delivery Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Purchase Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "search_fields": "district, city, state, state_code, district_snake_case",
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "district"
 }

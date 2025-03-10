@@ -24,6 +24,28 @@ frappe.ui.form.on("Channel Partner", {
 
     if (
       frm.doc.status === "Active" &&
+      !frm.doc.__is_local &&
+      !frm.doc.linked_customer
+    ) {
+      frm.add_custom_button(__("Create Customer"), function () {
+        frm.call({
+          doc: frm.doc,
+          method: "create_customer",
+          callbacl: function (r) {
+            if (r.message) {
+              frappe.show_alert({
+                message: __("Customer created successfully"),
+                indicator: "green",
+              });
+              frm.reload_doc();
+            }
+          },
+        });
+      });
+    }
+
+    if (
+      frm.doc.status === "Active" &&
       frm.doc.is_user_created &&
       !frm.doc.warehouse
     ) {
