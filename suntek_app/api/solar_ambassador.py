@@ -112,7 +112,6 @@ def update_solar_ambassador():
         "aadhar_back": "base64_or_url",
         "pan_number": "ABCDE1234F",
         "pan_card": "base64_or_url",
-        "passbook_or_bank_statement": "base64_or_url"
     }
     """
     if frappe.request.headers.get(
@@ -157,7 +156,6 @@ def update_solar_ambassador():
                 "aadhar_back": "aadhar_back",
                 "pan_number": "pan_number",
                 "pan_card": "pan_card",
-                "passbook_or_bank_statement": "passbook_or_bank_statement",
             }
 
             updated_fields = {}

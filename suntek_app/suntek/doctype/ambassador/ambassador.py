@@ -31,10 +31,27 @@ class Ambassador(Document):
 
     def validate_email(self):
         if self.email_id:
+            self.email_id = self.email_id.strip()
+
             try:
                 validate_email_address(self.email_id)
-            except Exception:
-                frappe.throw(_("Invalid Email Address"))
+
+                if len(self.email_id) > 140:
+                    frappe.throw(_("Email address is too long"))
+
+                if "@" not in self.email_id:
+                    frappe.throw(_("Invalid email address: Missing @"))
+
+                local, domain = self.email_id.rsplit("@", 1)
+
+                if not local or not domain:
+                    frappe.throw(_("Invalid email address format"))
+
+                if "." not in domain:
+                    frappe.throw(_("Invalid email domain"))
+
+            except Exception as e:
+                frappe.throw(_("Invalid Email Address: {0}").format(str(e)))
 
     def validate_mobile_number(self):
         if not self.ambassador_mobile_number:
@@ -49,13 +66,10 @@ class Ambassador(Document):
 
     def validate_bank_account_number(self):
         if self.bank_account_number:
-            # Remove any spaces or special characters
             clean_account_number = re.sub(r"[^0-9]", "", self.bank_account_number)
 
-            # Check if it contains only digits
             if not clean_account_number.isdigit():
                 frappe.throw(_("Bank Account Number should contain only digits"))
 
-            # Check length (typically between 9 and 18 digits)
             if len(clean_account_number) < 9 or len(clean_account_number) > 18:
                 frappe.throw(_("Bank Account Number should be between 9 and 18 digits"))
