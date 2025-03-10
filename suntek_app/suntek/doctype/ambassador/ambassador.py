@@ -42,5 +42,5 @@ class Ambassador(Document):
             frappe.throw(_("Mobile Number must be 10 digits"))
 
     def validate_ifsc_code(self):
-        if self.ifsc_code and not re.match(r"^[A-Z]{4}0[A-Z0-9]{6}$", self.ifsc_code):
+        if self.ifsc_code and not re.match(r"^[A-Z]{4}[0-9]{7}$", self.ifsc_code):
             frappe.throw(_("Invalid IFSC Code Format. It should be like ABCD0123456"))
