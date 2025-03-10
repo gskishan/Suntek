@@ -29,7 +29,6 @@ def create_solar_ambassador():
                 400, "bad request", "Missing Name or Mobile Number"
             )
 
-        # Check if ambassador with the same mobile already exists
         existing = frappe.db.exists(
             "Ambassador", {"ambassador_mobile_number": mobile_no}
         )
@@ -71,9 +70,7 @@ def create_solar_ambassador():
             frappe.db.commit()
 
             response_data = dict(data)
-            response_data["ambassador_id"] = (
-                ambassador.name
-            )  # Include ERP ID in response
+            response_data["ambassador_id"] = ambassador.name
 
             return create_api_response(
                 201, "created", "Ambassador created successfully", data=response_data
@@ -103,7 +100,6 @@ def update_solar_ambassador():
         if not mobile_no:
             return create_api_response(400, "bad request", "Missing Mobile Number")
 
-        # Find ambassador by mobile number
         ambassador_name = frappe.db.get_value(
             "Ambassador", {"ambassador_mobile_number": mobile_no}, "name"
         )
@@ -116,7 +112,6 @@ def update_solar_ambassador():
         try:
             ambassador = frappe.get_doc("Ambassador", ambassador_name)
 
-            # Update fields if provided
             if data.get("name"):
                 ambassador.ambassador_name = data.get("name")
 
@@ -151,9 +146,7 @@ def update_solar_ambassador():
             frappe.db.commit()
 
             response_data = dict(data)
-            response_data["ambassador_id"] = (
-                ambassador.name
-            )  # Include ERP ID in response
+            response_data["ambassador_id"] = ambassador.name
 
             return create_api_response(
                 200, "success", "Ambassador updated successfully", data=response_data
