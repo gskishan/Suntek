@@ -16,6 +16,7 @@ def create_solar_ambassador():
         "mobile_number": "1234567890",
         "email_id": "email@example.com",
         "state": "State Name",
+        "city": "City Name",
         "district": "District Name",
         "bank_name": "Bank Name",
         "bank_account_number": "Account Number",
@@ -25,7 +26,6 @@ def create_solar_ambassador():
         "aadhar_back": "base64_or_url",
         "pan_number": "ABCDE1234F",
         "pan_card": "base64_or_url",
-        "passbook_or_bank_statement": "base64_or_url"
     }
     """
     if frappe.request.headers.get(
@@ -39,7 +39,6 @@ def create_solar_ambassador():
         frappe.set_user("developer@suntek.co.in")
         data = parse_request_data(frappe.request.data)
 
-        # Required field validation
         ambassador_name = data.get("name")
         mobile_no = data.get("mobile_number")
 
@@ -48,7 +47,6 @@ def create_solar_ambassador():
                 400, "bad request", "Missing Name or Mobile Number"
             )
 
-        # Check for existing ambassador
         existing = frappe.db.exists(
             "Ambassador", {"ambassador_mobile_number": mobile_no}
         )
@@ -65,6 +63,7 @@ def create_solar_ambassador():
                     "ambassador_mobile_number": mobile_no,
                     "email_id": data.get("email_id"),
                     "state": data.get("state"),
+                    "city": data.get("city"),
                     "district": data.get("district"),
                     "type_of_account": data.get("type_of_account"),
                     "bank_name": data.get("bank_name"),
@@ -99,9 +98,11 @@ def update_solar_ambassador():
     Request Body:
     {
         "mobile_number": "1234567890",
+
         "name": "Updated Name",
         "email_id": "updated@example.com",
         "state": "Updated State",
+        "city": "Updated City",
         "district": "Updated District",
         "bank_name": "Updated Bank",
         "bank_account_number": "Updated Account",
@@ -141,10 +142,11 @@ def update_solar_ambassador():
         try:
             ambassador = frappe.get_doc("Ambassador", ambassador_name)
 
-            update_fields = {
+            field_mapping = {
                 "name": "ambassador_name",
                 "email_id": "email_id",
                 "state": "state",
+                "city": "city",
                 "district": "district",
                 "type_of_account": "type_of_account",
                 "bank_name": "bank_name",
@@ -155,17 +157,29 @@ def update_solar_ambassador():
                 "aadhar_back": "aadhar_back",
                 "pan_number": "pan_number",
                 "pan_card": "pan_card",
+                "passbook_or_bank_statement": "passbook_or_bank_statement",
             }
 
-            for key, field in update_fields.items():
-                if data.get(key):
-                    ambassador.set(field, data.get(key))
+            updated_fields = {}
+
+            for payload_field, doc_field in field_mapping.items():
+                if payload_field in data:
+                    ambassador.set(doc_field, data[payload_field])
+                    updated_fields[doc_field] = data[payload_field]
+
+            if not updated_fields:
+                return create_api_response(
+                    400, "bad_request", "No fields provided for update"
+                )
 
             ambassador.save()
             frappe.db.commit()
 
-            response_data = dict(data)
-            response_data["ambassador_id"] = ambassador.name
+            response_data = {
+                "ambassador_id": ambassador.name,
+                "mobile_number": mobile_no,
+                "updated_fields": updated_fields,
+            }
 
             return create_api_response(
                 200, "success", "Ambassador updated successfully", data=response_data
