@@ -9,6 +9,25 @@ from suntek_app.suntek.utils.api_handler import (
 
 @frappe.whitelist(allow_guest=True)
 def create_solar_ambassador():
+    """
+    Request Body:
+    {
+        "name": "Ambassador Name",
+        "mobile_number": "1234567890",
+        "email_id": "email@example.com",
+        "state": "State Name",
+        "district": "District Name",
+        "bank_name": "Bank Name",
+        "bank_account_number": "Account Number",
+        "ifsc_code": "IFSC Code",
+        "aadhar_number": "123456789012",
+        "aadhar_front": "base64_or_url",
+        "aadhar_back": "base64_or_url",
+        "pan_number": "ABCDE1234F",
+        "pan_card": "base64_or_url",
+        "passbook_or_bank_statement": "base64_or_url"
+    }
+    """
     if frappe.request.headers.get(
         "X-Django-Server-Authorization"
     ) and validate_auth_token(
@@ -18,9 +37,9 @@ def create_solar_ambassador():
             return create_api_response(405, "method not allowed", "Method Not Allowed")
 
         frappe.set_user("developer@suntek.co.in")
-
         data = parse_request_data(frappe.request.data)
 
+        # Required field validation
         ambassador_name = data.get("name")
         mobile_no = data.get("mobile_number")
 
@@ -29,6 +48,7 @@ def create_solar_ambassador():
                 400, "bad request", "Missing Name or Mobile Number"
             )
 
+        # Check for existing ambassador
         existing = frappe.db.exists(
             "Ambassador", {"ambassador_mobile_number": mobile_no}
         )
@@ -37,32 +57,24 @@ def create_solar_ambassador():
                 409, "conflict", "Ambassador with this mobile number already exists"
             )
 
-        email_id = data.get("email_id")
-        gender = data.get("gender")
-        state = data.get("state")
-        district = data.get("district")
-        bank_name = data.get("bank_name")
-        bank_account_number = data.get("bank_account_number")
-        ifsc_code = data.get("ifsc_code")
-        aadhar_card_url = data.get("aadhar_card_url")
-        pan_card_url = data.get("pan_card_url")
-
         try:
             ambassador = frappe.new_doc("Ambassador")
-
             ambassador.update(
                 {
                     "ambassador_name": ambassador_name,
                     "ambassador_mobile_number": mobile_no,
-                    "email_id": email_id,
-                    "gender": gender,
-                    "state": state,
-                    "district": district,
-                    "bank_name": bank_name,
-                    "bank_account_number": bank_account_number,
-                    "ifsc_code": ifsc_code,
-                    "aadhar_card_url": aadhar_card_url,
-                    "pan_card_url": pan_card_url,
+                    "email_id": data.get("email_id"),
+                    "state": data.get("state"),
+                    "district": data.get("district"),
+                    "type_of_account": data.get("type_of_account"),
+                    "bank_name": data.get("bank_name"),
+                    "bank_account_number": data.get("bank_account_number"),
+                    "ifsc_code": data.get("ifsc_code"),
+                    "aadhar_number": data.get("aadhar_number"),
+                    "aadhar_front": data.get("aadhar_front"),
+                    "aadhar_back": data.get("aadhar_back"),
+                    "pan_number": data.get("pan_number"),
+                    "pan_card": data.get("pan_card"),
                 }
             )
 
@@ -83,6 +95,25 @@ def create_solar_ambassador():
 
 @frappe.whitelist(allow_guest=True)
 def update_solar_ambassador():
+    """
+    Request Body:
+    {
+        "mobile_number": "1234567890",
+        "name": "Updated Name",
+        "email_id": "updated@example.com",
+        "state": "Updated State",
+        "district": "Updated District",
+        "bank_name": "Updated Bank",
+        "bank_account_number": "Updated Account",
+        "ifsc_code": "Updated IFSC",
+        "aadhar_number": "123456789012",
+        "aadhar_front": "base64_or_url",
+        "aadhar_back": "base64_or_url",
+        "pan_number": "ABCDE1234F",
+        "pan_card": "base64_or_url",
+        "passbook_or_bank_statement": "base64_or_url"
+    }
+    """
     if frappe.request.headers.get(
         "X-Django-Server-Authorization"
     ) and validate_auth_token(
@@ -92,11 +123,9 @@ def update_solar_ambassador():
             return create_api_response(405, "method not allowed", "Method Not Allowed")
 
         frappe.set_user("developer@suntek.co.in")
-
         data = parse_request_data(frappe.request.data)
 
         mobile_no = data.get("mobile_number")
-
         if not mobile_no:
             return create_api_response(400, "bad request", "Missing Mobile Number")
 
@@ -112,35 +141,25 @@ def update_solar_ambassador():
         try:
             ambassador = frappe.get_doc("Ambassador", ambassador_name)
 
-            if data.get("name"):
-                ambassador.ambassador_name = data.get("name")
+            update_fields = {
+                "name": "ambassador_name",
+                "email_id": "email_id",
+                "state": "state",
+                "district": "district",
+                "type_of_account": "type_of_account",
+                "bank_name": "bank_name",
+                "bank_account_number": "bank_account_number",
+                "ifsc_code": "ifsc_code",
+                "aadhar_number": "aadhar_number",
+                "aadhar_front": "aadhar_front",
+                "aadhar_back": "aadhar_back",
+                "pan_number": "pan_number",
+                "pan_card": "pan_card",
+            }
 
-            if data.get("email_id"):
-                ambassador.email_id = data.get("email_id")
-
-            if data.get("gender"):
-                ambassador.gender = data.get("gender")
-
-            if data.get("state"):
-                ambassador.state = data.get("state")
-
-            if data.get("district"):
-                ambassador.district = data.get("district")
-
-            if data.get("bank_name"):
-                ambassador.bank_name = data.get("bank_name")
-
-            if data.get("bank_account_number"):
-                ambassador.bank_account_number = data.get("bank_account_number")
-
-            if data.get("ifsc_code"):
-                ambassador.ifsc_code = data.get("ifsc_code")
-
-            if data.get("aadhar_card_url"):
-                ambassador.aadhar_card_url = data.get("aadhar_card_url")
-
-            if data.get("pan_card_url"):
-                ambassador.pan_card_url = data.get("pan_card_url")
+            for key, field in update_fields.items():
+                if data.get(key):
+                    ambassador.set(field, data.get(key))
 
             ambassador.save()
             frappe.db.commit()
