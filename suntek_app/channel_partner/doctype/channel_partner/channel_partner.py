@@ -79,36 +79,6 @@ class ChannelPartner(Document):
             frappe.throw(str(e))
 
     def create_user_permissions(self):
-        # restricted_doctypes = [
-        #     "Lead",
-        #     "Opportunity",
-        #     "Quotation",
-        #     "Sales Order",
-        #     "Site Survey",
-        #     "Designing",
-        #     "Project",
-        #     "Discom",
-        #     "Subsidy",
-        #     "Sales Invoice",
-        #     "Delivery Note",
-        #     "Installation Note",
-        #     "Purchase Order",
-        #     "Purchase Invoice",
-        # ]
-        #
-        # try:
-        #     for doctype in restricted_doctypes:
-        #         user_permission = frappe.new_doc("User Permission")
-        #
-        #         user_permission.user = self.linked_user
-        #         user_permission.allow = "Channel Partner"
-        #         user_permission.for_value = self.name
-        #         user_permission.apply_to_all_doctypes = 0
-        #         user_permission.applicable_for = doctype
-        #
-        #         user_permission.save()
-        #
-        #     frappe.db.commit()
         try:
             user_permission = frappe.new_doc("User Permission")
 
@@ -220,6 +190,87 @@ class ChannelPartner(Document):
 
         except Exception as e:
             frappe.log_error(str(e), "Warehouse creation error")
+            frappe.throw(str(e))
+
+    @frappe.whitelist()
+    def create_customer(self):
+        try:
+            # Check if a customer already exists
+            existing_customers = frappe.get_all(
+                "Customer",
+                filters={"custom_channel_partner": self.name},
+                fields=["name"],
+            )
+
+            if existing_customers:
+                frappe.msgprint(
+                    f"Customer {existing_customers[0].name} already exists for this Channel Partner"
+                )
+                return existing_customers[0].name
+
+            # Get territory from district if available
+            territory = "India"  # Default
+            if hasattr(self, "district") and self.district:
+                # First try to get linked territory
+                district_territory = frappe.db.get_value(
+                    "District", self.district, "territory"
+                )
+                if district_territory:
+                    territory = district_territory
+                else:
+                    # If no linked territory, use district name
+                    territory = self.district
+
+            customer = frappe.new_doc("Customer")
+            customer.update(
+                {
+                    "customer_name": self.channel_partner_name,
+                    "customer_type": "Partnership",
+                    "customer_group": "Channel Partner",
+                    "territory": territory,
+                    "custom_channel_partner": self.name,
+                    "mobile_no": self.mobile_number,
+                    "email_id": self.email,
+                    "tax_id": self.gst_number,
+                    "default_currency": "INR",
+                }
+            )
+
+            customer.flags.ignore_permissions = True
+            customer.insert()
+
+            if self.channel_partner_address:
+                address_doc = frappe.get_doc("Address", self.channel_partner_address)
+                new_address = frappe.new_doc("Address")
+                new_address.address_title = self.channel_partner_name
+                new_address.address_type = "Billing"
+                new_address.address_line1 = address_doc.address_line1
+                new_address.address_line2 = address_doc.address_line2
+                new_address.city = self.city
+                new_address.state = self.state
+                new_address.country = self.country
+                new_address.pincode = address_doc.pincode
+                new_address.phone = self.mobile_number
+                new_address.email_id = self.email
+                new_address.gstin = self.gst_number
+
+                new_address.append(
+                    "links",
+                    {
+                        "link_doctype": "Customer",
+                        "link_name": customer.name,
+                    },
+                )
+
+                new_address.flags.ignore_permissions = True
+                new_address.insert()
+
+            self.db_set("linked_customer", customer.name)
+
+            return customer.name
+
+        except Exception as e:
+            frappe.log_error(str(e), "Customer Creation Error")
             frappe.throw(str(e))
 
 
