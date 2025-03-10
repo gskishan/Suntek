@@ -377,5 +377,4 @@ class ChannelPartnerPurchaseOrder(Document):
                     result["terms_and_conditions"] = tc
         except Exception:
             pass
-
         return result
