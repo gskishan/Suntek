@@ -15,6 +15,7 @@
   "column_break_uvsbh",
   "district",
   "type_of_account",
+  "status",
   "kyc_section",
   "aadhar_number",
   "aadhar_front",
@@ -137,11 +138,17 @@
    "fieldname": "bank_account_details_section",
    "fieldtype": "Section Break",
    "label": "Bank Account Details"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Active\nInactive"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-03-10 16:49:57.133449",
+ "modified": "2025-03-10 17:04:22.129727",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Ambassador",
