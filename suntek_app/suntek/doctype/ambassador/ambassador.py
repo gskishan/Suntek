@@ -10,11 +10,6 @@ class Ambassador(Document):
     def autoname(self):
         self.name = make_autoname("SES-AMBS-.#####")
 
-    def before_insert(self):
-        self.validate_email()
-        self.validate_mobile_number()
-        self.validate_ifsc_code()
-
     def validate(self):
         self.validate_email()
         self.validate_mobile_number()
