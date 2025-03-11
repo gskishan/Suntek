@@ -306,6 +306,7 @@ def send_ambassador_status_update(doc, method=None):
             return
 
         settings = frappe.get_doc("Suntek Settings")
+
         if (
             not settings.django_api_url
             or settings.solar_ambassador_integration_status == "Disabled"
@@ -313,6 +314,9 @@ def send_ambassador_status_update(doc, method=None):
             return
 
         api_url = f"{settings.django_api_url}/leads/status_update/"
+        api_token = frappe.get_doc("Suntek Settings").get_password(
+            "solar_ambassador_api_token"
+        )
 
         if doc_type == "Lead":
             status = doc.status
@@ -353,7 +357,7 @@ def send_ambassador_status_update(doc, method=None):
         if lead_details.get("sales_order_id"):
             payload["sales_order_id"] = lead_details["sales_order_id"]
 
-        headers = {"X-Django-Server-Authorization": settings.solar_ambassador_api_token}
+        headers = {"X-Django-Server-Authorization": api_token}
         response = requests.post(api_url, json=payload, headers=headers)
 
         if response.status_code not in [200, 201]:
