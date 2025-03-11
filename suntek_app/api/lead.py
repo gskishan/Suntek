@@ -37,6 +37,17 @@ def create_lead_from_ambassador():
         if not validate_mobile_number(mobile_no):
             return create_api_response(400, "bad_request", "Invalid Mobile Number")
 
+        existing_lead = frappe.db.get_value(
+            "Lead", {"mobile_no": mobile_no}, ["name"], as_dict=1
+        )
+        if existing_lead:
+            return create_api_response(
+                409,
+                "duplicate",
+                f"Lead with mobile number {mobile_no} already exists",
+                data={"existing_lead_id": existing_lead},
+            )
+
         last_name = data.get("last_name")
         email_id = data.get("email")
 
