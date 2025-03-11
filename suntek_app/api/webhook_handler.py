@@ -312,7 +312,7 @@ def send_ambassador_status_update(doc, method=None):
         ):
             return
 
-        api_url = f"{settings.django_api_url.rstrip('/')}/api/lead/update-status/"
+        api_url = f"{settings.django_api_url}/leads/status_update/"
 
         if doc_type == "Lead":
             status = doc.status
