@@ -333,24 +333,78 @@ def send_ambassador_status_update(doc, method=None):
 
         mobile_app_status = get_mobile_app_status(doc_type, status)
 
+        # Get capacity, sales_order_value, and state
         capacity = None
         sales_order_value = None
+        state = None
 
+        # If current document is Sales Order, get values directly
         if doc_type == "Sales Order":
             capacity = doc.custom_capacity if hasattr(doc, "custom_capacity") else None
             sales_order_value = doc.grand_total if hasattr(doc, "grand_total") else None
 
+            # Get state from the linked address in Sales Order
+            if hasattr(doc, "shipping_address_name") and doc.shipping_address_name:
+                try:
+                    address_doc = frappe.get_doc("Address", doc.shipping_address_name)
+                    state = address_doc.state if hasattr(address_doc, "state") else None
+                except Exception:
+                    pass
+            # Try customer address if shipping address doesn't exist or has no state
+            if not state and hasattr(doc, "customer_address") and doc.customer_address:
+                try:
+                    address_doc = frappe.get_doc("Address", doc.customer_address)
+                    state = address_doc.state if hasattr(address_doc, "state") else None
+                except Exception:
+                    pass
+
+        # For other document types, try to get capacity from the document
         elif hasattr(doc, "custom_capacity"):
             capacity = doc.custom_capacity
 
-        if lead_details.get("sales_order_id") and not sales_order_value:
+        # If we have a sales_order_id in lead_details, try to fetch the sales order value and state
+        if lead_details.get("sales_order_id"):
             try:
                 so_doc = frappe.get_doc("Sales Order", lead_details["sales_order_id"])
-                sales_order_value = (
-                    so_doc.grand_total if hasattr(so_doc, "grand_total") else None
-                )
+                if not sales_order_value and hasattr(so_doc, "grand_total"):
+                    sales_order_value = so_doc.grand_total
                 if not capacity and hasattr(so_doc, "custom_capacity"):
                     capacity = so_doc.custom_capacity
+
+                # Get state from the sales order's linked address
+                if not state:
+                    if (
+                        hasattr(so_doc, "shipping_address_name")
+                        and so_doc.shipping_address_name
+                    ):
+                        try:
+                            address_doc = frappe.get_doc(
+                                "Address", so_doc.shipping_address_name
+                            )
+                            state = (
+                                address_doc.state
+                                if hasattr(address_doc, "state")
+                                else None
+                            )
+                        except Exception:
+                            pass
+                    # Try customer address if shipping address doesn't exist or has no state
+                    if (
+                        not state
+                        and hasattr(so_doc, "customer_address")
+                        and so_doc.customer_address
+                    ):
+                        try:
+                            address_doc = frappe.get_doc(
+                                "Address", so_doc.customer_address
+                            )
+                            state = (
+                                address_doc.state
+                                if hasattr(address_doc, "state")
+                                else None
+                            )
+                        except Exception:
+                            pass
             except Exception:
                 pass
 
@@ -369,11 +423,15 @@ def send_ambassador_status_update(doc, method=None):
             "email": lead_details.get("email", ""),
         }
 
+        # Add the new fields to payload if they have values
         if capacity is not None:
             payload["capacity"] = capacity
 
         if sales_order_value is not None:
             payload["sales_order_value"] = sales_order_value
+
+        if state is not None:
+            payload["state"] = state
 
         if lead_details.get("opportunity_id"):
             payload["opportunity_id"] = lead_details["opportunity_id"]
