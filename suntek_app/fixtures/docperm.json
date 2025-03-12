@@ -1,0 +1,30 @@
+[
+ {
+  "amend": 0,
+  "cancel": 0,
+  "create": 1,
+  "delete": 1,
+  "docstatus": 0,
+  "doctype": "DocPerm",
+  "email": 1,
+  "export": 1,
+  "if_owner": 0,
+  "import": 0,
+  "match": null,
+  "modified": "2025-03-10 18:22:38.285964",
+  "name": "3s8skksir9",
+  "parent": "Channel Partner Purchase Order",
+  "parentfield": "permissions",
+  "parenttype": "DocType",
+  "permlevel": 0,
+  "print": 1,
+  "read": 1,
+  "report": 1,
+  "role": "Channel Partner",
+  "select": 0,
+  "set_user_permissions": 0,
+  "share": 1,
+  "submit": 0,
+  "write": 1
+ }
+]

@@ -138,7 +138,12 @@ doc_events = {
     },
 }
 
-fixtures = [{"doctype": "Warehouse Type", "filters": {"name": "Channel Partner"}}]
+fixtures = [
+    {"doctype": "Warehouse Type", "filters": {"name": "Channel Partner"}},
+    {"dt": "Role", "filters": [["name", "=", "Channel Partner"]]},
+    {"dt": "DocPerm", "filters": [["role", "=", "Channel Partner"]]},
+    {"dt": "Custom DocPerm", "filters": [["role", "=", "Channel Partner"]]},
+]
 
 
 # fixtures = [
