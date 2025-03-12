@@ -1,5 +1,4 @@
 import frappe
-from frappe.permissions import add_permission
 
 
 def setup_channel_partner():
@@ -17,10 +16,12 @@ def setup_channel_partner():
         "Channel Partner": {"permissions": ["read", "write", "create", "delete"]},
         "Customer": {"permissions": ["read", "write", "create"]},
         "Delivery Note": {"permissions": ["read", "write", "create"]},
+        "Delivery Requset": {"permissions": ["read", "write", "create"]},
         "Discom": {"permissions": ["read", "write", "create"]},
         "GST Return Log": {"permissions": ["read", "write", "create"]},
         "Item": {"permissions": ["read", "write"]},
         "Lead": {"permissions": ["read", "write", "create"]},
+        "Lead Source": {"permissions": ["read"]},
         "Opportunity": {"permissions": ["read", "write", "create"]},
         "Project": {"permissions": ["read", "write", "create"]},
         "Purchase Invoice Item": {"permissions": ["read", "write", "create"]},
@@ -63,6 +64,8 @@ def setup_channel_partner():
 
             if "if_owner" in config:
                 permission.if_owner = 1
+
+            print(f"{doctype} {config} {permission.role} {permission.parent}")
 
             permission.save(ignore_permissions=True)
             frappe.db.commit()

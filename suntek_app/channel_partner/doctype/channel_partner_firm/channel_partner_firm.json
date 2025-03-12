@@ -1,0 +1,284 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "autoname": "format:CP-FIRM-{firm_code}",
+    "creation": "2025-03-12 16:47:40.153669",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "firm_name",
+        "firm_code",
+        "status",
+        "section_break_address_and_contact",
+        "address_html",
+        "column_break_address",
+        "contact_html",
+        "address_and_contact_section",
+        "address",
+        "address_display",
+        "column_break_contact",
+        "contact_person",
+        "contact_display",
+        "contact_email",
+        "contact_mobile",
+        "section_break_business_details",
+        "gst_number",
+        "pan_number",
+        "column_break_business",
+        "establishment_date",
+        "section_break_attachments",
+        "gst_certificate",
+        "pan_certificate",
+        "column_break_attachments",
+        "business_registration",
+        "section_break_channel_partners",
+        "channel_partners",
+        "section_break_more_info",
+        "created_by",
+        "creation_date",
+        "column_break_info",
+        "modified_by",
+        "modified_date"
+    ],
+    "fields": [
+        {
+            "fieldname": "firm_name",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Firm Name",
+            "reqd": 1
+        },
+        {
+            "fieldname": "firm_code",
+            "fieldtype": "Data",
+            "label": "Firm Code",
+            "reqd": 1,
+            "unique": 1
+        },
+        {
+            "default": "Active",
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Status",
+            "options": "Active\nInactive\nPending Approval"
+        },
+        {
+            "fieldname": "section_break_address_and_contact",
+            "fieldtype": "Section Break",
+            "label": "Address and Contact"
+        },
+        {
+            "fieldname": "address_html",
+            "fieldtype": "HTML",
+            "label": "Address HTML"
+        },
+        {
+            "fieldname": "column_break_address",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "contact_html",
+            "fieldtype": "HTML",
+            "label": "Contact HTML"
+        },
+        {
+            "collapsible": 1,
+            "fieldname": "address_and_contact_section",
+            "fieldtype": "Section Break",
+            "label": "Address and Contact Details"
+        },
+        {
+            "fieldname": "address",
+            "fieldtype": "Link",
+            "label": "Address",
+            "options": "Address"
+        },
+        {
+            "fieldname": "address_display",
+            "fieldtype": "Small Text",
+            "label": "Address Display",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_contact",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "contact_person",
+            "fieldtype": "Link",
+            "label": "Contact Person",
+            "options": "Contact"
+        },
+        {
+            "depends_on": "contact_person",
+            "fetch_from": "contact_person.email_id",
+            "fieldname": "contact_email",
+            "fieldtype": "Data",
+            "label": "Contact Email",
+            "read_only": 1
+        },
+        {
+            "depends_on": "contact_person",
+            "fetch_from": "contact_person.mobile_no",
+            "fieldname": "contact_mobile",
+            "fieldtype": "Data",
+            "label": "Contact Mobile",
+            "read_only": 1
+        },
+        {
+            "fetch_from": "contact_person.full_name",
+            "fieldname": "contact_display",
+            "fieldtype": "Small Text",
+            "label": "Contact Display",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_break_business_details",
+            "fieldtype": "Section Break",
+            "label": "Business Details"
+        },
+        {
+            "fieldname": "gst_number",
+            "fieldtype": "Data",
+            "label": "GST Number",
+            "in_standard_filter": 1
+        },
+        {
+            "fieldname": "pan_number",
+            "fieldtype": "Data",
+            "label": "PAN Number"
+        },
+        {
+            "fieldname": "column_break_business",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "establishment_date",
+            "fieldtype": "Date",
+            "label": "Establishment Date"
+        },
+        {
+            "fieldname": "section_break_attachments",
+            "fieldtype": "Section Break",
+            "label": "Attachments"
+        },
+        {
+            "fieldname": "gst_certificate",
+            "fieldtype": "Attach",
+            "label": "GST Certificate"
+        },
+        {
+            "fieldname": "pan_certificate",
+            "fieldtype": "Attach",
+            "label": "PAN Certificate"
+        },
+        {
+            "fieldname": "column_break_attachments",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "business_registration",
+            "fieldtype": "Attach",
+            "label": "Business Registration"
+        },
+        {
+            "fieldname": "section_break_channel_partners",
+            "fieldtype": "Section Break",
+            "label": "Channel Partners"
+        },
+        {
+            "fieldname": "channel_partners",
+            "fieldtype": "Table",
+            "label": "Channel Partners",
+            "options": "Channel Partner Link"
+        },
+        {
+            "collapsible": 1,
+            "fieldname": "section_break_more_info",
+            "fieldtype": "Section Break",
+            "label": "More Information"
+        },
+        {
+            "fieldname": "created_by",
+            "fieldtype": "Link",
+            "label": "Created By",
+            "options": "User",
+            "read_only": 1
+        },
+        {
+            "fieldname": "creation_date",
+            "fieldtype": "Datetime",
+            "label": "Creation Date",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_info",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "modified_by",
+            "fieldtype": "Link",
+            "label": "Modified By",
+            "options": "User",
+            "read_only": 1
+        },
+        {
+            "fieldname": "modified_date",
+            "fieldtype": "Datetime",
+            "label": "Modified Date",
+            "read_only": 1
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [
+        {
+            "group": "Channel Partners",
+            "link_doctype": "Channel Partner",
+            "link_fieldname": "channel_partner_firm"
+        },
+        {
+            "group": "Address & Contacts",
+            "link_doctype": "Address",
+            "link_fieldname": "dynamic_link",
+            "parent_doctype": "Dynamic Link",
+            "parentfield": "links",
+            "parenttype": "Address"
+        },
+        {
+            "group": "Address & Contacts",
+            "link_doctype": "Contact",
+            "link_fieldname": "dynamic_link",
+            "parent_doctype": "Dynamic Link",
+            "parentfield": "links",
+            "parenttype": "Contact"
+        }
+    ],
+    "modified": "2025-03-12 16:51:38.056019",
+    "modified_by": "Administrator",
+    "module": "Channel Partner",
+    "name": "Channel Partner Firm",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "quick_entry": 1,
+    "search_fields": "firm_name, gst_number, contact_person, contact_email, contact_mobile",
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": [],
+    "title_field": "firm_name",
+    "track_changes": 1
+}
