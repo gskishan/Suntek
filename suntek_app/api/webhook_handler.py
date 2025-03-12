@@ -333,6 +333,27 @@ def send_ambassador_status_update(doc, method=None):
 
         mobile_app_status = get_mobile_app_status(doc_type, status)
 
+        capacity = None
+        sales_order_value = None
+
+        if doc_type == "Sales Order":
+            capacity = doc.custom_capacity if hasattr(doc, "custom_capacity") else None
+            sales_order_value = doc.grand_total if hasattr(doc, "grand_total") else None
+
+        elif hasattr(doc, "custom_capacity"):
+            capacity = doc.custom_capacity
+
+        if lead_details.get("sales_order_id") and not sales_order_value:
+            try:
+                so_doc = frappe.get_doc("Sales Order", lead_details["sales_order_id"])
+                sales_order_value = (
+                    so_doc.grand_total if hasattr(so_doc, "grand_total") else None
+                )
+                if not capacity and hasattr(so_doc, "custom_capacity"):
+                    capacity = so_doc.custom_capacity
+            except Exception:
+                pass
+
         payload = {
             "lead_id": lead_details.get("lead_id"),
             "ambassador_id": lead_details.get("ambassador_id"),
@@ -347,6 +368,12 @@ def send_ambassador_status_update(doc, method=None):
             "last_name": lead_details.get("last_name", ""),
             "email": lead_details.get("email", ""),
         }
+
+        if capacity is not None:
+            payload["capacity"] = capacity
+
+        if sales_order_value is not None:
+            payload["sales_order_value"] = sales_order_value
 
         if lead_details.get("opportunity_id"):
             payload["opportunity_id"] = lead_details["opportunity_id"]
