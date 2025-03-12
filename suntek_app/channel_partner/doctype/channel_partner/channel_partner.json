@@ -66,7 +66,8 @@
   "pin_codes_tab",
   "associated_pin_codes",
   "warehouse_tab",
-  "warehouse",
+  "default_sales_warehouse",
+  "default_subsidy_warehouse",
   "connections_tab"
  ],
  "fields": [
@@ -409,12 +410,6 @@
    "label": "Warehouse"
   },
   {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse"
-  },
-  {
    "fieldname": "dashboard_tab",
    "fieldtype": "Tab Break",
    "label": "Dashboard"
@@ -444,6 +439,18 @@
    "label": "Linked Customer",
    "options": "Customer",
    "read_only": 1
+  },
+  {
+   "fieldname": "default_sales_warehouse",
+   "fieldtype": "Link",
+   "label": "Default Sales Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "default_subsidy_warehouse",
+   "fieldtype": "Link",
+   "label": "Default Subsidy Warehouse",
+   "options": "Warehouse"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -493,7 +500,7 @@
    "link_fieldname": "channel_partner"
   }
  ],
- "modified": "2025-03-10 11:37:32.962868",
+ "modified": "2025-03-12 16:28:42.721614",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner",
