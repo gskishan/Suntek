@@ -138,27 +138,39 @@ doc_events = {
     },
 }
 
+
 fixtures = [
     {"doctype": "Warehouse Type", "filters": {"name": "Channel Partner"}},
-    {"dt": "Role", "filters": [["name", "=", "Channel Partner"]]},
-    {"dt": "DocPerm", "filters": [["role", "=", "Channel Partner"]]},
-    {"dt": "Custom DocPerm", "filters": [["role", "=", "Channel Partner"]]},
+    {
+        "doctype": "Role",
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Channel Partner",
+                    "Channel Partner Manager",
+                    "Sales Order Report User",
+                ],
+            ]
+        ],
+    },
+    {
+        "doctype": "DocPerm",
+        "filters": [["role", "in", ["Channel Partner", "Channel Partner Manager"]]],
+    },
+    {
+        "doctype": "Custom DocPerm",
+        "filters": [
+            [
+                "role",
+                "in",
+                [
+                    "Channel Partner",
+                    "Channel Partner Manager",
+                    "Sales Order Report User",
+                ],
+            ]
+        ],
+    },
 ]
-
-
-# fixtures = [
-#     {"doctype": "Custom Field"},
-#     {"doctype": "Property Setter"},
-#     {"doctype": "Client Script"},
-#     {"doctype": "Server Script"},
-#     {"doctype": "Print Format"},
-#     {"doctype": "Report", "filters": {"is_standard": "No"}},
-#     {"doctype": "Web Form"},
-#     {"doctype": "Workflow", "filters": {"is_active": 1}},
-#     {"doctype": "Workflow State"},
-#     {"doctype": "Workflow Action Master"},
-#     {"doctype": "Notification"},
-#     {"doctype": "Webhook"},
-#     {"doctype": "HD Ticket Type"},
-#     {"doctype": "Lead Source", "filters": {"source_name": "Channel Partner"}},
-# ]
