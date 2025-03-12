@@ -151,45 +151,65 @@ class ChannelPartner(Document):
 
     @frappe.whitelist()
     def create_channel_partner_warehouse(self):
-        """
-        Creates a warehouse linked to the channel partner
-        """
-
         try:
             parent_warehouse = "Channel Partner Parent - SESP"
 
             if not frappe.db.exists("Warehouse", parent_warehouse):
                 frappe.throw(f"Parent Warehouse '{parent_warehouse}' does not exist")
 
-            warehouse = frappe.new_doc("Warehouse")
+            sales_warehouse = frappe.new_doc("Warehouse")
+            sales_warehouse_name = f"CP-{self.channel_partner_code}-Sales - SESP"
 
-            warehouse_name = f"CP-{self.channel_partner_code} - SESP"
-
-            warehouse.update(
+            sales_warehouse.update(
                 {
-                    "warehouse_name": warehouse_name,
+                    "warehouse_name": sales_warehouse_name,
                     "parent_warehouse": parent_warehouse,
                     "company": "Suntek Energy Systems Pvt. Ltd.",
                     "custom_suntek_district": self.district_name,
                     "custom_suntek_city": self.city,
                     "custom_suntek_state": self.state,
+                    "warehouse_type": "Sales",
                 }
             )
 
-            warehouse.flags.ignore_permissions = True
-            warehouse.insert()
+            sales_warehouse.flags.ignore_permissions = True
+            sales_warehouse.insert()
 
-            self.db_set("warehouse", warehouse.name)
+            subsidy_warehouse = frappe.new_doc("Warehouse")
+            subsidy_warehouse_name = f"CP-{self.channel_partner_code}-Subsidy - SESP"
+
+            subsidy_warehouse.update(
+                {
+                    "warehouse_name": subsidy_warehouse_name,
+                    "parent_warehouse": parent_warehouse,
+                    "company": "Suntek Energy Systems Pvt. Ltd.",
+                    "custom_suntek_district": self.district_name,
+                    "custom_suntek_city": self.city,
+                    "custom_suntek_state": self.state,
+                    "warehouse_type": "Subsidy",
+                }
+            )
+
+            subsidy_warehouse.flags.ignore_permissions = True
+            subsidy_warehouse.insert()
+
+            self.db_set("default_sales_warehouse", sales_warehouse.name)
+            self.db_set("default_subsidy_warehouse", subsidy_warehouse.name)
+            self.db_set("warehouse", sales_warehouse.name)
 
             frappe.db.commit()
 
-            if self.linked_user and self.warehouse:
-                self.create_warehouse_permission(warehouse=warehouse)
+            if self.linked_user:
+                self.create_warehouse_permission(warehouse=sales_warehouse)
+                self.create_warehouse_permission(warehouse=subsidy_warehouse)
 
-            return warehouse.name
+            return {
+                "sales_warehouse": sales_warehouse.name,
+                "subsidy_warehouse": subsidy_warehouse.name,
+            }
 
         except Exception as e:
-            frappe.log_error(str(e), "Warehouse creation error")
+            frappe.log_error(str(e), "Warehouse Crreation Error")
             frappe.throw(str(e))
 
     @frappe.whitelist()
