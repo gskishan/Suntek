@@ -21,7 +21,41 @@ class ChannelPartner(Document):
             )
 
     def before_save(self):
+        self.update_channel_partner_firm()
         self.set_channel_partner_code()
+
+    def after_insert(self):
+        self.update_channel_partner_firm()
+
+    def update_channel_partner_firm(self):
+        if self.channel_partner_firm:
+            try:
+                firm = frappe.get_doc("Channel Partner Firm", self.channel_partner_firm)
+
+                exists = False
+
+                for partner in firm.channel_partners or []:
+                    if partner.channel_partner == self.name:
+                        exists = True
+                        break
+
+                if not exists:
+                    if not firm.channel_partners:
+                        firm.channel_partners = []
+                    firm.append(
+                        "channel_partners",
+                        {
+                            "channel_partner": self.name,
+                            "channel_partner_name": self.channel_partner_name,
+                            "mobile_number": self.mobile_number,
+                            "is_primary": False,
+                        },
+                    )
+
+                    firm.flags.ignore_permissions = True
+                    firm.save()
+            except Exception as e:
+                frappe.log_error(f"Failed to update Channel Partner Firm: {str(e)}")
 
     def set_channel_partner_code(self):
         if not self.channel_partner_code:
