@@ -314,9 +314,7 @@ def send_ambassador_status_update(doc, method=None):
             return
 
         api_url = f"{settings.django_api_url}/api/leads/status_update/"
-        api_token = frappe.get_doc("Suntek Settings").get_password(
-            "solar_ambassador_api_token"
-        )
+        api_token = f"Bearer {frappe.get_doc('Suntek Settings').get_password('solar_ambassador_api_token')}"
 
         if doc_type == "Lead":
             status = doc.status
