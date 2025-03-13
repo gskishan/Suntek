@@ -1,8 +1,21 @@
 {
-  "venv": "env",
-  "venvPath": "../../env/",
-  "reportMissingImports": true,
-  "typeCheckingMode": "off",
-  "reportUnusedFunction": "none",
-  "reportPrivateUsage": false
+	"venv": "env",
+	"venvPath": "../../env/",
+	"reportMissingImports": true,
+	"typeCheckingMode": "basic",
+	"reportUnusedFunction": "none",
+	"reportPrivateUsage": false,
+	"exclude": ["**/node_modules", "**/__pycache__", "**/.*", "**/migrations", "site-packages"],
+	"ignore": ["*.js", "*.html", "*.css", "*.json"],
+	"defineConstant": {
+		"DEBUG": true
+	},
+	"pythonVersion": "3.10",
+	"pythonPlatform": "Linux",
+	"executionEnvironments": [
+		{
+			"root": ".",
+			"extraPaths": ["../../env/lib/python3.10/site-packages", "../../apps"]
+		}
+	]
 }
