@@ -89,7 +89,6 @@ def validate_enquiry_mobile_no(doc, method=None):
             f"Error validating enquiry mobile number: {str(e)}",
             "Lead",
         )
-        # Change this from returning False to throwing the error
         frappe.throw(f"Invalid mobile number: {str(e)}")
 
 
