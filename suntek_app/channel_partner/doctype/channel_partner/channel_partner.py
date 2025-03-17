@@ -28,6 +28,7 @@ class ChannelPartner(Document):
         self.update_channel_partner_firm()
 
     def update_channel_partner_firm(self):
+        old_firm = None
         if not self.is_new():
             old_firm = frappe.db.get_value(
                 "Channel Partner", self.name, "channel_partner_firm"
