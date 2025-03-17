@@ -69,6 +69,14 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 fixable = ["ALL"]
 select = ["E", "F", "W", "I", "UP", "B", "RUF"]
 
+[tool.ruff.lint.isort]
+known-third-party = []
+case-sensitive = false 
+lines-after-imports = 2
+force-single-line = false 
+combine-as-imports = true
+
+
 ignore = [
     "B017", # assertRaises(Exception) - should be more specific
     "B018", # useless expression, not assigned to anything
