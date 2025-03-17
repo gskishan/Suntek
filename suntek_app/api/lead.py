@@ -25,7 +25,11 @@ def create_lead_from_ambassador():
 
         first_name = data.get("first_name")
         mobile_no = data.get("mobile_number")
+
         ambassador_mobile_no = data.get("ambassador_mobile_no")
+        ambassador_name = data.get("ambassador_name")
+
+        ambassador_data = data.get("ambassador_data", {})
 
         if not first_name or not mobile_no or not ambassador_mobile_no:
             return create_api_response(
@@ -51,15 +55,16 @@ def create_lead_from_ambassador():
         last_name = data.get("last_name")
         email_id = data.get("email")
 
-        ambassador = frappe.db.get_value(
-            "Ambassador",
-            {"ambassador_mobile_number": ambassador_mobile_no},
-            ["name"],
-            as_dict=1,
-        )
+        try:
+            ambassador_result = get_or_create_ambassador(
+                ambassador_mobile_no, ambassador_name, ambassador_data
+            )
+            ambassador_id = ambassador_result["name"]
+            ambassador_created = ambassador_result["created"]
+        except Exception as e:
+            return create_api_response(400, "bad request", str(e))
 
         lead = frappe.new_doc("Lead")
-
         lead_owner = get_next_telecaller()
 
         lead.update(
@@ -70,7 +75,7 @@ def create_lead_from_ambassador():
                 "email_id": email_id,
                 "source": "Ambassador",
                 "lead_owner": lead_owner,
-                "custom_ambassador": ambassador.name,
+                "custom_ambassador": ambassador_id,
             }
         )
 
@@ -79,9 +84,47 @@ def create_lead_from_ambassador():
 
         response_data = dict(data)
         response_data["lead_id"] = lead.name
+        response_data["ambassador_id"] = ambassador_id
+        response_data["ambassador_created"] = ambassador_created
 
         return create_api_response(
             201, "created", "Lead created successfully", data=response_data
         )
 
     return create_api_response(401, "unauthorized", "Missing or Invalid auth")
+
+
+def get_or_create_ambassador(mobile_number, ambassador_name=None, data=None):
+    if not mobile_number:
+        frappe.throw("Mobile number is required to get or create an ambassador")
+
+    ambassador = frappe.db.get_value(
+        "Ambassador", {"ambassador_mobile_number": mobile_number}, ["name"], as_dict=1
+    )
+
+    was_created = False
+
+    if not ambassador:
+        if not ambassador_name:
+            frappe.throw("Ambassador name is required to create a new ambassador")
+
+        new_ambassador = frappe.new_doc("Ambassador")
+        ambassador_data = {
+            "ambassador_name": ambassador_name,
+            "ambassador_mobile_number": mobile_number,
+            "status": "Active",
+            "type_of_account": "Redeem",
+        }
+
+        if data and isinstance(data, dict):
+            ambassador_data.update(data)
+
+        new_ambassador.update(ambassador_data)
+
+        new_ambassador.save()
+        frappe.db.commit()
+
+        ambassador = {"name": new_ambassador.name}
+        was_created = True
+
+    return {"name": ambassador["name"], "created": was_created}
