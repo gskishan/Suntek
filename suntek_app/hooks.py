@@ -78,6 +78,7 @@ doc_events = {
             "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
             "suntek_app.suntek.page.lead_funnel.lead_funnel.clear_cache",
             "suntek_app.suntek.custom.lead.save_name_changes_to_contact",
+            "suntek_app.api.webhook_handler.send_ambassador_status_update",
         ],
         "after_insert": [
             "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
@@ -94,6 +95,7 @@ doc_events = {
         ],
         "on_update": [
             "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
+            "suntek_app.api.webhook_handler.send_ambassador_status_update",
         ],
         "after_insert": [
             "suntek_app.suntek.utils.neodove_utils.neodove_integration.send_to_neodove",
@@ -101,6 +103,9 @@ doc_events = {
     },
     "Sales Order": {
         "on_submit": "suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit",
+        "on_update": [
+            "suntek_app.api.webhook_handler.send_ambassador_status_update",
+        ],
     },
     "Project": {
         "validate": "suntek_app.suntek.custom.project.validate",
@@ -110,6 +115,9 @@ doc_events = {
     "Item Price": {"validate": "suntek_app.custom_script.item_price.validate"},
     "Quotation": {
         "validate": "suntek_app.custom_script.quotation.validate",
+        "on_update": [
+            "suntek_app.api.webhook_handler.send_ambassador_status_update",
+        ],
     },
     "Employee": {
         "on_update": "suntek_app.custom_script.employee.on_update",
@@ -130,22 +138,39 @@ doc_events = {
     },
 }
 
-fixtures = [{"doctype": "Warehouse Type", "filters": {"name": "Channel Partner"}}]
 
-
-# fixtures = [
-#     {"doctype": "Custom Field"},
-#     {"doctype": "Property Setter"},
-#     {"doctype": "Client Script"},
-#     {"doctype": "Server Script"},
-#     {"doctype": "Print Format"},
-#     {"doctype": "Report", "filters": {"is_standard": "No"}},
-#     {"doctype": "Web Form"},
-#     {"doctype": "Workflow", "filters": {"is_active": 1}},
-#     {"doctype": "Workflow State"},
-#     {"doctype": "Workflow Action Master"},
-#     {"doctype": "Notification"},
-#     {"doctype": "Webhook"},
-#     {"doctype": "HD Ticket Type"},
-#     {"doctype": "Lead Source", "filters": {"source_name": "Channel Partner"}},
-# ]
+fixtures = [
+    {"doctype": "Warehouse Type", "filters": {"name": "Channel Partner"}},
+    {
+        "doctype": "Role",
+        "filters": [
+            [
+                "name",
+                "in",
+                [
+                    "Channel Partner",
+                    "Channel Partner Manager",
+                    "Sales Order Report User",
+                ],
+            ]
+        ],
+    },
+    {
+        "doctype": "DocPerm",
+        "filters": [["role", "in", ["Channel Partner", "Channel Partner Manager"]]],
+    },
+    {
+        "doctype": "Custom DocPerm",
+        "filters": [
+            [
+                "role",
+                "in",
+                [
+                    "Channel Partner",
+                    "Channel Partner Manager",
+                    "Sales Order Report User",
+                ],
+            ]
+        ],
+    },
+]

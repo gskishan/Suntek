@@ -89,7 +89,7 @@ def validate_enquiry_mobile_no(doc, method=None):
             f"Error validating enquiry mobile number: {str(e)}",
             "Lead",
         )
-        return False
+        frappe.throw(f"Invalid mobile number: {str(e)}")
 
 
 def set_lead_owner(doc, method):
@@ -164,6 +164,7 @@ def custom_make_opportunity(source_name, target_doc=None):
                     "lead_owner": "opportunity_owner",
                     "custom_enquiry_owner_name": "custom_opportunity_owner_name",
                     "notes": "notes",
+                    "custom_is_channel_partnered": "custom_is_channel_partnered",
                     "custom_channel_partner": "custom_channel_partner",
                     "custom_channel_partner_name": "custom_channel_partner_name",
                     "custom_suntek_state": "custom_suntek_state",

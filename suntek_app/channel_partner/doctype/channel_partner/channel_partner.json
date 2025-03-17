@@ -1,531 +1,539 @@
 {
- "actions": [],
- "allow_rename": 1,
- "creation": "2025-02-05 15:27:37.646348",
- "default_view": "List",
- "doctype": "DocType",
- "engine": "InnoDB",
- "field_order": [
-  "salutation",
-  "first_name",
-  "last_name",
-  "channel_partner_firm",
-  "channel_partner_name",
-  "channel_partner_code",
-  "contact_person",
-  "email",
-  "mobile_number",
-  "alternate_number",
-  "gst_number",
-  "pan_number",
-  "column_break_jjiy",
-  "credit_limit",
-  "status",
-  "is_exclusive",
-  "is_experienced",
-  "is_user_created",
-  "suntek_mobile_number",
-  "suntek_email",
-  "linked_user",
-  "linked_customer",
-  "section_break_zuam",
-  "contact",
-  "channel_partner_address",
-  "address",
-  "address_line_2",
-  "postal_code",
-  "column_break_gcmk",
-  "district",
-  "district_name",
-  "country",
-  "state",
-  "state_code",
-  "city",
-  "district_snake_case",
-  "dashboard_tab",
-  "dashboard_html",
-  "past_experience_tab",
-  "past_experience_section",
-  "past_experience",
-  "attachments_tab",
-  "channel_partner_attachments_section",
-  "channel_partner_agreement",
-  "gst_registration",
-  "noc_for_stock",
-  "column_break_vetk",
-  "address_proof",
-  "pan",
-  "personal_kyc_section",
-  "id_proof",
-  "pan_card",
-  "column_break_sjnq",
-  "photograph",
-  "electricity_bill",
-  "section_break_zker",
-  "other_documents",
-  "pin_codes_tab",
-  "associated_pin_codes",
-  "warehouse_tab",
-  "warehouse",
-  "connections_tab"
- ],
- "fields": [
-  {
-   "fieldname": "salutation",
-   "fieldtype": "Link",
-   "label": "Salutation",
-   "options": "Salutation"
-  },
-  {
-   "fieldname": "first_name",
-   "fieldtype": "Data",
-   "label": "First Name",
-   "reqd": 1
-  },
-  {
-   "fieldname": "last_name",
-   "fieldtype": "Data",
-   "label": "Last Name"
-  },
-  {
-   "fieldname": "channel_partner_firm",
-   "fieldtype": "Data",
-   "label": "Channel Partner Firm",
-   "reqd": 1
-  },
-  {
-   "fieldname": "channel_partner_name",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Channel Partner Name",
-   "read_only": 1,
-   "reqd": 1
-  },
-  {
-   "fieldname": "channel_partner_code",
-   "fieldtype": "Data",
-   "in_global_search": 1,
-   "label": "Channel Partner Code",
-   "reqd": 1,
-   "unique": 1
-  },
-  {
-   "fieldname": "contact_person",
-   "fieldtype": "Data",
-   "label": "Contact Person",
-   "reqd": 1
-  },
-  {
-   "fieldname": "email",
-   "fieldtype": "Data",
-   "label": "Email",
-   "reqd": 1
-  },
-  {
-   "fieldname": "mobile_number",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Mobile Number",
-   "reqd": 1
-  },
-  {
-   "fieldname": "alternate_number",
-   "fieldtype": "Data",
-   "label": "Alternate Number"
-  },
-  {
-   "fieldname": "gst_number",
-   "fieldtype": "Data",
-   "label": "GST Number",
-   "reqd": 1
-  },
-  {
-   "fieldname": "pan_number",
-   "fieldtype": "Data",
-   "label": "PAN Number",
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_jjiy",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "credit_limit",
-   "fieldtype": "Currency",
-   "label": "Credit Limit"
-  },
-  {
-   "default": "Pending Approval",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "\nActive\nInactive\nPending Approval",
-   "reqd": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "is_exclusive",
-   "fieldtype": "Check",
-   "label": "Is Exclusive"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_experienced",
-   "fieldtype": "Check",
-   "label": "Is Experienced"
-  },
-  {
-   "default": "0",
-   "fieldname": "is_user_created",
-   "fieldtype": "Check",
-   "label": "Is User Created",
-   "read_only": 1
-  },
-  {
-   "depends_on": "eval:doc.status==\"Active\"",
-   "fieldname": "suntek_mobile_number",
-   "fieldtype": "Data",
-   "label": "Suntek Mobile Number",
-   "mandatory_depends_on": "eval:doc.status==\"Active\""
-  },
-  {
-   "depends_on": "eval:doc.status==\"Active\"",
-   "fieldname": "suntek_email",
-   "fieldtype": "Data",
-   "label": "Suntek Email",
-   "mandatory_depends_on": "eval:doc.status==\"Active\""
-  },
-  {
-   "fieldname": "linked_user",
-   "fieldtype": "Link",
-   "label": "Linked User",
-   "options": "User",
-   "read_only": 1
-  },
-  {
-   "fieldname": "section_break_zuam",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "contact",
-   "fieldtype": "Link",
-   "label": "Contact",
-   "options": "Contact",
-   "reqd": 1
-  },
-  {
-   "fetch_from": "dealer_address.address_line1",
-   "fieldname": "address",
-   "fieldtype": "Small Text",
-   "label": "Address Line 1",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "dealer_address.address_line2",
-   "fieldname": "address_line_2",
-   "fieldtype": "Small Text",
-   "label": "Address Line 2",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "dealer_address.pincode",
-   "fieldname": "postal_code",
-   "fieldtype": "Data",
-   "label": "Postal Code",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_gcmk",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "district",
-   "fieldtype": "Link",
-   "label": "District",
-   "options": "District",
-   "reqd": 1
-  },
-  {
-   "fetch_from": "district.country",
-   "fieldname": "country",
-   "fieldtype": "Data",
-   "label": "Country",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "district.state",
-   "fieldname": "state",
-   "fieldtype": "Data",
-   "label": "State",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "district.state_code",
-   "fieldname": "state_code",
-   "fieldtype": "Data",
-   "label": "State Code",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "district.city",
-   "fieldname": "city",
-   "fieldtype": "Data",
-   "label": "City",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "district.district_snake_case",
-   "fieldname": "district_snake_case",
-   "fieldtype": "Data",
-   "label": "District Snake Case",
-   "read_only": 1
-  },
-  {
-   "depends_on": "eval:doc.is_experienced == 1",
-   "fieldname": "past_experience_tab",
-   "fieldtype": "Tab Break",
-   "label": "Past Experience"
-  },
-  {
-   "fieldname": "past_experience_section",
-   "fieldtype": "Section Break",
-   "label": "Past Experience"
-  },
-  {
-   "fieldname": "past_experience",
-   "fieldtype": "Table",
-   "label": "Past Experience",
-   "mandatory_depends_on": "eval:doc.is_experienced == 1",
-   "options": "Past Experience"
-  },
-  {
-   "fieldname": "attachments_tab",
-   "fieldtype": "Tab Break",
-   "label": "Attachments"
-  },
-  {
-   "fieldname": "channel_partner_attachments_section",
-   "fieldtype": "Section Break",
-   "label": "Channel Partner Attachments"
-  },
-  {
-   "fieldname": "channel_partner_agreement",
-   "fieldtype": "Attach",
-   "label": "Channel Partner Agreement",
-   "reqd": 1
-  },
-  {
-   "fieldname": "gst_registration",
-   "fieldtype": "Attach",
-   "label": "GST Registration",
-   "reqd": 1
-  },
-  {
-   "fieldname": "noc_for_stock",
-   "fieldtype": "Attach",
-   "label": "NOC for Stock",
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_vetk",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "address_proof",
-   "fieldtype": "Attach",
-   "label": "Address Proof (Company)",
-   "reqd": 1
-  },
-  {
-   "fieldname": "pan",
-   "fieldtype": "Attach",
-   "label": "PAN (Company)",
-   "reqd": 1
-  },
-  {
-   "fieldname": "personal_kyc_section",
-   "fieldtype": "Section Break",
-   "label": "Personal KYC"
-  },
-  {
-   "fieldname": "id_proof",
-   "fieldtype": "Attach",
-   "label": "Aadjar Card",
-   "reqd": 1
-  },
-  {
-   "fieldname": "pan_card",
-   "fieldtype": "Attach",
-   "label": "PAN Card",
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_sjnq",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "photograph",
-   "fieldtype": "Attach Image",
-   "label": "Photograph",
-   "reqd": 1
-  },
-  {
-   "fieldname": "electricity_bill",
-   "fieldtype": "Attach",
-   "label": "Electricity Bill",
-   "reqd": 1
-  },
-  {
-   "fieldname": "section_break_zker",
-   "fieldtype": "Section Break",
-   "label": "Additional Attachments"
-  },
-  {
-   "fieldname": "other_documents",
-   "fieldtype": "Table",
-   "label": "Other Documents",
-   "options": "Additional Attachments"
-  },
-  {
-   "fieldname": "pin_codes_tab",
-   "fieldtype": "Tab Break",
-   "label": "PIN Codes"
-  },
-  {
-   "fieldname": "associated_pin_codes",
-   "fieldtype": "Table",
-   "label": "Associated PIN Codes",
-   "options": "District PIN Code Table"
-  },
-  {
-   "fieldname": "connections_tab",
-   "fieldtype": "Tab Break",
-   "label": "Connections",
-   "show_dashboard": 1
-  },
-  {
-   "fieldname": "warehouse_tab",
-   "fieldtype": "Tab Break",
-   "label": "Warehouse"
-  },
-  {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "label": "Warehouse",
-   "options": "Warehouse"
-  },
-  {
-   "fieldname": "dashboard_tab",
-   "fieldtype": "Tab Break",
-   "label": "Dashboard"
-  },
-  {
-   "fieldname": "dashboard_html",
-   "fieldtype": "HTML",
-   "label": "Dashboard HTML"
-  },
-  {
-   "fieldname": "channel_partner_address",
-   "fieldtype": "Link",
-   "label": "Channel Partner Address",
-   "options": "Address",
-   "reqd": 1
-  },
-  {
-   "fetch_from": "district.district",
-   "fieldname": "district_name",
-   "fieldtype": "Data",
-   "label": "District Name",
-   "read_only": 1
-  },
-  {
-   "fieldname": "linked_customer",
-   "fieldtype": "Link",
-   "label": "Linked Customer",
-   "options": "Customer",
-   "read_only": 1
-  }
- ],
- "index_web_pages_for_search": 1,
- "links": [
-  {
-   "link_doctype": "Lead",
-   "link_fieldname": "custom_channel_partner"
-  },
-  {
-   "link_doctype": "Opportunity",
-   "link_fieldname": "custom_channel_partner"
-  },
-  {
-   "link_doctype": "Quotation",
-   "link_fieldname": "custom_channel_partner"
-  },
-  {
-   "link_doctype": "Sales Order",
-   "link_fieldname": "custom_channel_partner"
-  },
-  {
-   "link_doctype": "Site Survey",
-   "link_fieldname": "channel_partner"
-  },
-  {
-   "link_doctype": "Sales Invoice",
-   "link_fieldname": "custom_channel_partner"
-  },
-  {
-   "link_doctype": "Project",
-   "link_fieldname": "custom_channel_partner"
-  },
-  {
-   "link_doctype": "Designing",
-   "link_fieldname": "channel_partner"
-  },
-  {
-   "link_doctype": "BOM",
-   "link_fieldname": "custom_channel_partner"
-  },
-  {
-   "link_doctype": "Discom",
-   "link_fieldname": "channel_partner"
-  },
-  {
-   "link_doctype": "Subsidy",
-   "link_fieldname": "channel_partner"
-  }
- ],
- "modified": "2025-03-10 11:37:32.962868",
- "modified_by": "Administrator",
- "module": "Channel Partner",
- "name": "Channel Partner",
- "naming_rule": "By script",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
- "search_fields": "channel_partner_name",
- "show_name_in_global_search": 1,
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": [
-  {
-   "color": "Green",
-   "title": "Enabled"
-  },
-  {
-   "color": "Red",
-   "title": "Disabled"
-  }
- ],
- "title_field": "channel_partner_name"
+  "actions": [],
+  "allow_rename": 1,
+  "creation": "2025-02-05 15:27:37.646348",
+  "default_view": "List",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "salutation",
+    "first_name",
+    "last_name",
+    "channel_partner_firm",
+    "channel_partner_name",
+    "channel_partner_code",
+    "contact_person",
+    "email",
+    "mobile_number",
+    "alternate_number",
+    "gst_number",
+    "pan_number",
+    "column_break_jjiy",
+    "credit_limit",
+    "status",
+    "is_exclusive",
+    "is_experienced",
+    "is_user_created",
+    "suntek_mobile_number",
+    "suntek_email",
+    "linked_user",
+    "linked_customer",
+    "section_break_zuam",
+    "contact",
+    "channel_partner_address",
+    "address",
+    "address_line_2",
+    "postal_code",
+    "column_break_gcmk",
+    "district",
+    "district_name",
+    "country",
+    "state",
+    "state_code",
+    "city",
+    "district_snake_case",
+    "dashboard_tab",
+    "dashboard_html",
+    "past_experience_tab",
+    "past_experience_section",
+    "past_experience",
+    "attachments_tab",
+    "channel_partner_attachments_section",
+    "channel_partner_agreement",
+    "gst_registration",
+    "noc_for_stock",
+    "column_break_vetk",
+    "address_proof",
+    "pan",
+    "personal_kyc_section",
+    "id_proof",
+    "pan_card",
+    "column_break_sjnq",
+    "photograph",
+    "electricity_bill",
+    "section_break_zker",
+    "other_documents",
+    "pin_codes_tab",
+    "associated_pin_codes",
+    "warehouse_tab",
+    "default_sales_warehouse",
+    "default_subsidy_warehouse",
+    "connections_tab"
+  ],
+  "fields": [
+    {
+      "fieldname": "salutation",
+      "fieldtype": "Link",
+      "label": "Salutation",
+      "options": "Salutation"
+    },
+    {
+      "fieldname": "first_name",
+      "fieldtype": "Data",
+      "label": "First Name",
+      "reqd": 1
+    },
+    {
+      "fieldname": "last_name",
+      "fieldtype": "Data",
+      "label": "Last Name"
+    },
+    {
+      "fieldname": "channel_partner_firm",
+      "fieldtype": "Link",
+      "label": "Channel Partner Firm",
+      "options": "Channel Partner Firm",
+      "reqd": 1
+    },
+    {
+      "fieldname": "channel_partner_name",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Channel Partner Name",
+      "read_only": 1,
+      "reqd": 1
+    },
+    {
+      "fieldname": "channel_partner_code",
+      "fieldtype": "Data",
+      "in_global_search": 1,
+      "label": "Channel Partner Code",
+      "reqd": 1,
+      "unique": 1
+    },
+    {
+      "fieldname": "contact_person",
+      "fieldtype": "Data",
+      "label": "Contact Person",
+      "reqd": 1
+    },
+    {
+      "fieldname": "email",
+      "fieldtype": "Data",
+      "label": "Email",
+      "reqd": 1
+    },
+    {
+      "fieldname": "mobile_number",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Mobile Number",
+      "reqd": 1
+    },
+    {
+      "fieldname": "alternate_number",
+      "fieldtype": "Data",
+      "label": "Alternate Number"
+    },
+    {
+      "fieldname": "gst_number",
+      "fieldtype": "Data",
+      "label": "GST Number",
+      "reqd": 1
+    },
+    {
+      "fieldname": "pan_number",
+      "fieldtype": "Data",
+      "label": "PAN Number",
+      "reqd": 1
+    },
+    {
+      "fieldname": "column_break_jjiy",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "credit_limit",
+      "fieldtype": "Currency",
+      "label": "Credit Limit"
+    },
+    {
+      "default": "Pending Approval",
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "\nActive\nInactive\nPending Approval",
+      "reqd": 1
+    },
+    {
+      "default": "0",
+      "fieldname": "is_exclusive",
+      "fieldtype": "Check",
+      "label": "Is Exclusive"
+    },
+    {
+      "default": "0",
+      "fieldname": "is_experienced",
+      "fieldtype": "Check",
+      "label": "Is Experienced"
+    },
+    {
+      "default": "0",
+      "fieldname": "is_user_created",
+      "fieldtype": "Check",
+      "label": "Is User Created",
+      "read_only": 1
+    },
+    {
+      "depends_on": "eval:doc.status==\"Active\"",
+      "fieldname": "suntek_mobile_number",
+      "fieldtype": "Data",
+      "label": "Suntek Mobile Number",
+      "mandatory_depends_on": "eval:doc.status==\"Active\""
+    },
+    {
+      "depends_on": "eval:doc.status==\"Active\"",
+      "fieldname": "suntek_email",
+      "fieldtype": "Data",
+      "label": "Suntek Email",
+      "mandatory_depends_on": "eval:doc.status==\"Active\""
+    },
+    {
+      "fieldname": "linked_user",
+      "fieldtype": "Link",
+      "label": "Linked User",
+      "options": "User",
+      "read_only": 1
+    },
+    {
+      "fieldname": "section_break_zuam",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "contact",
+      "fieldtype": "Link",
+      "label": "Contact",
+      "options": "Contact",
+      "reqd": 1
+    },
+    {
+      "fetch_from": "dealer_address.address_line1",
+      "fieldname": "address",
+      "fieldtype": "Small Text",
+      "label": "Address Line 1",
+      "read_only": 1
+    },
+    {
+      "fetch_from": "dealer_address.address_line2",
+      "fieldname": "address_line_2",
+      "fieldtype": "Small Text",
+      "label": "Address Line 2",
+      "read_only": 1
+    },
+    {
+      "fetch_from": "dealer_address.pincode",
+      "fieldname": "postal_code",
+      "fieldtype": "Data",
+      "label": "Postal Code",
+      "read_only": 1
+    },
+    {
+      "fieldname": "column_break_gcmk",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "district",
+      "fieldtype": "Link",
+      "label": "District",
+      "options": "District",
+      "reqd": 1
+    },
+    {
+      "fetch_from": "district.country",
+      "fieldname": "country",
+      "fieldtype": "Data",
+      "label": "Country",
+      "read_only": 1
+    },
+    {
+      "fetch_from": "district.state",
+      "fieldname": "state",
+      "fieldtype": "Data",
+      "label": "State",
+      "read_only": 1
+    },
+    {
+      "fetch_from": "district.state_code",
+      "fieldname": "state_code",
+      "fieldtype": "Data",
+      "label": "State Code",
+      "read_only": 1
+    },
+    {
+      "fetch_from": "district.city",
+      "fieldname": "city",
+      "fieldtype": "Data",
+      "label": "City",
+      "read_only": 1
+    },
+    {
+      "fetch_from": "district.district_snake_case",
+      "fieldname": "district_snake_case",
+      "fieldtype": "Data",
+      "label": "District Snake Case",
+      "read_only": 1
+    },
+    {
+      "depends_on": "eval:doc.is_experienced == 1",
+      "fieldname": "past_experience_tab",
+      "fieldtype": "Tab Break",
+      "label": "Past Experience"
+    },
+    {
+      "fieldname": "past_experience_section",
+      "fieldtype": "Section Break",
+      "label": "Past Experience"
+    },
+    {
+      "fieldname": "past_experience",
+      "fieldtype": "Table",
+      "label": "Past Experience",
+      "mandatory_depends_on": "eval:doc.is_experienced == 1",
+      "options": "Past Experience"
+    },
+    {
+      "fieldname": "attachments_tab",
+      "fieldtype": "Tab Break",
+      "label": "Attachments"
+    },
+    {
+      "fieldname": "channel_partner_attachments_section",
+      "fieldtype": "Section Break",
+      "label": "Channel Partner Attachments"
+    },
+    {
+      "fieldname": "channel_partner_agreement",
+      "fieldtype": "Attach",
+      "label": "Channel Partner Agreement",
+      "reqd": 1
+    },
+    {
+      "fieldname": "gst_registration",
+      "fieldtype": "Attach",
+      "label": "GST Registration",
+      "reqd": 1
+    },
+    {
+      "fieldname": "noc_for_stock",
+      "fieldtype": "Attach",
+      "label": "NOC for Stock",
+      "reqd": 1
+    },
+    {
+      "fieldname": "column_break_vetk",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "address_proof",
+      "fieldtype": "Attach",
+      "label": "Address Proof (Company)",
+      "reqd": 1
+    },
+    {
+      "fieldname": "pan",
+      "fieldtype": "Attach",
+      "label": "PAN (Company)",
+      "reqd": 1
+    },
+    {
+      "fieldname": "personal_kyc_section",
+      "fieldtype": "Section Break",
+      "label": "Personal KYC"
+    },
+    {
+      "fieldname": "id_proof",
+      "fieldtype": "Attach",
+      "label": "Aadjar Card",
+      "reqd": 1
+    },
+    {
+      "fieldname": "pan_card",
+      "fieldtype": "Attach",
+      "label": "PAN Card",
+      "reqd": 1
+    },
+    {
+      "fieldname": "column_break_sjnq",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "photograph",
+      "fieldtype": "Attach Image",
+      "label": "Photograph",
+      "reqd": 1
+    },
+    {
+      "fieldname": "electricity_bill",
+      "fieldtype": "Attach",
+      "label": "Electricity Bill",
+      "reqd": 1
+    },
+    {
+      "fieldname": "section_break_zker",
+      "fieldtype": "Section Break",
+      "label": "Additional Attachments"
+    },
+    {
+      "fieldname": "other_documents",
+      "fieldtype": "Table",
+      "label": "Other Documents",
+      "options": "Additional Attachments"
+    },
+    {
+      "fieldname": "pin_codes_tab",
+      "fieldtype": "Tab Break",
+      "label": "PIN Codes"
+    },
+    {
+      "fieldname": "associated_pin_codes",
+      "fieldtype": "Table",
+      "label": "Associated PIN Codes",
+      "options": "District PIN Code Table"
+    },
+    {
+      "fieldname": "connections_tab",
+      "fieldtype": "Tab Break",
+      "label": "Connections",
+      "show_dashboard": 1
+    },
+    {
+      "fieldname": "warehouse_tab",
+      "fieldtype": "Tab Break",
+      "label": "Warehouse"
+    },
+    {
+      "fieldname": "dashboard_tab",
+      "fieldtype": "Tab Break",
+      "label": "Dashboard"
+    },
+    {
+      "fieldname": "dashboard_html",
+      "fieldtype": "HTML",
+      "label": "Dashboard HTML"
+    },
+    {
+      "fieldname": "channel_partner_address",
+      "fieldtype": "Link",
+      "label": "Channel Partner Address",
+      "options": "Address",
+      "reqd": 1
+    },
+    {
+      "fetch_from": "district.district",
+      "fieldname": "district_name",
+      "fieldtype": "Data",
+      "label": "District Name",
+      "read_only": 1
+    },
+    {
+      "fieldname": "linked_customer",
+      "fieldtype": "Link",
+      "label": "Linked Customer",
+      "options": "Customer",
+      "read_only": 1
+    },
+    {
+      "fieldname": "default_sales_warehouse",
+      "fieldtype": "Link",
+      "label": "Default Sales Warehouse",
+      "options": "Warehouse"
+    },
+    {
+      "fieldname": "default_subsidy_warehouse",
+      "fieldtype": "Link",
+      "label": "Default Subsidy Warehouse",
+      "options": "Warehouse"
+    }
+  ],
+  "index_web_pages_for_search": 1,
+  "links": [
+    {
+      "link_doctype": "Lead",
+      "link_fieldname": "custom_channel_partner"
+    },
+    {
+      "link_doctype": "Opportunity",
+      "link_fieldname": "custom_channel_partner"
+    },
+    {
+      "link_doctype": "Quotation",
+      "link_fieldname": "custom_channel_partner"
+    },
+    {
+      "link_doctype": "Sales Order",
+      "link_fieldname": "custom_channel_partner"
+    },
+    {
+      "link_doctype": "Site Survey",
+      "link_fieldname": "channel_partner"
+    },
+    {
+      "link_doctype": "Sales Invoice",
+      "link_fieldname": "custom_channel_partner"
+    },
+    {
+      "link_doctype": "Project",
+      "link_fieldname": "custom_channel_partner"
+    },
+    {
+      "link_doctype": "Designing",
+      "link_fieldname": "channel_partner"
+    },
+    {
+      "link_doctype": "BOM",
+      "link_fieldname": "custom_channel_partner"
+    },
+    {
+      "link_doctype": "Discom",
+      "link_fieldname": "channel_partner"
+    },
+    {
+      "link_doctype": "Subsidy",
+      "link_fieldname": "channel_partner"
+    }
+  ],
+  "modified": "2025-03-12 17:16:33.529675",
+  "modified_by": "Administrator",
+  "module": "Channel Partner",
+  "name": "Channel Partner",
+  "naming_rule": "By script",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "search_fields": "channel_partner_name",
+  "show_name_in_global_search": 1,
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [
+    {
+      "color": "Green",
+      "title": "Enabled"
+    },
+    {
+      "color": "Red",
+      "title": "Disabled"
+    }
+  ],
+  "title_field": "channel_partner_name"
 }

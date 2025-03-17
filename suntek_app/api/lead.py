@@ -25,17 +25,38 @@ def create_lead_from_ambassador():
 
         first_name = data.get("first_name")
         mobile_no = data.get("mobile_number")
+        ambassador_mobile_no = data.get("ambassador_mobile_no")
 
-        if not first_name or not mobile_no:
+        if not first_name or not mobile_no or not ambassador_mobile_no:
             return create_api_response(
-                400, "bad request", "Missing Name or Mobile Number"
+                400,
+                "bad request",
+                "Missing Name or Mobile Number or Ambassador Mobile Number",
             )
 
         if not validate_mobile_number(mobile_no):
             return create_api_response(400, "bad_request", "Invalid Mobile Number")
 
+        existing_lead = frappe.db.get_value(
+            "Lead", {"mobile_no": mobile_no}, ["name"], as_dict=1
+        )
+        if existing_lead:
+            return create_api_response(
+                409,
+                "duplicate",
+                f"Lead with mobile number {mobile_no} already exists",
+                data={"existing_lead_id": existing_lead},
+            )
+
         last_name = data.get("last_name")
         email_id = data.get("email")
+
+        ambassador = frappe.db.get_value(
+            "Ambassador",
+            {"ambassador_mobile_number": ambassador_mobile_no},
+            ["name"],
+            as_dict=1,
+        )
 
         lead = frappe.new_doc("Lead")
 
@@ -49,6 +70,7 @@ def create_lead_from_ambassador():
                 "email_id": email_id,
                 "source": "Ambassador",
                 "lead_owner": lead_owner,
+                "custom_ambassador": ambassador.name,
             }
         )
 

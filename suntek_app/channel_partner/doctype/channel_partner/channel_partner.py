@@ -21,7 +21,54 @@ class ChannelPartner(Document):
             )
 
     def before_save(self):
+        self.update_channel_partner_firm()
         self.set_channel_partner_code()
+
+    def after_insert(self):
+        self.update_channel_partner_firm()
+
+    def update_channel_partner_firm(self):
+        old_firm = None
+        if not self.is_new():
+            old_firm = frappe.db.get_value(
+                "Channel Partner", self.name, "channel_partner_firm"
+            )
+
+        if old_firm and old_firm != self.channel_partner_firm:
+            old_firm_doc = frappe.get_doc("Channel Partner Firm", old_firm)
+
+            for i, cp in enumerate(old_firm_doc.channel_partners):
+                if cp.channel_partner == self.name:
+                    old_firm_doc.channel_partners.pop(i)
+                    break
+
+            if old_firm_doc.docstatus == 1:
+                old_firm_doc.flags.ignore_validate_update_after_submit = True
+            old_firm_doc.flags.ignore_permissions = True
+            old_firm_doc.save()
+
+        if self.channel_partner_firm:
+            firm = frappe.get_doc("Channel Partner Firm", self.channel_partner_firm)
+
+            partner_exists = False
+            for cp in firm.channel_partners:
+                if cp.channel_partner == self.name:
+                    partner_exists = True
+                    break
+
+            if not partner_exists:
+                firm.append(
+                    "channel_partners",
+                    {
+                        "channel_partner": self.name,
+                        "channel_partner_name": self.channel_partner_name,
+                    },
+                )
+
+                if firm.docstatus == 1:
+                    firm.flags.ignore_validate_update_after_submit = True
+                    firm.flags.ignore_permissions = True
+                    firm.save()
 
     def set_channel_partner_code(self):
         if not self.channel_partner_code:
@@ -151,45 +198,65 @@ class ChannelPartner(Document):
 
     @frappe.whitelist()
     def create_channel_partner_warehouse(self):
-        """
-        Creates a warehouse linked to the channel partner
-        """
-
         try:
             parent_warehouse = "Channel Partner Parent - SESP"
 
             if not frappe.db.exists("Warehouse", parent_warehouse):
                 frappe.throw(f"Parent Warehouse '{parent_warehouse}' does not exist")
 
-            warehouse = frappe.new_doc("Warehouse")
+            sales_warehouse = frappe.new_doc("Warehouse")
+            sales_warehouse_name = f"CP-{self.channel_partner_code}-Sales - SESP"
 
-            warehouse_name = f"CP-{self.channel_partner_code} - SESP"
-
-            warehouse.update(
+            sales_warehouse.update(
                 {
-                    "warehouse_name": warehouse_name,
+                    "warehouse_name": sales_warehouse_name,
                     "parent_warehouse": parent_warehouse,
                     "company": "Suntek Energy Systems Pvt. Ltd.",
                     "custom_suntek_district": self.district_name,
                     "custom_suntek_city": self.city,
                     "custom_suntek_state": self.state,
+                    "warehouse_type": "Sales",
                 }
             )
 
-            warehouse.flags.ignore_permissions = True
-            warehouse.insert()
+            sales_warehouse.flags.ignore_permissions = True
+            sales_warehouse.insert()
 
-            self.db_set("warehouse", warehouse.name)
+            subsidy_warehouse = frappe.new_doc("Warehouse")
+            subsidy_warehouse_name = f"CP-{self.channel_partner_code}-Subsidy - SESP"
+
+            subsidy_warehouse.update(
+                {
+                    "warehouse_name": subsidy_warehouse_name,
+                    "parent_warehouse": parent_warehouse,
+                    "company": "Suntek Energy Systems Pvt. Ltd.",
+                    "custom_suntek_district": self.district_name,
+                    "custom_suntek_city": self.city,
+                    "custom_suntek_state": self.state,
+                    "warehouse_type": "Subsidy",
+                }
+            )
+
+            subsidy_warehouse.flags.ignore_permissions = True
+            subsidy_warehouse.insert()
+
+            self.db_set("default_sales_warehouse", sales_warehouse.name)
+            self.db_set("default_subsidy_warehouse", subsidy_warehouse.name)
+            self.db_set("warehouse", sales_warehouse.name)
 
             frappe.db.commit()
 
-            if self.linked_user and self.warehouse:
-                self.create_warehouse_permission(warehouse=warehouse)
+            if self.linked_user:
+                self.create_warehouse_permission(warehouse=sales_warehouse)
+                self.create_warehouse_permission(warehouse=subsidy_warehouse)
 
-            return warehouse.name
+            return {
+                "sales_warehouse": sales_warehouse.name,
+                "subsidy_warehouse": subsidy_warehouse.name,
+            }
 
         except Exception as e:
-            frappe.log_error(str(e), "Warehouse creation error")
+            frappe.log_error(str(e), "Warehouse Crreation Error")
             frappe.throw(str(e))
 
     @frappe.whitelist()

@@ -23,11 +23,8 @@ exclude = '''
 '''
 fast = true
 
-
-
-
 [tool.ruff]
-line-length = 120
+line-length = 150
 target-version = "py312"
 exclude = [
   ".bzr",
@@ -67,11 +64,18 @@ line-ending = "auto"
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 docstring-code-format = true
 
-
 [tool.ruff.lint]
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-fixable=["ALL"]
-select = ["E", "F", "W", "I", "UP". "B". "RUF"]
+fixable = ["ALL"]
+select = ["E", "F", "W", "I", "UP", "B", "RUF"]
+
+[tool.ruff.lint.isort]
+known-third-party = []
+case-sensitive = false 
+lines-after-imports = 2
+force-single-line = false 
+combine-as-imports = true
+
 
 ignore = [
     "B017", # assertRaises(Exception) - should be more specific
@@ -90,10 +94,26 @@ ignore = [
     "RUF001", # string contains ambiguous unicode character
 ]
 typing-modules = ["frappe.types.DF"]
-        
 
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
 
-        
+[[tool.mypy.overrides]]
+module = "*.migrations.*"
+ignore_errors = true
 
-
-
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
