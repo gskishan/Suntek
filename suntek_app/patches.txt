@@ -7,3 +7,4 @@ suntek_app.patches.add_ambassador_to_lead_source
 suntek_app.patches.add_channel_partner_customer_group
 suntek_app.patches.create_territories_for_existing_districts
 suntek_app.patches.add_channel_partner_warehouse_types
+suntek_app.patches.change_module_of_ambassador_doctype
