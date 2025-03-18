@@ -105,46 +105,76 @@ class ChannelPartner(Document):
                 user.save(ignore_permissions=True)
                 frappe.db.commit()
 
-    def create_warehouse_permission(self, warehouse):
+    def create_user_permissions(
+        self, doctype, for_value, applicable_for=None, apply_to_all_doctypes=0
+    ):
+        """
+        Improved method to create user permissions with better validation and error handling
+        """
+        if not self.linked_user:
+            frappe.throw("Cannot create permission: No linked user found")
+
+        if not for_value:
+            frappe.throw(f"Cannot create {doctype} permission: Missing for_value")
+
         try:
+            existing = frappe.db.exists(
+                "User Permission",
+                {
+                    "user": self.linked_user,
+                    "allow": doctype,
+                    "for_value": for_value,
+                },
+            )
+
+            if existing:
+                return existing
+
             user_permission = frappe.new_doc("User Permission")
             user_permission.update(
                 {
                     "user": self.linked_user,
-                    "allow": "Warehouse",
-                    "for_value": warehouse.name,
-                    "applicable_for": "Warehouse",
+                    "allow": doctype,
+                    "for_value": for_value,
+                    "apply_to_all_doctypes": apply_to_all_doctypes,
+                    "applicable_for": applicable_for,
                 }
             )
 
             user_permission.flags.ignore_permissions = True
             user_permission.insert()
 
-            frappe.db.commit()
-        except Exception as e:
-            frappe.log_error(str(e), "Warehouse Permission Creation Error")
-            frappe.throw(str(e))
+            return user_permission.name
 
-    def create_user_permissions(self):
+        except Exception as e:
+            frappe.log_error(
+                title=f"Error creating {doctype} permission",
+                message=str(e),
+                reference_doctype="Channel Partner",
+                reference_name=self.name,
+            )
+            frappe.throw(f"Failed to create {doctype} permission: {str(e)}")
+
+    def create_firm_permission(self):
         try:
             user_permission = frappe.new_doc("User Permission")
-
             user_permission.update(
                 {
                     "user": self.linked_user,
-                    "allow": "Channel Partner",
-                    "for_value": self.name,
+                    "allow": "Channel Partner Firm",
+                    "for_value": self.channel_partner_firm,
                     "apply_to_all_doctypes": 1,
                 }
             )
 
             user_permission.save()
-
             frappe.db.commit()
-
-            print(f"User Permission saved: {user_permission.name}")
         except Exception as e:
-            frappe.log_error(str(e), "Channel Partner User Permission Creation Error")
+            frappe.log_error(
+                title="Channel Partner Permission Creation Error",
+                message=str(e),
+                reference_doctype="Channel Partner",
+            )
 
     def create_department_permission(self):
         try:
@@ -164,9 +194,16 @@ class ChannelPartner(Document):
     @frappe.whitelist()
     def create_user(self):
         """
-        Create a User account for the Channel Partner.
-        This is enabled if the Channel Partner is Active.
+        Comprehensive workflow to:
+        1. Create a User account for the Channel Partner
+        2. Create Sales and Subsidy Warehouses
+        3. Create all necessary permissions
+
+        If any step fails, the entire process is rolled back.
         """
+
+        frappe.db.begin()
+
         try:
             user = frappe.new_doc("User")
             user.update(
@@ -182,19 +219,136 @@ class ChannelPartner(Document):
 
             user.add_roles("Channel Partner")
             user.save()
-            frappe.db.commit()
 
             self.db_set("linked_user", user.name)
             self.db_set("is_user_created", 1)
 
-            self.create_user_permissions()
-            self.create_department_permission()
+            warehouses_created = False
+            if not self.default_sales_warehouse or not self.default_subsidy_warehouse:
+                parent_warehouse = "Channel Partner Parent - SESP"
 
+                if not frappe.db.exists("Warehouse", parent_warehouse):
+                    frappe.throw(
+                        f"Parent Warehouse '{parent_warehouse}' does not exist"
+                    )
+
+                sales_warehouse = frappe.new_doc("Warehouse")
+                sales_warehouse_name = f"CP-{self.channel_partner_code}-Sales - SESP"
+
+                sales_warehouse.update(
+                    {
+                        "warehouse_name": sales_warehouse_name,
+                        "parent_warehouse": parent_warehouse,
+                        "company": "Suntek Energy Systems Pvt. Ltd.",
+                        "custom_suntek_district": self.district_name,
+                        "custom_suntek_city": self.city,
+                        "custom_suntek_state": self.state,
+                        "warehouse_type": "Sales",
+                    }
+                )
+
+                sales_warehouse.flags.ignore_permissions = True
+                sales_warehouse.insert()
+
+                subsidy_warehouse = frappe.new_doc("Warehouse")
+                subsidy_warehouse_name = (
+                    f"CP-{self.channel_partner_code}-Subsidy - SESP"
+                )
+
+                subsidy_warehouse.update(
+                    {
+                        "warehouse_name": subsidy_warehouse_name,
+                        "parent_warehouse": parent_warehouse,
+                        "company": "Suntek Energy Systems Pvt. Ltd.",
+                        "custom_suntek_district": self.district_name,
+                        "custom_suntek_city": self.city,
+                        "custom_suntek_state": self.state,
+                        "warehouse_type": "Subsidy",
+                    }
+                )
+
+                subsidy_warehouse.flags.ignore_permissions = True
+                subsidy_warehouse.insert()
+
+                self.db_set("default_sales_warehouse", sales_warehouse.name)
+                self.db_set("default_subsidy_warehouse", subsidy_warehouse.name)
+                self.db_set("warehouse", sales_warehouse.name)
+
+                warehouses_created = True
+
+            permissions_created = []
+
+            cp_perm = self.create_user_permissions(
+                doctype="Channel Partner", for_value=self.name, apply_to_all_doctypes=1
+            )
+            if cp_perm:
+                permissions_created.append("Channel Partner")
+
+            if self.default_sales_warehouse:
+                sales_perm = self.create_user_permissions(
+                    doctype="Warehouse",
+                    for_value=self.default_sales_warehouse,
+                    applicable_for="Warehouse",
+                )
+                if sales_perm:
+                    permissions_created.append("Sales Warehouse")
+
+            if self.default_subsidy_warehouse:
+                subsidy_perm = self.create_user_permissions(
+                    doctype="Warehouse",
+                    for_value=self.default_subsidy_warehouse,
+                    applicable_for="Warehouse",
+                )
+                if subsidy_perm:
+                    permissions_created.append("Subsidy Warehouse")
+
+            dept_perm = self.create_user_permissions(
+                doctype="Department",
+                for_value="Channel Partner - SESP",
+                apply_to_all_doctypes=1,
+            )
+            if dept_perm:
+                permissions_created.append("Department")
+
+            if self.channel_partner_firm:
+                firm_perm = self.create_user_permissions(
+                    doctype="Channel Partner Firm",
+                    for_value=self.channel_partner_firm,
+                    apply_to_all_doctypes=1,
+                )
+                if firm_perm:
+                    permissions_created.append("Channel Partner Firm")
+
+            frappe.db.commit()
+
+            success_message = (
+                f"Successfully created user account for {self.channel_partner_name}"
+            )
+            if warehouses_created:
+                success_message += "\nCreated Sales and Subsidy warehouses"
+            success_message += (
+                f"\nCreated permissions: {', '.join(permissions_created)}"
+            )
+
+            frappe.msgprint(success_message)
             return user.name
 
         except Exception as e:
-            frappe.log_error(str(e), "User Creation Error")
-            frappe.throw(str(e))
+            frappe.db.rollback()
+
+            error_message = f"Failed to complete Channel Partner setup: {str(e)}"
+            frappe.log_error(
+                title=f"Channel Partner Setup Error - {self.name}",
+                message=error_message,
+                reference_doctype="Channel Partner",
+                reference_name=self.name,
+            )
+
+            frappe.msgprint(
+                f"Setup process failed and was rolled back. Error: {str(e)}",
+                indicator="red",
+            )
+            frappe.throw(error_message)
 
     @frappe.whitelist()
     def create_channel_partner_warehouse(self):
@@ -262,7 +416,6 @@ class ChannelPartner(Document):
     @frappe.whitelist()
     def create_customer(self):
         try:
-            # Check if a customer already exists
             existing_customers = frappe.get_all(
                 "Customer",
                 filters={"custom_channel_partner": self.name},
@@ -275,17 +428,14 @@ class ChannelPartner(Document):
                 )
                 return existing_customers[0].name
 
-            # Get territory from district if available
-            territory = "India"  # Default
+            territory = "India"
             if hasattr(self, "district") and self.district:
-                # First try to get linked territory
                 district_territory = frappe.db.get_value(
                     "District", self.district, "territory"
                 )
                 if district_territory:
                     territory = district_territory
                 else:
-                    # If no linked territory, use district name
                     territory = self.district
 
             customer = frappe.new_doc("Customer")
