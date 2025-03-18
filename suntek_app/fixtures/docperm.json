@@ -11,7 +11,7 @@
   "if_owner": 0,
   "import": 0,
   "match": null,
-  "modified": "2025-03-18 14:10:57.797432",
+  "modified": "2025-03-18 14:37:18.713636",
   "name": "3s8skksir9",
   "parent": "Channel Partner Purchase Order",
   "parentfield": "permissions",
@@ -39,7 +39,7 @@
   "if_owner": 0,
   "import": 0,
   "match": null,
-  "modified": "2025-03-18 14:10:57.797432",
+  "modified": "2025-03-18 14:37:18.713636",
   "name": "qnj55k97mm",
   "parent": "Channel Partner Purchase Order",
   "parentfield": "permissions",
@@ -52,7 +52,7 @@
   "select": 0,
   "set_user_permissions": 0,
   "share": 1,
-  "submit": 0,
+  "submit": 1,
   "write": 1
  }
 ]

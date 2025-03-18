@@ -166,16 +166,34 @@ class ChannelPartnerPurchaseOrder(Document):
                 )
 
             sales_order = frappe.new_doc("Sales Order")
+            sales_order.flags.ignore_validate = True
+
+            default_price_list = frappe.db.get_value(
+                "Selling Settings", None, "selling_price_list"
+            )
+            company_currency = frappe.db.get_value(
+                "Company",
+                frappe.defaults.get_user_default("Company"),
+                "default_currency",
+            )
+
             sales_order.update(
                 {
-                    "customer": customer_name,
+                    "customer": channel_partner.linked_customer,
                     "transaction_date": frappe.utils.today(),
                     "delivery_date": self.required_by_date,
                     "company": frappe.defaults.get_user_default("Company"),
-                    "order_type": "Sales",
+                    "order_type": "Channel Partner",
                     "channel_partner_purchase_order": self.name,
                     "custom_channel_partner": self.channel_partner,
-                    "project": self.project,
+                    "currency": company_currency,
+                    "conversion_rate": 1.0,
+                    "price_list_currency": company_currency,
+                    "plc_conversion_rate": 1.0,
+                    "selling_price_list": default_price_list or "Standard Selling",
+                    "custom_suntek_state": channel_partner.state,
+                    "custom_suntek_city": channel_partner.city,
+                    "custom_suntek_district": channel_partner.district,
                 }
             )
 
@@ -189,7 +207,8 @@ class ChannelPartnerPurchaseOrder(Document):
                         "qty": item.qty,
                         "uom": item.uom,
                         "rate": item.rate,
-                        "warehouse": item.warehouse,
+                        "conversion_factor": 1.0,
+                        "delivery_date": self.required_by_date,
                     },
                 )
 
@@ -210,7 +229,6 @@ class ChannelPartnerPurchaseOrder(Document):
 
             try:
                 sales_order.insert()
-                sales_order.submit()
             except Exception as insertion_error:
                 frappe.log_error(
                     f"Sales Order creation failed: {str(insertion_error)}\n"
