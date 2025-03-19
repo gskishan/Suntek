@@ -33,7 +33,6 @@
   "channel_partner_address",
   "address",
   "address_line_2",
-  "postal_code",
   "column_break_gcmk",
   "district",
   "district_name",
@@ -227,13 +226,6 @@
    "fieldname": "address_line_2",
    "fieldtype": "Small Text",
    "label": "Address Line 2",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "dealer_address.pincode",
-   "fieldname": "postal_code",
-   "fieldtype": "Data",
-   "label": "Postal Code",
    "read_only": 1
   },
   {
@@ -438,7 +430,8 @@
    "fieldname": "linked_customer",
    "fieldtype": "Link",
    "label": "Linked Customer",
-   "options": "Customer"
+   "options": "Customer",
+   "read_only": 1
   },
   {
    "fieldname": "default_sales_warehouse",
@@ -500,7 +493,7 @@
    "link_fieldname": "channel_partner"
   }
  ],
- "modified": "2025-03-19 10:47:02.648386",
+ "modified": "2025-03-19 11:30:59.150100",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner",

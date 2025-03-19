@@ -6,8 +6,6 @@ from suntek_app.suntek.utils.validation_utils import validate_mobile_number
 
 
 class ChannelPartner(Document):
-    """Channel Partner Doctype"""
-
     def validate(self):
         self.handle_user_status()
         self.validate_mobile_numbers()
@@ -108,9 +106,6 @@ class ChannelPartner(Document):
     def create_user_permissions(
         self, doctype, for_value, applicable_for=None, apply_to_all_doctypes=0
     ):
-        """
-        Improved method to create user permissions with better validation and error handling
-        """
         if not self.linked_user:
             frappe.throw("Cannot create permission: No linked user found")
 
@@ -193,15 +188,6 @@ class ChannelPartner(Document):
 
     @frappe.whitelist()
     def create_user(self):
-        """
-        Comprehensive workflow to:
-        1. Create a User account for the Channel Partner
-        2. Create Sales and Subsidy Warehouses
-        3. Create all necessary permissions
-
-        If any step fails, the entire process is rolled back.
-        """
-
         frappe.db.begin()
 
         try:
@@ -318,6 +304,8 @@ class ChannelPartner(Document):
                 )
                 if firm_perm:
                     permissions_created.append("Channel Partner Firm")
+
+            self.create_customer()
 
             frappe.db.commit()
 
