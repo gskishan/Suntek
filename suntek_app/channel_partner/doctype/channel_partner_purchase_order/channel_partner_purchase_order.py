@@ -396,3 +396,78 @@ class ChannelPartnerPurchaseOrder(Document):
         except Exception:
             pass
         return result
+
+    @frappe.whitelist()
+    def fetch_details_from_quotation(self, quotation):
+        if not quotation:
+            frappe.msgprint(_("No quotation specified"))
+            return None
+        if not frappe.db.exists("Quotation", quotation):
+            frappe.msgprint(_("Quotation does not exist"))
+            return None
+
+        try:
+            quotation_doc = frappe.get_doc("Quotation", quotation)
+
+            if quotation_doc.status in ["Draft", "Cancelled"]:
+                frappe.msgprint(
+                    _("Cannot use draft / cancelled quotation"),
+                    title="Draft / Cancelled Quotation",
+                    indicator="red",
+                )
+                return None
+
+            items = []
+            for item in quotation_doc.items:
+                items.append(
+                    {
+                        "item_code": item.item_code,
+                        "item_name": item.item_name,
+                        "description": item.description,
+                        "qty": item.qty,
+                        "uom": item.uom,
+                        "rate": item.rate,
+                        "amount": item.amount,
+                        "warehouse": item.warehouse
+                        if hasattr(item, "warehouse")
+                        else None,
+                    }
+                )
+
+            if not items:
+                frappe.msgprint(_(f"Items not found in Quotation: {quotation}"))
+            #
+            # taxes = []
+            # if hasattr(quotation_doc, "taxes"):
+            #     for tax in quotation_doc.taxes:
+            #         taxes.append(
+            #             {
+            #                 "charge_type": tax.charge_type,
+            #                 "account_head": tax.account_head,
+            #                 "description": tax.description,
+            #                 "rate": tax.rate,
+            #                 "tax_amount": tax.tax_amount
+            #                 if hasattr(tax, "tax_amount")
+            #                 else None,
+            #             }
+            #         )
+            #
+            #         result = {"quotation": quotation, "items": items, "taxes": taxes}
+
+            result = {
+                "quotation": quotation,
+                "items": items,
+            }
+
+            self.type_of_case = quotation_doc = quotation_doc.custom_type_of_case
+            return result
+
+        except Exception as e:
+            frappe.log_error(
+                title="Channel Partner Purchase Order Error",
+                message=str(e),
+                reference_doctype="Channel Partner Purchase Order",
+                reference_name=self.name,
+            )
+            frappe.msgprint(_(f"Error fetching quotation details: {str(e)}"))
+            return None

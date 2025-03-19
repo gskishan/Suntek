@@ -206,21 +206,25 @@
    "label": "Channel Partner"
   },
   {
+   "depends_on": "eval:doc.channel_partner",
    "fieldname": "project_tab",
    "fieldtype": "Tab Break",
    "label": "Project"
   },
   {
+   "depends_on": "eval:doc.channel_partner",
    "fieldname": "items_tab",
    "fieldtype": "Tab Break",
    "label": "Items"
   },
   {
+   "depends_on": "eval:doc.channel_partner",
    "fieldname": "taxes_tab",
    "fieldtype": "Tab Break",
    "label": "Taxes and Charges"
   },
   {
+   "depends_on": "eval:doc.channel_partner",
    "fieldname": "terms_and_conditions_tab",
    "fieldtype": "Tab Break",
    "label": "Terms and Conditions"
@@ -255,7 +259,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-19 13:34:46.740474",
+ "modified": "2025-03-19 13:54:47.847290",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner Purchase Order",
