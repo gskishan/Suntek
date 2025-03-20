@@ -371,7 +371,11 @@ class ChannelPartnerPurchaseOrder(Document):
         except Exception:
             pass
 
-        result = {"sales_order": submitted_so.name, "items": items, "taxes": taxes}
+        result = {
+            "sales_order": submitted_so.name,
+            "items": items,
+            # "taxes": taxes,
+        }
 
         if tax_template:
             result["taxes_and_charges_template"] = tax_template

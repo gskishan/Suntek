@@ -6,6 +6,12 @@ from frappe.model.document import Document
 class ChannelPartnerFirm(Document):
     """Channel Partner Firm represents a company or business entity that has channel partners."""
 
+    def autoname(self):
+        """Autoname CP Firm in format CP-FIRM-00000"""
+        from frappe.model.naming import make_autoname
+
+        self.name = make_autoname("CP-FIRM-.#####")
+
     def onload(self):
         """Load address and contact info when the document loads"""
         load_address_and_contact(self)
