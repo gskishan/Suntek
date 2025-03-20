@@ -151,14 +151,11 @@ fixtures = [
                     "Channel Partner",
                     "Channel Partner Manager",
                     "Sales Order Report User",
+                    "Solar Power Plant Manager",
                 ],
             ]
         ],
     },
-    # {
-    #     "doctype": "DocPerm",
-    #     "filters": [["role", "in", ["Channel Partner", "Channel Partner Manager"]]],
-    # },
     {
         "doctype": "Custom DocPerm",
         "filters": [
@@ -169,6 +166,7 @@ fixtures = [
                     "Channel Partner",
                     "Channel Partner Manager",
                     "Sales Order Report User",
+                    "Solar Power Plant Manager",
                 ],
             ]
         ],
