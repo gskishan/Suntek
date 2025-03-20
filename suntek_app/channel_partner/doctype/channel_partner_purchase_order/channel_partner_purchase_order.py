@@ -122,10 +122,6 @@ class ChannelPartnerPurchaseOrder(Document):
 
     @frappe.whitelist()
     def create_sales_order(self):
-        """
-        Create a Sales Order where the Channel Partner is the customer
-        This is only for non-subsidy cases (Discom or No Subsidy No Discom)
-        """
         try:
             if self.type_of_case == "Subsidy":
                 frappe.throw(_("This functionality is not for Subsidy type of cases."))
@@ -253,9 +249,6 @@ class ChannelPartnerPurchaseOrder(Document):
 
     @frappe.whitelist()
     def fetch_details_from_project_sales_order(self, project):
-        """
-        Fetch items, tax template and terms from the Sales Order linked to the project
-        """
         if not project:
             frappe.msgprint(_("No project specified"))
             return None
