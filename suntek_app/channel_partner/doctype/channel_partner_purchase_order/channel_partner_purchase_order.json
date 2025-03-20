@@ -259,7 +259,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-20 12:55:32.450697",
+ "modified": "2025-03-20 13:38:51.802531",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner Purchase Order",
@@ -322,5 +322,6 @@
  "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }
