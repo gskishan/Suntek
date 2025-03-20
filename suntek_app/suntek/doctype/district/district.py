@@ -7,6 +7,7 @@ class District(Document):
     def before_insert(self):
         self.set_district_snake_case()
         self.set_state_data()
+        self.create_territory()
 
     def autoname(self):
         dis_3 = self.district[0:3].upper()

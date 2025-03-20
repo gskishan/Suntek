@@ -16,9 +16,11 @@
   "sales_order",
   "section_break_bzeq",
   "amended_from",
-  "project_tab",
+  "source_tab",
   "section_break_lazn",
+  "source",
   "project",
+  "quotation",
   "type_of_case",
   "items_tab",
   "section_break_xhll",
@@ -88,8 +90,7 @@
   {
    "fieldname": "transaction_date",
    "fieldtype": "Date",
-   "label": "Transaction Date",
-   "reqd": 1
+   "label": "Transaction Date"
   },
   {
    "fieldname": "required_by_date",
@@ -117,9 +118,11 @@
    "reqd": 1
   },
   {
+   "depends_on": "eval:doc.source == \"Project\"",
    "fieldname": "project",
    "fieldtype": "Link",
    "label": "Project",
+   "mandatory_depends_on": "eval:doc.source == \"Project\"",
    "options": "Project"
   },
   {
@@ -203,21 +206,19 @@
    "label": "Channel Partner"
   },
   {
-   "fieldname": "project_tab",
-   "fieldtype": "Tab Break",
-   "label": "Project"
-  },
-  {
+   "depends_on": "eval:doc.channel_partner",
    "fieldname": "items_tab",
    "fieldtype": "Tab Break",
    "label": "Items"
   },
   {
+   "depends_on": "eval:doc.channel_partner",
    "fieldname": "taxes_tab",
    "fieldtype": "Tab Break",
    "label": "Taxes and Charges"
   },
   {
+   "depends_on": "eval:doc.channel_partner",
    "fieldname": "terms_and_conditions_tab",
    "fieldtype": "Tab Break",
    "label": "Terms and Conditions"
@@ -232,12 +233,33 @@
    "fieldtype": "Currency",
    "label": "Balance Amount",
    "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.source == \"Quotation\"",
+   "fieldname": "quotation",
+   "fieldtype": "Link",
+   "label": "Quotation",
+   "mandatory_depends_on": "eval:doc.source == \"Quotation\"",
+   "options": "Quotation"
+  },
+  {
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Source",
+   "options": "\nProject\nQuotation",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.channel_partner",
+   "fieldname": "source_tab",
+   "fieldtype": "Tab Break",
+   "label": "Source"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-10 13:05:38.924969",
+ "modified": "2025-03-20 13:38:51.802531",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner Purchase Order",
@@ -245,37 +267,13 @@
  "permissions": [
   {
    "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Sales Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
    "email": 1,
    "export": 1,
    "print": 1,
    "read": 1,
    "report": 1,
    "role": "Channel Partner",
+   "select": 1,
    "share": 1,
    "write": 1
   },
@@ -288,11 +286,42 @@
    "read": 1,
    "report": 1,
    "role": "Channel Partner Manager",
+   "select": 1,
    "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],
+ "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }

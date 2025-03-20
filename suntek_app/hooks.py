@@ -155,10 +155,10 @@ fixtures = [
             ]
         ],
     },
-    {
-        "doctype": "DocPerm",
-        "filters": [["role", "in", ["Channel Partner", "Channel Partner Manager"]]],
-    },
+    # {
+    #     "doctype": "DocPerm",
+    #     "filters": [["role", "in", ["Channel Partner", "Channel Partner Manager"]]],
+    # },
     {
         "doctype": "Custom DocPerm",
         "filters": [
@@ -173,4 +173,9 @@ fixtures = [
             ]
         ],
     },
+    {
+        "doctype": "Property Setter",
+        "filters": [["name", "in", ["Sales Order-order_type-options"]]],
+    },
+    {"doctype": "HD Ticket Template", "filters": [["name", "in", ["Default"]]]},
 ]

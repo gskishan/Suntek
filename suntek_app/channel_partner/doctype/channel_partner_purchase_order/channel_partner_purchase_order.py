@@ -122,10 +122,6 @@ class ChannelPartnerPurchaseOrder(Document):
 
     @frappe.whitelist()
     def create_sales_order(self):
-        """
-        Create a Sales Order where the Channel Partner is the customer
-        This is only for non-subsidy cases (Discom or No Subsidy No Discom)
-        """
         try:
             if self.type_of_case == "Subsidy":
                 frappe.throw(_("This functionality is not for Subsidy type of cases."))
@@ -166,16 +162,34 @@ class ChannelPartnerPurchaseOrder(Document):
                 )
 
             sales_order = frappe.new_doc("Sales Order")
+            sales_order.flags.ignore_validate = True
+
+            default_price_list = frappe.db.get_value(
+                "Selling Settings", None, "selling_price_list"
+            )
+            company_currency = frappe.db.get_value(
+                "Company",
+                frappe.defaults.get_user_default("Company"),
+                "default_currency",
+            )
+
             sales_order.update(
                 {
-                    "customer": customer_name,
+                    "customer": channel_partner.linked_customer,
                     "transaction_date": frappe.utils.today(),
                     "delivery_date": self.required_by_date,
                     "company": frappe.defaults.get_user_default("Company"),
-                    "order_type": "Sales",
+                    "order_type": "Channel Partner",
                     "channel_partner_purchase_order": self.name,
                     "custom_channel_partner": self.channel_partner,
-                    "project": self.project,
+                    "currency": company_currency,
+                    "conversion_rate": 1.0,
+                    "price_list_currency": company_currency,
+                    "plc_conversion_rate": 1.0,
+                    "selling_price_list": default_price_list or "Standard Selling",
+                    "custom_suntek_state": channel_partner.state,
+                    "custom_suntek_city": channel_partner.city,
+                    "custom_suntek_district": channel_partner.district,
                 }
             )
 
@@ -189,7 +203,8 @@ class ChannelPartnerPurchaseOrder(Document):
                         "qty": item.qty,
                         "uom": item.uom,
                         "rate": item.rate,
-                        "warehouse": item.warehouse,
+                        "conversion_factor": 1.0,
+                        "delivery_date": self.required_by_date,
                     },
                 )
 
@@ -210,7 +225,6 @@ class ChannelPartnerPurchaseOrder(Document):
 
             try:
                 sales_order.insert()
-                sales_order.submit()
             except Exception as insertion_error:
                 frappe.log_error(
                     f"Sales Order creation failed: {str(insertion_error)}\n"
@@ -235,9 +249,6 @@ class ChannelPartnerPurchaseOrder(Document):
 
     @frappe.whitelist()
     def fetch_details_from_project_sales_order(self, project):
-        """
-        Fetch items, tax template and terms from the Sales Order linked to the project
-        """
         if not project:
             frappe.msgprint(_("No project specified"))
             return None
@@ -378,3 +389,78 @@ class ChannelPartnerPurchaseOrder(Document):
         except Exception:
             pass
         return result
+
+    @frappe.whitelist()
+    def fetch_details_from_quotation(self, quotation):
+        if not quotation:
+            frappe.msgprint(_("No quotation specified"))
+            return None
+        if not frappe.db.exists("Quotation", quotation):
+            frappe.msgprint(_("Quotation does not exist"))
+            return None
+
+        try:
+            quotation_doc = frappe.get_doc("Quotation", quotation)
+
+            if quotation_doc.status in ["Draft", "Cancelled"]:
+                frappe.msgprint(
+                    _("Cannot use draft / cancelled quotation"),
+                    title="Draft / Cancelled Quotation",
+                    indicator="red",
+                )
+                return None
+
+            items = []
+            for item in quotation_doc.items:
+                items.append(
+                    {
+                        "item_code": item.item_code,
+                        "item_name": item.item_name,
+                        "description": item.description,
+                        "qty": item.qty,
+                        "uom": item.uom,
+                        "rate": item.rate,
+                        "amount": item.amount,
+                        "warehouse": item.warehouse
+                        if hasattr(item, "warehouse")
+                        else None,
+                    }
+                )
+
+            if not items:
+                frappe.msgprint(_(f"Items not found in Quotation: {quotation}"))
+            #
+            # taxes = []
+            # if hasattr(quotation_doc, "taxes"):
+            #     for tax in quotation_doc.taxes:
+            #         taxes.append(
+            #             {
+            #                 "charge_type": tax.charge_type,
+            #                 "account_head": tax.account_head,
+            #                 "description": tax.description,
+            #                 "rate": tax.rate,
+            #                 "tax_amount": tax.tax_amount
+            #                 if hasattr(tax, "tax_amount")
+            #                 else None,
+            #             }
+            #         )
+            #
+            #         result = {"quotation": quotation, "items": items, "taxes": taxes}
+
+            result = {
+                "quotation": quotation,
+                "items": items,
+            }
+
+            self.type_of_case = quotation_doc = quotation_doc.custom_type_of_case
+            return result
+
+        except Exception as e:
+            frappe.log_error(
+                title="Channel Partner Purchase Order Error",
+                message=str(e),
+                reference_doctype="Channel Partner Purchase Order",
+                reference_name=self.name,
+            )
+            frappe.msgprint(_(f"Error fetching quotation details: {str(e)}"))
+            return None
