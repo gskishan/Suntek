@@ -12,9 +12,6 @@
   "status",
   "capacity",
   "column_break_chnb",
-  "customer",
-  "customer_mobile_no",
-  "customer_email",
   "section_break_rzkd",
   "customers"
  ],
@@ -52,28 +49,6 @@
   {
    "fieldname": "column_break_chnb",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "customer",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Customer",
-   "options": "Customer"
-  },
-  {
-   "fetch_from": "customer.mobile_no",
-   "fieldname": "customer_mobile_no",
-   "fieldtype": "Data",
-   "label": "Customer Mobile No.",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "customer.email_id",
-   "fieldname": "customer_email",
-   "fieldtype": "Data",
-   "label": "Customer Email",
-   "read_only": 1
   },
   {
    "default": "Unassigned",
@@ -114,9 +89,10 @@
    "options": "Solar Power Plant Customer"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-27 11:17:51.358721",
+ "modified": "2025-03-20 16:56:31.674927",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Solar Power Plants",
@@ -134,10 +110,22 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Solar Power Plant Manager",
+   "share": 1,
+   "write": 1
   }
  ],
  "quick_entry": 1,
- "search_fields": "plant_id, plant_name, oem, customer",
+ "search_fields": "plant_id, plant_name, oem",
  "show_name_in_global_search": 1,
  "show_title_field_in_link": 1,
  "sort_field": "modified",
@@ -152,5 +140,6 @@
    "title": "Unassigned"
   }
  ],
- "title_field": "plant_id"
+ "title_field": "plant_id",
+ "track_changes": 1
 }

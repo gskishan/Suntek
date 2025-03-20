@@ -171,21 +171,6 @@ class ChannelPartner(Document):
                 reference_doctype="Channel Partner",
             )
 
-    def create_department_permission(self):
-        try:
-            user_permission = frappe.new_doc("User Permission")
-
-            user_permission.user = self.linked_user
-            user_permission.allow = "Department"
-            user_permission.for_value = "Channel Partner - SESP"
-            user_permission.apply_to_all_doctypes = 1
-
-            user_permission.save()
-
-            frappe.db.commit()
-        except Exception as e:
-            frappe.log_error(str(e), "Channel Partner Department Permission created")
-
     @frappe.whitelist()
     def create_user(self):
         frappe.db.begin()
@@ -305,7 +290,7 @@ class ChannelPartner(Document):
                 if firm_perm:
                     permissions_created.append("Channel Partner Firm")
 
-            self.create_customer()
+            customer_name = self.create_customer()
 
             frappe.db.commit()
 
@@ -314,6 +299,8 @@ class ChannelPartner(Document):
             )
             if warehouses_created:
                 success_message += "\nCreated Sales and Subsidy warehouses"
+            if customer_name:
+                success_message += f"\nCreated Customer: {customer_name}"
             success_message += (
                 f"\nCreated permissions: {', '.join(permissions_created)}"
             )
@@ -337,69 +324,6 @@ class ChannelPartner(Document):
                 indicator="red",
             )
             frappe.throw(error_message)
-
-    @frappe.whitelist()
-    def create_channel_partner_warehouse(self):
-        try:
-            parent_warehouse = "Channel Partner Parent - SESP"
-
-            if not frappe.db.exists("Warehouse", parent_warehouse):
-                frappe.throw(f"Parent Warehouse '{parent_warehouse}' does not exist")
-
-            sales_warehouse = frappe.new_doc("Warehouse")
-            sales_warehouse_name = f"CP-{self.channel_partner_code}-Sales - SESP"
-
-            sales_warehouse.update(
-                {
-                    "warehouse_name": sales_warehouse_name,
-                    "parent_warehouse": parent_warehouse,
-                    "company": "Suntek Energy Systems Pvt. Ltd.",
-                    "custom_suntek_district": self.district_name,
-                    "custom_suntek_city": self.city,
-                    "custom_suntek_state": self.state,
-                    "warehouse_type": "Sales",
-                }
-            )
-
-            sales_warehouse.flags.ignore_permissions = True
-            sales_warehouse.insert()
-
-            subsidy_warehouse = frappe.new_doc("Warehouse")
-            subsidy_warehouse_name = f"CP-{self.channel_partner_code}-Subsidy - SESP"
-
-            subsidy_warehouse.update(
-                {
-                    "warehouse_name": subsidy_warehouse_name,
-                    "parent_warehouse": parent_warehouse,
-                    "company": "Suntek Energy Systems Pvt. Ltd.",
-                    "custom_suntek_district": self.district_name,
-                    "custom_suntek_city": self.city,
-                    "custom_suntek_state": self.state,
-                    "warehouse_type": "Subsidy",
-                }
-            )
-
-            subsidy_warehouse.flags.ignore_permissions = True
-            subsidy_warehouse.insert()
-
-            self.db_set("default_sales_warehouse", sales_warehouse.name)
-            self.db_set("default_subsidy_warehouse", subsidy_warehouse.name)
-            self.db_set("warehouse", sales_warehouse.name)
-
-            frappe.db.commit()
-
-            if self.linked_user:
-                self.create_warehouse_permission(warehouse=sales_warehouse)
-                self.create_warehouse_permission(warehouse=subsidy_warehouse)
-
-            return {
-                "sales_warehouse": sales_warehouse.name,
-                "subsidy_warehouse": subsidy_warehouse.name,
-            }
-
-        except Exception as e:
-            frappe.log_error(str(e), "Warehouse Crreation Error")
-            frappe.throw(str(e))
 
     @frappe.whitelist()
     def create_customer(self):
