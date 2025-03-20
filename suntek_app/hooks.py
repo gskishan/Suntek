@@ -155,24 +155,24 @@ fixtures = [
             ]
         ],
     },
-    {
-        "doctype": "DocPerm",
-        "filters": [["role", "in", ["Channel Partner", "Channel Partner Manager"]]],
-    },
     # {
-    #     "doctype": "Custom DocPerm",
-    #     "filters": [
-    #         [
-    #             "role",
-    #             "in",
-    #             [
-    #                 "Channel Partner",
-    #                 "Channel Partner Manager",
-    #                 "Sales Order Report User",
-    #             ],
-    #         ]
-    #     ],
+    #     "doctype": "DocPerm",
+    #     "filters": [["role", "in", ["Channel Partner", "Channel Partner Manager"]]],
     # },
+    {
+        "doctype": "Custom DocPerm",
+        "filters": [
+            [
+                "role",
+                "in",
+                [
+                    "Channel Partner",
+                    "Channel Partner Manager",
+                    "Sales Order Report User",
+                ],
+            ]
+        ],
+    },
     {
         "doctype": "Property Setter",
         "filters": [["name", "in", ["Sales Order-order_type-options"]]],

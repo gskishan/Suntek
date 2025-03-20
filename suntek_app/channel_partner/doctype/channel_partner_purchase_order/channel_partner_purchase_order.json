@@ -16,7 +16,7 @@
   "sales_order",
   "section_break_bzeq",
   "amended_from",
-  "project_tab",
+  "source_tab",
   "section_break_lazn",
   "source",
   "project",
@@ -207,12 +207,6 @@
   },
   {
    "depends_on": "eval:doc.channel_partner",
-   "fieldname": "project_tab",
-   "fieldtype": "Tab Break",
-   "label": "Project"
-  },
-  {
-   "depends_on": "eval:doc.channel_partner",
    "fieldname": "items_tab",
    "fieldtype": "Tab Break",
    "label": "Items"
@@ -254,12 +248,18 @@
    "label": "Source",
    "options": "\nProject\nQuotation",
    "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.channel_partner",
+   "fieldname": "source_tab",
+   "fieldtype": "Tab Break",
+   "label": "Source"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-20 11:35:46.993398",
+ "modified": "2025-03-20 12:55:32.450697",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner Purchase Order",
@@ -267,13 +267,13 @@
  "permissions": [
   {
    "create": 1,
-   "delete": 1,
    "email": 1,
    "export": 1,
    "print": 1,
    "read": 1,
    "report": 1,
    "role": "Channel Partner",
+   "select": 1,
    "share": 1,
    "write": 1
   },
@@ -286,6 +286,34 @@
    "read": 1,
    "report": 1,
    "role": "Channel Partner Manager",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "select": 1,
    "share": 1,
    "submit": 1,
    "write": 1
