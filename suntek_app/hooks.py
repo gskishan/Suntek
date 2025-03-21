@@ -179,5 +179,4 @@ fixtures = [
         "doctype": "Property Setter",
         "filters": [["name", "in", ["Sales Order-order_type-options"]]],
     },
-    {"doctype": "HD Ticket Template", "filters": [["name", "in", ["Default"]]]},
 ]
