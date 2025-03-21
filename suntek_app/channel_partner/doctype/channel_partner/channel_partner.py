@@ -325,20 +325,18 @@ class ChannelPartner(Document):
             )
             frappe.throw(error_message)
 
-    @frappe.whitelist()
     def create_customer(self):
         try:
-            existing_customers = frappe.get_all(
-                "Customer",
-                filters={"custom_channel_partner": self.name},
-                fields=["name"],
-            )
-
-            if existing_customers:
+            if self.linked_customer:
                 frappe.msgprint(
-                    f"Customer {existing_customers[0].name} already exists for this Channel Partner"
+                    f"Customer {self.linked_customer} is already linked to this Channel Partner"
                 )
-                return existing_customers[0].name
+
+                linked_customer = frappe.get_doc(
+                    "Customer", {"name": self.linked_customer}
+                )
+
+                return linked_customer.name
 
             territory = "India"
             if hasattr(self, "district") and self.district:
