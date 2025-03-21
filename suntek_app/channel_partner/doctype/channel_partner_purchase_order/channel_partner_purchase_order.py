@@ -179,7 +179,7 @@ class ChannelPartnerPurchaseOrder(Document):
                     "transaction_date": frappe.utils.today(),
                     "delivery_date": self.required_by_date,
                     "company": frappe.defaults.get_user_default("Company"),
-                    "order_type": "Channel Partner",
+                    "order_type": "Sales",
                     "channel_partner_purchase_order": self.name,
                     "custom_channel_partner": self.channel_partner,
                     "currency": company_currency,
@@ -190,6 +190,7 @@ class ChannelPartnerPurchaseOrder(Document):
                     "custom_suntek_state": channel_partner.state,
                     "custom_suntek_city": channel_partner.city,
                     "custom_suntek_district": channel_partner.district,
+                    "custom_to_channel_partner": 1,
                 }
             )
 

@@ -105,6 +105,10 @@ doc_events = {
         "on_submit": "suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit",
         "on_update": [
             "suntek_app.api.webhook_handler.send_ambassador_status_update",
+            "suntek_app.event_handlers.sales_order_event_handler.update_cppo_from_sales_order",
+        ],
+        "after_save": [
+            "suntek_app.event_handlers.sales_order_event_handler.update_cppo_from_sales_order",
         ],
     },
     "Project": {
