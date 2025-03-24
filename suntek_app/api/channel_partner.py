@@ -130,6 +130,9 @@ def create_channel_partner():
         channel_partner.suntek_email = generate_random_email(is_suntek_email=True)
         channel_partner.email = generate_random_email(is_suntek_email=False)
         channel_partner.status = "Active"
+        channel_partner.default_buying_list = "Standard Buying"
+        channel_partner.default_selling_list = "Telangana Price List (CP)"
+        # channel_partner.default_selling_list = "Standard Selling"
         channel_partner.contact_person = (
             f"{random.choice(first_names)} {random.choice(last_names)}"
         )
