@@ -133,7 +133,7 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
         frm.trigger("update_item_prices");
       }
     } else {
-      frm.set_value("price_list", "Standard Selling");
+      frm.set_value("price_list", frm.doc.price_list);
 
       if (frm.doc.items && frm.doc.items.length > 0) {
         frm.trigger("update_item_prices");
@@ -148,7 +148,7 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
       method: "suntek_app.utils.items.get_item_prices",
       args: {
         items: frm.doc.items.map((item) => item.item_code),
-        price_list_name: "Standard Selling",
+        price_list_name: frm.doc.price_list,
       },
       callback: function (r) {
         if (r.message) {
@@ -425,7 +425,7 @@ frappe.ui.form.on("Channel Partner Purchase Order Item", {
 
   items_add: function (frm, cdt, cdn) {
     if (!frm.doc.price_list) {
-      frm.set_value("price_list", "Standard Selling");
+      frm.set_value("price_list", frm.doc.price_list);
     }
 
     var row = locals[cdt][cdn];

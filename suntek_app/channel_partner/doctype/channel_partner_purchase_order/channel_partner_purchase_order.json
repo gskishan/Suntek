@@ -247,8 +247,7 @@
    "fieldname": "source",
    "fieldtype": "Select",
    "label": "Source",
-   "options": "\nProject\nQuotation\nManual Entry",
-   "reqd": 1
+   "options": "\nProject\nQuotation\nManual Entry"
   },
   {
    "depends_on": "eval:doc.channel_partner",
@@ -266,7 +265,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-24 11:50:31.460900",
+ "modified": "2025-03-24 17:46:00.101321",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner Purchase Order",

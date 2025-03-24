@@ -162,11 +162,11 @@ class ChannelPartnerPurchaseOrder(Document):
                 )
 
             sales_order = frappe.new_doc("Sales Order")
-            sales_order.flags.ignore_validate = True
 
-            # default_price_list = frappe.db.get_value(
-            #     "Selling Settings", None, "selling_price_list"
-            # )
+            sales_order.flags.ignore_validate = True
+            sales_order.flags.ignore_permissions = True
+            sales_order.flags.ignore_validate_update_after_submit = True
+
             default_price_list = (
                 self.price_list
                 if self.price_list
@@ -250,8 +250,6 @@ class ChannelPartnerPurchaseOrder(Document):
                         },
                     )
 
-            sales_order.flags.ignore_permissions = True
-
             try:
                 sales_order.insert()
             except Exception as insertion_error:
@@ -268,10 +266,27 @@ class ChannelPartnerPurchaseOrder(Document):
                 )
                 raise
 
+            for i, item in enumerate(self.items):
+                frappe.db.set_value(
+                    "Sales Order Item",
+                    sales_order.items[i].name,
+                    {
+                        "rate": item.rate,
+                        "amount": item.amount,
+                        "price_list_rate": item.rate,
+                        "base_price_list_rate": item.rate,
+                        "base_rate": item.rate,
+                        "base_amount": item.amount,
+                    },
+                    update_modified=False,
+                )
+
+            sales_order.run_method("calculate_taxes_and_totals")
+            sales_order.save(ignore_permissions=True)
+
             self.db_set("sales_order", sales_order.name)
             self.db_set("status", "SO Created")
 
-            sales_order.save()
             frappe.msgprint(
                 _("Sales Order {0} created successfully").format(sales_order.name)
             )
