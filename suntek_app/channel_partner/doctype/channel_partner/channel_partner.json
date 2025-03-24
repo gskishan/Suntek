@@ -529,7 +529,7 @@
    "link_fieldname": "channel_partner"
   }
  ],
- "modified": "2025-03-24 11:52:07.322606",
+ "modified": "2025-03-24 13:05:08.992626",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner",
@@ -545,8 +545,32 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
    "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Channel Partner Manager",
+   "select": 1,
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Channel Partner",
+   "select": 1,
+   "share": 1
   }
  ],
  "search_fields": "channel_partner_name",
