@@ -13,8 +13,17 @@ def update_cppo_from_sales_order(doc, method=None):
         return
 
     try:
+        cppo_list = frappe.get_all(
+            "Channel Partner Purchase Order",
+            filters={"sales_order": doc.name},
+            fields=["name"],
+        )
+
+        if not cppo_list:
+            return
+
         linked_cppo = frappe.get_doc(
-            "Channel Partner Purchase Order", {"sales_order": doc.name}
+            "Channel Partner Purchase Order", cppo_list[0].name
         )
 
         if not linked_cppo:
@@ -165,7 +174,6 @@ def update_cppo_terms(cppo, sales_order):
 
     cppo_terms = cppo.terms_and_conditions_details or ""
     so_terms = getattr(sales_order, "terms", "") or ""
-    print(so_terms)
 
     if cppo_tc_name != so_tc_name or cppo_terms != so_terms:
         cppo.db_set("terms_and_conditions", so_tc_name, update_modified=False)
