@@ -14,6 +14,7 @@
   "transaction_date",
   "required_by_date",
   "sales_order",
+  "price_list",
   "section_break_bzeq",
   "amended_from",
   "source_tab",
@@ -253,12 +254,17 @@
    "fieldname": "source_tab",
    "fieldtype": "Tab Break",
    "label": "Source"
+  },
+  {
+   "fieldname": "price_list",
+   "fieldtype": "Data",
+   "label": "Price List"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-21 11:33:44.717060",
+ "modified": "2025-03-24 10:54:28.866400",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner Purchase Order",
