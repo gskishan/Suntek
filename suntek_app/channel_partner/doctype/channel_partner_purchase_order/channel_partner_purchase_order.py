@@ -178,6 +178,14 @@ class ChannelPartnerPurchaseOrder(Document):
                 "default_currency",
             )
 
+            selling_price_list = (
+                self.price_list or default_price_list or "Standard Selling"
+            )
+            price_list_currency = (
+                frappe.db.get_value("Price List", selling_price_list, "currency")
+                or company_currency
+            )
+
             sales_order.update(
                 {
                     "customer": channel_partner.linked_customer,
@@ -189,9 +197,9 @@ class ChannelPartnerPurchaseOrder(Document):
                     "custom_channel_partner": self.channel_partner,
                     "currency": company_currency,
                     "conversion_rate": 1.0,
-                    "price_list_currency": company_currency,
                     "plc_conversion_rate": 1.0,
-                    "selling_price_list": default_price_list or "Standard Selling",
+                    "price_list_currency": price_list_currency,
+                    "selling_price_list": selling_price_list,
                     "custom_suntek_state": channel_partner.state,
                     "custom_suntek_city": channel_partner.city,
                     "custom_suntek_district": channel_partner.district,
@@ -200,20 +208,35 @@ class ChannelPartnerPurchaseOrder(Document):
             )
 
             for item in self.items:
-                sales_order.append(
-                    "items",
-                    {
-                        "item_code": item.item_code,
-                        "item_name": item.item_name,
-                        "description": item.description,
-                        "qty": item.qty,
-                        "uom": item.uom,
-                        "rate": item.rate,
-                        "conversion_factor": 1.0,
-                        "delivery_date": self.required_by_date,
-                    },
-                )
+                item_dict = {
+                    "item_code": item.item_code,
+                    "item_name": item.item_name,
+                    "description": item.description,
+                    "qty": item.qty,
+                    "uom": item.uom,
+                    "rate": item.rate,
+                    "conversion_factor": 1.0,
+                    "delivery_date": self.required_by_date,
+                    "price_list_rate": item.rate,
+                }
 
+                sales_order.append("items", item_dict)
+
+            # for item in self.items:
+            #     sales_order.append(
+            #         "items",
+            #         {
+            #             "item_code": item.item_code,
+            #             "item_name": item.item_name,
+            #             "description": item.description,
+            #             "qty": item.qty,
+            #             "uom": item.uom,
+            #             "rate": item.rate,
+            #             "conversion_factor": 1.0,
+            #             "delivery_date": self.required_by_date,
+            #         },
+            #     )
+            #
             if self.taxes_and_charges_template:
                 sales_order.taxes_and_charges = self.taxes_and_charges_template
                 for tax in self.taxes:
