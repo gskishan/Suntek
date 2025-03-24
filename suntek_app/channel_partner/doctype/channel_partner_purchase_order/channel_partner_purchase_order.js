@@ -117,7 +117,22 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
   },
 
   set_default_price_list: function (frm) {
-    if (!frm.doc.price_list) {
+    if (frm.doc.channel_partner) {
+      frappe.db.get_value(
+        "Channel Partner",
+        frm.doc.channel_partner,
+        "default_selling_list",
+        function (r) {
+          if (r && r.default_selling_list) {
+            frm.set_value("price_list", r.default_selling_list);
+          }
+        },
+      );
+
+      if (frm.doc.items && frm.doc.items.length > 0) {
+        frm.trigger("update_item_prices");
+      }
+    } else {
       frm.set_value("price_list", "Standard Selling");
 
       if (frm.doc.items && frm.doc.items.length > 0) {
@@ -153,6 +168,7 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
   },
 
   channel_partner: function (frm) {
+    frm.trigger("set_default_price_list");
     frm.set_query("project", function () {
       return {
         filters: {
@@ -371,7 +387,7 @@ frappe.ui.form.on("Channel Partner Purchase Order Item", {
                 method: "suntek_app.utils.items.get_item_prices",
                 args: {
                   items: [row.item_code],
-                  price_list_name: "Standard Selling",
+                  price_list_name: frm.doc.price_list,
                 },
                 callback: function (response) {
                   if (response.message && response.message[row.item_code]) {

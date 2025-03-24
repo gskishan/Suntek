@@ -62,7 +62,6 @@ class ChannelPartnerFirm(Document):
             address = frappe.new_doc("Address")
             address.update(address_data)
 
-            # Add a dynamic link to this firm
             address.append(
                 "links",
                 {"link_doctype": "Channel Partner Firm", "link_name": self.name},
@@ -81,7 +80,6 @@ class ChannelPartnerFirm(Document):
             contact = frappe.new_doc("Contact")
             contact.update(contact_data)
 
-            # Add a dynamic link to this firm
             contact.append(
                 "links",
                 {"link_doctype": "Channel Partner Firm", "link_name": self.name},

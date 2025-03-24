@@ -64,9 +64,15 @@
   "other_documents",
   "pin_codes_tab",
   "associated_pin_codes",
-  "warehouse_tab",
+  "selling_tab",
+  "warehouses_section",
   "default_sales_warehouse",
+  "column_break_gixt",
   "default_subsidy_warehouse",
+  "price_list_section",
+  "default_selling_list",
+  "column_break_vism",
+  "default_buying_list",
   "connections_tab"
  ],
  "fields": [
@@ -398,11 +404,6 @@
    "show_dashboard": 1
   },
   {
-   "fieldname": "warehouse_tab",
-   "fieldtype": "Tab Break",
-   "label": "Warehouse"
-  },
-  {
    "fieldname": "dashboard_tab",
    "fieldtype": "Tab Break",
    "label": "Dashboard"
@@ -444,6 +445,41 @@
    "fieldtype": "Link",
    "label": "Default Subsidy Warehouse",
    "options": "Warehouse"
+  },
+  {
+   "fieldname": "selling_tab",
+   "fieldtype": "Tab Break",
+   "label": "Selling"
+  },
+  {
+   "fieldname": "warehouses_section",
+   "fieldtype": "Section Break",
+   "label": "Warehouses"
+  },
+  {
+   "fieldname": "column_break_gixt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "price_list_section",
+   "fieldtype": "Section Break",
+   "label": "Price List"
+  },
+  {
+   "fieldname": "default_selling_list",
+   "fieldtype": "Link",
+   "label": "Default Selling List",
+   "options": "Price List"
+  },
+  {
+   "fieldname": "column_break_vism",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_buying_list",
+   "fieldtype": "Link",
+   "label": "Default Buying List",
+   "options": "Price List"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -493,7 +529,7 @@
    "link_fieldname": "channel_partner"
   }
  ],
- "modified": "2025-03-19 11:30:59.150100",
+ "modified": "2025-03-24 11:52:07.322606",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner",

@@ -164,8 +164,13 @@ class ChannelPartnerPurchaseOrder(Document):
             sales_order = frappe.new_doc("Sales Order")
             sales_order.flags.ignore_validate = True
 
-            default_price_list = frappe.db.get_value(
-                "Selling Settings", None, "selling_price_list"
+            # default_price_list = frappe.db.get_value(
+            #     "Selling Settings", None, "selling_price_list"
+            # )
+            default_price_list = (
+                self.price_list
+                if self.price_list
+                else frappe.db.get_value("Selling Settings", None, "selling_price_list")
             )
             company_currency = frappe.db.get_value(
                 "Company",
