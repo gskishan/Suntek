@@ -233,17 +233,22 @@ class ChannelPartnerPurchaseOrder(Document):
                 sales_order.insert()
             except Exception as insertion_error:
                 frappe.log_error(
-                    f"Sales Order creation failed: {str(insertion_error)}\n"
-                    f"Customer: {customer_name}\n"
-                    f"Project: {self.project}\n"
-                    f"Document data: {sales_order.as_dict()}",
-                    "Sales Order Creation Detailed Error",
+                    title="Sales Order Creation Error",
+                    message=f"""
+                        Sales Order creation failed: {str(insertion_error)}
+                        Customer: {customer_name}
+                        Project: {self.project}
+                        Document data: {sales_order.as_dict()}
+                    """,
+                    reference_doctype="Sales Order",
+                    reference_name=self.name,
                 )
                 raise
 
             self.db_set("sales_order", sales_order.name)
             self.db_set("status", "SO Created")
 
+            sales_order.save()
             frappe.msgprint(
                 _("Sales Order {0} created successfully").format(sales_order.name)
             )
