@@ -94,6 +94,7 @@ def create_districts():
 @frappe.whitelist(allow_guest=True)
 def create_channel_partner():
     try:
+        frappe.set_user("Administrator")
         channel_partner = frappe.new_doc("Channel Partner")
 
         first_names = [
@@ -121,6 +122,9 @@ def create_channel_partner():
             "Taylor",
         ]
 
+        districts = frappe.get_list("District", fields=["name"])
+        district = random.choice(districts)
+
         channel_partner.first_name = random.choice(first_names)
         channel_partner.last_name = random.choice(last_names)
         channel_partner.salutation = random.choice(["Mr", "Mrs", "Ms", "Dr"])
@@ -137,7 +141,8 @@ def create_channel_partner():
             f"{random.choice(first_names)} {random.choice(last_names)}"
         )
 
-        channel_partner.district = "RAN-TS-00001"
+        # channel_partner.district = "RAN-TS-00001"
+        channel_partner.district = district.name
 
         firms = frappe.get_all("Channel Partner Firm", fields=["name"])
         if firms:
