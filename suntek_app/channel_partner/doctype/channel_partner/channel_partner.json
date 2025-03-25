@@ -113,7 +113,7 @@
    "fieldtype": "Data",
    "in_global_search": 1,
    "label": "Channel Partner Code",
-   "reqd": 1,
+   "read_only": 1,
    "unique": 1
   },
   {
@@ -529,7 +529,7 @@
    "link_fieldname": "channel_partner"
   }
  ],
- "modified": "2025-03-24 13:05:08.992626",
+ "modified": "2025-03-25 11:16:51.403450",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner",
