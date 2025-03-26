@@ -1,23 +1,25 @@
 frappe.ui.form.on("Channel Partner Purchase Order", {
   refresh: function (frm) {
-    setTimeout(() => {
-      frappe.call({
-        method: "frappe.client.get_value",
-        args: {
-          doctype: "Channel Partner",
-          filters: {
-            linked_user: frappe.session.user,
+    if (frm.is_new()) {
+      setTimeout(() => {
+        frappe.call({
+          method: "frappe.client.get_value",
+          args: {
+            doctype: "Channel Partner",
+            filters: {
+              linked_user: frappe.session.user,
+            },
+            fieldname: ["name", "default_selling_list"],
           },
-          fieldname: ["name", "default_selling_list"],
-        },
-        callback: function (res) {
-          if (res.message) {
-            frm.set_value("channel_partner", res.message.name);
-            frm.refresh_field("channel_partner");
-          }
-        },
-      });
-    }, 100);
+          callback: function (res) {
+            if (res.message) {
+              frm.set_value("channel_partner", res.message.name);
+              frm.refresh_field("channel_partner");
+            }
+          },
+        });
+      }, 100);
+    }
 
     frm.trigger("set_default_price_list");
 
