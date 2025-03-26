@@ -28,9 +28,7 @@ class ChannelPartnerPurchaseOrder(Document):
     def validate_type_of_case(self):
         """Validate that CPPO is not being created for subsidy cases"""
         if self.type_of_case == "Subsidy":
-            frappe.throw(
-                _("Channel Partner Purchase Orders are not needed for Subsidy cases.")
-            )
+            frappe.throw(_("Channel Partner Purchase Orders are not needed for Subsidy cases."))
 
     def update_status(self):
         if self.docstatus == 0:
@@ -46,22 +44,16 @@ class ChannelPartnerPurchaseOrder(Document):
     def validate_channel_partner(self):
         """Validate that the channel partner exists and is active"""
         if not frappe.db.exists("Channel Partner", self.channel_partner):
-            frappe.throw(
-                _("Channel Partner {0} does not exist").format(self.channel_partner)
-            )
+            frappe.throw(_("Channel Partner {0} does not exist").format(self.channel_partner))
 
         channel_partner = frappe.get_doc("Channel Partner", self.channel_partner)
         if channel_partner.status != "Active":
-            frappe.throw(
-                _("Channel Partner {0} is not active").format(self.channel_partner)
-            )
+            frappe.throw(_("Channel Partner {0} is not active").format(self.channel_partner))
 
     def fetch_type_of_case_from_project(self):
         """Fetch type_of_case from project if project is specified and type_of_case is not set"""
         if self.project and not self.type_of_case:
-            type_of_case = frappe.db.get_value(
-                "Project", self.project, "custom_type_of_case"
-            )
+            type_of_case = frappe.db.get_value("Project", self.project, "custom_type_of_case")
             if type_of_case:
                 self.type_of_case = type_of_case
 
@@ -79,9 +71,7 @@ class ChannelPartnerPurchaseOrder(Document):
 
         if self.taxes_and_charges_template:
             if not self.taxes:
-                tax_template = frappe.get_doc(
-                    "Sales Taxes and Charges Template", self.taxes_and_charges_template
-                )
+                tax_template = frappe.get_doc("Sales Taxes and Charges Template", self.taxes_and_charges_template)
                 for tax in tax_template.taxes:
                     self.append(
                         "taxes",
@@ -115,9 +105,9 @@ class ChannelPartnerPurchaseOrder(Document):
             so_status = frappe.db.get_value("Sales Order", self.sales_order, "status")
             if so_status not in ["Cancelled", "Closed"]:
                 frappe.throw(
-                    _(
-                        "Cannot cancel this order. Please cancel the linked Sales Order {0} first."
-                    ).format(self.sales_order)
+                    _("Cannot cancel this order. Please cancel the linked Sales Order {0} first.").format(
+                        self.sales_order
+                    )
                 )
 
     @frappe.whitelist()
@@ -127,39 +117,22 @@ class ChannelPartnerPurchaseOrder(Document):
                 frappe.throw(_("This functionality is not for Subsidy type of cases."))
 
             if self.sales_order:
-                frappe.throw(
-                    _(
-                        "Sales Order already exists for this Channel Partner Purchase Order."
-                    )
-                )
+                frappe.throw(_("Sales Order already exists for this Channel Partner Purchase Order."))
 
             channel_partner = frappe.get_doc("Channel Partner", self.channel_partner)
 
-            if (
-                not hasattr(channel_partner, "linked_customer")
-                or not channel_partner.linked_customer
-            ):
+            if not hasattr(channel_partner, "linked_customer") or not channel_partner.linked_customer:
                 if hasattr(channel_partner, "create_customer"):
                     customer_name = channel_partner.create_customer()
                     if not customer_name:
-                        frappe.throw(
-                            _("Could not create customer for Channel Partner.")
-                        )
+                        frappe.throw(_("Could not create customer for Channel Partner."))
                 else:
-                    frappe.throw(
-                        _(
-                            "No customer linked to this Channel Partner and cannot create one."
-                        )
-                    )
+                    frappe.throw(_("No customer linked to this Channel Partner and cannot create one."))
             else:
                 customer_name = channel_partner.linked_customer
 
             if not frappe.db.exists("Customer", customer_name):
-                frappe.throw(
-                    _(
-                        "The customer '{0}' linked to channel partner does not exist."
-                    ).format(customer_name)
-                )
+                frappe.throw(_("The customer '{0}' linked to channel partner does not exist.").format(customer_name))
 
             sales_order = frappe.new_doc("Sales Order")
 
@@ -178,13 +151,8 @@ class ChannelPartnerPurchaseOrder(Document):
                 "default_currency",
             )
 
-            selling_price_list = (
-                self.price_list or default_price_list or "Standard Selling"
-            )
-            price_list_currency = (
-                frappe.db.get_value("Price List", selling_price_list, "currency")
-                or company_currency
-            )
+            selling_price_list = self.price_list or default_price_list or "Standard Selling"
+            price_list_currency = frappe.db.get_value("Price List", selling_price_list, "currency") or company_currency
 
             sales_order.update(
                 {
@@ -287,9 +255,7 @@ class ChannelPartnerPurchaseOrder(Document):
             self.db_set("sales_order", sales_order.name)
             self.db_set("status", "SO Created")
 
-            frappe.msgprint(
-                _("Sales Order {0} created successfully").format(sales_order.name)
-            )
+            frappe.msgprint(_("Sales Order {0} created successfully").format(sales_order.name))
             return sales_order.name
 
         except Exception as e:
@@ -338,18 +304,11 @@ class ChannelPartnerPurchaseOrder(Document):
                 )
 
         if not sales_orders:
-            frappe.msgprint(
-                _(
-                    "No Sales Orders found for this project. Please create a Sales Order first."
-                )
-            )
+            frappe.msgprint(_("No Sales Orders found for this project. Please create a Sales Order first."))
             return None
 
         orders_list = "\n".join(
-            [
-                f"- {so.name} (Status: {'Submitted' if so.docstatus == 1 else 'Draft'})"
-                for so in sales_orders
-            ]
+            [f"- {so.name} (Status: {'Submitted' if so.docstatus == 1 else 'Draft'})" for so in sales_orders]
         )
         frappe.msgprint(f"Found sales orders:\n{orders_list}")
 
@@ -366,9 +325,7 @@ class ChannelPartnerPurchaseOrder(Document):
             frappe.msgprint(_("No Sales Orders found."))
             return None
         else:
-            frappe.msgprint(
-                _("Using submitted sales order: {0}").format(submitted_so.name)
-            )
+            frappe.msgprint(_("Using submitted sales order: {0}").format(submitted_so.name))
 
         items = frappe.get_all(
             "Sales Order Item",
@@ -386,9 +343,7 @@ class ChannelPartnerPurchaseOrder(Document):
         )
 
         if not items:
-            frappe.msgprint(
-                _("No items found in sales order {0}").format(submitted_so.name)
-            )
+            frappe.msgprint(_("No items found in sales order {0}").format(submitted_so.name))
 
         taxes = []
         try:
@@ -414,9 +369,7 @@ class ChannelPartnerPurchaseOrder(Document):
         tax_template = None
         try:
             if frappe.db.has_column("Sales Order", "taxes_and_charges"):
-                tax_template = frappe.db.get_value(
-                    "Sales Order", submitted_so.name, "taxes_and_charges"
-                )
+                tax_template = frappe.db.get_value("Sales Order", submitted_so.name, "taxes_and_charges")
         except Exception:
             pass
 
@@ -434,9 +387,7 @@ class ChannelPartnerPurchaseOrder(Document):
 
         try:
             if frappe.db.has_column("Sales Order", "terms_and_conditions"):
-                tc = frappe.db.get_value(
-                    "Sales Order", submitted_so.name, "terms_and_conditions"
-                )
+                tc = frappe.db.get_value("Sales Order", submitted_so.name, "terms_and_conditions")
                 if tc:
                     result["terms_and_conditions"] = tc
         except Exception:
@@ -474,9 +425,7 @@ class ChannelPartnerPurchaseOrder(Document):
                         "uom": item.uom,
                         "rate": item.rate,
                         "amount": item.amount,
-                        "warehouse": item.warehouse
-                        if hasattr(item, "warehouse")
-                        else None,
+                        "warehouse": item.warehouse if hasattr(item, "warehouse") else None,
                     }
                 )
 
@@ -517,3 +466,7 @@ class ChannelPartnerPurchaseOrder(Document):
             )
             frappe.msgprint(_(f"Error fetching quotation details: {str(e)}"))
             return None
+
+    @frappe.whitelist()
+    def get_channel_partner_name(self):
+        return "name"

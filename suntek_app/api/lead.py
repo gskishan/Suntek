@@ -12,9 +12,7 @@ from suntek_app.suntek.utils.validation_utils import validate_mobile_number
 @frappe.whitelist(allow_guest=True)
 def create_lead_from_ambassador():
     try:
-        if frappe.request.headers.get(
-            "X-Django-Server-Authorization"
-        ) and validate_auth_token(
+        if frappe.request.headers.get("X-Django-Server-Authorization") and validate_auth_token(
             frappe.request.headers.get("X-Django-Server-Authorization")
         ):
             if not frappe.request.method == "POST":
@@ -22,9 +20,7 @@ def create_lead_from_ambassador():
                     f"Method not allowed: {frappe.request.method}",
                     "Lead API: Invalid Method",
                 )
-                return create_api_response(
-                    405, "method not allowed", "Method Not Allowed"
-                )
+                return create_api_response(405, "method not allowed", "Method Not Allowed")
 
             frappe.set_user("developer@suntek.co.in")
 
@@ -35,9 +31,7 @@ def create_lead_from_ambassador():
                     f"Error parsing request data: {str(e)}\nRequest data: {frappe.request.data}",
                     "Lead API: Data Parse Error",
                 )
-                return create_api_response(
-                    400, "bad request", "Invalid request data format"
-                )
+                return create_api_response(400, "bad request", "Invalid request data format")
 
             first_name = data.get("first_name")
             mobile_no = data.get("mobile_number")
@@ -65,9 +59,7 @@ def create_lead_from_ambassador():
                 )
                 return create_api_response(400, "bad_request", "Invalid Mobile Number")
 
-            existing_lead = frappe.db.get_value(
-                "Lead", {"mobile_no": mobile_no}, ["name"], as_dict=1
-            )
+            existing_lead = frappe.db.get_value("Lead", {"mobile_no": mobile_no}, ["name"], as_dict=1)
             if existing_lead:
                 frappe.log_error(
                     f"Duplicate lead with mobile number: {mobile_no}, Lead ID: {existing_lead.get('name')}",
@@ -84,9 +76,7 @@ def create_lead_from_ambassador():
             email_id = data.get("email")
 
             try:
-                ambassador_result = get_or_create_ambassador(
-                    ambassador_mobile_no, ambassador_name, ambassador_data
-                )
+                ambassador_result = get_or_create_ambassador(ambassador_mobile_no, ambassador_name, ambassador_data)
                 ambassador_id = ambassador_result["name"]
                 ambassador_created = ambassador_result["created"]
             except Exception as e:
@@ -120,17 +110,13 @@ def create_lead_from_ambassador():
                 response_data["ambassador_id"] = ambassador_id
                 response_data["ambassador_created"] = ambassador_created
 
-                return create_api_response(
-                    201, "created", "Lead created successfully", data=response_data
-                )
+                return create_api_response(201, "created", "Lead created successfully", data=response_data)
             except Exception as e:
                 frappe.log_error(
                     f"Lead creation error: {str(e)}\nLead data: {first_name}, {last_name}, {mobile_no}, {email_id}, {ambassador_id}",
                     "Lead API: Lead Creation Failure",
                 )
-                return create_api_response(
-                    500, "server_error", f"Error creating lead: {str(e)}"
-                )
+                return create_api_response(500, "server_error", f"Error creating lead: {str(e)}")
 
         frappe.log_error(
             f"Authentication failure: {frappe.request.headers.get('X-Django-Server-Authorization')}",
