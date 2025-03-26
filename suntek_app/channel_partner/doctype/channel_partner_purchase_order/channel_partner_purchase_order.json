@@ -112,12 +112,12 @@
    "fieldtype": "Section Break"
   },
   {
+   "default": "Non Subsidy",
    "fetch_from": "project.custom_type_of_case",
    "fieldname": "type_of_case",
    "fieldtype": "Select",
    "label": "Type of Case",
-   "options": "\nSubsidy\nNon Subsidy\nNo Subsidy No Discom",
-   "reqd": 1
+   "options": "\nSubsidy\nNon Subsidy\nNo Subsidy No Discom"
   },
   {
    "depends_on": "eval:doc.source == \"Project\"",
@@ -250,9 +250,9 @@
    "options": "\nProject\nQuotation\nManual Entry"
   },
   {
-   "depends_on": "eval:doc.channel_partner",
    "fieldname": "source_tab",
    "fieldtype": "Tab Break",
+   "hidden": 1,
    "label": "Source"
   },
   {
@@ -265,7 +265,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-24 17:46:00.101321",
+ "modified": "2025-03-26 14:57:19.860532",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner Purchase Order",
