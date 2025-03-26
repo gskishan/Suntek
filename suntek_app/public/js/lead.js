@@ -2,18 +2,20 @@ frappe.ui.form.on("Lead", {
   refresh: function (frm) {
     var status = frm.doc.status;
 
-    setTimeout(() => {
-      frappe.call({
-        method: "suntek_app.suntek.custom.lead.verify_channel_partner",
-        args: { user: frappe.session.user },
-        callback: function (r) {
-          if (r.message) {
-            frm.set_value("custom_is_channel_partnered", 1);
-            frm.doc.custom_channel_partner = r.message.channel_partner_name;
-          }
-        },
-      });
-    }, 100);
+    if (frm.is_new()) {
+      setTimeout(() => {
+        frappe.call({
+          method: "suntek_app.suntek.custom.lead.verify_channel_partner",
+          args: { user: frappe.session.user },
+          callback: function (r) {
+            if (r.message) {
+              frm.set_value("custom_is_channel_partnered", 1);
+              frm.doc.custom_channel_partner = r.message.channel_partner_name;
+            }
+          },
+        });
+      }, 100);
+    }
 
     setTimeout(() => {
       frm.remove_custom_button("Customer", "Create");
