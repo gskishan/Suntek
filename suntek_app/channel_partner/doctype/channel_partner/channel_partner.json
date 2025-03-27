@@ -105,8 +105,7 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Channel Partner Name",
-   "read_only": 1,
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "channel_partner_code",
@@ -119,8 +118,7 @@
   {
    "fieldname": "contact_person",
    "fieldtype": "Data",
-   "label": "Contact Person",
-   "reqd": 1
+   "label": "Contact Person"
   },
   {
    "fieldname": "email",
@@ -529,7 +527,7 @@
    "link_fieldname": "channel_partner"
   }
  ],
- "modified": "2025-03-25 11:16:51.403450",
+ "modified": "2025-03-27 13:59:55.804667",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner",
