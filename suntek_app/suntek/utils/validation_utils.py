@@ -2,19 +2,16 @@ import datetime
 import re
 
 import frappe
+from frappe import _
 
 
 def duplicate_check(doc):
     mobile_no = str(doc.mobile_no)
-    sql = """select * from `tabLead` where mobile_no="{0}" and name!="{1}" """.format(
-        mobile_no, doc.name
-    )
+    sql = f"""select * from `tabLead` where mobile_no="{mobile_no}" and name!="{doc.name}" """
     data = frappe.db.sql(sql, as_dict=True)
     if data:
         frappe.throw(
-            "Duplicate mobile no {} already linked to <b>{}</b> ".format(
-                mobile_no, data[0].custom_enquiry_owner_name
-            ),
+            f"Duplicate mobile no {mobile_no} already linked to <b>{data[0].custom_enquiry_owner_name}</b> ",
         )
 
 
@@ -88,3 +85,8 @@ def convert_timestamp_to_date(timestamp_ms):
         return date_obj.strftime("%Y-%m-%d")
     except (ValueError, TypeError, OSError):
         return None
+
+
+def validate_pan_number(pan_number):
+    if pan_number and not re.match(r"^[A-Z]{5}[0-9]{4}[A-Z]{1}$", pan_number):
+        frappe.throw(_("Invalid PAN Number Format"))

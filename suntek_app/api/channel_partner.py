@@ -85,9 +85,7 @@ def create_districts():
             created_districts,
         )
     except Exception as e:
-        frappe.log_error(
-            "District creation failed", "Failed to create districts", "District"
-        )
+        frappe.log_error("District creation failed", "Failed to create districts", "District")
         return create_api_response(500, "error", "Internal server error", str(e))
 
 
@@ -135,11 +133,8 @@ def create_channel_partner():
         channel_partner.email = generate_random_email(is_suntek_email=False)
         channel_partner.status = "Active"
         channel_partner.default_buying_list = "Standard Buying"
-        channel_partner.default_selling_list = "Telangana Price List (CP)"
-        # channel_partner.default_selling_list = "Standard Selling"
-        channel_partner.contact_person = (
-            f"{random.choice(first_names)} {random.choice(last_names)}"
-        )
+        channel_partner.default_selling_list = "Standard Selling"
+        channel_partner.contact_person = f"{random.choice(first_names)} {random.choice(last_names)}"
 
         # channel_partner.district = "RAN-TS-00001"
         channel_partner.district = district.name
@@ -162,9 +157,7 @@ def create_channel_partner():
     except Exception as e:
         frappe.db.rollback()
         frappe.log_error(frappe.get_traceback(), "Channel Partner Creation Failed")
-        return create_api_response(
-            500, "error", "Channel Partner Creation Failed", str(e)
-        )
+        return create_api_response(500, "error", "Channel Partner Creation Failed", str(e))
 
 
 def generate_random_number():
@@ -177,9 +170,5 @@ def generate_mobile_number():
 
 def generate_random_email(is_suntek_email=False):
     random_string = "".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=8))
-    domain = (
-        "suntek.com"
-        if is_suntek_email
-        else random.choice(["gmail.com", "yahoo.com", "outlook.com"])
-    )
+    domain = "suntek.com" if is_suntek_email else random.choice(["gmail.com", "yahoo.com", "outlook.com"])
     return f"{random_string}@{domain}"
