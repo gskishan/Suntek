@@ -38,7 +38,8 @@
   "pan_company",
   "business_registration",
   "section_break_gefe",
-  "selling_price_list"
+  "selling_price_list",
+  "payment_terms_template"
  ],
  "fields": [
   {
@@ -232,6 +233,12 @@
   {
    "fieldname": "section_break_nyhu",
    "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payment_terms_template",
+   "fieldtype": "Link",
+   "label": "Payment Terms Template",
+   "options": "Payment Terms Template"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -254,7 +261,7 @@
    "parent_doctype": "Dynamic Link"
   }
  ],
- "modified": "2025-03-28 15:39:41.883759",
+ "modified": "2025-03-28 15:59:52.042748",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner Firm",
