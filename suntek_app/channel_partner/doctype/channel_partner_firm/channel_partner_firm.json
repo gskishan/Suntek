@@ -79,6 +79,7 @@
    "label": "Contact HTML"
   },
   {
+   "depends_on": "eval:!doc.__islocal",
    "fieldname": "address_and_contact_section",
    "fieldtype": "Section Break",
    "label": "Address and Contact Details"
@@ -261,7 +262,7 @@
    "parent_doctype": "Dynamic Link"
   }
  ],
- "modified": "2025-03-28 15:59:52.042748",
+ "modified": "2025-03-28 16:42:24.297178",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner Firm",
