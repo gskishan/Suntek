@@ -35,7 +35,7 @@
   {
    "columns": 1,
    "fieldname": "duration",
-   "fieldtype": "Duration",
+   "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Duration"
   },
@@ -81,10 +81,11 @@
    "fieldtype": "Column Break"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-02-06 17:58:18.516766",
+ "modified": "2025-03-27 16:20:53.866535",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Past Experience",
