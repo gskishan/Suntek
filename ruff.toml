@@ -1,0 +1,21 @@
+indent-width = 4
+line-length = 120
+
+target-version = "py310"
+respect-gitignore = true
+
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+  "Q",
+]
+
+[format]
+quote-style = "double"
+
+[isort]
+known-first-party = [  ]
+combine-as-imports = true
+lines-after-imports = 2

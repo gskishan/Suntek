@@ -10,6 +10,7 @@
   "first_name",
   "last_name",
   "channel_partner_firm",
+  "channel_partner_customer",
   "channel_partner_name",
   "channel_partner_code",
   "contact_person",
@@ -478,6 +479,13 @@
    "fieldtype": "Link",
    "label": "Default Buying List",
    "options": "Price List"
+  },
+  {
+   "fetch_from": "channel_partner_firm.customer",
+   "fieldname": "channel_partner_customer",
+   "fieldtype": "Link",
+   "label": "Channel Partner Customer",
+   "options": "Customer"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -527,7 +535,7 @@
    "link_fieldname": "channel_partner"
   }
  ],
- "modified": "2025-03-27 13:59:55.804667",
+ "modified": "2025-03-28 14:46:55.144228",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner",

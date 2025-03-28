@@ -6,13 +6,8 @@ from suntek_app.suntek.utils.validation_utils import validate_mobile_number, val
 
 
 class ChannelPartner(Document):
-    def validate(self):
-        self.handle_user_status()
-        self.validate_mobile_numbers()
-        self.make_channel_partner_name()
-        self.channel_partner_code = self.name
-
-        validate_pan_number(self.pan_number)
+    def before_insert(self):
+        self.validate_channel_partner_firm()
 
     def autoname(self):
         if self.state_code and self.district_snake_case:
@@ -22,8 +17,27 @@ class ChannelPartner(Document):
         self.update_channel_partner_firm()
         self.set_channel_partner_code()
 
+        if not self.channel_partner_code:
+            self.channel_partner_code = self.name
+
+    def validate(self):
+        self.handle_user_status()
+        self.validate_mobile_numbers()
+        self.make_channel_partner_name()
+
+        validate_pan_number(self.pan_number)
+
     def after_insert(self):
         self.update_channel_partner_firm()
+
+    def validate_channel_partner_firm(self):
+        if not self.channel_partner_firm:
+            return
+        firm = frappe.get_doc("Channel Partner Firm", self.channel_partner_firm)
+        if not firm.is_active():
+            frappe.throw(
+                f"Channel Partner Firm {self.channel_partner_firm} is inactive. Cannot create channel partner."
+            )
 
     def update_channel_partner_firm(self):
         old_firm = None
@@ -167,7 +181,7 @@ class ChannelPartner(Document):
             linked_user = None
             default_sales_warehouse = None
             default_subsidy_warehouse = None
-            linked_customer = None
+            # linked_customer = None
             warehouses_created = False
             permissions_created = []
 
@@ -282,8 +296,8 @@ class ChannelPartner(Document):
                     if firm_perm:
                         permissions_created.append("Channel Partner Firm")
 
-            customer_name = self._create_customer(linked_user)
-            linked_customer = customer_name
+            # customer_name = self._create_customer(linked_user)
+            # linked_customer = customer_name
 
             self.linked_user = linked_user
             self.is_user_created = 1
@@ -293,9 +307,10 @@ class ChannelPartner(Document):
                 self.default_subsidy_warehouse = default_subsidy_warehouse
                 self.warehouse = default_sales_warehouse
 
-            if linked_customer:
-                self.linked_customer = linked_customer
+            # if linked_customer:
+            #     self.linked_customer = linked_customer
 
+            self.flags.ignore_mandatory = True
             self.save()
 
             frappe.db.commit()
@@ -303,8 +318,8 @@ class ChannelPartner(Document):
             success_message = f"Successfully created user account for {self.channel_partner_name}"
             if warehouses_created:
                 success_message += "\nCreated Sales and Subsidy warehouses"
-            if customer_name:
-                success_message += f"\nCreated Customer: {customer_name}"
+            # if customer_name:
+            #     success_message += f"\nCreated Customer: {customer_name}"
             success_message += f"\nCreated permissions: {', '.join(permissions_created)}"
 
             frappe.msgprint(success_message)
@@ -496,7 +511,7 @@ class ChannelPartner(Document):
                 new_address.flags.ignore_permissions = True
                 new_address.insert()
 
-            self.db_set("linked_customer", customer.name)
+            # self.db_set("linked_customer", customer.name)
 
             return customer.name
 

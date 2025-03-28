@@ -8,6 +8,8 @@ from frappe.model.naming import make_autoname
 
 class ChannelPartnerPurchaseOrder(Document):
     def autoname(self):
+        channel_partner = frappe.get_doc("Channel Partner", self.channel_partner)
+
         fiscal_year = frappe.defaults.get_user_default("fiscal_year") or ""
         if fiscal_year:
             year = fiscal_year.split("-")[0]
@@ -16,7 +18,11 @@ class ChannelPartnerPurchaseOrder(Document):
 
         month = datetime.date.today().strftime("%m")
 
-        self.name = make_autoname(f"CPPO-{year}-{month}-.#####")
+        self.name = (
+            make_autoname(f"CPPO-{channel_partner.state_code}-{year}-{month}-.#####")
+            if channel_partner.state_code
+            else make_autoname(f"CPPO-{year}-{month}-.#####")
+        )
 
     def validate(self):
         self.validate_channel_partner()
@@ -49,6 +55,12 @@ class ChannelPartnerPurchaseOrder(Document):
         channel_partner = frappe.get_doc("Channel Partner", self.channel_partner)
         if channel_partner.status != "Active":
             frappe.throw(_("Channel Partner {0} is not active").format(self.channel_partner))
+
+    def _set_channel_partner_terms_and_conditions(self, channel_parter, channel_partner_firm):
+        pass
+
+    def _set_channel_partner_taxes_and_charges_template(self, channel_partner, channel_partner_firm):
+        pass
 
     def fetch_type_of_case_from_project(self):
         """Fetch type_of_case from project if project is specified and type_of_case is not set"""
@@ -121,18 +133,12 @@ class ChannelPartnerPurchaseOrder(Document):
 
             channel_partner = frappe.get_doc("Channel Partner", self.channel_partner)
 
-            if not hasattr(channel_partner, "linked_customer") or not channel_partner.linked_customer:
-                if hasattr(channel_partner, "create_customer"):
-                    customer_name = channel_partner.create_customer()
-                    if not customer_name:
-                        frappe.throw(_("Could not create customer for Channel Partner."))
-                else:
-                    frappe.throw(_("No customer linked to this Channel Partner and cannot create one."))
-            else:
-                customer_name = channel_partner.linked_customer
+            customer_name = channel_partner.channel_partner_customer
 
             if not frappe.db.exists("Customer", customer_name):
-                frappe.throw(_("The customer '{0}' linked to channel partner does not exist.").format(customer_name))
+                frappe.throw(
+                    _("The customer '{0}' linked to channel partner firm does not exist.").format(customer_name)
+                )
 
             sales_order = frappe.new_doc("Sales Order")
 
@@ -156,7 +162,7 @@ class ChannelPartnerPurchaseOrder(Document):
 
             sales_order.update(
                 {
-                    "customer": channel_partner.linked_customer,
+                    "customer": channel_partner.channel_partner_customer,
                     "transaction_date": frappe.utils.today(),
                     "delivery_date": self.required_by_date,
                     "company": frappe.defaults.get_user_default("Company"),
@@ -190,21 +196,6 @@ class ChannelPartnerPurchaseOrder(Document):
 
                 sales_order.append("items", item_dict)
 
-            # for item in self.items:
-            #     sales_order.append(
-            #         "items",
-            #         {
-            #             "item_code": item.item_code,
-            #             "item_name": item.item_name,
-            #             "description": item.description,
-            #             "qty": item.qty,
-            #             "uom": item.uom,
-            #             "rate": item.rate,
-            #             "conversion_factor": 1.0,
-            #             "delivery_date": self.required_by_date,
-            #         },
-            #     )
-            #
             if self.taxes_and_charges_template:
                 sales_order.taxes_and_charges = self.taxes_and_charges_template
                 for tax in self.taxes:
@@ -431,23 +422,6 @@ class ChannelPartnerPurchaseOrder(Document):
 
             if not items:
                 frappe.msgprint(_(f"Items not found in Quotation: {quotation}"))
-            #
-            # taxes = []
-            # if hasattr(quotation_doc, "taxes"):
-            #     for tax in quotation_doc.taxes:
-            #         taxes.append(
-            #             {
-            #                 "charge_type": tax.charge_type,
-            #                 "account_head": tax.account_head,
-            #                 "description": tax.description,
-            #                 "rate": tax.rate,
-            #                 "tax_amount": tax.tax_amount
-            #                 if hasattr(tax, "tax_amount")
-            #                 else None,
-            #             }
-            #         )
-            #
-            #         result = {"quotation": quotation, "items": items, "taxes": taxes}
 
             result = {
                 "quotation": quotation,
