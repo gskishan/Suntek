@@ -2,6 +2,8 @@ import frappe
 from frappe.contacts.address_and_contact import load_address_and_contact
 from frappe.model.document import Document
 
+from suntek_app.suntek.utils.validation_utils import validate_pan_number
+
 
 class ChannelPartnerFirm(Document):
     """Channel Partner Firm represents a company or business entity that has channel partners."""
@@ -19,6 +21,27 @@ class ChannelPartnerFirm(Document):
     def validate(self):
         """Validate document before saving"""
         self.validate_duplicate_firm_name()
+
+        validate_pan_number(self.pan_number)
+
+    def on_update(self):
+        self.update_channel_partner_details()
+        self.set_address_display()
+
+    def is_active(self):
+        """Check if the firm is active"""
+        return self.status == "Active"
+
+    def set_address_display(self):
+        address = frappe.get_doc("Address", self.address)
+
+        address_line1 = address.address_line1 or ""
+        address_line2 = address.address_line2 or ""
+        city = address.city or ""
+        state = address.state or ""
+        country = address.country or ""
+        pincode = address.pincode or ""
+        self.address_display = f"{address_line1} \n{address_line2} \n{city} \n{state} \n{country} \n{pincode}"
 
     def validate_duplicate_firm_name(self):
         """Check for duplicate firm names and warn the user"""
@@ -39,6 +62,41 @@ class ChannelPartnerFirm(Document):
                     title="Possible Duplicate Firm",
                     indicator="orange",
                 )
+
+    def update_channel_partner_details(self):
+        channel_partners = frappe.get_all("Channel Partner", filters={"channel_partner_firm": self.name})
+
+        customer = frappe.get_doc("Customer", self.customer) if self.customer else None
+
+        for channel_partner in channel_partners:
+            channel_partner_doc = frappe.get_doc("Channel Partner", channel_partner.name)
+            updated = False
+
+            if customer and not channel_partner_doc.channel_partner_customer:
+                channel_partner_doc.channel_partner_customer = customer.name
+                updated = True
+
+            if self.selling_price_list and not channel_partner_doc.default_selling_list:
+                channel_partner_doc.default_selling_list = self.selling_price_list
+                updated = True
+
+            if updated:
+                channel_partner_doc.flags.ignore_mandatory = True
+                channel_partner_doc.save(ignore_permissions=True)
+
+                frappe.db.commit()
+
+    def _set_customer_in_channel_partners(self):
+        customer = frappe.get_doc("Customer", self.customer) if self.customer else None
+        if customer:
+            channel_partners = frappe.get_all("Channel Partner", filters={"channel_partner_firm": self.name})
+            for channel_partner in channel_partners:
+                channel_partner_doc = frappe.get_doc("Channel Partner", channel_partner.name)
+                if not channel_partner_doc.channel_partner_customer:
+                    channel_partner_doc.channel_partner_customer = customer.name
+
+                    channel_partner_doc.flags.ignore_mandatory = True
+                    channel_partner_doc.save(ignore_permissions=True)
 
     @frappe.whitelist()
     def get_channel_partners(self):

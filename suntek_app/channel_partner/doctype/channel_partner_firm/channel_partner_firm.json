@@ -15,22 +15,30 @@
   "address",
   "address_display",
   "column_break_contact",
+  "customer",
+  "customer_name",
   "contact_person",
   "contact_display",
   "contact_email",
   "contact_mobile",
+  "section_break_channel_partners",
+  "channel_partners",
+  "kyc_tab",
   "section_break_business_details",
   "gst_number",
   "pan_number",
   "column_break_business",
   "establishment_date",
-  "section_break_attachments",
-  "gst_certificate",
-  "pan_certificate",
-  "column_break_attachments",
+  "section_break_nyhu",
+  "agreement",
+  "noc_for_stock",
+  "gst_registration",
+  "column_break_jzuq",
+  "address_proof",
+  "pan_company",
   "business_registration",
-  "section_break_channel_partners",
-  "channel_partners"
+  "section_break_gefe",
+  "selling_price_list"
  ],
  "fields": [
   {
@@ -42,7 +50,7 @@
    "reqd": 1
   },
   {
-   "default": "Active",
+   "default": "Pending Approval",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
@@ -52,6 +60,7 @@
   {
    "fieldname": "section_break_address_and_contact",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Address and Contact"
   },
   {
@@ -69,7 +78,6 @@
    "label": "Contact HTML"
   },
   {
-   "collapsible": 1,
    "fieldname": "address_and_contact_section",
    "fieldtype": "Section Break",
    "label": "Address and Contact Details"
@@ -78,6 +86,7 @@
    "fieldname": "address",
    "fieldtype": "Link",
    "label": "Address",
+   "mandatory_depends_on": "eval:doc.status == \"Active\"",
    "options": "Address"
   },
   {
@@ -94,6 +103,7 @@
    "fieldname": "contact_person",
    "fieldtype": "Link",
    "label": "Contact Person",
+   "mandatory_depends_on": "eval:doc.status == \"Active\"",
    "options": "Contact"
   },
   {
@@ -115,7 +125,7 @@
   {
    "fetch_from": "contact_person.full_name",
    "fieldname": "contact_display",
-   "fieldtype": "Small Text",
+   "fieldtype": "Data",
    "label": "Contact Display",
    "read_only": 1
   },
@@ -145,25 +155,6 @@
    "label": "Establishment Date"
   },
   {
-   "fieldname": "section_break_attachments",
-   "fieldtype": "Section Break",
-   "label": "Attachments"
-  },
-  {
-   "fieldname": "gst_certificate",
-   "fieldtype": "Attach",
-   "label": "GST Certificate"
-  },
-  {
-   "fieldname": "pan_certificate",
-   "fieldtype": "Attach",
-   "label": "PAN Certificate"
-  },
-  {
-   "fieldname": "column_break_attachments",
-   "fieldtype": "Column Break"
-  },
-  {
    "fieldname": "business_registration",
    "fieldtype": "Attach",
    "label": "Business Registration"
@@ -178,6 +169,69 @@
    "fieldtype": "Table",
    "label": "Channel Partners",
    "options": "Channel Partner Link"
+  },
+  {
+   "fieldname": "kyc_tab",
+   "fieldtype": "Tab Break",
+   "label": "KYC"
+  },
+  {
+   "fieldname": "agreement",
+   "fieldtype": "Attach",
+   "label": "Agreement"
+  },
+  {
+   "fieldname": "noc_for_stock",
+   "fieldtype": "Attach",
+   "label": "NOC for Stock"
+  },
+  {
+   "fieldname": "column_break_jzuq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "address_proof",
+   "fieldtype": "Attach",
+   "label": "Address Proof"
+  },
+  {
+   "fieldname": "pan_company",
+   "fieldtype": "Attach",
+   "label": "PAN (Company)"
+  },
+  {
+   "fieldname": "gst_registration",
+   "fieldtype": "Attach",
+   "label": "GST Registration"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "mandatory_depends_on": "eval:doc.status == \"Active\"",
+   "options": "Customer"
+  },
+  {
+   "fetch_from": "customer.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_gefe",
+   "fieldtype": "Section Break"
+  },
+  {
+   "description": "The list of prices which we will use to sell items to this Firm",
+   "fieldname": "selling_price_list",
+   "fieldtype": "Link",
+   "label": "Selling Price List",
+   "options": "Price List"
+  },
+  {
+   "fieldname": "section_break_nyhu",
+   "fieldtype": "Section Break"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -200,7 +254,7 @@
    "parent_doctype": "Dynamic Link"
   }
  ],
- "modified": "2025-03-27 13:28:21.772322",
+ "modified": "2025-03-28 15:39:41.883759",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner Firm",

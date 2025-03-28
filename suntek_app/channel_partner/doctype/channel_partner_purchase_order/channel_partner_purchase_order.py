@@ -50,6 +50,12 @@ class ChannelPartnerPurchaseOrder(Document):
         if channel_partner.status != "Active":
             frappe.throw(_("Channel Partner {0} is not active").format(self.channel_partner))
 
+    def _set_channel_partner_terms_and_conditions(self, channel_parter, channel_partner_firm):
+        pass
+
+    def _set_channel_partner_taxes_and_charges_template(self, channel_partner, channel_partner_firm):
+        pass
+
     def fetch_type_of_case_from_project(self):
         """Fetch type_of_case from project if project is specified and type_of_case is not set"""
         if self.project and not self.type_of_case:
@@ -121,18 +127,12 @@ class ChannelPartnerPurchaseOrder(Document):
 
             channel_partner = frappe.get_doc("Channel Partner", self.channel_partner)
 
-            if not hasattr(channel_partner, "linked_customer") or not channel_partner.linked_customer:
-                if hasattr(channel_partner, "create_customer"):
-                    customer_name = channel_partner.create_customer()
-                    if not customer_name:
-                        frappe.throw(_("Could not create customer for Channel Partner."))
-                else:
-                    frappe.throw(_("No customer linked to this Channel Partner and cannot create one."))
-            else:
-                customer_name = channel_partner.linked_customer
+            customer_name = channel_partner.channel_partner_customer
 
             if not frappe.db.exists("Customer", customer_name):
-                frappe.throw(_("The customer '{0}' linked to channel partner does not exist.").format(customer_name))
+                frappe.throw(
+                    _("The customer '{0}' linked to channel partner firm does not exist.").format(customer_name)
+                )
 
             sales_order = frappe.new_doc("Sales Order")
 
@@ -156,7 +156,7 @@ class ChannelPartnerPurchaseOrder(Document):
 
             sales_order.update(
                 {
-                    "customer": channel_partner.linked_customer,
+                    "customer": channel_partner.channel_partner_customer,
                     "transaction_date": frappe.utils.today(),
                     "delivery_date": self.required_by_date,
                     "company": frappe.defaults.get_user_default("Company"),
