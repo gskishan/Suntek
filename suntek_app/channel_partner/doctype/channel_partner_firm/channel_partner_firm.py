@@ -33,15 +33,16 @@ class ChannelPartnerFirm(Document):
         return self.status == "Active"
 
     def set_address_display(self):
-        address = frappe.get_doc("Address", self.address)
+        if self.address:
+            address = frappe.get_doc("Address", self.address)
 
-        address_line1 = address.address_line1 or ""
-        address_line2 = address.address_line2 or ""
-        city = address.city or ""
-        state = address.state or ""
-        country = address.country or ""
-        pincode = address.pincode or ""
-        self.address_display = f"{address_line1} \n{address_line2} \n{city} \n{state} \n{country} \n{pincode}"
+            address_line1 = address.address_line1 or ""
+            address_line2 = address.address_line2 or ""
+            city = address.city or ""
+            state = address.state or ""
+            country = address.country or ""
+            pincode = address.pincode or ""
+            self.address_display = f"{address_line1} \n{address_line2} \n{city} \n{state} \n{country} \n{pincode}"
 
     def validate_duplicate_firm_name(self):
         """Check for duplicate firm names and warn the user"""

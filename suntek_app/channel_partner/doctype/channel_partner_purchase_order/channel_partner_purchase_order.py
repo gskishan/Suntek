@@ -132,7 +132,7 @@ class ChannelPartnerPurchaseOrder(Document):
                 frappe.throw(_("Sales Order already exists for this Channel Partner Purchase Order."))
 
             channel_partner = frappe.get_doc("Channel Partner", self.channel_partner)
-
+            channel_partner_firm = frappe.get_doc("Channel Partner Firm", channel_partner.channel_partner_firm)
             customer_name = channel_partner.channel_partner_customer
 
             if not frappe.db.exists("Customer", customer_name):
@@ -160,12 +160,17 @@ class ChannelPartnerPurchaseOrder(Document):
             selling_price_list = self.price_list or default_price_list or "Standard Selling"
             price_list_currency = frappe.db.get_value("Price List", selling_price_list, "currency") or company_currency
 
+            poayment_terms_template = (
+                channel_partner_firm.payment_terms_template if channel_partner_firm.payment_terms_template else None
+            )
+
             sales_order.update(
                 {
                     "customer": channel_partner.channel_partner_customer,
                     "transaction_date": frappe.utils.today(),
                     "delivery_date": self.required_by_date,
                     "company": frappe.defaults.get_user_default("Company"),
+                    "payment_terms_template": poayment_terms_template,
                     "order_type": "Sales",
                     "channel_partner_purchase_order": self.name,
                     "custom_channel_partner": self.channel_partner,
