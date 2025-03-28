@@ -5,6 +5,16 @@ import frappe
 from suntek_app.suntek.utils.api_handler import create_api_response, parse_request_data
 
 
+@frappe.whitelist()
+def is_user_linked_to_channel_partner():
+    user = frappe.session.user
+
+    if user == "Administrator":
+        return False
+
+    return frappe.db.exists("Channel Partner", {"linked_user": user})
+
+
 @frappe.whitelist(allow_guest=True)
 def create_states():
     try:

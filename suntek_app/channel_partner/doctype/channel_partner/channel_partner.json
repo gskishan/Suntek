@@ -17,8 +17,6 @@
   "email",
   "mobile_number",
   "alternate_number",
-  "gst_number",
-  "pan_number",
   "column_break_jjiy",
   "credit_limit",
   "status",
@@ -48,14 +46,8 @@
   "past_experience_section",
   "past_experience",
   "attachments_tab",
-  "channel_partner_attachments_section",
-  "channel_partner_agreement",
-  "gst_registration",
-  "noc_for_stock",
-  "column_break_vetk",
-  "address_proof",
-  "pan",
   "personal_kyc_section",
+  "pan_number",
   "id_proof",
   "pan_card",
   "column_break_sjnq",
@@ -138,12 +130,6 @@
    "fieldname": "alternate_number",
    "fieldtype": "Data",
    "label": "Alternate Number"
-  },
-  {
-   "fieldname": "gst_number",
-   "fieldtype": "Data",
-   "label": "GST Number",
-   "reqd": 1
   },
   {
    "fieldname": "pan_number",
@@ -301,45 +287,6 @@
    "fieldname": "attachments_tab",
    "fieldtype": "Tab Break",
    "label": "Attachments"
-  },
-  {
-   "fieldname": "channel_partner_attachments_section",
-   "fieldtype": "Section Break",
-   "label": "Channel Partner Attachments"
-  },
-  {
-   "fieldname": "channel_partner_agreement",
-   "fieldtype": "Attach",
-   "label": "Channel Partner Agreement",
-   "reqd": 1
-  },
-  {
-   "fieldname": "gst_registration",
-   "fieldtype": "Attach",
-   "label": "GST Registration",
-   "reqd": 1
-  },
-  {
-   "fieldname": "noc_for_stock",
-   "fieldtype": "Attach",
-   "label": "NOC for Stock",
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_vetk",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "address_proof",
-   "fieldtype": "Attach",
-   "label": "Address Proof (Company)",
-   "reqd": 1
-  },
-  {
-   "fieldname": "pan",
-   "fieldtype": "Attach",
-   "label": "PAN (Company)",
-   "reqd": 1
   },
   {
    "fieldname": "personal_kyc_section",
@@ -535,7 +482,7 @@
    "link_fieldname": "channel_partner"
   }
  ],
- "modified": "2025-03-28 14:46:55.144228",
+ "modified": "2025-03-28 17:08:33.525885",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner",
