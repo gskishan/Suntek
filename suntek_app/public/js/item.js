@@ -1,5 +1,5 @@
 frappe.ui.form.on("Item", {
-  refresh: function (frm) {
+  onload: function (frm) {
     setTimeout(() => {
       frappe.call({
         method: "frappe.client.get_list",
