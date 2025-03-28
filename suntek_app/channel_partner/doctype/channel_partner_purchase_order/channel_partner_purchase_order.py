@@ -8,6 +8,8 @@ from frappe.model.naming import make_autoname
 
 class ChannelPartnerPurchaseOrder(Document):
     def autoname(self):
+        channel_partner = frappe.get_doc("Channel Partner", self.channel_partner)
+
         fiscal_year = frappe.defaults.get_user_default("fiscal_year") or ""
         if fiscal_year:
             year = fiscal_year.split("-")[0]
@@ -16,7 +18,11 @@ class ChannelPartnerPurchaseOrder(Document):
 
         month = datetime.date.today().strftime("%m")
 
-        self.name = make_autoname(f"CPPO-{year}-{month}-.#####")
+        self.name = (
+            make_autoname(f"CPPO-{channel_partner.state_code}-{year}-{month}-.#####")
+            if channel_partner.state_code
+            else make_autoname(f"CPPO-{year}-{month}-.#####")
+        )
 
     def validate(self):
         self.validate_channel_partner()
@@ -190,21 +196,6 @@ class ChannelPartnerPurchaseOrder(Document):
 
                 sales_order.append("items", item_dict)
 
-            # for item in self.items:
-            #     sales_order.append(
-            #         "items",
-            #         {
-            #             "item_code": item.item_code,
-            #             "item_name": item.item_name,
-            #             "description": item.description,
-            #             "qty": item.qty,
-            #             "uom": item.uom,
-            #             "rate": item.rate,
-            #             "conversion_factor": 1.0,
-            #             "delivery_date": self.required_by_date,
-            #         },
-            #     )
-            #
             if self.taxes_and_charges_template:
                 sales_order.taxes_and_charges = self.taxes_and_charges_template
                 for tax in self.taxes:
@@ -431,23 +422,6 @@ class ChannelPartnerPurchaseOrder(Document):
 
             if not items:
                 frappe.msgprint(_(f"Items not found in Quotation: {quotation}"))
-            #
-            # taxes = []
-            # if hasattr(quotation_doc, "taxes"):
-            #     for tax in quotation_doc.taxes:
-            #         taxes.append(
-            #             {
-            #                 "charge_type": tax.charge_type,
-            #                 "account_head": tax.account_head,
-            #                 "description": tax.description,
-            #                 "rate": tax.rate,
-            #                 "tax_amount": tax.tax_amount
-            #                 if hasattr(tax, "tax_amount")
-            #                 else None,
-            #             }
-            #         )
-            #
-            #         result = {"quotation": quotation, "items": items, "taxes": taxes}
 
             result = {
                 "quotation": quotation,
