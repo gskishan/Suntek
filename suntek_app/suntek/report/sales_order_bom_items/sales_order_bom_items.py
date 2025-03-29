@@ -25,11 +25,13 @@ def process_data_for_display(raw_data):
     for row in raw_data:
         curr_row = row.copy()
 
+        # Calculate required quantity and shortage/surplus
         raw_material_qty = row.get("raw_material_qty") or 0
         order_qty = row.get("order_qty") or 0
         required_qty = raw_material_qty * order_qty
         curr_row["required_qty"] = required_qty
 
+        # Calculate shortage or surplus
         available_qty = row.get("available_qty") or 0
         shortage_qty = available_qty - required_qty
         curr_row["shortage_surplus"] = shortage_qty
@@ -234,13 +236,77 @@ def get_data(filters):
 def get_data_internal(filters):
     conditions = get_conditions(filters)
 
-    warehouse = filters.get("warehouse") or "Hyderabad New Warehouse TGIIC - SESP"
+    # Set default warehouse if not specified
+    warehouse = filters.get("warehouse") or "Hyderabad Central Warehouse - SESP"
     filters["warehouse"] = warehouse
 
-    create_work_order_temp_table(filters)
+    # Add more focused debug logging
+    if filters.get("sales_order"):
+        sales_order = filters.get("sales_order")
 
+        # Log work orders linked to this sales order
+        work_orders_count = frappe.db.count(
+            "Work Order", {"sales_order": sales_order, "docstatus": 1}
+        )
+
+        frappe.log_error(
+            f"Direct Work Orders for SO {sales_order}: {work_orders_count}",
+            "WO-Count-Debug",
+        )
+
+        # Find all BOMs used in this sales order
+        boms_in_so = frappe.db.sql(
+            """
+            SELECT soi.bom_no, soi.item_code
+            FROM `tabSales Order Item` soi
+            WHERE soi.parent = %s AND soi.bom_no IS NOT NULL
+            """,
+            sales_order,
+            as_dict=1,
+        )
+
+        # Log just the counts, not the full data
+        bom_count = len(boms_in_so)
+        frappe.log_error(
+            f"SO {sales_order} has {bom_count} BOM items", "BOM-Count-Debug"
+        )
+
+        if bom_count > 0:
+            # Log specific BOMs for debugging
+            for i, bom in enumerate(boms_in_so):
+                if i < 3:  # Limit to first 3 for brevity
+                    frappe.log_error(
+                        f"BOM {i + 1}: {bom.bom_no}, Item: {bom.item_code}",
+                        f"BOM-Detail-{i + 1}",
+                    )
+
+                    # Check for work orders using this specific BOM
+                    wo_count = frappe.db.count(
+                        "Work Order", {"bom_no": bom.bom_no, "docstatus": 1}
+                    )
+
+                    frappe.log_error(
+                        f"Found {wo_count} work orders for BOM {bom.bom_no}",
+                        f"WO-BOM-Count-{i + 1}",
+                    )
+
+                    if wo_count > 0:
+                        # Get a sample work order to see its details
+                        sample_wo = frappe.get_list(
+                            "Work Order",
+                            filters={"bom_no": bom.bom_no, "docstatus": 1},
+                            fields=["name", "sales_order", "status"],
+                            limit=1,
+                        )
+                        if sample_wo:
+                            frappe.log_error(
+                                f"Sample WO: {sample_wo[0].name}, SO: {sample_wo[0].sales_order}",
+                                f"WO-Detail-{i + 1}",
+                            )
+
+    # Modify the query to better match work orders
     query = """
-        SELECT /*+ MAX_EXECUTION_TIME(300000) */
+        SELECT 
             so.name as sales_order_no,
             so.customer,
             so.project,
@@ -261,11 +327,45 @@ def get_data_internal(filters):
             bin.warehouse as warehouse,
             raw_item.custom_is_sfg as is_sfg,
             
-            temp_wo.name as work_order,
-            temp_wo.status as work_order_status,
-            
-            IFNULL(temp_wo.transferred_qty, 0) as transferred_qty,
-            IFNULL(temp_wo.consumed_qty, 0) as consumed_qty
+            /* Use a subquery to find the most relevant work order */
+            (SELECT wo.name 
+             FROM `tabWork Order` wo 
+             WHERE (wo.bom_no = soi.bom_no OR wo.production_item = soi.item_code)
+             AND (wo.sales_order = so.name OR wo.project = so.project)
+             AND wo.docstatus = 1
+             LIMIT 1) as work_order,
+             
+            /* Get the work order status */
+            (SELECT wo.status
+             FROM `tabWork Order` wo 
+             WHERE (wo.bom_no = soi.bom_no OR wo.production_item = soi.item_code)
+             AND (wo.sales_order = so.name OR wo.project = so.project)
+             AND wo.docstatus = 1
+             LIMIT 1) as work_order_status,
+             
+            /* Calculate transferred quantity */
+            (SELECT IFNULL(SUM(sed.qty), 0)
+             FROM `tabStock Entry Detail` sed
+             JOIN `tabStock Entry` se ON se.name = sed.parent
+             JOIN `tabWork Order` wo ON se.work_order = wo.name 
+             WHERE (wo.bom_no = soi.bom_no OR wo.production_item = soi.item_code)
+             AND (wo.sales_order = so.name OR wo.project = so.project)
+             AND sed.item_code = bom_item.item_code
+             AND se.docstatus = 1
+             AND se.stock_entry_type = 'Material Transfer for Manufacture'
+            ) as transferred_qty,
+             
+            /* Calculate consumed quantity */
+            (SELECT IFNULL(SUM(sed.qty), 0)
+             FROM `tabStock Entry Detail` sed
+             JOIN `tabStock Entry` se ON se.name = sed.parent
+             JOIN `tabWork Order` wo ON se.work_order = wo.name 
+             WHERE (wo.bom_no = soi.bom_no OR wo.production_item = soi.item_code)
+             AND (wo.sales_order = so.name OR wo.project = so.project)
+             AND sed.item_code = bom_item.item_code
+             AND se.docstatus = 1
+             AND se.stock_entry_type = 'Manufacture'
+            ) as consumed_qty
              
         FROM 
             `tabSales Order` so
@@ -278,11 +378,6 @@ def get_data_internal(filters):
             AND bin.warehouse = %(warehouse)s
         LEFT JOIN
             `tabItem` raw_item ON bom_item.item_code = raw_item.name
-        LEFT JOIN
-            `_temp_work_orders` temp_wo ON 
-            (temp_wo.bom_no = soi.bom_no OR temp_wo.production_item = soi.item_code)
-            AND (temp_wo.sales_order = so.name OR temp_wo.project = so.project)
-            AND temp_wo.raw_material = bom_item.item_code
         WHERE 
             so.docstatus = 1
             {conditions}
@@ -291,164 +386,33 @@ def get_data_internal(filters):
     """.format(conditions=conditions)
 
     try:
-        if not filters.get("sales_order") and not filters.get("limit_results"):
-            frappe.msgprint(
-                "Limiting results to 500 rows. Use filters to narrow your search or enable 'Show All Results'."
-            )
-            query += " LIMIT 500"
-        elif filters.get("limit_results") == 0:
-            query += " LIMIT 500"
-
         results = frappe.db.sql(query, filters, as_dict=1)
 
-        frappe.db.sql("DROP TEMPORARY TABLE IF EXISTS `_temp_work_orders`")
+        # Log just a count of work orders found
+        work_order_count = sum(1 for row in results if row.get("work_order"))
+        total_rows = len(results)
+
+        frappe.log_error(
+            f"Results: {total_rows} rows, {work_order_count} with work orders",
+            "Report-WO-Summary",
+        )
+
+        # Log a sample with quantities for debugging
+        if results and work_order_count > 0:
+            for row in results[:3]:
+                if row.get("work_order"):
+                    frappe.log_error(
+                        f"WO: {row.get('work_order')}, Item: {row.get('raw_material_code')}, "
+                        f"Req: {row.get('required_qty')}, Trans: {row.get('transferred_qty')}, "
+                        f"Cons: {row.get('consumed_qty')}",
+                        "Material-Movement-Sample",
+                    )
+                    break
 
         return results
     except Exception as e:
-        frappe.db.sql("DROP TEMPORARY TABLE IF EXISTS `_temp_work_orders`")
         frappe.log_error(frappe.get_traceback(), f"Report Error: {str(e)}")
         return []
-
-
-def create_work_order_temp_table(filters):
-    """Create a temporary table with work orders and their consumed/transferred quantities"""
-    try:
-        frappe.db.sql("DROP TEMPORARY TABLE IF EXISTS `_temp_work_orders`")
-
-        frappe.db.sql("""
-            CREATE TEMPORARY TABLE `_temp_work_orders` (
-                `name` varchar(140),
-                `sales_order` varchar(140),
-                `bom_no` varchar(140),
-                `production_item` varchar(140),
-                `project` varchar(140),
-                `status` varchar(140),
-                `raw_material` varchar(140),
-                `transferred_qty` decimal(18,6),
-                `consumed_qty` decimal(18,6),
-                INDEX idx_name (`name`),
-                INDEX idx_sales_order (`sales_order`),
-                INDEX idx_bom (`bom_no`),
-                INDEX idx_item (`production_item`),
-                INDEX idx_raw_material (`raw_material`)
-            )
-        """)
-
-        so_condition = ""
-        so_params = []
-
-        if filters.get("sales_order"):
-            so_condition = "AND wo.sales_order = %s"
-            so_params.append(filters.get("sales_order"))
-        elif filters.get("from_date") and filters.get("to_date"):
-            so_condition = """AND wo.sales_order IN (
-                SELECT name FROM `tabSales Order`
-                WHERE transaction_date BETWEEN %s AND %s
-                AND docstatus = 1
-            )"""
-            so_params.extend([filters.get("from_date"), filters.get("to_date")])
-
-        work_orders = frappe.db.sql(
-            f"""
-            SELECT 
-                wo.name, wo.sales_order, wo.bom_no, wo.production_item, 
-                wo.project, wo.status
-            FROM 
-                `tabWork Order` wo
-            WHERE 
-                wo.docstatus = 1
-                {so_condition}
-        """,
-            so_params,
-            as_dict=1,
-        )
-
-        if not work_orders:
-            return
-
-        wo_names = [wo["name"] for wo in work_orders]
-
-        stock_entries = frappe.db.sql(
-            """
-            SELECT 
-                se.work_order,
-                sed.item_code as raw_material,
-                SUM(CASE WHEN se.stock_entry_type = 'Material Transfer for Manufacture' THEN sed.qty ELSE 0 END) as transferred_qty,
-                SUM(CASE WHEN se.stock_entry_type = 'Manufacture' THEN sed.qty ELSE 0 END) as consumed_qty
-            FROM 
-                `tabStock Entry Detail` sed
-            JOIN 
-                `tabStock Entry` se ON se.name = sed.parent
-            WHERE 
-                se.work_order IN %s
-                AND se.docstatus = 1
-            GROUP BY 
-                se.work_order, sed.item_code
-        """,
-            [wo_names],
-            as_dict=1,
-        )
-
-        stock_entry_data = {}
-        for entry in stock_entries:
-            key = (entry["work_order"], entry["raw_material"])
-            stock_entry_data[key] = {
-                "transferred_qty": entry["transferred_qty"] or 0,
-                "consumed_qty": entry["consumed_qty"] or 0,
-            }
-
-        insert_data = []
-        for wo in work_orders:
-            bom_items = []
-            if wo["bom_no"]:
-                bom_items = frappe.db.sql(
-                    """
-                    SELECT item_code FROM `tabBOM Item` 
-                    WHERE parent = %s
-                """,
-                    wo["bom_no"],
-                    as_dict=1,
-                )
-
-            for bom_item in bom_items:
-                raw_material = bom_item["item_code"]
-                key = (wo["name"], raw_material)
-                quantities = stock_entry_data.get(
-                    key, {"transferred_qty": 0, "consumed_qty": 0}
-                )
-
-                insert_data.append(
-                    (
-                        wo["name"],
-                        wo["sales_order"],
-                        wo["bom_no"],
-                        wo["production_item"],
-                        wo["project"],
-                        wo["status"],
-                        raw_material,
-                        quantities["transferred_qty"],
-                        quantities["consumed_qty"],
-                    )
-                )
-
-        batch_size = 1000
-        for i in range(0, len(insert_data), batch_size):
-            batch = insert_data[i : i + batch_size]
-            if batch:
-                frappe.db.sql(
-                    """
-                    INSERT INTO `_temp_work_orders`
-                    (`name`, `sales_order`, `bom_no`, `production_item`, 
-                    `project`, `status`, `raw_material`, `transferred_qty`, `consumed_qty`)
-                    VALUES %s
-                """
-                    % (", ".join(["%s"] * len(batch))),
-                    [item for sublist in batch for item in sublist],
-                )
-
-    except Exception as e:
-        frappe.db.sql("DROP TEMPORARY TABLE IF EXISTS `_temp_work_orders`")
-        frappe.log_error(frappe.get_traceback(), f"Temp table creation error: {str(e)}")
 
 
 def get_conditions(filters):
@@ -469,15 +433,3 @@ def get_conditions(filters):
         conditions.append("so.order_type = %(order_type)s")
 
     return " AND " + " AND ".join(conditions) if conditions else ""
-
-
-@frappe.whitelist()
-def export_data(filters):
-    if isinstance(filters, str):
-        filters = json.loads(filters)
-
-    filters["limit_results"] = 1
-
-    raw_data = get_data(filters)
-    data = process_data_for_display(raw_data)
-    return data
