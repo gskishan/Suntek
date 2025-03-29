@@ -1,6 +1,3 @@
-// Copyright (c) 2023, Your Company and contributors
-// For license information, please see license.txt
-
 frappe.query_reports["Sales Order BOM Items"] = {
   filters: [
     {
@@ -69,6 +66,15 @@ frappe.query_reports["Sales Order BOM Items"] = {
       options: "\nSales\nMaintenance\nShopping Card",
       width: "100px",
     },
+    {
+      fieldname: "limit_results",
+      label: __("Show All Results"),
+      fieldtype: "Check",
+      default: 0,
+      description: __(
+        "Warning: Showing all results may be slow for large datasets"
+      ),
+    },
   ],
   formatter: function (value, row, column, data, default_formatter) {
     if (column.fieldname == "available_qty") {
@@ -89,11 +95,21 @@ frappe.query_reports["Sales Order BOM Items"] = {
   },
   onload: function (report) {
     report.page.add_inner_button(__("Export Report"), function () {
+      frappe.msgprint({
+        title: __("Starting Export"),
+        indicator: "blue",
+        message: __(
+          "Preparing export. This may take a while for large datasets..."
+        ),
+      });
+
       const filters = report.get_values();
+
+      filters.limit_results = 1;
 
       frappe.call({
         method:
-          "suntek_app.suntek.report.sales_order_bom_items.sales_order_bom_items.get_data",
+          "suntek_app.suntek.report.sales_order_bom_items.sales_order_bom_items.export_data",
         args: {
           filters: filters,
         },
@@ -109,15 +125,21 @@ frappe.query_reports["Sales Order BOM Items"] = {
               "Dispatch Due Date",
               "Delivery Status",
               "Billing Status",
-              "Remarks",
               "Finished Item Code",
               "Finished Item Name",
-              "Order Qty",
               "BOM No",
               "Raw Material Code",
               "Raw Material Name",
               "Raw Material Qty",
               "UOM",
+              "Required Qty",
+              "Available Qty",
+              "Shortage/Surplus",
+              "Status",
+              "Transferred Qty",
+              "Consumed Qty",
+              "Work Order",
+              "Work Order Status",
             ];
             rows.push(headers);
 
@@ -130,15 +152,21 @@ frappe.query_reports["Sales Order BOM Items"] = {
                 row.delivery_date,
                 row.delivery_status,
                 row.billing_status,
-                row.custom_remarks,
                 row.finished_item_code,
                 row.finished_item_name,
-                row.order_qty,
                 row.bom_no,
                 row.raw_material_code,
                 row.raw_material_name,
                 row.raw_material_qty,
                 row.raw_material_uom,
+                row.required_qty,
+                row.available_qty,
+                row.shortage_surplus,
+                row.status,
+                row.transferred_qty,
+                row.consumed_qty,
+                row.work_order,
+                row.work_order_status,
               ]);
             });
 
