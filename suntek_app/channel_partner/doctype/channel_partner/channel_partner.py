@@ -17,8 +17,7 @@ class ChannelPartner(Document):
         self.update_channel_partner_firm()
         self.set_channel_partner_code()
 
-        if not self.channel_partner_code:
-            self.channel_partner_code = self.name
+        self.channel_partner_code = self.name
 
     def validate(self):
         self.handle_user_status()
@@ -85,7 +84,10 @@ class ChannelPartner(Document):
             self.channel_partner_code = self.name
 
     def make_channel_partner_name(self):
-        self.channel_partner_name = f"{self.first_name}{' ' + self.last_name if self.last_name else ''}"
+        if self.last_name:
+            self.channel_partner_name = f"{self.first_name} {self.last_name}"
+        else:
+            self.channel_partner_name = self.first_name
 
     def validate_mobile_numbers(self):
         if self.mobile_number and not validate_mobile_number(self.mobile_number):
@@ -98,12 +100,8 @@ class ChannelPartner(Document):
         if self.linked_user:
             user = frappe.get_doc("User", self.linked_user)
 
-            if self.status == "Inactive" and user.enabled:
-                user.enabled = 0
-                user.save(ignore_permissions=True)
-                frappe.db.commit()
-            elif self.status == "Active" and not user.enabled:
-                user.enabled = 1
+            if (self.status == "Inactive" and user.enabled) or (self.status == "Active" and not user.enabled):
+                user.enabled = 1 if self.status == "Active" else 0
                 user.save(ignore_permissions=True)
                 frappe.db.commit()
 
@@ -191,6 +189,9 @@ class ChannelPartner(Document):
                     "first_name": self.first_name,
                     "email": self.suntek_email,
                     "send_welcome_email": 0,
+                    "module_profile": "Channel Partner"
+                    if frappe.db.exists("Module Profile", "Channel Partner")
+                    else None,
                 }
             )
             user.flags.ignore_mandatory = True

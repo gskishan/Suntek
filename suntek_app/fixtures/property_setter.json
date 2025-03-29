@@ -7,7 +7,7 @@
   "doctype_or_field": "DocField",
   "field_name": "order_type",
   "is_system_generated": 0,
-  "modified": "2025-03-26 13:42:05.036500",
+  "modified": "2025-03-28 18:35:04.409361",
   "module": "suntek",
   "name": "Sales Order-order_type-options",
   "property": "options",
