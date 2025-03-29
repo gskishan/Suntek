@@ -1,25 +1,53 @@
+// Copyright (c) 2023, Your Company and contributors
+// For license information, please see license.txt
+
 frappe.query_reports["Sales Order BOM Items"] = {
   filters: [
-    {
-      fieldname: "sales_order",
-      label: __("Sales Order"),
-      fieldtype: "Link",
-      options: "Sales Order",
-      width: "100px",
-    },
     {
       fieldname: "from_date",
       label: __("From Date"),
       fieldtype: "Date",
       default: frappe.datetime.add_months(frappe.datetime.get_today(), -1),
-      width: "100px",
     },
     {
       fieldname: "to_date",
       label: __("To Date"),
       fieldtype: "Date",
       default: frappe.datetime.get_today(),
-      width: "100px",
+    },
+    {
+      fieldname: "sales_order",
+      label: __("Sales Order"),
+      fieldtype: "Link",
+      options: "Sales Order",
+      get_query: function () {
+        return {
+          filters: {
+            docstatus: 1,
+          },
+        };
+      },
+    },
+    {
+      fieldname: "custom_department",
+      label: __("Department"),
+      fieldtype: "Link",
+      options: "Department",
+    },
+    {
+      fieldname: "warehouse",
+      label: __("Warehouse"),
+      fieldtype: "Link",
+      options: "Warehouse",
+      default: "Hyderabad Central Warehouse - SESP",
+      reqd: 1,
+      get_query: function () {
+        return {
+          filters: {
+            is_group: 0,
+          },
+        };
+      },
     },
     {
       fieldname: "delivery_status",
@@ -27,34 +55,18 @@ frappe.query_reports["Sales Order BOM Items"] = {
       fieldtype: "Select",
       options:
         "\nNot Delivered\nFully Delivered\nPartly Delivered\nClosed\nNot Applicable",
-      width: "100px",
     },
     {
       fieldname: "billing_status",
       label: __("Billing Status"),
       fieldtype: "Select",
-      options: "\nNot Billed\nFully Billed\nPartly Bileld\nClosed",
+      options: "\nNot Billed\nFully Billed\nPartly Billed\nClosed",
     },
     {
       fieldname: "order_type",
       label: __("Order Type"),
       fieldtype: "Select",
       options: "\nSales\nMaintenance\nShopping Card",
-      width: "100px",
-    },
-    {
-      fieldname: "warehouse",
-      label: __("Warehouse"),
-      fieldtype: "Link",
-      options: "Warehouse",
-      width: "100px",
-    },
-    {
-      fieldname: "custom_department",
-      label: __("Department"),
-      fieldtype: "Select",
-      options:
-        "\nDomestic (Residential) Sales Team - SESP\nChannel Partner - SESP\nCommercial & Industrial (C&I) - SESP",
       width: "100px",
     },
   ],

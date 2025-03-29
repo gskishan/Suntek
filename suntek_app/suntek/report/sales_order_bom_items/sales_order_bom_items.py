@@ -25,6 +25,26 @@ def process_data_for_display(raw_data):
     for row in raw_data:
         curr_row = row.copy()
 
+        # Calculate required quantity and shortage/surplus
+        raw_material_qty = row.get("raw_material_qty") or 0
+        order_qty = row.get("order_qty") or 0
+        required_qty = raw_material_qty * order_qty
+        curr_row["required_qty"] = required_qty
+
+        # Calculate shortage or surplus
+        available_qty = row.get("available_qty") or 0
+        shortage_qty = available_qty - required_qty
+        curr_row["shortage_surplus"] = shortage_qty
+
+        if shortage_qty < 0:
+            curr_row["status"] = "Shortage"
+        elif shortage_qty == 0 and required_qty > 0:
+            curr_row["status"] = "Exact"
+        elif required_qty == 0:
+            curr_row["status"] = "No Requirement"
+        else:
+            curr_row["status"] = "Surplus"
+
         if previous_so and row["sales_order_no"] == previous_so:
             curr_row["sales_order_no"] = ""
             curr_row["customer"] = ""
@@ -33,12 +53,10 @@ def process_data_for_display(raw_data):
             curr_row["delivery_date"] = ""
             curr_row["delivery_status"] = ""
             curr_row["billing_status"] = ""
-            curr_row["custom_remarks"] = ""
 
             if previous_item and row["finished_item_code"] == previous_item:
                 curr_row["finished_item_code"] = ""
                 curr_row["finished_item_name"] = ""
-                curr_row["order_qty"] = ""
                 curr_row["bom_no"] = ""
 
         processed_data.append(curr_row)
@@ -74,8 +92,8 @@ def get_columns():
         {
             "label": _("Department"),
             "fieldname": "custom_department",
-            "fieldtype": "Select",
-            "options": "\nDomestic (Residential) Sales Team - SESP\nChannel Partner - SESP\nCommercial & Industrial (C&I) - SESP",
+            "fieldtype": "Link",
+            "options": "Department",
             "width": 150,
         },
         {
@@ -150,14 +168,8 @@ def get_columns():
             "width": 130,
         },
         {
-            "label": _("Order Qty"),
-            "fieldname": "order_qty",
-            "fieldtype": "Float",
-            "width": 100,
-        },
-        {
-            "label": _("Available Qty"),
-            "fieldname": "available_qty",
+            "label": _("Required Qty"),
+            "fieldname": "required_qty",
             "fieldtype": "Float",
             "width": 120,
         },
@@ -169,10 +181,47 @@ def get_columns():
             "width": 80,
         },
         {
-            "label": _("Remarks"),
-            "fieldname": "custom_remarks",
-            "fieldtype": "Text Editor",
-            "width": 200,
+            "label": _("Available Qty"),
+            "fieldname": "available_qty",
+            "fieldtype": "Float",
+            "width": 120,
+        },
+        {
+            "label": _("Shortage/Surplus"),
+            "fieldname": "shortage_surplus",
+            "fieldtype": "Float",
+            "width": 140,
+        },
+        {
+            "label": _("Status"),
+            "fieldname": "status",
+            "fieldtype": "Data",
+            "width": 100,
+        },
+        {
+            "label": _("Transferred Qty"),
+            "fieldname": "transferred_qty",
+            "fieldtype": "Float",
+            "width": 120,
+        },
+        {
+            "label": _("Consumed Qty"),
+            "fieldname": "consumed_qty",
+            "fieldtype": "Float",
+            "width": 120,
+        },
+        {
+            "label": _("Work Order"),
+            "fieldname": "work_order",
+            "fieldtype": "Link",
+            "options": "Work Order",
+            "width": 130,
+        },
+        {
+            "label": _("Work Order Status"),
+            "fieldname": "work_order_status",
+            "fieldtype": "Data",
+            "width": 140,
         },
     ]
 
@@ -191,6 +240,71 @@ def get_data_internal(filters):
     warehouse = filters.get("warehouse") or "Hyderabad Central Warehouse - SESP"
     filters["warehouse"] = warehouse
 
+    # Add more focused debug logging
+    if filters.get("sales_order"):
+        sales_order = filters.get("sales_order")
+
+        # Log work orders linked to this sales order
+        work_orders_count = frappe.db.count(
+            "Work Order", {"sales_order": sales_order, "docstatus": 1}
+        )
+
+        frappe.log_error(
+            f"Direct Work Orders for SO {sales_order}: {work_orders_count}",
+            "WO-Count-Debug",
+        )
+
+        # Find all BOMs used in this sales order
+        boms_in_so = frappe.db.sql(
+            """
+            SELECT soi.bom_no, soi.item_code
+            FROM `tabSales Order Item` soi
+            WHERE soi.parent = %s AND soi.bom_no IS NOT NULL
+            """,
+            sales_order,
+            as_dict=1,
+        )
+
+        # Log just the counts, not the full data
+        bom_count = len(boms_in_so)
+        frappe.log_error(
+            f"SO {sales_order} has {bom_count} BOM items", "BOM-Count-Debug"
+        )
+
+        if bom_count > 0:
+            # Log specific BOMs for debugging
+            for i, bom in enumerate(boms_in_so):
+                if i < 3:  # Limit to first 3 for brevity
+                    frappe.log_error(
+                        f"BOM {i + 1}: {bom.bom_no}, Item: {bom.item_code}",
+                        f"BOM-Detail-{i + 1}",
+                    )
+
+                    # Check for work orders using this specific BOM
+                    wo_count = frappe.db.count(
+                        "Work Order", {"bom_no": bom.bom_no, "docstatus": 1}
+                    )
+
+                    frappe.log_error(
+                        f"Found {wo_count} work orders for BOM {bom.bom_no}",
+                        f"WO-BOM-Count-{i + 1}",
+                    )
+
+                    if wo_count > 0:
+                        # Get a sample work order to see its details
+                        sample_wo = frappe.get_list(
+                            "Work Order",
+                            filters={"bom_no": bom.bom_no, "docstatus": 1},
+                            fields=["name", "sales_order", "status"],
+                            limit=1,
+                        )
+                        if sample_wo:
+                            frappe.log_error(
+                                f"Sample WO: {sample_wo[0].name}, SO: {sample_wo[0].sales_order}",
+                                f"WO-Detail-{i + 1}",
+                            )
+
+    # Modify the query to better match work orders
     query = """
         SELECT 
             so.name as sales_order_no,
@@ -211,7 +325,48 @@ def get_data_internal(filters):
             bom_item.uom as raw_material_uom,
             bin.actual_qty as available_qty,
             bin.warehouse as warehouse,
-            raw_item.custom_is_sfg as is_sfg
+            raw_item.custom_is_sfg as is_sfg,
+            
+            /* Use a subquery to find the most relevant work order */
+            (SELECT wo.name 
+             FROM `tabWork Order` wo 
+             WHERE (wo.bom_no = soi.bom_no OR wo.production_item = soi.item_code)
+             AND (wo.sales_order = so.name OR wo.project = so.project)
+             AND wo.docstatus = 1
+             LIMIT 1) as work_order,
+             
+            /* Get the work order status */
+            (SELECT wo.status
+             FROM `tabWork Order` wo 
+             WHERE (wo.bom_no = soi.bom_no OR wo.production_item = soi.item_code)
+             AND (wo.sales_order = so.name OR wo.project = so.project)
+             AND wo.docstatus = 1
+             LIMIT 1) as work_order_status,
+             
+            /* Calculate transferred quantity */
+            (SELECT IFNULL(SUM(sed.qty), 0)
+             FROM `tabStock Entry Detail` sed
+             JOIN `tabStock Entry` se ON se.name = sed.parent
+             JOIN `tabWork Order` wo ON se.work_order = wo.name 
+             WHERE (wo.bom_no = soi.bom_no OR wo.production_item = soi.item_code)
+             AND (wo.sales_order = so.name OR wo.project = so.project)
+             AND sed.item_code = bom_item.item_code
+             AND se.docstatus = 1
+             AND se.stock_entry_type = 'Material Transfer for Manufacture'
+            ) as transferred_qty,
+             
+            /* Calculate consumed quantity */
+            (SELECT IFNULL(SUM(sed.qty), 0)
+             FROM `tabStock Entry Detail` sed
+             JOIN `tabStock Entry` se ON se.name = sed.parent
+             JOIN `tabWork Order` wo ON se.work_order = wo.name 
+             WHERE (wo.bom_no = soi.bom_no OR wo.production_item = soi.item_code)
+             AND (wo.sales_order = so.name OR wo.project = so.project)
+             AND sed.item_code = bom_item.item_code
+             AND se.docstatus = 1
+             AND se.stock_entry_type = 'Manufacture'
+            ) as consumed_qty
+             
         FROM 
             `tabSales Order` so
         INNER JOIN 
@@ -231,11 +386,32 @@ def get_data_internal(filters):
     """.format(conditions=conditions)
 
     try:
-        return frappe.db.sql(query, filters, as_dict=1)
-    except Exception as e:
+        results = frappe.db.sql(query, filters, as_dict=1)
+
+        # Log just a count of work orders found
+        work_order_count = sum(1 for row in results if row.get("work_order"))
+        total_rows = len(results)
+
         frappe.log_error(
-            frappe.get_traceback(), f"Sales Order BOM Items Report Error: {str(e)}"
+            f"Results: {total_rows} rows, {work_order_count} with work orders",
+            "Report-WO-Summary",
         )
+
+        # Log a sample with quantities for debugging
+        if results and work_order_count > 0:
+            for row in results[:3]:
+                if row.get("work_order"):
+                    frappe.log_error(
+                        f"WO: {row.get('work_order')}, Item: {row.get('raw_material_code')}, "
+                        f"Req: {row.get('required_qty')}, Trans: {row.get('transferred_qty')}, "
+                        f"Cons: {row.get('consumed_qty')}",
+                        "Material-Movement-Sample",
+                    )
+                    break
+
+        return results
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), f"Report Error: {str(e)}")
         return []
 
 
@@ -247,6 +423,8 @@ def get_conditions(filters):
         conditions.append("so.transaction_date <= %(to_date)s")
     if filters.get("sales_order"):
         conditions.append("so.name = %(sales_order)s")
+    if filters.get("custom_department"):
+        conditions.append("so.custom_department = %(custom_department)s")
     if filters.get("delivery_status"):
         conditions.append("so.delivery_status = %(delivery_status)s")
     if filters.get("billing_status"):
