@@ -25,13 +25,11 @@ def process_data_for_display(raw_data):
     for row in raw_data:
         curr_row = row.copy()
 
-        # Calculate required quantity and shortage/surplus
         raw_material_qty = row.get("raw_material_qty") or 0
         order_qty = row.get("order_qty") or 0
         required_qty = raw_material_qty * order_qty
         curr_row["required_qty"] = required_qty
 
-        # Calculate shortage or surplus
         available_qty = row.get("available_qty") or 0
         shortage_qty = available_qty - required_qty
         curr_row["shortage_surplus"] = shortage_qty
@@ -236,15 +234,12 @@ def get_data(filters):
 def get_data_internal(filters):
     conditions = get_conditions(filters)
 
-    # Set default warehouse if not specified
     warehouse = filters.get("warehouse") or "Hyderabad Central Warehouse - SESP"
     filters["warehouse"] = warehouse
 
-    # Add more focused debug logging
     if filters.get("sales_order"):
         sales_order = filters.get("sales_order")
 
-        # Log work orders linked to this sales order
         work_orders_count = frappe.db.count(
             "Work Order", {"sales_order": sales_order, "docstatus": 1}
         )
@@ -254,7 +249,6 @@ def get_data_internal(filters):
             "WO-Count-Debug",
         )
 
-        # Find all BOMs used in this sales order
         boms_in_so = frappe.db.sql(
             """
             SELECT soi.bom_no, soi.item_code
@@ -265,22 +259,19 @@ def get_data_internal(filters):
             as_dict=1,
         )
 
-        # Log just the counts, not the full data
         bom_count = len(boms_in_so)
         frappe.log_error(
             f"SO {sales_order} has {bom_count} BOM items", "BOM-Count-Debug"
         )
 
         if bom_count > 0:
-            # Log specific BOMs for debugging
             for i, bom in enumerate(boms_in_so):
-                if i < 3:  # Limit to first 3 for brevity
+                if i < 3:
                     frappe.log_error(
                         f"BOM {i + 1}: {bom.bom_no}, Item: {bom.item_code}",
                         f"BOM-Detail-{i + 1}",
                     )
 
-                    # Check for work orders using this specific BOM
                     wo_count = frappe.db.count(
                         "Work Order", {"bom_no": bom.bom_no, "docstatus": 1}
                     )
@@ -291,7 +282,6 @@ def get_data_internal(filters):
                     )
 
                     if wo_count > 0:
-                        # Get a sample work order to see its details
                         sample_wo = frappe.get_list(
                             "Work Order",
                             filters={"bom_no": bom.bom_no, "docstatus": 1},
@@ -304,7 +294,6 @@ def get_data_internal(filters):
                                 f"WO-Detail-{i + 1}",
                             )
 
-    # Modify the query to better match work orders
     query = """
         SELECT 
             so.name as sales_order_no,
@@ -388,7 +377,6 @@ def get_data_internal(filters):
     try:
         results = frappe.db.sql(query, filters, as_dict=1)
 
-        # Log just a count of work orders found
         work_order_count = sum(1 for row in results if row.get("work_order"))
         total_rows = len(results)
 
@@ -397,7 +385,6 @@ def get_data_internal(filters):
             "Report-WO-Summary",
         )
 
-        # Log a sample with quantities for debugging
         if results and work_order_count > 0:
             for row in results[:3]:
                 if row.get("work_order"):
