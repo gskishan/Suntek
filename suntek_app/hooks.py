@@ -173,4 +173,5 @@ fixtures = [
             ["name", "=", "Channel Partner"],
         ],
     },
+    {"doctype": "Stock Entry Type", "filters": [["name", "=", "Material Transfer to Channel Partner"]]},
 ]
