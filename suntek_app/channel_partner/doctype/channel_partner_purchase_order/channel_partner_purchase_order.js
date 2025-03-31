@@ -34,7 +34,7 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
         function () {
           frappe.confirm(
             __(
-              "Create a Sales Order with the Channel Partner as the customer?",
+              "Create a Sales Order with the Channel Partner as the customer?"
             ),
             function () {
               frm.call({
@@ -51,10 +51,10 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
                   }
                 },
               });
-            },
+            }
           );
         },
-        __("Actions"),
+        __("Actions")
       );
     }
 
@@ -64,7 +64,7 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
         function () {
           frappe.set_route("Form", "Sales Order", frm.doc.sales_order);
         },
-        __("Actions"),
+        __("Actions")
       );
     }
 
@@ -72,9 +72,9 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
       frm.set_intro(
         __(
           "Note: Channel Partner Purchase Orders are not typically needed for Subsidy cases. " +
-            "For subsidy cases, regular sales process is followed.",
+            "For subsidy cases, regular sales process is followed."
         ),
-        "red",
+        "red"
       );
     }
 
@@ -86,8 +86,8 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
       frm.set_intro(
         __(
           "This purchase order is awaiting review. Once approved, a Sales Order will be created " +
-            "with the Channel Partner as the customer.",
-        ),
+            "with the Channel Partner as the customer."
+        )
       );
     }
 
@@ -95,9 +95,9 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
       frm.set_intro(
         __(
           "A Sales Order has been created from this purchase order. " +
-            "The Channel Partner is set as the customer.",
+            "The Channel Partner is set as the customer."
         ),
-        "green",
+        "green"
       );
     }
 
@@ -147,7 +147,7 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
           if (r && r.default_selling_list) {
             frm.set_value("price_list", r.default_selling_list);
           }
-        },
+        }
       );
 
       if (frm.doc.items && frm.doc.items.length > 0) {
@@ -179,7 +179,7 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
                 item.doctype,
                 item.name,
                 "rate",
-                r.message[item.item_code],
+                r.message[item.item_code]
               );
             }
           });
@@ -207,22 +207,33 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
           if (r && r.custom_channel_partner !== frm.doc.channel_partner) {
             frm.set_value("project", "");
           }
-        },
+        }
       );
     }
-  },
 
-  terms_and_conditions: function (frm) {
-    if (frm.doc.terms_and_conditions) {
+    // Get tax template from firm
+    if (frm.doc.channel_partner) {
       frappe.db.get_value(
-        "Terms and Conditions",
-        frm.doc.terms_and_conditions,
-        "terms",
+        "Channel Partner",
+        frm.doc.channel_partner,
+        "channel_partner_firm",
         function (r) {
-          if (r && r.terms) {
-            frm.set_value("terms_and_conditions_details", r.terms);
+          if (r && r.channel_partner_firm) {
+            frappe.db.get_value(
+              "Channel Partner Firm",
+              r.channel_partner_firm,
+              "taxes_and_charges_template",
+              function (firm_r) {
+                if (firm_r && firm_r.taxes_and_charges_template) {
+                  frm.set_value(
+                    "taxes_and_charges_template",
+                    firm_r.taxes_and_charges_template
+                  );
+                }
+              }
+            );
           }
-        },
+        }
       );
     }
   },
@@ -240,13 +251,13 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
             if (r.custom_type_of_case === "Subsidy") {
               frappe.show_alert({
                 message: __(
-                  "Channel Partner Purchase Orders are typically not needed for Subsidy cases.",
+                  "Channel Partner Purchase Orders are typically not needed for Subsidy cases."
                 ),
                 indicator: "orange",
               });
             }
           }
-        },
+        }
       );
 
       if (frm.doc.project) {
@@ -261,11 +272,11 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
               if (frm.doc.items && frm.doc.items.length > 0) {
                 frappe.confirm(
                   __(
-                    "This will replace the current items and terms with those from the Sales Order. Continue?",
+                    "This will replace the current items and terms with those from the Sales Order. Continue?"
                   ),
                   function () {
                     populate_from_sales_order(frm, r.message);
-                  },
+                  }
                 );
               } else {
                 populate_from_sales_order(frm, r.message);
@@ -290,11 +301,11 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
             if (frm.doc.items && frm.doc.items.length > 0) {
               frappe.confirm(
                 __(
-                  "This will replace the current items and terms with those from the Quotation. Continue?",
+                  "This will replace the current items and terms with those from the Quotation. Continue?"
                 ),
                 function () {
                   populate_from_quotation(frm, r.message);
-                },
+                }
               );
             } else {
               populate_from_quotation(frm, r.message);
@@ -308,7 +319,7 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
     if (frm.doc.type_of_case === "Subsidy") {
       frappe.show_alert({
         message: __(
-          "Channel Partner Purchase Orders are typically not needed for Subsidy cases.",
+          "Channel Partner Purchase Orders are typically not needed for Subsidy cases."
         ),
         indicator: "orange",
       });
@@ -324,7 +335,7 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
         function () {
           var taxes_template = frappe.get_doc(
             "Sales Taxes and Charges Template",
-            frm.doc.taxes_and_charges_template,
+            frm.doc.taxes_and_charges_template
           );
 
           $.each(taxes_template.taxes || [], function (i, tax) {
@@ -336,7 +347,8 @@ frappe.ui.form.on("Channel Partner Purchase Order", {
           });
 
           frm.refresh_field("taxes");
-        },
+          frm.trigger("calculate_total");
+        }
       );
     }
   },
@@ -416,7 +428,7 @@ frappe.ui.form.on("Channel Partner Purchase Order Item", {
                       cdt,
                       cdn,
                       "rate",
-                      response.message[row.item_code],
+                      response.message[row.item_code]
                     );
 
                     setTimeout(function () {
@@ -439,7 +451,7 @@ frappe.ui.form.on("Channel Partner Purchase Order Item", {
               }, 100);
             }
           }
-        },
+        }
       );
     }
   },
@@ -533,68 +545,7 @@ function populate_from_sales_order(frm, data) {
   frappe.show_alert({
     message: __(
       "Items fetched from Sales Order {0}. Please add taxes manually.",
-      [data.sales_order],
-    ),
-    indicator: "green",
-  });
-}
-
-function populate_from_sales_order(frm, data) {
-  if (data.terms_and_conditions) {
-    frm.set_value("terms_and_conditions", data.terms_and_conditions);
-  } else if (data.terms) {
-    frm.set_value("terms_and_conditions_details", data.terms);
-  }
-
-  frm.clear_table("items");
-  let total_amount = 0;
-  let total_qty = 0;
-
-  data.items.forEach(function (item) {
-    var row = frm.add_child("items");
-    row.item_code = item.item_code;
-    row.item_name = item.item_name;
-    row.description = item.description;
-    row.qty = item.qty;
-    row.uom = item.uom;
-    row.rate = item.rate;
-    row.warehouse = item.warehouse;
-
-    if (item.amount) {
-      row.amount = item.amount;
-    } else {
-      row.amount = item.rate * item.qty;
-    }
-
-    total_amount += flt(row.amount);
-    total_qty += flt(item.qty);
-  });
-
-  frm.set_value("total", total_amount);
-  frm.set_value("total_qty", total_qty);
-
-  frm.set_value("grand_total", total_amount);
-
-  if (frm.doc.advance_amount) {
-    frm.set_value("balance_amount", total_amount - flt(frm.doc.advance_amount));
-  } else {
-    frm.set_value("balance_amount", total_amount);
-  }
-
-  frm.refresh_fields([
-    "items",
-    "terms_and_conditions",
-    "terms_and_conditions_details",
-    "total",
-    "total_qty",
-    "grand_total",
-    "balance_amount",
-  ]);
-
-  frappe.show_alert({
-    message: __(
-      "Items fetched from Sales Order {0}. Please add taxes manually.",
-      [data.sales_order],
+      [data.sales_order]
     ),
     indicator: "green",
   });
@@ -644,7 +595,7 @@ function populate_from_quotation(frm, data) {
   if (data.taxes_and_charges_template) {
     frm.set_value(
       "taxes_and_charges_template",
-      data.taxes_and_charges_template,
+      data.taxes_and_charges_template
     );
   }
 
@@ -661,7 +612,7 @@ function populate_from_quotation(frm, data) {
   frappe.show_alert({
     message: __(
       "Items fetched from Quotation {0}. Please add taxes manually if needed.",
-      [data.quotation],
+      [data.quotation]
     ),
     indicator: "green",
   });

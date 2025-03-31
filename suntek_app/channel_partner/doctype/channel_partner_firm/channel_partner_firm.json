@@ -12,6 +12,7 @@
   "column_break_address",
   "contact_html",
   "address_and_contact_section",
+  "territory",
   "address",
   "address_display",
   "column_break_contact",
@@ -37,9 +38,14 @@
   "address_proof",
   "pan_company",
   "business_registration",
+  "sales_tab",
   "section_break_gefe",
   "selling_price_list",
-  "payment_terms_template"
+  "taxes_and_charges_template",
+  "payment_terms_template",
+  "column_break_jxrs",
+  "commission_rate",
+  "linked_sales_partner"
  ],
  "fields": [
   {
@@ -232,6 +238,12 @@
    "options": "Price List"
   },
   {
+   "fieldname": "taxes_and_charges_template",
+   "fieldtype": "Link",
+   "label": "Taxes and Charges Template",
+   "options": "Sales Taxes and Charges Template"
+  },
+  {
    "fieldname": "section_break_nyhu",
    "fieldtype": "Section Break"
   },
@@ -240,6 +252,34 @@
    "fieldtype": "Link",
    "label": "Payment Terms Template",
    "options": "Payment Terms Template"
+  },
+  {
+   "fieldname": "territory",
+   "fieldtype": "Link",
+   "label": "Territory",
+   "mandatory_depends_on": "eval:doc.status == \"Active\"",
+   "options": "Territory"
+  },
+  {
+   "fieldname": "sales_tab",
+   "fieldtype": "Tab Break",
+   "label": "Sales"
+  },
+  {
+   "fieldname": "column_break_jxrs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "commission_rate",
+   "fieldtype": "Float",
+   "label": "Commission Rate",
+   "mandatory_depends_on": "eval:doc.status == \"Active\""
+  },
+  {
+   "fieldname": "linked_sales_partner",
+   "fieldtype": "Link",
+   "label": "Linked Sales Partner",
+   "options": "Sales Partner"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -262,7 +302,7 @@
    "parent_doctype": "Dynamic Link"
   }
  ],
- "modified": "2025-03-28 16:42:24.297178",
+ "modified": "2025-03-31 13:08:25.051694",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner Firm",

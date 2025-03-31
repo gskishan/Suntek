@@ -28,6 +28,7 @@ class ChannelPartnerPurchaseOrder(Document):
         self.validate_channel_partner()
         self.validate_type_of_case()
         self.fetch_type_of_case_from_project()
+        self.set_tax_template_from_firm()
         self.calculate_totals()
         self.update_status()
 
@@ -68,6 +69,15 @@ class ChannelPartnerPurchaseOrder(Document):
             type_of_case = frappe.db.get_value("Project", self.project, "custom_type_of_case")
             if type_of_case:
                 self.type_of_case = type_of_case
+
+    def set_tax_template_from_firm(self):
+        """Set tax template from channel partner firm if not already set"""
+        if not self.taxes_and_charges_template and self.channel_partner:
+            channel_partner = frappe.get_doc("Channel Partner", self.channel_partner)
+            if channel_partner.channel_partner_firm:
+                firm = frappe.get_doc("Channel Partner Firm", channel_partner.channel_partner_firm)
+                if firm.taxes_and_charges_template:
+                    self.taxes_and_charges_template = firm.taxes_and_charges_template
 
     def calculate_totals(self):
         """Calculate total quantity, amount, taxes and grand total"""

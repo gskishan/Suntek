@@ -1,13 +1,21 @@
 frappe.ui.form.on("Channel Partner Firm", {
   refresh: function (frm) {
     frm.trigger("render_address_and_contact");
-
     if (!frm.is_new()) {
       frm.add_custom_button(__("Create Channel Partner"), function () {
         frappe.new_doc("Channel Partner", {
           channel_partner_firm: frm.doc.name,
         });
       });
+
+      if (frm.doc.status === "Active" && !frm.doc.linked_sales_partner) {
+        frm.add_custom_button("Create Sales Partner", function () {
+          frm.call({
+            doc: frm.doc,
+            method: "create_sales_partner",
+          });
+        });
+      }
 
       frm.add_custom_button(
         __("Show Similar Firms"),
@@ -16,7 +24,7 @@ frappe.ui.form.on("Channel Partner Firm", {
             firm_name: ["like", "%" + frm.doc.firm_name + "%"],
           });
         },
-        __("View"),
+        __("View")
       );
     }
   },
@@ -31,8 +39,8 @@ frappe.ui.form.on("Channel Partner Firm", {
       if (!valid_format) {
         frappe.msgprint(
           __(
-            "Firm Code should be 2-10 characters containing only uppercase letters and numbers.",
-          ),
+            "Firm Code should be 2-10 characters containing only uppercase letters and numbers."
+          )
         );
         frappe.validated = false;
       }
