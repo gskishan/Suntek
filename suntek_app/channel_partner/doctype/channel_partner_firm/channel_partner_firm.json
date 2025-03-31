@@ -325,6 +325,14 @@
             "role": "System Manager",
             "share": 1,
             "write": 1
+        },
+        {
+            "read": 1,
+            "role": "Channel Partner"
+        },
+        {
+            "read": 1,
+            "role": "Channel Partner Manager"
         }
     ],
     "search_fields": "firm_name, gst_number, contact_person, contact_email, contact_mobile",
