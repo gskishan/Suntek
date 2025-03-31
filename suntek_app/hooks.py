@@ -167,4 +167,8 @@ fixtures = [
         "doctype": "Property Setter",
         "filters": [["name", "in", ["Sales Order-order_type-options"]]],
     },
+    {
+        "doctype": "Module Profile",
+        "filters": [["name", "=", "Channel Partner"]],
+    },
 ]
