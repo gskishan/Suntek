@@ -16,7 +16,7 @@ frappe.ui.form.on("Channel Partner Firm", {
             firm_name: ["like", "%" + frm.doc.firm_name + "%"],
           });
         },
-        __("View"),
+        __("View")
       );
     }
   },
@@ -31,8 +31,8 @@ frappe.ui.form.on("Channel Partner Firm", {
       if (!valid_format) {
         frappe.msgprint(
           __(
-            "Firm Code should be 2-10 characters containing only uppercase letters and numbers.",
-          ),
+            "Firm Code should be 2-10 characters containing only uppercase letters and numbers."
+          )
         );
         frappe.validated = false;
       }
