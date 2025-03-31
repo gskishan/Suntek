@@ -5,6 +5,16 @@ import frappe
 from suntek_app.suntek.utils.api_handler import create_api_response, parse_request_data
 
 
+@frappe.whitelist()
+def is_user_linked_to_channel_partner():
+    user = frappe.session.user
+
+    if user == "Administrator":
+        return False
+
+    return frappe.db.exists("Channel Partner", {"linked_user": user})
+
+
 @frappe.whitelist(allow_guest=True)
 def create_states():
     try:
@@ -85,15 +95,14 @@ def create_districts():
             created_districts,
         )
     except Exception as e:
-        frappe.log_error(
-            "District creation failed", "Failed to create districts", "District"
-        )
+        frappe.log_error("District creation failed", "Failed to create districts", "District")
         return create_api_response(500, "error", "Internal server error", str(e))
 
 
 @frappe.whitelist(allow_guest=True)
 def create_channel_partner():
     try:
+        frappe.set_user("Administrator")
         channel_partner = frappe.new_doc("Channel Partner")
 
         first_names = [
@@ -121,20 +130,23 @@ def create_channel_partner():
             "Taylor",
         ]
 
+        districts = frappe.get_list("District", fields=["name"])
+        district = random.choice(districts)
+
         channel_partner.first_name = random.choice(first_names)
         channel_partner.last_name = random.choice(last_names)
         channel_partner.salutation = random.choice(["Mr", "Mrs", "Ms", "Dr"])
-        channel_partner.channel_partner_code = f"CP-{generate_random_number()}"
         channel_partner.mobile_number = generate_mobile_number()
         channel_partner.suntek_mobile_number = generate_mobile_number()
         channel_partner.suntek_email = generate_random_email(is_suntek_email=True)
         channel_partner.email = generate_random_email(is_suntek_email=False)
         channel_partner.status = "Active"
-        channel_partner.contact_person = (
-            f"{random.choice(first_names)} {random.choice(last_names)}"
-        )
+        channel_partner.default_buying_list = "Standard Buying"
+        channel_partner.default_selling_list = "Standard Selling"
+        channel_partner.contact_person = f"{random.choice(first_names)} {random.choice(last_names)}"
 
-        channel_partner.district = "RAN-TS-00001"
+        # channel_partner.district = "RAN-TS-00001"
+        channel_partner.district = district.name
 
         firms = frappe.get_all("Channel Partner Firm", fields=["name"])
         if firms:
@@ -154,9 +166,7 @@ def create_channel_partner():
     except Exception as e:
         frappe.db.rollback()
         frappe.log_error(frappe.get_traceback(), "Channel Partner Creation Failed")
-        return create_api_response(
-            500, "error", "Channel Partner Creation Failed", str(e)
-        )
+        return create_api_response(500, "error", "Channel Partner Creation Failed", str(e))
 
 
 def generate_random_number():
@@ -169,9 +179,5 @@ def generate_mobile_number():
 
 def generate_random_email(is_suntek_email=False):
     random_string = "".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=8))
-    domain = (
-        "suntek.com"
-        if is_suntek_email
-        else random.choice(["gmail.com", "yahoo.com", "outlook.com"])
-    )
+    domain = "suntek.com" if is_suntek_email else random.choice(["gmail.com", "yahoo.com", "outlook.com"])
     return f"{random_string}@{domain}"

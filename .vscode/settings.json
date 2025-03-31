@@ -1,5 +1,8 @@
 {
-	"python.testing.pytestArgs": ["suntek_app"],
+	"python.testing.pytestArgs": [
+		"suntek_app"
+	],
 	"python.testing.unittestEnabled": false,
-	"python.testing.pytestEnabled": true
+	"python.testing.pytestEnabled": true,
+	"python.REPL.enableREPLSmartSend": false
 }

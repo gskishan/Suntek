@@ -9,6 +9,7 @@ page_js = {"lead_funnel": "public/js/lead_funnel.js"}
 
 
 doctype_js = {
+    "Item": "public/js/item.js",
     "Lead": "public/js/lead.js",
     "Opportunity": "public/js/opportunity.js",
     "Quotation": "public/js/quotation.js",
@@ -28,9 +29,6 @@ before_install = "suntek_app.install.before_install"
 before_migrate = "suntek_app.migrate.before_migrate"
 after_migrate = "suntek_app.migrate.after_migrate"
 
-# override_whitelisted_methods = {
-#     "erpnext.selling.doctype.sales_order.sales_order.make_sales_invoice": "suntek_app.overrides.sales_order.make_sales_invoice"
-# }
 
 override_doctype_dashboards = {
     "Opportunity": "suntek_app.suntek.custom_dashboard.dashboard.update_opportunity_dashboard",
@@ -44,19 +42,9 @@ override_doctype_class = {
     "Salary Slip": "suntek_app.custom_script.salary_slip.CustomSalarySlip",
 }
 doc_events = {
-    "Address": {
-        "before_save": ["suntek_app.custom_script.address.add_enquiry_to_links"]
-    },
-    "Delivery Note": {
-        "before_save": [
-            "suntek_app.custom_script.delivery_note.set_channel_partner_data"
-        ]
-    },
-    "Installation Note": {
-        "before_save": [
-            "suntek_app.custom_script.installation_note.set_channel_partner_data"
-        ]
-    },
+    "Address": {"before_save": ["suntek_app.custom_script.address.add_enquiry_to_links"]},
+    "Delivery Note": {"before_save": ["suntek_app.custom_script.delivery_note.set_channel_partner_data"]},
+    "Installation Note": {"before_save": ["suntek_app.custom_script.installation_note.set_channel_partner_data"]},
     "BOM": {
         "before_save": [
             "suntek_app.custom_script.bom.set_channel_partner_data",
@@ -105,6 +93,10 @@ doc_events = {
         "on_submit": "suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit",
         "on_update": [
             "suntek_app.api.webhook_handler.send_ambassador_status_update",
+            "suntek_app.event_handlers.sales_order_event_handler.update_cppo_from_sales_order",
+        ],
+        "after_save": [
+            "suntek_app.event_handlers.sales_order_event_handler.update_cppo_from_sales_order",
         ],
     },
     "Project": {
@@ -175,5 +167,11 @@ fixtures = [
         "doctype": "Property Setter",
         "filters": [["name", "in", ["Sales Order-order_type-options"]]],
     },
-    {"doctype": "HD Ticket Template", "filters": [["name", "in", ["Default"]]]},
+    {
+        "doctype": "Module Profile",
+        "filters": [
+            ["name", "=", "Channel Partner"],
+        ],
+    },
+    {"doctype": "Stock Entry Type", "filters": [["name", "=", "Material Transfer to Channel Partner"]]},
 ]

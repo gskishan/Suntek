@@ -10,14 +10,13 @@
   "first_name",
   "last_name",
   "channel_partner_firm",
+  "channel_partner_customer",
   "channel_partner_name",
   "channel_partner_code",
   "contact_person",
   "email",
   "mobile_number",
   "alternate_number",
-  "gst_number",
-  "pan_number",
   "column_break_jjiy",
   "credit_limit",
   "status",
@@ -41,20 +40,15 @@
   "state_code",
   "city",
   "district_snake_case",
+  "territory",
   "dashboard_tab",
   "dashboard_html",
   "past_experience_tab",
   "past_experience_section",
   "past_experience",
   "attachments_tab",
-  "channel_partner_attachments_section",
-  "channel_partner_agreement",
-  "gst_registration",
-  "noc_for_stock",
-  "column_break_vetk",
-  "address_proof",
-  "pan",
   "personal_kyc_section",
+  "pan_number",
   "id_proof",
   "pan_card",
   "column_break_sjnq",
@@ -64,9 +58,15 @@
   "other_documents",
   "pin_codes_tab",
   "associated_pin_codes",
-  "warehouse_tab",
+  "selling_tab",
+  "warehouses_section",
   "default_sales_warehouse",
+  "column_break_gixt",
   "default_subsidy_warehouse",
+  "price_list_section",
+  "default_selling_list",
+  "column_break_vism",
+  "default_buying_list",
   "connections_tab"
  ],
  "fields": [
@@ -99,22 +99,20 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Channel Partner Name",
-   "read_only": 1,
-   "reqd": 1
+   "read_only": 1
   },
   {
    "fieldname": "channel_partner_code",
    "fieldtype": "Data",
    "in_global_search": 1,
    "label": "Channel Partner Code",
-   "reqd": 1,
+   "read_only": 1,
    "unique": 1
   },
   {
    "fieldname": "contact_person",
    "fieldtype": "Data",
-   "label": "Contact Person",
-   "reqd": 1
+   "label": "Contact Person"
   },
   {
    "fieldname": "email",
@@ -133,12 +131,6 @@
    "fieldname": "alternate_number",
    "fieldtype": "Data",
    "label": "Alternate Number"
-  },
-  {
-   "fieldname": "gst_number",
-   "fieldtype": "Data",
-   "label": "GST Number",
-   "reqd": 1
   },
   {
    "fieldname": "pan_number",
@@ -298,45 +290,6 @@
    "label": "Attachments"
   },
   {
-   "fieldname": "channel_partner_attachments_section",
-   "fieldtype": "Section Break",
-   "label": "Channel Partner Attachments"
-  },
-  {
-   "fieldname": "channel_partner_agreement",
-   "fieldtype": "Attach",
-   "label": "Channel Partner Agreement",
-   "reqd": 1
-  },
-  {
-   "fieldname": "gst_registration",
-   "fieldtype": "Attach",
-   "label": "GST Registration",
-   "reqd": 1
-  },
-  {
-   "fieldname": "noc_for_stock",
-   "fieldtype": "Attach",
-   "label": "NOC for Stock",
-   "reqd": 1
-  },
-  {
-   "fieldname": "column_break_vetk",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "address_proof",
-   "fieldtype": "Attach",
-   "label": "Address Proof (Company)",
-   "reqd": 1
-  },
-  {
-   "fieldname": "pan",
-   "fieldtype": "Attach",
-   "label": "PAN (Company)",
-   "reqd": 1
-  },
-  {
    "fieldname": "personal_kyc_section",
    "fieldtype": "Section Break",
    "label": "Personal KYC"
@@ -344,7 +297,7 @@
   {
    "fieldname": "id_proof",
    "fieldtype": "Attach",
-   "label": "Aadjar Card",
+   "label": "Aadhar Card",
    "reqd": 1
   },
   {
@@ -398,11 +351,6 @@
    "show_dashboard": 1
   },
   {
-   "fieldname": "warehouse_tab",
-   "fieldtype": "Tab Break",
-   "label": "Warehouse"
-  },
-  {
    "fieldname": "dashboard_tab",
    "fieldtype": "Tab Break",
    "label": "Dashboard"
@@ -444,6 +392,55 @@
    "fieldtype": "Link",
    "label": "Default Subsidy Warehouse",
    "options": "Warehouse"
+  },
+  {
+   "fieldname": "selling_tab",
+   "fieldtype": "Tab Break",
+   "label": "Selling"
+  },
+  {
+   "fieldname": "warehouses_section",
+   "fieldtype": "Section Break",
+   "label": "Warehouses"
+  },
+  {
+   "fieldname": "column_break_gixt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "price_list_section",
+   "fieldtype": "Section Break",
+   "label": "Price List"
+  },
+  {
+   "fieldname": "default_selling_list",
+   "fieldtype": "Link",
+   "label": "Default Selling List",
+   "options": "Price List"
+  },
+  {
+   "fieldname": "column_break_vism",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_buying_list",
+   "fieldtype": "Link",
+   "label": "Default Buying List",
+   "options": "Price List"
+  },
+  {
+   "fetch_from": "channel_partner_firm.customer",
+   "fieldname": "channel_partner_customer",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Channel Partner Customer",
+   "options": "Customer"
+  },
+  {
+   "fetch_from": "district.territory",
+   "fieldname": "territory",
+   "fieldtype": "Data",
+   "label": "Territory"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -491,9 +488,13 @@
   {
    "link_doctype": "Subsidy",
    "link_fieldname": "channel_partner"
+  },
+  {
+   "link_doctype": "Channel Partner Purchase Order",
+   "link_fieldname": "channel_partner"
   }
  ],
- "modified": "2025-03-19 11:30:59.150100",
+ "modified": "2025-03-31 13:21:58.863720",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner",
@@ -509,8 +510,27 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Channel Partner Manager",
+   "select": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Channel Partner",
+   "select": 1
   }
  ],
  "search_fields": "channel_partner_name",

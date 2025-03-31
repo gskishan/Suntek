@@ -1,0 +1,11 @@
+[
+ {
+  "add_to_transit": 0,
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "is_standard": 0,
+  "modified": "2025-03-31 11:50:47.292766",
+  "name": "Material Transfer to Channel Partner",
+  "purpose": "Material Transfer"
+ }
+]
