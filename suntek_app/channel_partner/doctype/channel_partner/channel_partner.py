@@ -250,6 +250,15 @@ class ChannelPartner(Document):
                 warehouses_created = True
 
             if linked_user:
+                user_restriction = self._create_user_permissions(
+                    user=linked_user,
+                    doctype="User",
+                    for_value=linked_user,
+                    apply_to_all_doctypes=0,
+                )
+                if user_restriction:
+                    permissions_created.append("User Restriction")
+
                 cp_perm = self._create_user_permissions(
                     user=linked_user, doctype="Channel Partner", for_value=self.name, apply_to_all_doctypes=1
                 )
@@ -304,6 +313,11 @@ class ChannelPartner(Document):
                 self.default_sales_warehouse = default_sales_warehouse
                 self.default_subsidy_warehouse = default_subsidy_warehouse
                 self.warehouse = default_sales_warehouse
+
+            firm = frappe.get_doc("Channel Partner Firm", self.channel_partner_firm)
+
+            if firm.selling_price_list:
+                self.default_selling_list = firm.selling_price_list
 
             self.flags.ignore_mandatory = True
             self.save()

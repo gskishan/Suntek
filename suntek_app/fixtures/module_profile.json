@@ -246,11 +246,29 @@
     "parent": "Channel Partner",
     "parentfield": "block_modules",
     "parenttype": "Module Profile"
+   },
+   {
+    "module": "Core",
+    "parent": "Channel Partner",
+    "parentfield": "block_modules",
+    "parenttype": "Module Profile"
+   },
+   {
+    "module": "Setup",
+    "parent": "Channel Partner",
+    "parentfield": "block_modules",
+    "parenttype": "Module Profile"
+   },
+   {
+    "module": "Stock",
+    "parent": "Channel Partner",
+    "parentfield": "block_modules",
+    "parenttype": "Module Profile"
    }
   ],
   "docstatus": 0,
   "doctype": "Module Profile",
-  "modified": "2025-03-31 13:12:39.117510",
+  "modified": "2025-03-31 16:33:00.172021",
   "module_profile_name": "Channel Partner",
   "name": "Channel Partner"
  }
