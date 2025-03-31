@@ -317,9 +317,7 @@ class ChannelPartner(Document):
             firm = frappe.get_doc("Channel Partner Firm", self.channel_partner_firm)
 
             if firm.selling_price_list:
-                self.selling_price_list = firm.selling_price_list
-            else:
-                self.selling_price_list = "Standard Selling - SESP"
+                self.default_selling_list = firm.selling_price_list
 
             self.flags.ignore_mandatory = True
             self.save()
