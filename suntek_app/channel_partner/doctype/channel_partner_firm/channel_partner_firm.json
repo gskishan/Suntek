@@ -1,331 +1,336 @@
 {
- "actions": [],
- "allow_rename": 1,
- "creation": "2025-03-12 16:47:40.153669",
- "doctype": "DocType",
- "engine": "InnoDB",
- "field_order": [
-  "firm_name",
-  "status",
-  "section_break_address_and_contact",
-  "address_html",
-  "column_break_address",
-  "contact_html",
-  "address_and_contact_section",
-  "territory",
-  "address",
-  "address_display",
-  "column_break_contact",
-  "customer",
-  "customer_name",
-  "contact_person",
-  "contact_display",
-  "contact_email",
-  "contact_mobile",
-  "section_break_channel_partners",
-  "channel_partners",
-  "kyc_tab",
-  "section_break_business_details",
-  "gst_number",
-  "pan_number",
-  "column_break_business",
-  "establishment_date",
-  "section_break_nyhu",
-  "agreement",
-  "noc_for_stock",
-  "gst_registration",
-  "column_break_jzuq",
-  "address_proof",
-  "pan_company",
-  "business_registration",
-  "sales_tab",
-  "section_break_gefe",
-  "selling_price_list",
-  "taxes_and_charges_template",
-  "payment_terms_template",
-  "column_break_jxrs",
-  "commission_rate",
-  "linked_sales_partner"
- ],
- "fields": [
-  {
-   "fieldname": "firm_name",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Firm Name",
-   "reqd": 1
-  },
-  {
-   "default": "Pending Approval",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Status",
-   "options": "Active\nInactive\nPending Approval"
-  },
-  {
-   "fieldname": "section_break_address_and_contact",
-   "fieldtype": "Section Break",
-   "hidden": 1,
-   "label": "Address and Contact"
-  },
-  {
-   "fieldname": "address_html",
-   "fieldtype": "HTML",
-   "label": "Address HTML"
-  },
-  {
-   "fieldname": "column_break_address",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "contact_html",
-   "fieldtype": "HTML",
-   "label": "Contact HTML"
-  },
-  {
-   "depends_on": "eval:!doc.__islocal",
-   "fieldname": "address_and_contact_section",
-   "fieldtype": "Section Break",
-   "label": "Address and Contact Details"
-  },
-  {
-   "fieldname": "address",
-   "fieldtype": "Link",
-   "label": "Address",
-   "mandatory_depends_on": "eval:doc.status == \"Active\"",
-   "options": "Address"
-  },
-  {
-   "fieldname": "address_display",
-   "fieldtype": "Small Text",
-   "label": "Address Display",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_contact",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "contact_person",
-   "fieldtype": "Link",
-   "label": "Contact Person",
-   "mandatory_depends_on": "eval:doc.status == \"Active\"",
-   "options": "Contact"
-  },
-  {
-   "depends_on": "contact_person",
-   "fetch_from": "contact_person.email_id",
-   "fieldname": "contact_email",
-   "fieldtype": "Data",
-   "label": "Contact Email",
-   "read_only": 1
-  },
-  {
-   "depends_on": "contact_person",
-   "fetch_from": "contact_person.mobile_no",
-   "fieldname": "contact_mobile",
-   "fieldtype": "Data",
-   "label": "Contact Mobile",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "contact_person.full_name",
-   "fieldname": "contact_display",
-   "fieldtype": "Data",
-   "label": "Contact Display",
-   "read_only": 1
-  },
-  {
-   "fieldname": "section_break_business_details",
-   "fieldtype": "Section Break",
-   "label": "Business Details"
-  },
-  {
-   "fieldname": "gst_number",
-   "fieldtype": "Data",
-   "in_standard_filter": 1,
-   "label": "GST Number"
-  },
-  {
-   "fieldname": "pan_number",
-   "fieldtype": "Data",
-   "label": "PAN Number"
-  },
-  {
-   "fieldname": "column_break_business",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "establishment_date",
-   "fieldtype": "Date",
-   "label": "Establishment Date"
-  },
-  {
-   "fieldname": "business_registration",
-   "fieldtype": "Attach",
-   "label": "Business Registration"
-  },
-  {
-   "fieldname": "section_break_channel_partners",
-   "fieldtype": "Section Break",
-   "label": "Channel Partners"
-  },
-  {
-   "fieldname": "channel_partners",
-   "fieldtype": "Table",
-   "label": "Channel Partners",
-   "options": "Channel Partner Link"
-  },
-  {
-   "fieldname": "kyc_tab",
-   "fieldtype": "Tab Break",
-   "label": "KYC"
-  },
-  {
-   "fieldname": "agreement",
-   "fieldtype": "Attach",
-   "label": "Agreement"
-  },
-  {
-   "fieldname": "noc_for_stock",
-   "fieldtype": "Attach",
-   "label": "NOC for Stock"
-  },
-  {
-   "fieldname": "column_break_jzuq",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "address_proof",
-   "fieldtype": "Attach",
-   "label": "Address Proof"
-  },
-  {
-   "fieldname": "pan_company",
-   "fieldtype": "Attach",
-   "label": "PAN (Company)"
-  },
-  {
-   "fieldname": "gst_registration",
-   "fieldtype": "Attach",
-   "label": "GST Registration"
-  },
-  {
-   "fieldname": "customer",
-   "fieldtype": "Link",
-   "label": "Customer",
-   "mandatory_depends_on": "eval:doc.status == \"Active\"",
-   "options": "Customer"
-  },
-  {
-   "fetch_from": "customer.customer_name",
-   "fieldname": "customer_name",
-   "fieldtype": "Data",
-   "label": "Customer Name",
-   "read_only": 1
-  },
-  {
-   "fieldname": "section_break_gefe",
-   "fieldtype": "Section Break"
-  },
-  {
-   "description": "The list of prices which we will use to sell items to this Firm",
-   "fieldname": "selling_price_list",
-   "fieldtype": "Link",
-   "label": "Selling Price List",
-   "options": "Price List"
-  },
-  {
-   "fieldname": "taxes_and_charges_template",
-   "fieldtype": "Link",
-   "label": "Taxes and Charges Template",
-   "options": "Sales Taxes and Charges Template"
-  },
-  {
-   "fieldname": "section_break_nyhu",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "payment_terms_template",
-   "fieldtype": "Link",
-   "label": "Payment Terms Template",
-   "options": "Payment Terms Template"
-  },
-  {
-   "fieldname": "territory",
-   "fieldtype": "Link",
-   "label": "Territory",
-   "mandatory_depends_on": "eval:doc.status == \"Active\"",
-   "options": "Territory"
-  },
-  {
-   "fieldname": "sales_tab",
-   "fieldtype": "Tab Break",
-   "label": "Sales"
-  },
-  {
-   "fieldname": "column_break_jxrs",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "commission_rate",
-   "fieldtype": "Float",
-   "label": "Commission Rate",
-   "mandatory_depends_on": "eval:doc.status == \"Active\""
-  },
-  {
-   "fieldname": "linked_sales_partner",
-   "fieldtype": "Link",
-   "label": "Linked Sales Partner",
-   "options": "Sales Partner"
-  }
- ],
- "index_web_pages_for_search": 1,
- "links": [
-  {
-   "group": "Channel Partners",
-   "link_doctype": "Channel Partner",
-   "link_fieldname": "channel_partner_firm"
-  },
-  {
-   "group": "Address & Contacts",
-   "link_doctype": "Address",
-   "link_fieldname": "link_doctype",
-   "parent_doctype": "Dynamic Link"
-  },
-  {
-   "group": "Address & Contacts",
-   "link_doctype": "Contact",
-   "link_fieldname": "link_doctype",
-   "parent_doctype": "Dynamic Link"
-  }
- ],
- "modified": "2025-03-31 13:08:25.051694",
- "modified_by": "Administrator",
- "module": "Channel Partner",
- "name": "Channel Partner Firm",
- "naming_rule": "Expression",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
- "search_fields": "firm_name, gst_number, contact_person, contact_email, contact_mobile",
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": [],
- "title_field": "firm_name",
- "track_changes": 1
+    "actions": [],
+    "allow_rename": 1,
+    "creation": "2025-03-12 16:47:40.153669",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "firm_name",
+        "status",
+        "section_break_address_and_contact",
+        "address_html",
+        "column_break_address",
+        "contact_html",
+        "address_and_contact_section",
+        "territory",
+        "address",
+        "address_display",
+        "column_break_contact",
+        "customer",
+        "customer_name",
+        "contact_person",
+        "contact_display",
+        "contact_email",
+        "contact_mobile",
+        "section_break_channel_partners",
+        "channel_partners",
+        "kyc_tab",
+        "section_break_business_details",
+        "gst_number",
+        "pan_number",
+        "column_break_business",
+        "establishment_date",
+        "section_break_nyhu",
+        "agreement",
+        "noc_for_stock",
+        "gst_registration",
+        "column_break_jzuq",
+        "address_proof",
+        "pan_company",
+        "business_registration",
+        "sales_tab",
+        "section_break_gefe",
+        "selling_price_list",
+        "taxes_and_charges_template",
+        "payment_terms_template",
+        "column_break_jxrs",
+        "commission_rate",
+        "linked_sales_partner"
+    ],
+    "fields": [
+        {
+            "fieldname": "firm_name",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Firm Name",
+            "reqd": 1
+        },
+        {
+            "default": "Pending Approval",
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Status",
+            "options": "Active\nInactive\nPending Approval"
+        },
+        {
+            "fieldname": "section_break_address_and_contact",
+            "fieldtype": "Section Break",
+            "hidden": 1,
+            "label": "Address and Contact"
+        },
+        {
+            "fieldname": "address_html",
+            "fieldtype": "HTML",
+            "label": "Address HTML"
+        },
+        {
+            "fieldname": "column_break_address",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "contact_html",
+            "fieldtype": "HTML",
+            "label": "Contact HTML"
+        },
+        {
+            "depends_on": "eval:!doc.__islocal",
+            "fieldname": "address_and_contact_section",
+            "fieldtype": "Section Break",
+            "label": "Address and Contact Details"
+        },
+        {
+            "fieldname": "address",
+            "fieldtype": "Link",
+            "label": "Address",
+            "mandatory_depends_on": "eval:doc.status == \"Active\"",
+            "options": "Address"
+        },
+        {
+            "fieldname": "address_display",
+            "fieldtype": "Small Text",
+            "label": "Address Display",
+            "read_only": 1
+        },
+        {
+            "fieldname": "column_break_contact",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "contact_person",
+            "fieldtype": "Link",
+            "label": "Contact Person",
+            "mandatory_depends_on": "eval:doc.status == \"Active\"",
+            "options": "Contact"
+        },
+        {
+            "depends_on": "contact_person",
+            "fetch_from": "contact_person.email_id",
+            "fieldname": "contact_email",
+            "fieldtype": "Data",
+            "label": "Contact Email",
+            "read_only": 1
+        },
+        {
+            "depends_on": "contact_person",
+            "fetch_from": "contact_person.mobile_no",
+            "fieldname": "contact_mobile",
+            "fieldtype": "Data",
+            "label": "Contact Mobile",
+            "read_only": 1
+        },
+        {
+            "fetch_from": "contact_person.full_name",
+            "fieldname": "contact_display",
+            "fieldtype": "Data",
+            "label": "Contact Display",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_break_business_details",
+            "fieldtype": "Section Break",
+            "label": "Business Details"
+        },
+        {
+            "fieldname": "gst_number",
+            "fieldtype": "Data",
+            "in_standard_filter": 1,
+            "label": "GST Number"
+        },
+        {
+            "fieldname": "pan_number",
+            "fieldtype": "Data",
+            "label": "PAN Number"
+        },
+        {
+            "fieldname": "column_break_business",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "establishment_date",
+            "fieldtype": "Date",
+            "label": "Establishment Date"
+        },
+        {
+            "fieldname": "business_registration",
+            "fieldtype": "Attach",
+            "mandatory_depends_on": "eval:doc.status == \"Active\"",
+            "label": "Business Registration"
+        },
+        {
+            "fieldname": "section_break_channel_partners",
+            "fieldtype": "Section Break",
+            "label": "Channel Partners"
+        },
+        {
+            "fieldname": "channel_partners",
+            "fieldtype": "Table",
+            "label": "Channel Partners",
+            "options": "Channel Partner Link"
+        },
+        {
+            "fieldname": "kyc_tab",
+            "fieldtype": "Tab Break",
+            "label": "KYC"
+        },
+        {
+            "fieldname": "agreement",
+            "fieldtype": "Attach",
+            "mandatory_depends_on": "eval:doc.status == \"Active\"",
+            "label": "Agreement"
+        },
+        {
+            "fieldname": "noc_for_stock",
+            "fieldtype": "Attach",
+            "mandatory_depends_on": "eval:doc.status == \"Active\"",
+            "label": "NOC for Stock"
+        },
+        {
+            "fieldname": "column_break_jzuq",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "address_proof",
+            "fieldtype": "Attach",
+            "mandatory_depends_on": "eval:doc.status == \"Active\"",
+            "label": "Address Proof"
+        },
+        {
+            "fieldname": "pan_company",
+            "fieldtype": "Attach",
+            "mandatory_depends_on": "eval:doc.status == \"Active\"",
+            "label": "PAN (Company)"
+        },
+        {
+            "fieldname": "gst_registration",
+            "fieldtype": "Attach",
+            "label": "GST Registration"
+        },
+        {
+            "fieldname": "customer",
+            "fieldtype": "Link",
+            "label": "Customer",
+            "mandatory_depends_on": "eval:doc.status == \"Active\"",
+            "options": "Customer"
+        },
+        {
+            "fetch_from": "customer.customer_name",
+            "fieldname": "customer_name",
+            "fieldtype": "Data",
+            "label": "Customer Name",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_break_gefe",
+            "fieldtype": "Section Break"
+        },
+        {
+            "description": "The list of prices which we will use to sell items to this Firm",
+            "fieldname": "selling_price_list",
+            "fieldtype": "Link",
+            "label": "Selling Price List",
+            "options": "Price List"
+        },
+        {
+            "fieldname": "taxes_and_charges_template",
+            "fieldtype": "Link",
+            "label": "Taxes and Charges Template",
+            "options": "Sales Taxes and Charges Template"
+        },
+        {
+            "fieldname": "section_break_nyhu",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "payment_terms_template",
+            "fieldtype": "Link",
+            "label": "Payment Terms Template",
+            "options": "Payment Terms Template"
+        },
+        {
+            "fieldname": "territory",
+            "fieldtype": "Link",
+            "label": "Territory",
+            "mandatory_depends_on": "eval:doc.status == \"Active\"",
+            "options": "Territory"
+        },
+        {
+            "fieldname": "sales_tab",
+            "fieldtype": "Tab Break",
+            "label": "Sales"
+        },
+        {
+            "fieldname": "column_break_jxrs",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "commission_rate",
+            "fieldtype": "Float",
+            "label": "Commission Rate",
+            "mandatory_depends_on": "eval:doc.status == \"Active\""
+        },
+        {
+            "fieldname": "linked_sales_partner",
+            "fieldtype": "Link",
+            "label": "Linked Sales Partner",
+            "options": "Sales Partner"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [
+        {
+            "group": "Channel Partners",
+            "link_doctype": "Channel Partner",
+            "link_fieldname": "channel_partner_firm"
+        },
+        {
+            "group": "Address & Contacts",
+            "link_doctype": "Address",
+            "link_fieldname": "link_doctype",
+            "parent_doctype": "Dynamic Link"
+        },
+        {
+            "group": "Address & Contacts",
+            "link_doctype": "Contact",
+            "link_fieldname": "link_doctype",
+            "parent_doctype": "Dynamic Link"
+        }
+    ],
+    "modified": "2025-03-31 13:08:25.051694",
+    "modified_by": "Administrator",
+    "module": "Channel Partner",
+    "name": "Channel Partner Firm",
+    "naming_rule": "Expression",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "search_fields": "firm_name, gst_number, contact_person, contact_email, contact_mobile",
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": [],
+    "title_field": "firm_name",
+    "track_changes": 1
 }
