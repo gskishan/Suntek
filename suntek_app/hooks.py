@@ -169,6 +169,8 @@ fixtures = [
     },
     {
         "doctype": "Module Profile",
-        "filters": [["name", "=", "Channel Partner"]],
+        "filters": [
+            ["name", "=", "Channel Partner"],
+        ],
     },
 ]

@@ -179,7 +179,7 @@ class ChannelPartner(Document):
             linked_user = None
             default_sales_warehouse = None
             default_subsidy_warehouse = None
-            # linked_customer = None
+
             warehouses_created = False
             permissions_created = []
 
@@ -297,9 +297,6 @@ class ChannelPartner(Document):
                     if firm_perm:
                         permissions_created.append("Channel Partner Firm")
 
-            # customer_name = self._create_customer(linked_user)
-            # linked_customer = customer_name
-
             self.linked_user = linked_user
             self.is_user_created = 1
 
@@ -307,9 +304,6 @@ class ChannelPartner(Document):
                 self.default_sales_warehouse = default_sales_warehouse
                 self.default_subsidy_warehouse = default_subsidy_warehouse
                 self.warehouse = default_sales_warehouse
-
-            # if linked_customer:
-            #     self.linked_customer = linked_customer
 
             self.flags.ignore_mandatory = True
             self.save()
@@ -319,8 +313,7 @@ class ChannelPartner(Document):
             success_message = f"Successfully created user account for {self.channel_partner_name}"
             if warehouses_created:
                 success_message += "\nCreated Sales and Subsidy warehouses"
-            # if customer_name:
-            #     success_message += f"\nCreated Customer: {customer_name}"
+
             success_message += f"\nCreated permissions: {', '.join(permissions_created)}"
 
             frappe.msgprint(success_message)
@@ -511,8 +504,6 @@ class ChannelPartner(Document):
 
                 new_address.flags.ignore_permissions = True
                 new_address.insert()
-
-            # self.db_set("linked_customer", customer.name)
 
             return customer.name
 

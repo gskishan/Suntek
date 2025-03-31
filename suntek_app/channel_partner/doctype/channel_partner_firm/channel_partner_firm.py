@@ -100,6 +100,42 @@ class ChannelPartnerFirm(Document):
                     channel_partner_doc.save(ignore_permissions=True)
 
     @frappe.whitelist()
+    def create_sales_partner(self):
+        try:
+            territory = self.territory if self.territory else "India"
+
+            sales_partner = frappe.new_doc("Sales Partner")
+
+            sales_partner.update(
+                {
+                    "partner_name": self.firm_name,
+                    "partner_type": "Channel Partner"
+                    if frappe.db.exists("Sales Partner Type", "Channel Partner")
+                    else None,
+                    "commission_rate": self.commission_rate,
+                    "territory": territory,
+                }
+            )
+
+            sales_partner.flags.ignore_permissions = True
+            sales_partner.insert()
+
+            self.db_set("linked_sales_partner", sales_partner.name)
+
+            frappe.db.commit()
+
+            frappe.msgprint(f"Sales Partner created successfully: {sales_partner.name}")
+            return sales_partner.name
+
+        except Exception as e:
+            frappe.log_error(
+                title="Sales Partner Creation Error",
+                message=str(e),
+                reference_doctype="Channel Partner Firm",
+                reference_name=self.name,
+            )
+
+    @frappe.whitelist()
     def get_channel_partners(self):
         """Fetch all channel partners associated with this firm"""
         return frappe.get_all(
