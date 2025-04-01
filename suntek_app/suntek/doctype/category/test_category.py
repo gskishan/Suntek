@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestAmbassador(FrappeTestCase):
-    pass
+class TestCategory(FrappeTestCase):
+	pass
