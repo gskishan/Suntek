@@ -93,6 +93,8 @@ def create_channel_partner_firm(firm_name: str, status: str = "Pending Approval"
 
     if status != "Pending Approval":
         firm.status = status
+        if status == "Active":
+            firm.territory = "All Territories"
         firm.save()
 
     return firm
@@ -111,6 +113,8 @@ def create_channel_partner_firm_with_attachments(firm_name: str, status: str = "
 
     if status != "Pending Approval":
         firm.status = status
+        if status == "Active":
+            firm.territory = "All Territories"
         firm.save()
 
     return firm

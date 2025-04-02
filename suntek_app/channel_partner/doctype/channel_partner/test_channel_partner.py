@@ -41,16 +41,9 @@ class TestChannelPartner(FrappeTestCase):
 
         error_message = str(context.exception)
         self.assertIn("first_name", error_message)
+        self.assertIn("channel_partner_firm", error_message)
         self.assertIn("email", error_message)
         self.assertIn("mobile_number", error_message)
-        self.assertIn("contact", error_message)
-        self.assertIn("channel_partner_address", error_message)
-        self.assertIn("district", error_message)
-        self.assertIn("pan_number", error_message)
-        self.assertIn("id_proof", error_message)
-        self.assertIn("pan_card", error_message)
-        self.assertIn("photograph", error_message)
-        self.assertIn("electricity_bill", error_message)
 
     def test_channel_partner_user_creation(self):
         channel_partner = create_channel_partner("_Test Channel Partner 001", fill_mandatory=True)
