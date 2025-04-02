@@ -1,4 +1,5 @@
 import frappe
+from frappe import _
 from frappe.contacts.address_and_contact import load_address_and_contact
 from frappe.model.document import Document
 
@@ -21,8 +22,36 @@ class ChannelPartnerFirm(Document):
     def validate(self):
         """Validate document before saving"""
         self.validate_duplicate_firm_name()
-
         validate_pan_number(self.pan_number)
+
+        if self.status == "Active":
+            self.validate_mandatory_fields()
+
+    def validate_mandatory_fields(self):
+        """Validate mandatory fields when firm is Active"""
+        mandatory_fields = {
+            "address": "Address",
+            "contact_person": "Contact Person",
+            "territory": "Territory",
+            "customer": "Customer",
+            "commission_rate": "Commission Rate",
+            "business_registration": "Business Registration",
+            "agreement": "Agreement",
+            "noc_for_stock": "NOC for Stock",
+            "address_proof": "Address Proof",
+        }
+
+        missing_fields = []
+        for field, label in mandatory_fields.items():
+            if not self.get(field):
+                missing_fields.append(label)
+
+        if missing_fields:
+            frappe.throw(
+                _("The following fields are mandatory when firm status is Active: {0}").format(
+                    ", ".join(missing_fields)
+                )
+            )
 
     def on_update(self):
         self.update_channel_partner_details()
