@@ -53,7 +53,6 @@
   "pan_card",
   "column_break_sjnq",
   "photograph",
-  "electricity_bill",
   "section_break_zker",
   "other_documents",
   "pin_codes_tab",
@@ -317,12 +316,6 @@
    "reqd": 1
   },
   {
-   "fieldname": "electricity_bill",
-   "fieldtype": "Attach",
-   "label": "Electricity Bill",
-   "reqd": 1
-  },
-  {
    "fieldname": "section_break_zker",
    "fieldtype": "Section Break",
    "label": "Additional Attachments"
@@ -494,7 +487,7 @@
    "link_fieldname": "channel_partner"
   }
  ],
- "modified": "2025-03-31 13:21:58.863720",
+ "modified": "2025-04-02 17:44:38.125756",
  "modified_by": "Administrator",
  "module": "Channel Partner",
  "name": "Channel Partner",
@@ -533,6 +526,7 @@
    "select": 1
   }
  ],
+ "row_format": "Dynamic",
  "search_fields": "channel_partner_name",
  "show_name_in_global_search": 1,
  "sort_field": "modified",
