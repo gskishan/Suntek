@@ -2,7 +2,11 @@ import frappe
 from frappe.exceptions import ValidationError
 from frappe.tests.utils import FrappeTestCase
 
-from .tests.create_firm import create_firm, create_firm_with_attachments, create_firm_with_sales_partner
+from suntek_app.channel_partner.test_setup.create_test_data import (
+    create_channel_partner_firm,
+    create_channel_partner_firm_with_attachments,
+    create_channel_partner_firm_with_sales_partner,
+)
 
 
 class TestChannelPartnerFirm(FrappeTestCase):
@@ -12,7 +16,7 @@ class TestChannelPartnerFirm(FrappeTestCase):
         frappe.db.commit()
 
     def test_channel_partner_firm_creation(self):
-        firm = create_firm("_Test Firm 001")
+        firm = create_channel_partner_firm("_Test Firm 001")
 
         self.assertEqual(firm.firm_name, "_Test Firm 001")
         self.assertIsNotNone(firm.address)
@@ -20,7 +24,7 @@ class TestChannelPartnerFirm(FrappeTestCase):
         self.assertIsNotNone(firm.customer)
 
     def test_channel_partner_firm_with_attachments(self):
-        firm = create_firm_with_attachments("_Test Firm 001")
+        firm = create_channel_partner_firm_with_attachments("_Test Firm 001")
 
         self.assertEqual(firm.firm_name, "_Test Firm 001")
         self.assertIsNotNone(firm.address)
@@ -43,7 +47,7 @@ class TestChannelPartnerFirm(FrappeTestCase):
             firm.insert()
 
     def test_channel_partner_firm_mandatory_fields_filled(self):
-        firm = create_firm_with_attachments("_Test Firm 001", status="Active")
+        firm = create_channel_partner_firm_with_attachments("_Test Firm 001", status="Active")
         self.assertEqual(firm.status, "Active")
         self.assertIsNotNone(firm.business_registration)
         self.assertIsNotNone(firm.agreement)
@@ -54,7 +58,7 @@ class TestChannelPartnerFirm(FrappeTestCase):
         self.assertIsNotNone(firm.contact_person)
 
     def test_channel_partner_firm_with_sales_partner(self):
-        firm = create_firm_with_sales_partner("_Test Firm 001", 10.0, "India")
+        firm = create_channel_partner_firm_with_sales_partner("_Test Firm 001", 10.0, "India")
 
         self.assertEqual(firm.firm_name, "_Test Firm 001")
         self.assertIsNotNone(firm.address)

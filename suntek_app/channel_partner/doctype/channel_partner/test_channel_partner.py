@@ -2,7 +2,7 @@ import frappe
 from frappe.exceptions import ValidationError
 from frappe.tests.utils import FrappeTestCase
 
-from .tests.create_channel_partner import create_channel_partner
+from suntek_app.channel_partner.test_setup.create_test_data import create_channel_partner
 
 
 class TestChannelPartner(FrappeTestCase):
