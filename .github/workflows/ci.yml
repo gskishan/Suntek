@@ -3,17 +3,19 @@ name: CI
 on:
   push:
     branches:
-      - develop
+      - dev
   pull_request:
 
 concurrency:
-  group: develop-suntek_app-${{ github.event.number }}
+  group: dev-suntek_app-${{ github.event.number }}
   cancel-in-progress: true
 
 jobs:
   tests:
     runs-on: ubuntu-latest
     strategy:
+      matrix:
+        python-version: ['3.10']
       fail-fast: false
     name: Server
 
@@ -46,7 +48,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: ${{ matrix.python-version }}
 
       - name: Setup Node
         uses: actions/setup-node@v3
