@@ -1,7 +1,7 @@
-from typing import Dict, List, Optional, Tuple
 
 import frappe
 from frappe import _
+
 
 LEAD_STATUSES = {
     "Total Leads": "#2E86C1",
@@ -21,10 +21,10 @@ class LeadFunnel:
         from_date: str,
         to_date: str,
         company: str,
-        lead_owner: Optional[str] = None,
-        source: Optional[str] = None,
-        department: Optional[str] = None,
-    ) -> List[Dict]:
+        lead_owner: str | None = None,
+        source: str | None = None,
+        department: str | None = None,
+    ) -> list[dict]:
         """
         Get lead funnel data with owner details for tooltip
         """
@@ -38,7 +38,7 @@ class LeadFunnel:
 
         return self._prepare_funnel_data(status_counts, others_count, owner_details)
 
-    def _get_base_filters(self, from_date: str, to_date: str, company: str) -> Tuple:
+    def _get_base_filters(self, from_date: str, to_date: str, company: str) -> tuple:
         """
         Prepare base filters for lead query
         """
@@ -46,10 +46,10 @@ class LeadFunnel:
 
     def _get_additional_filters(
         self,
-        lead_owner: Optional[str],
-        source: Optional[str],
-        department: Optional[str],
-    ) -> Tuple[str, List]:
+        lead_owner: str | None,
+        source: str | None,
+        department: str | None,
+    ) -> tuple[str, list]:
         """
         Prepare additional filters based on lead owner and source
         """
@@ -72,15 +72,15 @@ class LeadFunnel:
 
     def _get_lead_counts(
         self,
-        base_filters: Tuple,
+        base_filters: tuple,
         additional_conditions: str,
-        additional_values: List,
-    ) -> Tuple[Dict, int, Dict]:
+        additional_values: list,
+    ) -> tuple[dict, int, dict]:
         """
         Get lead counts and owner details for each stage
         """
 
-        total_leads_query = """
+        total_leads_query = f"""
             SELECT 
                 COUNT(*) as count,
                 lead_owner,
@@ -88,12 +88,12 @@ class LeadFunnel:
             FROM `tabLead`
             WHERE date(`creation`) between %s and %s
             AND company = %s
-            {0}
+            {additional_conditions}
             GROUP BY lead_owner-4
             ORDER BY owner_count DESC
-        """.format(additional_conditions)
+        """
 
-        status_query = """
+        status_query = f"""
             SELECT 
                 status,
                 COUNT(*) as count,
@@ -102,10 +102,10 @@ class LeadFunnel:
             FROM `tabLead`
             WHERE date(`creation`) between %s and %s
             AND company = %s
-            {0}
+            {additional_conditions}
             GROUP BY status, lead_owner
             ORDER BY status, owner_count DESC
-        """.format(additional_conditions)
+        """
 
         total_data = frappe.db.sql(
             total_leads_query,
@@ -180,10 +180,10 @@ class LeadFunnel:
 
     def _prepare_funnel_data(
         self,
-        status_counts: Dict,
+        status_counts: dict,
         others_count: int,
-        owner_details: Dict,
-    ) -> List[Dict]:
+        owner_details: dict,
+    ) -> list[dict]:
         """
         Prepare final funnel data with owner details for tooltip, sorted by value (descending)
         """
@@ -231,10 +231,10 @@ def get_funnel_data(
     from_date: str,
     to_date: str,
     company: str,
-    lead_owner: Optional[str] = None,
-    source: Optional[str] = None,
-    department: Optional[str] = None,
-) -> List[Dict]:
+    lead_owner: str | None = None,
+    source: str | None = None,
+    department: str | None = None,
+) -> list[dict]:
     """
     API endpoint to get lead funnel data
     """

@@ -43,8 +43,11 @@ def create_lead_from_ambassador():
 
             if not first_name or not mobile_no or not ambassador_mobile_no:
                 frappe.log_error(
-                    f"Missing required fields: first_name={bool(first_name)}, mobile_no={bool(mobile_no)}, ambassador_mobile_no={bool(ambassador_mobile_no)}",
-                    "Lead API: Missing Required Fields",
+                    message=(
+                        f"Missing required fields: first_name={bool(first_name)}, "
+                        f"mobile_no={bool(mobile_no)}, ambassador_mobile_no={bool(ambassador_mobile_no)}"
+                    ),
+                    title="Lead API: Missing Required Fields",
                 )
                 return create_api_response(
                     400,
@@ -81,8 +84,11 @@ def create_lead_from_ambassador():
                 ambassador_created = ambassador_result["created"]
             except Exception as e:
                 frappe.log_error(
-                    f"Ambassador creation error: {str(e)}\nData: {ambassador_mobile_no}, {ambassador_name}, {ambassador_data}",
-                    "Lead API: Ambassador Creation Failure",
+                    message=(
+                        f"Ambassador creation error: {str(e)}\n"
+                        f"Data: {ambassador_mobile_no}, {ambassador_name}, {ambassador_data}"
+                    ),
+                    title="Lead API: Ambassador Creation Failure",
                 )
                 return create_api_response(400, "bad request", str(e))
 
@@ -113,8 +119,11 @@ def create_lead_from_ambassador():
                 return create_api_response(201, "created", "Lead created successfully", data=response_data)
             except Exception as e:
                 frappe.log_error(
-                    f"Lead creation error: {str(e)}\nLead data: {first_name}, {last_name}, {mobile_no}, {email_id}, {ambassador_id}",
-                    "Lead API: Lead Creation Failure",
+                    message=(
+                        f"Lead creation error: {str(e)}\n"
+                        f"Lead data: {first_name}, {last_name}, {mobile_no}, {email_id}, {ambassador_id}"
+                    ),
+                    title="Lead API: Lead Creation Failure",
                 )
                 return create_api_response(500, "server_error", f"Error creating lead: {str(e)}")
 
@@ -151,8 +160,8 @@ def get_or_create_ambassador(mobile_number, ambassador_name=None, data=None):
             if not ambassador_name:
                 error_msg = "Ambassador name is required to create a new ambassador"
                 frappe.log_error(
-                    f"Missing ambassador name for mobile: {mobile_number}",
-                    "Ambassador Creation: Missing Name",
+                    message=f"Missing ambassador name for mobile: {mobile_number}",
+                    title="Ambassador Creation: Missing Name",
                 )
                 frappe.throw(error_msg)
 
@@ -177,15 +186,18 @@ def get_or_create_ambassador(mobile_number, ambassador_name=None, data=None):
                 was_created = True
             except Exception as e:
                 frappe.log_error(
-                    f"Ambassador creation error: {str(e)}\nData: {ambassador_data}",
-                    "Ambassador Creation: Database Error",
+                    message=f"Ambassador creation error: {str(e)}\nData: {ambassador_data}",
+                    title="Ambassador Creation: Database Error",
                 )
                 raise
 
         return {"name": ambassador["name"], "created": was_created}
     except Exception as e:
         frappe.log_error(
-            f"Unhandled exception in get_or_create_ambassador: {str(e)}\nMobile: {mobile_number}, Name: {ambassador_name}",
-            "Ambassador Creation: Unhandled Exception",
+            message=(
+                f"Unhandled exception in get_or_create_ambassador: {str(e)}\n"
+                f"Mobile: {mobile_number}, Name: {ambassador_name}"
+            ),
+            title="Ambassador Creation: Unhandled Exception",
         )
         raise

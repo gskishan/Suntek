@@ -1,5 +1,3 @@
-import json
-
 import frappe
 from frappe import _
 
@@ -15,11 +13,9 @@ def data_condition(filters):
     condition = ""
 
     if filters.get("project"):
-        condition += " AND p.project = '{0}' ".format(filters.get("project"))
+        condition += " AND p.project = '{}' ".format(filters.get("project"))
     if filters.get("designing"):
-        condition += " AND p.against_designing = '{0}' ".format(
-            filters.get("designing")
-        )
+        condition += " AND p.against_designing = '{}' ".format(filters.get("designing"))
 
     return condition
 
@@ -76,14 +72,14 @@ def get_columns():
 
 
 def get_data(condition=None):
-    sql = """  SELECT  p.against_designing,
+    sql = f"""  SELECT  p.against_designing,
     p.name stock_entry,item_code,item_name,qty,transferred,qty-transferred as pending_qty
 FROM 
     `tabStock Entry` p
 inner JOIN 
     `tabDesigning Item` c ON c.parent = p.against_designing
-where p.docstatus=1 {}
-    """.format(condition)
+where p.docstatus=1 {condition}
+    """
 
     frappe.errprint(sql)
     return frappe.db.sql(sql, as_dict=1)
@@ -106,7 +102,7 @@ def get_designing_options(doctype, txt, searchfield, start, page_len, filters):
                 AND name LIKE %s
             LIMIT %s, %s
         """,
-            (project, "%%%s%%" % txt, start, page_len),
+            (project, f"%{txt}%", start, page_len),
         )
     else:
         return frappe.db.sql(
@@ -119,5 +115,5 @@ def get_designing_options(doctype, txt, searchfield, start, page_len, filters):
                 name LIKE %s
             LIMIT %s, %s
         """,
-            ("%%%s%%" % txt, start, page_len),
+            (f"%{txt}%", start, page_len),
         )

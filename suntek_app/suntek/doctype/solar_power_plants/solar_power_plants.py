@@ -23,10 +23,10 @@ class SolarPowerPlants(Document):
         if self.customers:
             for customer in self.customers:
                 if not customer.mobile_no:
-                    frappe.throw(
-                        "Customer mobile number is mandatory for all customers in the table."
-                    )
+                    frappe.throw("Customer mobile number is mandatory for all customers in the table.")
                 if not self.validate_mobile_number(customer.mobile_no):
                     frappe.throw(
-                        f"Invalid mobile number '{customer.mobile_no}' for customer {customer.suntek_customer}! Please enter a 10-digit number starting with 6, 7, 8, or 9, optionally prefixed by +91 or +91-."
+                        f"Invalid mobile number '{customer.mobile_no}' for customer "
+                        f"{customer.suntek_customer}! Please enter a 10-digit number "
+                        "starting with 6, 7, 8, or 9, optionally prefixed by +91 or +91-."
                     )

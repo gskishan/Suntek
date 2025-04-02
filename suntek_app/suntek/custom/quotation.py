@@ -1,18 +1,9 @@
 import frappe
 
 
-def get_channel_partner_data(doc, method):
-    if doc.custom_opportunity_source == "Channel Partner":
-        opp = frappe.db.get_doc("Opportunity", doc.custom_opportunity_name)
-
-
 def fetch_attachments_from_opportunity(doc, method):
     if doc.custom_opportunity_name != "":
-        print("doc.custom_opportunity_name: ", doc.custom_opportunity_name)
-        opportunity = frappe.get_doc(
-            "Opportunity", {"name": doc.custom_opportunity_name}
-        )
-        print(opportunity)
+        opportunity = frappe.get_doc("Opportunity", {"name": doc.custom_opportunity_name})
         opportunity_attachments = frappe.get_all(
             "File",
             filters={
@@ -46,4 +37,3 @@ def fetch_attachments_from_opportunity(doc, method):
 
                     opportunity_attachment.insert()
                     opportunity_attachment.reload()
-                    print("opportunity_attachment: ", opportunity_attachment)

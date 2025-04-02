@@ -12,15 +12,15 @@ def execute(filters=None):
 def data_condition(filters):
     condition = ""
     if filters.get("from_date") and filters.get("to_date"):
-        condition += " AND SO.transaction_date BETWEEN '{0}' AND '{1}' ".format(
+        condition += " AND SO.transaction_date BETWEEN '{}' AND '{}' ".format(
             filters.get("from_date"), filters.get("to_date")
         )
     if filters.get("project"):
-        condition += " AND project.name = '{0}' ".format(filters.get("project"))
+        condition += " AND project.name = '{}' ".format(filters.get("project"))
     if filters.get("company"):
-        condition += " AND project.company = '{0}' ".format(filters.get("company"))
+        condition += " AND project.company = '{}' ".format(filters.get("company"))
     if filters.get("customer"):
-        condition += " AND SO.customer = '{0}' ".format(filters.get("customer"))
+        condition += " AND SO.customer = '{}' ".format(filters.get("customer"))
     return condition
 
 
@@ -75,7 +75,7 @@ def get_columns():
 
 
 def get_data(condition=None):
-    sql = """  
+    sql = f"""  
     SELECT 
         project.name AS project,
         IFNULL(SO.grand_total, 0) AS sales_order_amount,
@@ -92,10 +92,10 @@ def get_data(condition=None):
         `tabPayment Entry` payment ON SO.name = payment.sales_order 
         AND payment.docstatus = 1
     WHERE 
-        project.docstatus = 0 {0}
+        project.docstatus = 0 {condition}
     GROUP BY 
         SO.name, project.name
-    """.format(condition)
+    """
 
     frappe.errprint(sql)
     return frappe.db.sql(sql, as_dict=1)

@@ -150,9 +150,7 @@ def execute(filters=None):
     # Add status counts
     for status in statuses:
         status_key = status.lower().replace(" ", "_")
-        select_clauses.append(
-            f"SUM(CASE WHEN status = '{status}' THEN 1 ELSE 0 END) as {status_key}_leads"
-        )
+        select_clauses.append(f"SUM(CASE WHEN status = '{status}' THEN 1 ELSE 0 END) as {status_key}_leads")
 
     # Add other UOM calculations
     for uom in uom_list:
@@ -188,11 +186,7 @@ def execute(filters=None):
 
     # Calculate conversion rates
     for row in data:
-        row["conversion_rate"] = (
-            (row["converted_leads"] / row["total_leads"] * 100)
-            if row["total_leads"] > 0
-            else 0
-        )
+        row["conversion_rate"] = (row["converted_leads"] / row["total_leads"] * 100) if row["total_leads"] > 0 else 0
 
     return columns, data
 
@@ -229,6 +223,8 @@ def get_filters():
             "fieldname": "status",
             "label": _("Status"),
             "fieldtype": "Select",
-            "options": "\nLead\nOpen\nReplied\nOpportunity\nQuotation\nLost Quotation\nInterested\nConverted\nDo Not Contact",
+            "options": (
+                "\nLead\nOpen\nReplied\nOpportunity\nQuotation\nLost Quotation\nInterested\nConverted\nDo Not Contact"
+            ),
         },
     ]

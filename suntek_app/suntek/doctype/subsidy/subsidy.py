@@ -8,7 +8,7 @@ from frappe.model.naming import make_autoname
 class Subsidy(Document):
     def autoname(self):
         current_year = datetime.now().year
-        self.name = make_autoname("SES-SUBSIDY-{}-.#####".format(current_year))
+        self.name = make_autoname(f"SES-SUBSIDY-{current_year}-.#####")
 
     def before_insert(self):
         self.get_channel_partner_data_on_create()

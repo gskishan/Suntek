@@ -209,7 +209,6 @@
         {
             "fieldname": "pan_company",
             "fieldtype": "Attach",
-            "mandatory_depends_on": "eval:doc.status == \"Active\"",
             "label": "PAN (Company)"
         },
         {
