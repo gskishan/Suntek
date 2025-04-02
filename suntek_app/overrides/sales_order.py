@@ -15,9 +15,7 @@ def make_sales_invoice(source_name, target_doc=None):
         si.custom_channel_partner = sales_order.custom_channel_partner
 
         if si.custom_channel_partner:
-            channel_partner = frappe.get_doc(
-                "Channel Partner", si.custom_channel_partner
-            )
+            channel_partner = frappe.get_doc("Channel Partner", si.custom_channel_partner)
 
             si.custom_channel_partner_name = channel_partner.channel_partner_name
             si.custom_channel_partner_mobile = channel_partner.suntek_mobile_number

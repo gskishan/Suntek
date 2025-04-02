@@ -65,9 +65,7 @@ def handle_opportunity_update(neodove_data, mobile_no, lead_owner, lead_stage):
         if existing_opp:
             opp = frappe.get_doc("Opportunity", existing_opp[0].name)
         else:
-            existing_enquiry = frappe.get_list(
-                "Lead", filters={"mobile_no": mobile_no}, fields=["name"], limit=1
-            )
+            existing_enquiry = frappe.get_list("Lead", filters={"mobile_no": mobile_no}, fields=["name"], limit=1)
 
             if not existing_enquiry:
                 return {
@@ -83,9 +81,7 @@ def handle_opportunity_update(neodove_data, mobile_no, lead_owner, lead_stage):
                 }
 
         opp.opportunity_owner = neodove_data.get("agent_email")
-        owner_name = frappe.db.get_value(
-            "User", neodove_data.get("agent_email"), "full_name"
-        )
+        owner_name = frappe.db.get_value("User", neodove_data.get("agent_email"), "full_name")
         if owner_name:
             opp.custom_opportunity_owner_name = owner_name
 
@@ -108,9 +104,7 @@ def handle_opportunity_update(neodove_data, mobile_no, lead_owner, lead_stage):
         if call_recordings := neodove_data.get("call_recordings"):
             existing_urls = set()
             if opp.get("custom_call_recordings"):
-                existing_urls = {
-                    rec.recording_url for rec in opp.custom_call_recordings
-                }
+                existing_urls = {rec.recording_url for rec in opp.custom_call_recordings}
 
             now = frappe.utils.now_datetime()
             for recording in call_recordings:
@@ -119,9 +113,7 @@ def handle_opportunity_update(neodove_data, mobile_no, lead_owner, lead_stage):
                     opp.append(
                         "custom_call_recordings",
                         {
-                            "call_duration_in_sec": recording.get(
-                                "call_duration_in_sec", 0
-                            ),
+                            "call_duration_in_sec": recording.get("call_duration_in_sec", 0),
                             "recording_url": recording_url,
                             "recording_time": now,
                         },
@@ -152,9 +144,7 @@ def handle_opportunity_update(neodove_data, mobile_no, lead_owner, lead_stage):
         opp.flags.ignore_validate_update_after_submit = True
         opp.save(ignore_permissions=True)
 
-        existing_enquiry = frappe.get_list(
-            "Lead", filters={"mobile_no": mobile_no}, fields=["name"], limit=1
-        )
+        existing_enquiry = frappe.get_list("Lead", filters={"mobile_no": mobile_no}, fields=["name"], limit=1)
         if existing_enquiry and lead_owner:
             share_document(
                 doctype="Lead",
@@ -224,9 +214,7 @@ def handle_lead_update(
                 lead.append(
                     "custom_call_recordings",
                     {
-                        "call_duration_in_sec": recording.get(
-                            "call_duration_in_sec", 0
-                        ),
+                        "call_duration_in_sec": recording.get("call_duration_in_sec", 0),
                         "recording_url": recording_url,
                         "recording_time": now,
                     },
@@ -258,9 +246,7 @@ def handle_lead_update(
 
     return {
         "success": True,
-        "message": "Lead created successfully"
-        if is_new
-        else "Lead updated successfully",
+        "message": "Lead created successfully" if is_new else "Lead updated successfully",
         "lead_name": lead.name,
         "url": lead.custom_neodove_campaign_url,
     }

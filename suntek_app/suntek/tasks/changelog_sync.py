@@ -13,9 +13,7 @@ def changelog_sync():
         repo_path = os.path.join(bench_path, "apps", "suntek_app")
 
         if not os.path.exists(repo_path):
-            frappe.log_error(
-                f"Repository path does not exist: {repo_path}", "Changelog Sync"
-            )
+            frappe.log_error(f"Repository path does not exist: {repo_path}", "Changelog Sync")
             return
 
         git_command = ["git", "log", "--pretty=format:%h|%s|%an|%ai", "-n", "10"]
@@ -36,9 +34,7 @@ def changelog_sync():
             try:
                 hash, message, author, date = line.split("|")
 
-                existing_entry = frappe.get_all(
-                    "Changelog", filters={"commit_hash": hash}, fields=["name"]
-                )
+                existing_entry = frappe.get_all("Changelog", filters={"commit_hash": hash}, fields=["name"])
 
                 if existing_entry:
                     continue

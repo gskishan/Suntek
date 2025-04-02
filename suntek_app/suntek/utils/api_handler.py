@@ -26,8 +26,6 @@ def validate_auth_token(auth_token: str) -> bool:
         return False
     try:
         token = auth_token.split(" ")[1]
-        return token == frappe.get_doc("Suntek Settings").get_password(
-            "solar_ambassador_api_token"
-        )
+        return token == frappe.get_doc("Suntek Settings").get_password("solar_ambassador_api_token")
     except (IndexError, AttributeError):
         return False

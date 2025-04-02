@@ -35,9 +35,7 @@ def get_dashboard_data(channel_partner):
             ],
         },
     )
-    data["total_opportunities"] = frappe.db.count(
-        "Opportunity", {"custom_channel_partner": channel_partner}
-    )
+    data["total_opportunities"] = frappe.db.count("Opportunity", {"custom_channel_partner": channel_partner})
 
     data["open_leads"] = frappe.db.count(
         "Lead",
@@ -46,9 +44,7 @@ def get_dashboard_data(channel_partner):
             "status": ["not in", ["Converted", "Do Not Contact", "Quotation"]],
         },
     )
-    data["total_leads"] = frappe.db.count(
-        "Lead", {"custom_channel_partner": channel_partner}
-    )
+    data["total_leads"] = frappe.db.count("Lead", {"custom_channel_partner": channel_partner})
 
     data["recent_orders"] = frappe.get_all(
         "Sales Order",

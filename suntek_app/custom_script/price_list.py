@@ -15,7 +15,5 @@ def validate(self, method):
 def update_rate(self, data):
     for d in data:
         doc = frappe.get_doc("Item Price", d.name)
-        change_rate = doc.price_list_rate + (
-            doc.price_list_rate * (self.percentage / 100)
-        )
+        change_rate = doc.price_list_rate + (doc.price_list_rate * (self.percentage / 100))
         doc.db_set("price_list_rate", change_rate)

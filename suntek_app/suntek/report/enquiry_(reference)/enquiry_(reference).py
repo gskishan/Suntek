@@ -213,9 +213,7 @@ def execute(filters=None):
             conversion_rate_field = f"conversion_rate_{field_name}"
 
             row[conversion_rate_field] = (
-                (row[converted_leads_field] / row[total_leads_field] * 100)
-                if row[total_leads_field] > 0
-                else 0
+                (row[converted_leads_field] / row[total_leads_field] * 100) if row[total_leads_field] > 0 else 0
             )
 
     return columns, data

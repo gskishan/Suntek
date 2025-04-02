@@ -28,9 +28,7 @@ class Subsidy(Document):
     def update_status_on_project(self):
         if self.project_name:
             project = frappe.get_doc("Project", self.project_name)
-            project.db_set(
-                "custom_subsidy_status", self.subsidy_status, update_modified=False
-            )
+            project.db_set("custom_subsidy_status", self.subsidy_status, update_modified=False)
 
     def get_channel_partner_data_on_create(self):
         try:
@@ -61,9 +59,7 @@ class Subsidy(Document):
             project.custom_subsidy_cheque_upload = self.subsidy_cheque_upload
             project.custom_subsidy_cheque_no = self.subsidy_cheque_no
             project.custom_transaction_amount = self.transaction_amount
-            project.custom_transaction_bank_and_branch = (
-                self.transaction_bank_and_branch
-            )
+            project.custom_transaction_bank_and_branch = self.transaction_bank_and_branch
             project.custom_in_principle_no = self.in_principle_no
             project.custom_in_principle_date = self.in_principle_date
             project.custom_tsredco_inspection = self.tsredco_inspection
@@ -87,9 +83,7 @@ class Subsidy(Document):
             project.custom_subsidy_cheque_upload = self.subsidy_cheque_upload
             project.custom_subsidy_cheque_no = self.subsidy_cheque_no
             project.custom_transaction_amount = self.transaction_amount
-            project.custom_transaction_bank_and_branch = (
-                self.transaction_bank_and_branch
-            )
+            project.custom_transaction_bank_and_branch = self.transaction_bank_and_branch
             project.custom_in_principle_no = self.in_principle_no
             project.custom_in_principle_date = self.in_principle_date
             project.custom_tsredco_inspection = self.tsredco_inspection

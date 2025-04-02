@@ -24,12 +24,8 @@ class Discom(Document):
 
     def update_project_status(self):
         if self.project_name:
-            project = frappe.get_doc(
-                "Project", self.project_name, update_modified=False
-            )
-            project.db_set(
-                "custom_discom_status", self.discom_status, update_modified=False
-            )
+            project = frappe.get_doc("Project", self.project_name, update_modified=False)
+            project.db_set("custom_discom_status", self.discom_status, update_modified=False)
 
     def get_channel_partner_data_on_create(self):
         try:
@@ -64,14 +60,10 @@ class Discom(Document):
             project.custom_net_meter_reg_doc = self.net_meter_reg_doc
             project.custom_feasibility_release_date = self.feasibility_release_date
             project.custom_adede_contact_no = self.adede_contact_no
-            project.custom_work_completion_report_submission_date = (
-                self.work_completion_report_submission_date
-            )
+            project.custom_work_completion_report_submission_date = self.work_completion_report_submission_date
             project.custom_meter_drawn_date = self.meter_drawn_date
             project.custom_material_gatepass_of_meter = self.material_gatepass_of_meter
-            project.custom_net_meter_bill_revise_status = (
-                self.net_meter_bill_revise_status
-            )
+            project.custom_net_meter_bill_revise_status = self.net_meter_bill_revise_status
             project.custom_revised_bill_copy = self.revised_bill_copy
             project.save()
 
@@ -91,13 +83,9 @@ class Discom(Document):
             project.custom_net_meter_reg_doc = self.net_meter_reg_doc
             project.custom_feasibility_release_date = self.feasibility_release_date
             project.custom_adede_contact_no = self.adede_contact_no
-            project.custom_work_completion_report_submission_date = (
-                self.work_completion_report_submission_date
-            )
+            project.custom_work_completion_report_submission_date = self.work_completion_report_submission_date
             project.custom_meter_drawn_date = self.meter_drawn_date
             project.custom_material_gatepass_of_meter = self.material_gatepass_of_meter
-            project.custom_net_meter_bill_revise_status = (
-                self.net_meter_bill_revise_status
-            )
+            project.custom_net_meter_bill_revise_status = self.net_meter_bill_revise_status
             project.custom_revised_bill_copy = self.revised_bill_copy
             project.save()

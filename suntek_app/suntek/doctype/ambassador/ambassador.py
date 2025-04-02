@@ -24,9 +24,7 @@ class Ambassador(Document):
             frappe.throw(_("Aadhar Number must be 12 digits"))
 
     def validate_pan_number(self):
-        if self.pan_number and not re.match(
-            r"^[A-Z]{5}[0-9]{4}[A-Z]{1}$", self.pan_number
-        ):
+        if self.pan_number and not re.match(r"^[A-Z]{5}[0-9]{4}[A-Z]{1}$", self.pan_number):
             frappe.throw(_("Invalid PAN Number Format"))
 
     def validate_email(self):

@@ -73,17 +73,13 @@ def get_next_telecaller():
         return next_telecaller.email
 
     except Exception as e:
-        frappe.log_error(
-            f"Error in telecaller assignment: {str(e)}", "Telecaller Assignment"
-        )
+        frappe.log_error(f"Error in telecaller assignment: {str(e)}", "Telecaller Assignment")
         return None
 
 
 def get_or_create_lead(mobile_no):
     """Get existing lead or create new one"""
-    existing_lead = frappe.get_list(
-        "Lead", filters={"mobile_no": mobile_no}, fields=["name"], limit=1
-    )
+    existing_lead = frappe.get_list("Lead", filters={"mobile_no": mobile_no}, fields=["name"], limit=1)
     if existing_lead:
         return frappe.get_doc("Lead", existing_lead[0].name)
     return frappe.new_doc("Lead")
@@ -91,9 +87,7 @@ def get_or_create_lead(mobile_no):
 
 def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
     """Updates basic lead information"""
-    first_name, middle_name, last_name = extract_first_and_last_name(
-        neodove_data.get("name")
-    )
+    first_name, middle_name, last_name = extract_first_and_last_name(neodove_data.get("name"))
     contact_list_name = get_contact_list_name(neodove_data)
     city = get_lead_location(neodove_data)
 
@@ -119,9 +113,7 @@ def update_lead_basic_info(lead, neodove_data, lead_owner, lead_stage):
     campaign_url = ""
 
     if pipeline_id and neodove_campaign_id:
-        campaign_url = (
-            f"https://connect.neodove.com/campaign/{pipeline_id}/{neodove_campaign_id}"
-        )
+        campaign_url = f"https://connect.neodove.com/campaign/{pipeline_id}/{neodove_campaign_id}"
 
     update_dict = {
         "first_name": first_name,
@@ -171,9 +163,7 @@ def add_dispose_remarks(lead, remarks, agent_name, call_recordings=None):
                 lead.append(
                     "custom_call_recordings",
                     {
-                        "call_duration_in_sec": recording.get(
-                            "call_duration_in_sec", 0
-                        ),
+                        "call_duration_in_sec": recording.get("call_duration_in_sec", 0),
                         "recording_url": recording_url,
                     },
                 )

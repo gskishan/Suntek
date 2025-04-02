@@ -11,7 +11,5 @@ def validate(self, method):
         new = frappe.new_doc("Item Price")
         new.price_list = "Standard Selling"
         new.item_code = self.item_code
-        new.price_list_rate = self.price_list_rate + (
-            self.price_list_rate * (ss.percentage / 100)
-        )
+        new.price_list_rate = self.price_list_rate + (self.price_list_rate * (ss.percentage / 100))
         new.save()

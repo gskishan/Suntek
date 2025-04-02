@@ -19,13 +19,9 @@ class CustomQuotation(Quotation):
 
     def set_custom_customer_name(self):
         if self.party_name and self.quotation_to == "Customer":
-            self.customer_name = frappe.db.get_value(
-                "Customer", self.party_name, "customer_name"
-            )
+            self.customer_name = frappe.db.get_value("Customer", self.party_name, "customer_name")
         elif self.party_name and self.quotation_to == "Lead":
-            lead_name, company_name = frappe.db.get_value(
-                "Lead", self.party_name, ["lead_name", "company_name"]
-            )
+            lead_name, company_name = frappe.db.get_value("Lead", self.party_name, ["lead_name", "company_name"])
             pass
 
 

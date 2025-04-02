@@ -29,9 +29,7 @@ def import_customers():
 
             for row in data:
                 phone = row["c4"].replace("+91", "")
-                customer_name = format_customer_name(
-                    row["c2"].strip(), row["c3"].strip()
-                )
+                customer_name = format_customer_name(row["c2"].strip(), row["c3"].strip())
 
                 if not frappe.db.exists("Customer", {"mobile_no": phone}):
                     try:
@@ -74,9 +72,7 @@ def import_solar_plants():
 
                 if customer:
                     try:
-                        if not frappe.db.exists(
-                            "Solar Power Plants", {"plant_id": row["c0"]}
-                        ):
+                        if not frappe.db.exists("Solar Power Plants", {"plant_id": row["c0"]}):
                             # Create the main document
                             plant = frappe.new_doc("Solar Power Plants")
                             plant.plant_id = row["c0"]
@@ -93,16 +89,12 @@ def import_solar_plants():
                             plant.insert(ignore_permissions=True)
                             frappe.db.commit()
                             plant_count += 1
-                            print(
-                                f"{plant_count}: Created plant: {plant.plant_name} for customer {customer}"
-                            )
+                            print(f"{plant_count}: Created plant: {plant.plant_name} for customer {customer}")
                     except Exception as e:
                         print(f"Error creating plant {row['c1']}: {str(e)}")
                         frappe.db.rollback()
                 else:
-                    print(
-                        f"Customer not found for plant {row['c1']} with phone {phone}"
-                    )
+                    print(f"Customer not found for plant {row['c1']} with phone {phone}")
 
     except Exception as e:
         print(f"Error reading file: {str(e)}")

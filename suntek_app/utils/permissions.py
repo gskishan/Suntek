@@ -70,6 +70,4 @@ def remove_duplicate_permissions():
 
         return f"Successfully removed {len(duplicates)} duplicate permissions"
     else:
-        return (
-            "Run this in developer mode or as a patch to actually delete the duplicates"
-        )
+        return "Run this in developer mode or as a patch to actually delete the duplicates"

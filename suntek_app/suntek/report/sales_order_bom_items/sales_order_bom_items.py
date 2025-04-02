@@ -1,4 +1,3 @@
-
 import json
 
 import frappe
@@ -239,9 +238,7 @@ def get_data_internal(filters):
     if filters.get("sales_order"):
         sales_order = filters.get("sales_order")
 
-        work_orders_count = frappe.db.count(
-            "Work Order", {"sales_order": sales_order, "docstatus": 1}
-        )
+        work_orders_count = frappe.db.count("Work Order", {"sales_order": sales_order, "docstatus": 1})
 
         frappe.log_error(
             f"Direct Work Orders for SO {sales_order}: {work_orders_count}",
@@ -259,9 +256,7 @@ def get_data_internal(filters):
         )
 
         bom_count = len(boms_in_so)
-        frappe.log_error(
-            f"SO {sales_order} has {bom_count} BOM items", "BOM-Count-Debug"
-        )
+        frappe.log_error(f"SO {sales_order} has {bom_count} BOM items", "BOM-Count-Debug")
 
         if bom_count > 0:
             for i, bom in enumerate(boms_in_so):
@@ -271,9 +266,7 @@ def get_data_internal(filters):
                         f"BOM-Detail-{i + 1}",
                     )
 
-                    wo_count = frappe.db.count(
-                        "Work Order", {"bom_no": bom.bom_no, "docstatus": 1}
-                    )
+                    wo_count = frappe.db.count("Work Order", {"bom_no": bom.bom_no, "docstatus": 1})
 
                     frappe.log_error(
                         f"Found {wo_count} work orders for BOM {bom.bom_no}",

@@ -48,9 +48,7 @@ def create_states():
     states_added = 0
 
     for state_data in states:
-        if not frappe.db.exists(
-            "State", {"state": state_data["state"], "country": state_data["country"]}
-        ):
+        if not frappe.db.exists("State", {"state": state_data["state"], "country": state_data["country"]}):
             try:
                 state = frappe.get_doc(
                     {
