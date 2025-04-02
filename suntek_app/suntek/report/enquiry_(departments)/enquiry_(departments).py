@@ -58,7 +58,7 @@ def execute(filters=None):
             conditions += " and creation <= %(to_date)s"
 
     data = frappe.db.sql(
-        """
+        f"""
         SELECT
             name,
             lead_name,
@@ -70,13 +70,13 @@ def execute(filters=None):
         FROM tabLead
         WHERE 1=1 {conditions}
         ORDER BY creation desc
-    """.format(conditions=conditions),
+    """,
         filters,
         as_dict=1,
     )
 
     dept_data = frappe.db.sql(
-        """
+        f"""
         SELECT 
             CASE 
                 WHEN custom_department = 'Tele Sales - SESP' THEN 'Tele Sales'
@@ -96,7 +96,7 @@ def execute(filters=None):
                 WHEN custom_department = 'Commercial & Industrial (C&I) - SESP' THEN 'C&I'
                 ELSE 'Others'
             END
-    """.format(conditions=conditions),
+    """,
         filters,
         as_dict=1,
     )

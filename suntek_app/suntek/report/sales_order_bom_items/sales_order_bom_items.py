@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 
 import json
 
@@ -294,7 +293,7 @@ def get_data_internal(filters):
                                 f"WO-Detail-{i + 1}",
                             )
 
-    query = """
+    query = f"""
         SELECT 
             so.name as sales_order_no,
             so.customer,
@@ -372,7 +371,7 @@ def get_data_internal(filters):
             {conditions}
         ORDER BY 
             so.name, soi.idx, bom_item.idx
-    """.format(conditions=conditions)
+    """
 
     try:
         results = frappe.db.sql(query, filters, as_dict=1)

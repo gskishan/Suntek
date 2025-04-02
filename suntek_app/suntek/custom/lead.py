@@ -75,7 +75,6 @@ def share_lead_after_insert_with_enquiry_owner(doc, method=None):
 
 
 def validate_enquiry_mobile_no(doc, method=None):
-    """Validate enquiry's mobile number before save, should be 10 digits, should not contain spaces, should start 6, 7, 8, 9"""
     try:
         mobile_no = doc.mobile_no.replace(" ", "")
 

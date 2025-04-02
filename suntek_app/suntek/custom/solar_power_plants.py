@@ -1,5 +1,4 @@
 import time
-from typing import Dict
 
 import frappe
 import requests
@@ -81,7 +80,7 @@ def handle_solar_ambassador_webhook(doc, method=None):
         )
 
 
-def send_webhook(data: Dict) -> bool:
+def send_webhook(data: dict) -> bool:
     max_retries = 3
     retry_delay = 1
 

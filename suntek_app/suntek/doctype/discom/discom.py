@@ -8,7 +8,7 @@ from frappe.model.naming import make_autoname
 class Discom(Document):
     def autoname(self):
         current_year = datetime.now().year
-        self.name = make_autoname("SES-DISCOM-{}-.#####".format(current_year))
+        self.name = make_autoname(f"SES-DISCOM-{current_year}-.#####")
 
     def before_insert(self):
         self.get_channel_partner_data_on_create()

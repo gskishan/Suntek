@@ -43,9 +43,7 @@ class SiteSurvey(Document):
         if self.is_new() and self.custom_project:
             project_doc = frappe.get_doc("Project", self.custom_project)
             so = project_doc.sales_order
-            opportunity = frappe.db.get_value(
-                "Sales Order", so, "custom_opportunity_name"
-            )
+            opportunity = frappe.db.get_value("Sales Order", so, "custom_opportunity_name")
             op = frappe.get_doc("Opportunity", opportunity)
             self.opportunity_name = op.name
             self.customer_name = project_doc.customer
@@ -55,9 +53,16 @@ class SiteSurvey(Document):
             self.poc_name = project_doc.custom_poc_person_name
             self.poc_contact = project_doc.custom_poc_mobile_no
 
-            sql = """select parent from `tabDynamic Link` where link_doctype="Lead" and link_name="{0}" and parenttype="Address" """.format(
-                op.party_name
-            )
+            sql = """
+                SELECT 
+                    parent 
+                FROM 
+                    `tabDynamic Link` 
+                WHERE 
+                    link_doctype = 'Lead' 
+                    AND link_name = %s 
+                    AND parenttype = 'Address'
+            """
             data = frappe.db.sql(sql, as_dict=True)
 
         if data:

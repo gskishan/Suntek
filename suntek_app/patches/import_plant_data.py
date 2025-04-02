@@ -23,7 +23,7 @@ def import_customers():
     customer_count = 0
 
     try:
-        with open("../apps/suntek_app/suntek_app/patches/plant_data.json", "r") as f:
+        with open("../apps/suntek_app/suntek_app/patches/plant_data.json") as f:
             data_str = f.read()
             data = json.loads(data_str)
 
@@ -64,7 +64,7 @@ def import_solar_plants():
         frappe.reload_doctype("Solar Power Plants")
         frappe.reload_doctype("Solar Power Plant Customer")  # Child table doctype
 
-        with open("../apps/suntek_app/suntek_app/patches/plant_data.json", "r") as f:
+        with open("../apps/suntek_app/suntek_app/patches/plant_data.json") as f:
             data_str = f.read()
             data = json.loads(data_str)
 
