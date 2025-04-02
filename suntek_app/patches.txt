@@ -9,3 +9,4 @@ suntek_app.patches.create_territories_for_existing_districts
 suntek_app.patches.add_channel_partner_warehouse_types
 suntek_app.patches.change_module_of_ambassador_doctype
 suntek_app.patches.remove_duplicate_permissions
+suntek_app.patches.change_ambassador_module_def
