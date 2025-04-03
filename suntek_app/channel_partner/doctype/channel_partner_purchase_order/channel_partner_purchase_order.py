@@ -283,7 +283,7 @@ class ChannelPartnerPurchaseOrder(Document):
         sales_orders = frappe.db.sql(
             """
             SELECT name, docstatus, transaction_date, terms
-            FROM `tabSales Order` 
+            FROM `tabSales Order`
             WHERE project = %s
             ORDER BY transaction_date DESC, modified DESC
         """,
@@ -300,7 +300,7 @@ class ChannelPartnerPurchaseOrder(Document):
                 sales_orders = frappe.db.sql(
                     """
                     SELECT name, docstatus, transaction_date, terms
-                    FROM `tabSales Order` 
+                    FROM `tabSales Order`
                     WHERE customer = %s
                     ORDER BY transaction_date DESC, modified DESC
                     LIMIT 5
