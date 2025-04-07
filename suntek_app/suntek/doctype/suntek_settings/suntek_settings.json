@@ -11,6 +11,8 @@
   "column_break_zcvo",
   "solar_ambassador_integration_status",
   "django_api_url",
+  "just_dial_section",
+  "just_dial_auth_token",
   "enquiry_settings_section",
   "enable_round_robin_assignment_to_enquiries",
   "neodove_settings_section",
@@ -107,12 +109,23 @@
    "fieldname": "django_api_url",
    "fieldtype": "Data",
    "label": "Django API URL"
+  },
+  {
+   "fieldname": "just_dial_section",
+   "fieldtype": "Section Break",
+   "label": "Just Dial"
+  },
+  {
+   "fieldname": "just_dial_auth_token",
+   "fieldtype": "Password",
+   "label": "Just Dial Auth Token"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-01-23 16:10:22.466562",
+ "modified": "2025-04-07 15:22:40.236724",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Suntek Settings",
@@ -149,6 +162,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
