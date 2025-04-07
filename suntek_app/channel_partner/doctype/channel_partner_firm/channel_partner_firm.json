@@ -260,7 +260,8 @@
         {
             "fieldname": "territory",
             "fieldtype": "Link",
-            "label": "Territory",
+            "label": "Territory (Zone)",
+            "description": "The territory / zone under which the firm operates.",
             "mandatory_depends_on": "eval:doc.status == \"Active\"",
             "options": "Territory"
         },
