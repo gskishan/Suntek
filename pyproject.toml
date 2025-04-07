@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "suntek_app"
+version = "0.1.0"
+requires-python = ">=3.10"
+description = "Suntek application"
+
+[tool.ruff]
+indent-width = 4
+line-length = 120
+target-version = "py310"
+respect-gitignore = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "I", "UP", "B"]
+ignore = [
+    "B017", # assertRaises(Exception) - should be more specific
+    "B018", # useless expression, not assigned to anything
+    "B023", # function doesn't bind loop variable - will have last iteration's value
+    "B904", # raise inside except without from
+    "E101", # indentation contains mixed spaces and tabs
+    "E402", # module level import not at top of file
+    "E501", # line too long
+    "E741", # ambiguous variable name
+    "F401", # "unused" imports
+    "F403", # can't detect undefined names from * import
+    "F405", # can't detect undefined names from * import
+    "F722", # syntax error in forward type annotation
+    "W191", # indentation contains tabs
+]
+typing-modules = ["frappe.types.DF"]
+
+[tool.ruff.lint.isort]
+known-first-party = []
+combine-as-imports = true
+lines-after-imports = 2
+
+[tool.pyright]
+venv = "env"
+venvPath = "../../env/"
+reportMissingImports = true
+typeCheckingMode = "off"
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+    "**/migrations",
+    "site-packages",
+]
+ignore = ["*.js", "*.html", "*.css", "*.json"]
+reportUnknownMemberAccess = false
+reportAttributeAccessIssue = false
+reportUnknownArgumentType = "none"
+reportUnknownVariableType = "none"
