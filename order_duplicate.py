@@ -4148,15 +4148,11 @@ def find_duplicate_permissions(permissions_list):
 
         permission_groups[key].append(perm)
 
-    duplicates = {
-        key: entries for key, entries in permission_groups.items() if len(entries) > 1
-    }
+    duplicates = {key: entries for key, entries in permission_groups.items() if len(entries) > 1}
 
     result = {}
     for (role, parent), entries in duplicates.items():
-        sorted_entries = sorted(
-            entries, key=lambda x: x.get("modified", ""), reverse=True
-        )
+        sorted_entries = sorted(entries, key=lambda x: x.get("modified", ""), reverse=True)
 
         result[f"{role} - {parent}"] = [
             {
@@ -4219,9 +4215,7 @@ def remove_duplicate_permissions(permissions_list):
     unique_permissions = []
     for entries in permission_groups.values():
         # Sort by modified date (newest first)
-        sorted_entries = sorted(
-            entries, key=lambda x: x.get("modified", ""), reverse=True
-        )
+        sorted_entries = sorted(entries, key=lambda x: x.get("modified", ""), reverse=True)
         # Keep the most recent entry
         unique_permissions.append(sorted_entries[0])
 

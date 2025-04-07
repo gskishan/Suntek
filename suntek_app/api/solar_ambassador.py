@@ -28,9 +28,7 @@ def create_solar_ambassador():
         "pan_card": "base64_or_url",
     }
     """
-    if frappe.request.headers.get(
-        "X-Django-Server-Authorization"
-    ) and validate_auth_token(
+    if frappe.request.headers.get("X-Django-Server-Authorization") and validate_auth_token(
         frappe.request.headers.get("X-Django-Server-Authorization")
     ):
         if not frappe.request.method == "POST":
@@ -43,17 +41,11 @@ def create_solar_ambassador():
         mobile_no = data.get("mobile_number")
 
         if not ambassador_name or not mobile_no:
-            return create_api_response(
-                400, "bad request", "Missing Name or Mobile Number"
-            )
+            return create_api_response(400, "bad request", "Missing Name or Mobile Number")
 
-        existing = frappe.db.exists(
-            "Ambassador", {"ambassador_mobile_number": mobile_no}
-        )
+        existing = frappe.db.exists("Ambassador", {"ambassador_mobile_number": mobile_no})
         if existing:
-            return create_api_response(
-                409, "conflict", "Ambassador with this mobile number already exists"
-            )
+            return create_api_response(409, "conflict", "Ambassador with this mobile number already exists")
 
         try:
             ambassador = frappe.new_doc("Ambassador")
@@ -83,9 +75,7 @@ def create_solar_ambassador():
             response_data = dict(data)
             response_data["ambassador_id"] = ambassador.name
 
-            return create_api_response(
-                201, "created", "Ambassador created successfully", data=response_data
-            )
+            return create_api_response(201, "created", "Ambassador created successfully", data=response_data)
         except Exception as e:
             return create_api_response(400, "bad_request", str(e))
 
@@ -114,9 +104,7 @@ def update_solar_ambassador():
         "pan_card": "base64_or_url",
     }
     """
-    if frappe.request.headers.get(
-        "X-Django-Server-Authorization"
-    ) and validate_auth_token(
+    if frappe.request.headers.get("X-Django-Server-Authorization") and validate_auth_token(
         frappe.request.headers.get("X-Django-Server-Authorization")
     ):
         if not frappe.request.method == "PUT":
@@ -129,14 +117,10 @@ def update_solar_ambassador():
         if not mobile_no:
             return create_api_response(400, "bad request", "Missing Mobile Number")
 
-        ambassador_name = frappe.db.get_value(
-            "Ambassador", {"ambassador_mobile_number": mobile_no}, "name"
-        )
+        ambassador_name = frappe.db.get_value("Ambassador", {"ambassador_mobile_number": mobile_no}, "name")
 
         if not ambassador_name:
-            return create_api_response(
-                404, "not found", "Ambassador not found with the provided mobile number"
-            )
+            return create_api_response(404, "not found", "Ambassador not found with the provided mobile number")
 
         try:
             ambassador = frappe.get_doc("Ambassador", ambassador_name)
@@ -166,9 +150,7 @@ def update_solar_ambassador():
                     updated_fields[doc_field] = data[payload_field]
 
             if not updated_fields:
-                return create_api_response(
-                    400, "bad_request", "No fields provided for update"
-                )
+                return create_api_response(400, "bad_request", "No fields provided for update")
 
             ambassador.save()
             frappe.db.commit()
@@ -179,9 +161,7 @@ def update_solar_ambassador():
                 "updated_fields": updated_fields,
             }
 
-            return create_api_response(
-                200, "success", "Ambassador updated successfully", data=response_data
-            )
+            return create_api_response(200, "success", "Ambassador updated successfully", data=response_data)
         except Exception as e:
             return create_api_response(400, "bad_request", str(e))
 

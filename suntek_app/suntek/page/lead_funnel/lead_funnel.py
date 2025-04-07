@@ -1,4 +1,3 @@
-
 import frappe
 from frappe import _
 
@@ -29,9 +28,7 @@ class LeadFunnel:
         Get lead funnel data with owner details for tooltip
         """
         base_filters = self._get_base_filters(from_date, to_date, company)
-        additional_conditions, additional_values = self._get_additional_filters(
-            lead_owner, source, department
-        )
+        additional_conditions, additional_values = self._get_additional_filters(lead_owner, source, department)
         status_counts, others_count, owner_details = self._get_lead_counts(
             base_filters, additional_conditions, additional_values
         )
@@ -129,21 +126,12 @@ class LeadFunnel:
         }
         owner_details = {status: [] for status in LEAD_STATUSES.keys()}
         owner_details["Total Leads"] = [
-            {"owner": row.lead_owner or "Not Assigned", "count": row.owner_count}
-            for row in total_data
+            {"owner": row.lead_owner or "Not Assigned", "count": row.owner_count} for row in total_data
         ]
-        open_enquiry_count = sum(
-            row.count for row in status_data if row.status in ["Open", "Enquiry"]
-        )
-        do_not_contact_count = sum(
-            row.count for row in status_data if row.status == "Do Not Contact"
-        )
-        quotation_count = sum(
-            row.count for row in status_data if row.status == "Quotation"
-        )
-        converted_count = sum(
-            row.count for row in status_data if row.status == "Converted"
-        )
+        open_enquiry_count = sum(row.count for row in status_data if row.status in ["Open", "Enquiry"])
+        do_not_contact_count = sum(row.count for row in status_data if row.status == "Do Not Contact")
+        quotation_count = sum(row.count for row in status_data if row.status == "Quotation")
+        converted_count = sum(row.count for row in status_data if row.status == "Converted")
 
         status_counts.update(
             {
@@ -238,16 +226,12 @@ def get_funnel_data(
     """
     API endpoint to get lead funnel data
     """
-    cache_key = get_cache_key(
-        from_date, to_date, company, lead_owner, source, department
-    )
+    cache_key = get_cache_key(from_date, to_date, company, lead_owner, source, department)
     funnel_data = frappe.cache().get_value(cache_key)
 
     if funnel_data is None:
         funnel = LeadFunnel()
-        funnel_data = funnel.get_lead_data(
-            from_date, to_date, company, lead_owner, source, department
-        )
+        funnel_data = funnel.get_lead_data(from_date, to_date, company, lead_owner, source, department)
         frappe.cache().set_value(key=cache_key, val=funnel_data, expires_in_sec=30)
 
     return funnel_data
@@ -265,13 +249,8 @@ def clear_cache(
     Clear the funnel data cache. If no parameters are provided,
     it will generate a pattern to clear all lead funnel caches.
     """
-    if all(
-        param is None
-        for param in [from_date, to_date, company, lead_owner, source, department]
-    ):
+    if all(param is None for param in [from_date, to_date, company, lead_owner, source, department]):
         frappe.cache().delete_keys("lead_funnel:*")
     else:
-        cache_key = get_cache_key(
-            from_date, to_date, company, lead_owner, source, department
-        )
+        cache_key = get_cache_key(from_date, to_date, company, lead_owner, source, department)
         frappe.cache().delete_value(cache_key)

@@ -39,8 +39,6 @@ def execute():
         frappe.clear_cache(doctype="Ambassador")
 
         print("Ambassador doctype module updated successfully")
-        print(
-            "Note: You may need to manually move the JSON and Python files to the new module directory"
-        )
+        print("Note: You may need to manually move the JSON and Python files to the new module directory")
     else:
         print("Warning: DocType 'Ambassador' does not exist")

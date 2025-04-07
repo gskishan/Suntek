@@ -48,9 +48,7 @@ def handle_solar_ambassador_webhook(doc, method=None):
                 {
                     "action": "customer_assigned",
                     "customers": customers_data,
-                    "added_customers": [
-                        current_customers[mobile] for mobile in added_mobiles
-                    ],
+                    "added_customers": [current_customers[mobile] for mobile in added_mobiles],
                 }
             )
         elif removed_mobiles:
@@ -58,9 +56,7 @@ def handle_solar_ambassador_webhook(doc, method=None):
                 {
                     "action": "customer_removed",
                     "customers": customers_data,
-                    "removed_customers": [
-                        old_customers[mobile] for mobile in removed_mobiles
-                    ],
+                    "removed_customers": [old_customers[mobile] for mobile in removed_mobiles],
                 }
             )
         else:
@@ -90,15 +86,11 @@ def send_webhook(data: dict) -> bool:
 
         try:
             settings = frappe.get_doc("Suntek Settings")
-            django_api_url = (
-                f"{settings.get('django_api_url')}/power-plant/webhook/assign-plants/"
-            )
+            django_api_url = f"{settings.get('django_api_url')}/power-plant/webhook/assign-plants/"
             api_token = settings.get_password("solar_ambassador_api_token")
 
             if not django_api_url or not api_token:
-                frappe.log_error(
-                    "Django webhook URL or API token not configured in Suntek Settings"
-                )
+                frappe.log_error("Django webhook URL or API token not configured in Suntek Settings")
                 return False
 
             headers = {
@@ -106,9 +98,7 @@ def send_webhook(data: dict) -> bool:
                 "Content-Type": "application/json",
             }
 
-            response = requests.post(
-                django_api_url, json=data, headers=headers, timeout=10
-            )
+            response = requests.post(django_api_url, json=data, headers=headers, timeout=10)
 
             if response.status_code == 200:
                 return True
@@ -190,9 +180,7 @@ def create_power_plant_from_api():
             return create_api_response(400, "error", "Plant ID is required")
 
         if frappe.db.exists("Solar Power Plants", {"plant_id": plant_id}):
-            return create_api_response(
-                409, "error", f"Plant with ID {plant_id} already exists"
-            )
+            return create_api_response(409, "error", f"Plant with ID {plant_id} already exists")
 
         frappe.set_user("developer@suntek.co.in")
         plant = frappe.get_doc(

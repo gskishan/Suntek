@@ -5,9 +5,7 @@ def toggle_solar_ambassador_integration(enable: bool = True):
     try:
         status = "Enabled" if enable else "Disabled"
 
-        suntek_settings = frappe.get_doc(
-            "Suntek Settings", "Suntek Settings", for_update=True
-        )
+        suntek_settings = frappe.get_doc("Suntek Settings", "Suntek Settings", for_update=True)
 
         if suntek_settings.solar_ambassador_integration_status != status:
             suntek_settings.solar_ambassador_integration_status = status

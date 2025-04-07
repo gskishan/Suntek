@@ -74,8 +74,6 @@ def get_data(start_date, end_date):
             `custom_enquiry_owner_name`
     """
 
-    data = frappe.db.sql(
-        query, {"start_date": start_date, "end_date": end_date}, as_dict=1
-    )
+    data = frappe.db.sql(query, {"start_date": start_date, "end_date": end_date}, as_dict=1)
 
     return data

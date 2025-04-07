@@ -33,8 +33,7 @@ def get_ambassador_lead_details(doc_type, doc):
                     lead_details = {
                         "lead_id": lead_id,
                         "ambassador_id": doc.custom_ambassador,
-                        "ambassador_mobile_number": doc.custom_ambassador_mobile_number
-                        or "",
+                        "ambassador_mobile_number": doc.custom_ambassador_mobile_number or "",
                         "mobile_no": lead.mobile_no or "",
                         "first_name": lead.first_name or "",
                         "last_name": lead.last_name or "",
@@ -63,8 +62,7 @@ def get_ambassador_lead_details(doc_type, doc):
                     lead_details = {
                         "lead_id": lead_id,
                         "ambassador_id": doc.custom_ambassador,
-                        "ambassador_mobile_number": doc.custom_ambassador_mobile_number
-                        or "",
+                        "ambassador_mobile_number": doc.custom_ambassador_mobile_number or "",
                         "mobile_no": lead.mobile_no or "",
                         "first_name": lead.first_name or "",
                         "last_name": lead.last_name or "",
@@ -91,18 +89,14 @@ def get_ambassador_lead_details(doc_type, doc):
                     opportunity = frappe.get_doc("Opportunity", opportunity_id)
 
                     if opportunity.custom_ambassador:
-                        if (
-                            opportunity.opportunity_from == "Lead"
-                            and opportunity.party_name
-                        ):
+                        if opportunity.opportunity_from == "Lead" and opportunity.party_name:
                             lead_id = opportunity.party_name
                             lead = frappe.get_doc("Lead", lead_id)
 
                             lead_details = {
                                 "lead_id": lead_id,
                                 "ambassador_id": opportunity.custom_ambassador,
-                                "ambassador_mobile_number": opportunity.custom_ambassador_mobile_number
-                                or "",
+                                "ambassador_mobile_number": opportunity.custom_ambassador_mobile_number or "",
                                 "mobile_no": lead.mobile_no or "",
                                 "first_name": lead.first_name or "",
                                 "last_name": lead.last_name or "",
@@ -156,10 +150,7 @@ def get_ambassador_lead_details(doc_type, doc):
                             lead_id = quotation.party_name
                         elif opportunity_id:
                             opportunity = frappe.get_doc("Opportunity", opportunity_id)
-                            if (
-                                opportunity.opportunity_from == "Lead"
-                                and opportunity.party_name
-                            ):
+                            if opportunity.opportunity_from == "Lead" and opportunity.party_name:
                                 lead_id = opportunity.party_name
 
                         if lead_id:
@@ -168,8 +159,7 @@ def get_ambassador_lead_details(doc_type, doc):
                             lead_details = {
                                 "lead_id": lead_id,
                                 "ambassador_id": doc.custom_ambassador,
-                                "ambassador_mobile_number": doc.custom_ambassador_mobile_number
-                                or "",
+                                "ambassador_mobile_number": doc.custom_ambassador_mobile_number or "",
                                 "mobile_no": lead.mobile_no or "",
                                 "first_name": lead.first_name or "",
                                 "last_name": lead.last_name or "",
@@ -273,11 +263,7 @@ def send_ambassador_status_update(doc, method=None):
     try:
         doc_type = doc.doctype
 
-        if (
-            doc_type == "Sales Order"
-            and hasattr(doc, "custom_ambassador")
-            and doc.custom_ambassador
-        ):
+        if doc_type == "Sales Order" and hasattr(doc, "custom_ambassador") and doc.custom_ambassador:
             frappe.log_error(
                 f"Processing Sales Order {doc.name} with ambassador {doc.custom_ambassador}",
                 "Ambassador Sales Order Processing",
@@ -286,11 +272,7 @@ def send_ambassador_status_update(doc, method=None):
         lead_details = get_ambassador_lead_details(doc_type, doc)
 
         if not lead_details:
-            if (
-                doc_type == "Sales Order"
-                and hasattr(doc, "custom_ambassador")
-                and doc.custom_ambassador
-            ):
+            if doc_type == "Sales Order" and hasattr(doc, "custom_ambassador") and doc.custom_ambassador:
                 debug_info = {
                     "name": doc.name,
                     "ambassador": doc.custom_ambassador,
@@ -307,10 +289,7 @@ def send_ambassador_status_update(doc, method=None):
 
         settings = frappe.get_doc("Suntek Settings")
 
-        if (
-            not settings.django_api_url
-            or settings.solar_ambassador_integration_status == "Disabled"
-        ):
+        if not settings.django_api_url or settings.solar_ambassador_integration_status == "Disabled":
             return
 
         api_url = f"{settings.django_api_url}/api/leads/status_update/"
@@ -373,36 +352,17 @@ def send_ambassador_status_update(doc, method=None):
 
                 # Get state from the sales order's linked address
                 if not state:
-                    if (
-                        hasattr(so_doc, "shipping_address_name")
-                        and so_doc.shipping_address_name
-                    ):
+                    if hasattr(so_doc, "shipping_address_name") and so_doc.shipping_address_name:
                         try:
-                            address_doc = frappe.get_doc(
-                                "Address", so_doc.shipping_address_name
-                            )
-                            state = (
-                                address_doc.state
-                                if hasattr(address_doc, "state")
-                                else None
-                            )
+                            address_doc = frappe.get_doc("Address", so_doc.shipping_address_name)
+                            state = address_doc.state if hasattr(address_doc, "state") else None
                         except Exception:
                             pass
                     # Try customer address if shipping address doesn't exist or has no state
-                    if (
-                        not state
-                        and hasattr(so_doc, "customer_address")
-                        and so_doc.customer_address
-                    ):
+                    if not state and hasattr(so_doc, "customer_address") and so_doc.customer_address:
                         try:
-                            address_doc = frappe.get_doc(
-                                "Address", so_doc.customer_address
-                            )
-                            state = (
-                                address_doc.state
-                                if hasattr(address_doc, "state")
-                                else None
-                            )
+                            address_doc = frappe.get_doc("Address", so_doc.customer_address)
+                            state = address_doc.state if hasattr(address_doc, "state") else None
                         except Exception:
                             pass
             except Exception:

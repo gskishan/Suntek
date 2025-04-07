@@ -50,16 +50,9 @@ def update_opportunity(doc):
     if first_item and first_item.quotation_item:
         quotation_item = frappe.get_doc("Quotation Item", first_item.quotation_item)
 
-        if (
-            quotation_item.prevdoc_docname
-            and quotation_item.prevdoc_doctype == "Opportunity"
-        ):
-            opportunity = frappe.get_doc(
-                quotation_item.prevdoc_doctype, quotation_item.prevdoc_docname
-            )
-            opportunity.db_set(
-                "opportunity_amount", doc.rounded_total, update_modified=False
-            )
+        if quotation_item.prevdoc_docname and quotation_item.prevdoc_doctype == "Opportunity":
+            opportunity = frappe.get_doc(quotation_item.prevdoc_doctype, quotation_item.prevdoc_docname)
+            opportunity.db_set("opportunity_amount", doc.rounded_total, update_modified=False)
 
 
 @frappe.whitelist()
@@ -102,9 +95,7 @@ def get_location_data(doc, method):
 def fetch_attachments_from_opportunity(doc, method):
     if doc.custom_opportunity_name != "":
         print("doc.custom_opportunity_name: ", doc.custom_opportunity_name)
-        opportunity = frappe.get_doc(
-            "Opportunity", {"name": doc.custom_opportunity_name}
-        )
+        opportunity = frappe.get_doc("Opportunity", {"name": doc.custom_opportunity_name})
         print(opportunity)
         opportunity_attachments = frappe.get_all(
             "File",

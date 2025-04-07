@@ -6,10 +6,7 @@ def update_cppo_from_sales_order(doc, method=None):
     if doc.get("__islocal"):
         return
 
-    if (
-        not hasattr(doc, "custom_to_channel_partner")
-        or not doc.custom_to_channel_partner
-    ):
+    if not hasattr(doc, "custom_to_channel_partner") or not doc.custom_to_channel_partner:
         return
 
     try:
@@ -22,9 +19,7 @@ def update_cppo_from_sales_order(doc, method=None):
         if not cppo_list:
             return
 
-        linked_cppo = frappe.get_doc(
-            "Channel Partner Purchase Order", cppo_list[0].name
-        )
+        linked_cppo = frappe.get_doc("Channel Partner Purchase Order", cppo_list[0].name)
 
         if not linked_cppo:
             return
@@ -59,8 +54,7 @@ def update_cppo_from_sales_order(doc, method=None):
             update_fields.update(
                 {
                     "grand_total": doc.grand_total,
-                    "balance_amount": doc.grand_total
-                    - (linked_cppo.advance_amount or 0),
+                    "balance_amount": doc.grand_total - (linked_cppo.advance_amount or 0),
                 }
             )
 
@@ -79,17 +73,15 @@ def update_cppo_from_sales_order(doc, method=None):
                 ).insert(ignore_permissions=True)
 
                 frappe.msgprint(
-                    _(
-                        "Channel Partner Purchase Order {0} has been updated to match changes in Sales Order {1}"
-                    ).format(linked_cppo.name, doc.name),
+                    _("Channel Partner Purchase Order {0} has been updated to match changes in Sales Order {1}").format(
+                        linked_cppo.name, doc.name
+                    ),
                     alert=True,
                     indicator="green",
                 )
 
     except Exception as e:
-        frappe.log_error(
-            f"Error updating CPPO from Sales Order: {str(e)}", "CPPO Update Error"
-        )
+        frappe.log_error(f"Error updating CPPO from Sales Order: {str(e)}", "CPPO Update Error")
 
 
 def update_cppo_items(cppo, sales_order):
@@ -105,9 +97,7 @@ def update_cppo_items(cppo, sales_order):
     )
 
     for item in so_items:
-        cppo_item = frappe.new_doc(
-            "Channel Partner Purchase Order Item", parent_doc=cppo
-        )
+        cppo_item = frappe.new_doc("Channel Partner Purchase Order Item", parent_doc=cppo)
 
         cppo_item.update(
             {
