@@ -1,8 +1,11 @@
+import { Dashboard } from "./components/Dashboard";
+
 const App = () => {
     return (
         <>
-            <main className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+            <main>
                 <h1>Suntek Dashboard</h1>
+                <Dashboard />
             </main>
         </>
     );
