@@ -33,7 +33,6 @@ def _get_sales_orders(filters=None, limit=100):
         if filters.get("type_of_case"):
             where_clause += f" AND custom_type_of_case = '{filters['type_of_case']}'"
 
-    # First get all sales orders with their details
     query = f"""
     SELECT
         name,
@@ -65,7 +64,6 @@ def _get_sales_orders(filters=None, limit=100):
         as_dict=1,
     )
 
-    # Group the data hierarchically
     grouped_data = defaultdict(
         lambda: {
             "total_amount": 0,
@@ -88,7 +86,6 @@ def _get_sales_orders(filters=None, limit=100):
         }
     )
 
-    # Process each sales order
     for order in sales_orders:
         territory = order.get("territory", "Unknown Territory")
         state = order.get("state", "Unknown State")
@@ -96,15 +93,12 @@ def _get_sales_orders(filters=None, limit=100):
         district_name = order.get("district_name", "Unknown District")
         city = order.get("city", "Unknown City")
 
-        # Update territory level
         grouped_data[territory]["total_amount"] += float(order.get("grand_total", 0))
         grouped_data[territory]["count"] += 1
 
-        # Update state level
         grouped_data[territory]["states"][state]["total_amount"] += float(order.get("grand_total", 0))
         grouped_data[territory]["states"][state]["count"] += 1
 
-        # Update district level
         grouped_data[territory]["states"][state]["districts"][district]["district"] = district
         grouped_data[territory]["states"][state]["districts"][district]["district_name"] = district_name
         grouped_data[territory]["states"][state]["districts"][district]["total_amount"] += float(
@@ -112,14 +106,12 @@ def _get_sales_orders(filters=None, limit=100):
         )
         grouped_data[territory]["states"][state]["districts"][district]["count"] += 1
 
-        # Update city level
         grouped_data[territory]["states"][state]["districts"][district]["cities"][city]["total_amount"] += float(
             order.get("grand_total", 0)
         )
         grouped_data[territory]["states"][state]["districts"][district]["cities"][city]["count"] += 1
         grouped_data[territory]["states"][state]["districts"][district]["cities"][city]["orders"].append(order)
 
-    # Convert defaultdict to regular dict for JSON serialization
     result = []
     for territory, territory_data in grouped_data.items():
         territory_entry = {
@@ -129,7 +121,6 @@ def _get_sales_orders(filters=None, limit=100):
             "states": [],
         }
 
-        # If no states exist, create a default "Unknown State" entry
         if not territory_data["states"]:
             territory_data["states"]["Unknown State"] = {
                 "total_amount": territory_data["total_amount"],
@@ -153,7 +144,6 @@ def _get_sales_orders(filters=None, limit=100):
                 "districts": [],
             }
 
-            # If no districts exist, create a default "Unknown District" entry
             if not state_data["districts"]:
                 state_data["districts"]["Unknown District"] = {
                     "district": None,
@@ -163,7 +153,7 @@ def _get_sales_orders(filters=None, limit=100):
                     "cities": defaultdict(lambda: {"total_amount": 0, "count": 0, "orders": []}),
                 }
 
-            for district, district_data in state_data["districts"].items():
+            for _, district_data in state_data["districts"].items():
                 district_entry = {
                     "district": district_data["district"],
                     "district_name": district_data["district_name"],
@@ -172,7 +162,6 @@ def _get_sales_orders(filters=None, limit=100):
                     "cities": [],
                 }
 
-                # If no cities exist, create a default "Unknown City" entry
                 if not district_data["cities"]:
                     district_data["cities"]["Unknown City"] = {
                         "total_amount": district_data["total_amount"],

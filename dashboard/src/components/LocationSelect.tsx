@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 interface Location {
     name: string;
     creation: string;
-    [key: string]: any; // For additional fields like district, city
+    [key: string]: any;
 }
 
 interface LocationSelectProps {

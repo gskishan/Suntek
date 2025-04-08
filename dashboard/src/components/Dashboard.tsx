@@ -6,30 +6,6 @@ import { SalesOrderTable } from "./SalesOrderTable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-interface Territory {
-    name: string;
-    creation: string;
-}
-
-interface State {
-    name: string;
-    creation: string;
-    state: string;
-}
-
-interface District {
-    name: string;
-    creation: string;
-    state: string;
-    district: string;
-}
-
-interface City {
-    name: string;
-    creation: string;
-    city: string;
-}
-
 interface SalesOrderFilters {
     territory?: string;
     state?: string;
@@ -49,14 +25,12 @@ export const Dashboard = () => {
     const [fromDate, setFromDate] = useState<Date>();
     const [toDate, setToDate] = useState<Date>();
 
-    // Fetch territories
     const { data: territories } = useFrappeGetDocList("Territory", {
         fields: ["name", "creation"],
         asDict: true,
         limit: 0,
     });
 
-    // Fetch states based on selected territory
     const { data: states } = useFrappeGetDocList("State", {
         fields: ["name", "creation", "state"],
         filters: selectedTerritory !== "all" ? [["territory", "=", selectedTerritory]] : [],
@@ -64,7 +38,6 @@ export const Dashboard = () => {
         limit: 0,
     });
 
-    // Fetch districts based on selected state
     const { data: districts } = useFrappeGetDocList("District", {
         fields: ["name", "creation", "state", "district"],
         filters: selectedState !== "all" ? [["state", "=", selectedState]] : [],
@@ -72,7 +45,6 @@ export const Dashboard = () => {
         limit: 0,
     });
 
-    // Fetch cities based on selected district
     const { data: cities } = useFrappeGetDocList("City", {
         fields: ["name", "creation", "city"],
         filters: selectedDistrict !== "all" ? [["district", "=", selectedDistrict]] : [],
@@ -80,7 +52,6 @@ export const Dashboard = () => {
         limit: 0,
     });
 
-    // Prepare filters for sales orders
     const getSalesOrderFilters = (): SalesOrderFilters => {
         const filters: SalesOrderFilters = {};
 
@@ -109,7 +80,6 @@ export const Dashboard = () => {
         return filters;
     };
 
-    // Fetch sales orders with filters
     const { data: salesOrders, isLoading: isLoadingSalesOrders } = useFrappeGetCall(
         "suntek_app.api.sales_dashboard.sales_order.get_sales_order_data",
         {
