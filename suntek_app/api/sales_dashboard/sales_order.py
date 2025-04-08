@@ -186,7 +186,7 @@ def _get_sales_orders(filters=None, limit=100):
                         "orders": [],
                     }
 
-                for district, district_data in city_data["districts"].items():
+                for _, district_data in city_data["districts"].items():
                     district_entry = {
                         "district": district_data["district"],
                         "district_name": district_data["district_name"],
