@@ -72,13 +72,19 @@ def _get_sales_orders(filters=None, limit=100):
                 lambda: {
                     "total_amount": 0,
                     "count": 0,
-                    "districts": defaultdict(
+                    "cities": defaultdict(
                         lambda: {
-                            "district": None,
-                            "district_name": None,
                             "total_amount": 0,
                             "count": 0,
-                            "cities": defaultdict(lambda: {"total_amount": 0, "count": 0, "orders": []}),
+                            "districts": defaultdict(
+                                lambda: {
+                                    "district": None,
+                                    "district_name": None,
+                                    "total_amount": 0,
+                                    "count": 0,
+                                    "orders": [],
+                                }
+                            ),
                         }
                     ),
                 }
@@ -89,9 +95,9 @@ def _get_sales_orders(filters=None, limit=100):
     for order in sales_orders:
         territory = order.get("territory", "Unknown Territory")
         state = order.get("state", "Unknown State")
+        city = order.get("city", "Unknown City")
         district = order.get("district", "Unknown District")
         district_name = order.get("district_name", "Unknown District")
-        city = order.get("city", "Unknown City")
 
         grouped_data[territory]["total_amount"] += float(order.get("grand_total", 0))
         grouped_data[territory]["count"] += 1
@@ -99,18 +105,16 @@ def _get_sales_orders(filters=None, limit=100):
         grouped_data[territory]["states"][state]["total_amount"] += float(order.get("grand_total", 0))
         grouped_data[territory]["states"][state]["count"] += 1
 
-        grouped_data[territory]["states"][state]["districts"][district]["district"] = district
-        grouped_data[territory]["states"][state]["districts"][district]["district_name"] = district_name
-        grouped_data[territory]["states"][state]["districts"][district]["total_amount"] += float(
-            order.get("grand_total", 0)
-        )
-        grouped_data[territory]["states"][state]["districts"][district]["count"] += 1
+        grouped_data[territory]["states"][state]["cities"][city]["total_amount"] += float(order.get("grand_total", 0))
+        grouped_data[territory]["states"][state]["cities"][city]["count"] += 1
 
-        grouped_data[territory]["states"][state]["districts"][district]["cities"][city]["total_amount"] += float(
+        grouped_data[territory]["states"][state]["cities"][city]["districts"][district]["district"] = district
+        grouped_data[territory]["states"][state]["cities"][city]["districts"][district]["district_name"] = district_name
+        grouped_data[territory]["states"][state]["cities"][city]["districts"][district]["total_amount"] += float(
             order.get("grand_total", 0)
         )
-        grouped_data[territory]["states"][state]["districts"][district]["cities"][city]["count"] += 1
-        grouped_data[territory]["states"][state]["districts"][district]["cities"][city]["orders"].append(order)
+        grouped_data[territory]["states"][state]["cities"][city]["districts"][district]["count"] += 1
+        grouped_data[territory]["states"][state]["cities"][city]["districts"][district]["orders"].append(order)
 
     result = []
     for territory, territory_data in grouped_data.items():
@@ -125,13 +129,19 @@ def _get_sales_orders(filters=None, limit=100):
             territory_data["states"]["Unknown State"] = {
                 "total_amount": territory_data["total_amount"],
                 "count": territory_data["count"],
-                "districts": defaultdict(
+                "cities": defaultdict(
                     lambda: {
-                        "district": None,
-                        "district_name": None,
                         "total_amount": 0,
                         "count": 0,
-                        "cities": defaultdict(lambda: {"total_amount": 0, "count": 0, "orders": []}),
+                        "districts": defaultdict(
+                            lambda: {
+                                "district": None,
+                                "district_name": None,
+                                "total_amount": 0,
+                                "count": 0,
+                                "orders": [],
+                            }
+                        ),
                     }
                 ),
             }
@@ -141,44 +151,52 @@ def _get_sales_orders(filters=None, limit=100):
                 "state": state,
                 "total_amount": state_data["total_amount"],
                 "count": state_data["count"],
-                "districts": [],
+                "cities": [],
             }
 
-            if not state_data["districts"]:
-                state_data["districts"]["Unknown District"] = {
-                    "district": None,
-                    "district_name": None,
+            if not state_data["cities"]:
+                state_data["cities"]["Unknown City"] = {
                     "total_amount": state_data["total_amount"],
                     "count": state_data["count"],
-                    "cities": defaultdict(lambda: {"total_amount": 0, "count": 0, "orders": []}),
+                    "districts": defaultdict(
+                        lambda: {
+                            "district": None,
+                            "district_name": None,
+                            "total_amount": 0,
+                            "count": 0,
+                            "orders": [],
+                        }
+                    ),
                 }
 
-            for _, district_data in state_data["districts"].items():
-                district_entry = {
-                    "district": district_data["district"],
-                    "district_name": district_data["district_name"],
-                    "total_amount": district_data["total_amount"],
-                    "count": district_data["count"],
-                    "cities": [],
+            for city, city_data in state_data["cities"].items():
+                city_entry = {
+                    "city": city,
+                    "total_amount": city_data["total_amount"],
+                    "count": city_data["count"],
+                    "districts": [],
                 }
 
-                if not district_data["cities"]:
-                    district_data["cities"]["Unknown City"] = {
-                        "total_amount": district_data["total_amount"],
-                        "count": district_data["count"],
+                if not city_data["districts"]:
+                    city_data["districts"]["Unknown District"] = {
+                        "district": None,
+                        "district_name": None,
+                        "total_amount": city_data["total_amount"],
+                        "count": city_data["count"],
                         "orders": [],
                     }
 
-                for city, city_data in district_data["cities"].items():
-                    city_entry = {
-                        "city": city,
-                        "total_amount": city_data["total_amount"],
-                        "count": city_data["count"],
-                        "orders": city_data["orders"],
+                for district, district_data in city_data["districts"].items():
+                    district_entry = {
+                        "district": district_data["district"],
+                        "district_name": district_data["district_name"],
+                        "total_amount": district_data["total_amount"],
+                        "count": district_data["count"],
+                        "orders": district_data["orders"],
                     }
-                    district_entry["cities"].append(city_entry)
+                    city_entry["districts"].append(district_entry)
 
-                state_entry["districts"].append(district_entry)
+                state_entry["cities"].append(city_entry)
 
             territory_entry["states"].append(state_entry)
 

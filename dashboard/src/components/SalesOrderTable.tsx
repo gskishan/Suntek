@@ -22,19 +22,21 @@ interface DistrictData {
     district_name: string | null;
     total_amount: number;
     count: number;
-    cities: {
-        city: string | null;
-        total_amount: number;
-        count: number;
-        orders: SalesOrder[];
-    }[];
+    orders: SalesOrder[];
+}
+
+interface CityData {
+    city: string | null;
+    total_amount: number;
+    count: number;
+    districts: DistrictData[];
 }
 
 interface StateData {
     state: string | null;
     total_amount: number;
     count: number;
-    districts: DistrictData[];
+    cities: CityData[];
 }
 
 interface TerritoryData {
@@ -51,8 +53,8 @@ interface SalesOrderTableProps {
 export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
     const [expandedTerritories, setExpandedTerritories] = useState<Set<string>>(new Set());
     const [expandedStates, setExpandedStates] = useState<Set<string>>(new Set());
-    const [expandedDistricts, setExpandedDistricts] = useState<Set<string>>(new Set());
     const [expandedCities, setExpandedCities] = useState<Set<string>>(new Set());
+    const [expandedDistricts, setExpandedDistricts] = useState<Set<string>>(new Set());
     const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
 
     const toggleTerritory = (territory: string) => {
@@ -76,17 +78,6 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
         setExpandedStates(newExpanded);
     };
 
-    const toggleDistrict = (district: string | null) => {
-        const districtKey = district || "unknown";
-        const newExpanded = new Set(expandedDistricts);
-        if (newExpanded.has(districtKey)) {
-            newExpanded.delete(districtKey);
-        } else {
-            newExpanded.add(districtKey);
-        }
-        setExpandedDistricts(newExpanded);
-    };
-
     const toggleCity = (city: string | null) => {
         const cityKey = city || "unknown";
         const newExpanded = new Set(expandedCities);
@@ -96,6 +87,17 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
             newExpanded.add(cityKey);
         }
         setExpandedCities(newExpanded);
+    };
+
+    const toggleDistrict = (district: string | null) => {
+        const districtKey = district || "unknown";
+        const newExpanded = new Set(expandedDistricts);
+        if (newExpanded.has(districtKey)) {
+            newExpanded.delete(districtKey);
+        } else {
+            newExpanded.add(districtKey);
+        }
+        setExpandedDistricts(newExpanded);
     };
 
     const toggleOrder = (orderName: string) => {
@@ -110,7 +112,7 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
 
     const getLocationName = (
         value: string | null,
-        type: "state" | "district" | "city",
+        type: "state" | "city" | "district",
         districtName?: string | null,
     ) => {
         if (!value) return `Unspecified ${type.charAt(0).toUpperCase() + type.slice(1)}`;
@@ -150,25 +152,25 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                 otherUnspecifiedStates.forEach((state) => {
                     unspecifiedState.total_amount += state.total_amount;
                     unspecifiedState.count += state.count;
-                    state.districts.forEach((district) => {
-                        const existingDistrict = unspecifiedState.districts.find(
-                            (d) => d.district === district.district,
-                        );
-                        if (existingDistrict) {
-                            existingDistrict.total_amount += district.total_amount;
-                            existingDistrict.count += district.count;
-                            district.cities.forEach((city) => {
-                                const existingCity = existingDistrict.cities.find((c) => c.city === city.city);
-                                if (existingCity) {
-                                    existingCity.total_amount += city.total_amount;
-                                    existingCity.count += city.count;
-                                    existingCity.orders.push(...city.orders);
+                    state.cities.forEach((city) => {
+                        const existingCity = unspecifiedState.cities.find((c) => c.city === city.city);
+                        if (existingCity) {
+                            existingCity.total_amount += city.total_amount;
+                            existingCity.count += city.count;
+                            city.districts.forEach((district) => {
+                                const existingDistrict = existingCity.districts.find(
+                                    (d) => d.district === district.district,
+                                );
+                                if (existingDistrict) {
+                                    existingDistrict.total_amount += district.total_amount;
+                                    existingDistrict.count += district.count;
+                                    existingDistrict.orders.push(...district.orders);
                                 } else {
-                                    existingDistrict.cities.push(city);
+                                    existingCity.districts.push(district);
                                 }
                             });
                         } else {
-                            unspecifiedState.districts.push(district);
+                            unspecifiedState.cities.push(city);
                         }
                     });
                 });
@@ -294,102 +296,94 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
 
                                         {expandedStates.has(stateData.state || "unknown") && (
                                             <div className="px-6 pb-4 space-y-3">
-                                                {stateData.districts.map((districtData) => (
+                                                {stateData.cities.map((cityData) => (
                                                     <div
-                                                        key={districtData.district || "unknown"}
+                                                        key={cityData.city || "unknown"}
                                                         className="bg-gray-50 rounded-lg p-3"
                                                     >
                                                         <button
-                                                            onClick={() => toggleDistrict(districtData.district)}
+                                                            onClick={() => toggleCity(cityData.city)}
                                                             className="flex items-center justify-between w-full text-sm text-gray-700 hover:bg-gray-100/50 p-2 rounded-lg transition-colors"
                                                         >
                                                             <div className="flex items-center">
-                                                                {expandedDistricts.has(
-                                                                    districtData.district || "unknown",
-                                                                ) ? (
+                                                                {expandedCities.has(cityData.city || "unknown") ? (
                                                                     <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
                                                                 ) : (
                                                                     <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
                                                                 )}
-                                                                {getLocationName(
-                                                                    districtData.district,
-                                                                    "district",
-                                                                    districtData.district_name,
-                                                                )}
+                                                                {getLocationName(cityData.city, "city")}
                                                             </div>
                                                             <div className="flex items-center space-x-4">
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
                                                                         <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
-                                                                            {districtData.count} Orders
+                                                                            {cityData.count} Orders
                                                                         </span>
                                                                     </TooltipTrigger>
                                                                     <TooltipContent>
                                                                         <p>
                                                                             Total number of orders in{" "}
-                                                                            {getLocationName(
-                                                                                districtData.district,
-                                                                                "district",
-                                                                                districtData.district_name,
-                                                                            )}
+                                                                            {getLocationName(cityData.city, "city")}
                                                                         </p>
                                                                     </TooltipContent>
                                                                 </Tooltip>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
                                                                         <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
-                                                                            ₹
-                                                                            {districtData.total_amount.toLocaleString()}
+                                                                            ₹{cityData.total_amount.toLocaleString()}
                                                                         </span>
                                                                     </TooltipTrigger>
                                                                     <TooltipContent>
                                                                         <p>
                                                                             Total revenue from all orders in{" "}
-                                                                            {getLocationName(
-                                                                                districtData.district,
-                                                                                "district",
-                                                                                districtData.district_name,
-                                                                            )}
+                                                                            {getLocationName(cityData.city, "city")}
                                                                         </p>
                                                                     </TooltipContent>
                                                                 </Tooltip>
                                                             </div>
                                                         </button>
 
-                                                        {expandedDistricts.has(districtData.district || "unknown") && (
+                                                        {expandedCities.has(cityData.city || "unknown") && (
                                                             <div className="px-6 mt-3 space-y-3">
-                                                                {districtData.cities.map((cityData) => (
+                                                                {cityData.districts.map((districtData) => (
                                                                     <div
-                                                                        key={cityData.city || "unknown"}
+                                                                        key={districtData.district || "unknown"}
                                                                         className="bg-white rounded-lg p-3"
                                                                     >
                                                                         <button
-                                                                            onClick={() => toggleCity(cityData.city)}
+                                                                            onClick={() =>
+                                                                                toggleDistrict(districtData.district)
+                                                                            }
                                                                             className="flex items-center justify-between w-full text-sm text-gray-700 hover:bg-gray-100/50 p-2 rounded-lg transition-colors"
                                                                         >
                                                                             <div className="flex items-center">
-                                                                                {expandedCities.has(
-                                                                                    cityData.city || "unknown",
+                                                                                {expandedDistricts.has(
+                                                                                    districtData.district || "unknown",
                                                                                 ) ? (
                                                                                     <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
                                                                                 ) : (
                                                                                     <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
                                                                                 )}
-                                                                                {getLocationName(cityData.city, "city")}
+                                                                                {getLocationName(
+                                                                                    districtData.district,
+                                                                                    "district",
+                                                                                    districtData.district_name,
+                                                                                )}
                                                                             </div>
                                                                             <div className="flex items-center space-x-4">
                                                                                 <Tooltip>
                                                                                     <TooltipTrigger asChild>
                                                                                         <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
-                                                                                            {cityData.count} Orders
+                                                                                            {districtData.count} Orders
                                                                                         </span>
                                                                                     </TooltipTrigger>
                                                                                     <TooltipContent>
                                                                                         <p>
                                                                                             Total number of orders in{" "}
                                                                                             {getLocationName(
-                                                                                                cityData.city,
-                                                                                                "city",
+                                                                                                districtData.district,
+                                                                                                "district",
+                                                                                                districtData.district_name,
                                                                                             )}
                                                                                         </p>
                                                                                     </TooltipContent>
@@ -398,7 +392,7 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                                     <TooltipTrigger asChild>
                                                                                         <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
                                                                                             ₹
-                                                                                            {cityData.total_amount.toLocaleString()}
+                                                                                            {districtData.total_amount.toLocaleString()}
                                                                                         </span>
                                                                                     </TooltipTrigger>
                                                                                     <TooltipContent>
@@ -406,8 +400,9 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                                             Total revenue from all
                                                                                             orders in{" "}
                                                                                             {getLocationName(
-                                                                                                cityData.city,
-                                                                                                "city",
+                                                                                                districtData.district,
+                                                                                                "district",
+                                                                                                districtData.district_name,
                                                                                             )}
                                                                                         </p>
                                                                                     </TooltipContent>
@@ -415,11 +410,11 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                             </div>
                                                                         </button>
 
-                                                                        {expandedCities.has(
-                                                                            cityData.city || "unknown",
+                                                                        {expandedDistricts.has(
+                                                                            districtData.district || "unknown",
                                                                         ) && (
                                                                             <div className="px-6 mt-3 space-y-2">
-                                                                                {cityData.orders.map((order) => (
+                                                                                {districtData.orders.map((order) => (
                                                                                     <div
                                                                                         key={order.name}
                                                                                         className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100/50 transition-colors"
@@ -459,12 +454,16 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                                             <div className="mt-3 pt-3 border-t border-gray-200">
                                                                                                 <div className="flex flex-wrap gap-2">
                                                                                                     <span
-                                                                                                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
+                                                                                                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                                                                                            order.status,
+                                                                                                        )}`}
                                                                                                     >
                                                                                                         {order.status}
                                                                                                     </span>
                                                                                                     <span
-                                                                                                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${getTypeColor(order.type_of_case)}`}
+                                                                                                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${getTypeColor(
+                                                                                                            order.type_of_case,
+                                                                                                        )}`}
                                                                                                     >
                                                                                                         {order.type_of_case ||
                                                                                                             "Unspecified Type"}
@@ -531,102 +530,94 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
 
                                         {expandedStates.has("unknown") && (
                                             <div className="px-6 pb-4 space-y-3">
-                                                {unspecifiedState.districts.map((districtData) => (
+                                                {unspecifiedState.cities.map((cityData) => (
                                                     <div
-                                                        key={districtData.district || "unknown"}
+                                                        key={cityData.city || "unknown"}
                                                         className="bg-white rounded-lg p-3"
                                                     >
                                                         <button
-                                                            onClick={() => toggleDistrict(districtData.district)}
+                                                            onClick={() => toggleCity(cityData.city)}
                                                             className="flex items-center justify-between w-full text-sm text-gray-700 hover:bg-gray-50 p-2 rounded-lg transition-colors"
                                                         >
                                                             <div className="flex items-center">
-                                                                {expandedDistricts.has(
-                                                                    districtData.district || "unknown",
-                                                                ) ? (
+                                                                {expandedCities.has(cityData.city || "unknown") ? (
                                                                     <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
                                                                 ) : (
                                                                     <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
                                                                 )}
-                                                                {getLocationName(
-                                                                    districtData.district,
-                                                                    "district",
-                                                                    districtData.district_name,
-                                                                )}
+                                                                {getLocationName(cityData.city, "city")}
                                                             </div>
                                                             <div className="flex items-center space-x-4">
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
                                                                         <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
-                                                                            {districtData.count} Orders
+                                                                            {cityData.count} Orders
                                                                         </span>
                                                                     </TooltipTrigger>
                                                                     <TooltipContent>
                                                                         <p>
                                                                             Total number of orders in{" "}
-                                                                            {getLocationName(
-                                                                                districtData.district,
-                                                                                "district",
-                                                                                districtData.district_name,
-                                                                            )}
+                                                                            {getLocationName(cityData.city, "city")}
                                                                         </p>
                                                                     </TooltipContent>
                                                                 </Tooltip>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
                                                                         <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
-                                                                            ₹
-                                                                            {districtData.total_amount.toLocaleString()}
+                                                                            ₹{cityData.total_amount.toLocaleString()}
                                                                         </span>
                                                                     </TooltipTrigger>
                                                                     <TooltipContent>
                                                                         <p>
                                                                             Total revenue from all orders in{" "}
-                                                                            {getLocationName(
-                                                                                districtData.district,
-                                                                                "district",
-                                                                                districtData.district_name,
-                                                                            )}
+                                                                            {getLocationName(cityData.city, "city")}
                                                                         </p>
                                                                     </TooltipContent>
                                                                 </Tooltip>
                                                             </div>
                                                         </button>
 
-                                                        {expandedDistricts.has(districtData.district || "unknown") && (
+                                                        {expandedCities.has(cityData.city || "unknown") && (
                                                             <div className="px-6 mt-3 space-y-3">
-                                                                {districtData.cities.map((cityData) => (
+                                                                {cityData.districts.map((districtData) => (
                                                                     <div
-                                                                        key={cityData.city || "unknown"}
+                                                                        key={districtData.district || "unknown"}
                                                                         className="bg-gray-50 rounded-lg p-3"
                                                                     >
                                                                         <button
-                                                                            onClick={() => toggleCity(cityData.city)}
+                                                                            onClick={() =>
+                                                                                toggleDistrict(districtData.district)
+                                                                            }
                                                                             className="flex items-center justify-between w-full text-sm text-gray-700 hover:bg-gray-100/50 p-2 rounded-lg transition-colors"
                                                                         >
                                                                             <div className="flex items-center">
-                                                                                {expandedCities.has(
-                                                                                    cityData.city || "unknown",
+                                                                                {expandedDistricts.has(
+                                                                                    districtData.district || "unknown",
                                                                                 ) ? (
                                                                                     <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
                                                                                 ) : (
                                                                                     <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
                                                                                 )}
-                                                                                {getLocationName(cityData.city, "city")}
+                                                                                {getLocationName(
+                                                                                    districtData.district,
+                                                                                    "district",
+                                                                                    districtData.district_name,
+                                                                                )}
                                                                             </div>
                                                                             <div className="flex items-center space-x-4">
                                                                                 <Tooltip>
                                                                                     <TooltipTrigger asChild>
                                                                                         <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
-                                                                                            {cityData.count} Orders
+                                                                                            {districtData.count} Orders
                                                                                         </span>
                                                                                     </TooltipTrigger>
                                                                                     <TooltipContent>
                                                                                         <p>
                                                                                             Total number of orders in{" "}
                                                                                             {getLocationName(
-                                                                                                cityData.city,
-                                                                                                "city",
+                                                                                                districtData.district,
+                                                                                                "district",
+                                                                                                districtData.district_name,
                                                                                             )}
                                                                                         </p>
                                                                                     </TooltipContent>
@@ -635,7 +626,7 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                                     <TooltipTrigger asChild>
                                                                                         <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
                                                                                             ₹
-                                                                                            {cityData.total_amount.toLocaleString()}
+                                                                                            {districtData.total_amount.toLocaleString()}
                                                                                         </span>
                                                                                     </TooltipTrigger>
                                                                                     <TooltipContent>
@@ -643,8 +634,9 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                                             Total revenue from all
                                                                                             orders in{" "}
                                                                                             {getLocationName(
-                                                                                                cityData.city,
-                                                                                                "city",
+                                                                                                districtData.district,
+                                                                                                "district",
+                                                                                                districtData.district_name,
                                                                                             )}
                                                                                         </p>
                                                                                     </TooltipContent>
@@ -652,11 +644,11 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                             </div>
                                                                         </button>
 
-                                                                        {expandedCities.has(
-                                                                            cityData.city || "unknown",
+                                                                        {expandedDistricts.has(
+                                                                            districtData.district || "unknown",
                                                                         ) && (
                                                                             <div className="px-6 mt-3 space-y-2">
-                                                                                {cityData.orders.map((order) => (
+                                                                                {districtData.orders.map((order) => (
                                                                                     <div
                                                                                         key={order.name}
                                                                                         className="bg-white rounded-lg p-3 hover:bg-gray-50 transition-colors"
@@ -696,12 +688,16 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                                             <div className="mt-3 pt-3 border-t border-gray-200">
                                                                                                 <div className="flex flex-wrap gap-2">
                                                                                                     <span
-                                                                                                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}
+                                                                                                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                                                                                            order.status,
+                                                                                                        )}`}
                                                                                                     >
                                                                                                         {order.status}
                                                                                                     </span>
                                                                                                     <span
-                                                                                                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${getTypeColor(order.type_of_case)}`}
+                                                                                                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${getTypeColor(
+                                                                                                            order.type_of_case,
+                                                                                                        )}`}
                                                                                                     >
                                                                                                         {order.type_of_case ||
                                                                                                             "Unspecified Type"}
