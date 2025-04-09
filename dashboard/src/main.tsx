@@ -6,7 +6,7 @@ import { FrappeProvider } from "frappe-react-sdk";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <FrappeProvider>
+        <FrappeProvider enableSocket={false}>
             <App />
         </FrappeProvider>
     </StrictMode>,

@@ -5,7 +5,6 @@ import { DashboardFilters } from "./DashboardFilters";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface SalesOrderFilters {
     state?: string[];
@@ -200,18 +199,8 @@ export const Dashboard = () => {
     );
 
     return (
-        <motion.div
-            className="min-h-screen bg-gray-50/50 p-6 space-y-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-        >
-            <motion.div
-                className="flex items-center justify-between"
-                initial={{ y: -20 }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.3 }}
-            >
+        <div className="min-h-screen bg-gray-50/50 p-6 space-y-6">
+            <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold text-gray-900">Sales Dashboard</h1>
                 <div className="flex items-center gap-4">
                     <Button
@@ -225,7 +214,7 @@ export const Dashboard = () => {
                     </Button>
                     <div className="text-sm text-gray-500">Last updated: {lastUpdated.toLocaleString()}</div>
                 </div>
-            </motion.div>
+            </div>
 
             <DashboardFilters
                 selectedStates={selectedStates}
@@ -306,41 +295,17 @@ export const Dashboard = () => {
             <Separator className="my-6" />
 
             {/* Display sales orders data */}
-            <motion.div
-                className="mt-8"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.2 }}
-            >
-                <AnimatePresence mode="wait">
-                    {isLoadingSalesOrders ? (
-                        <motion.div
-                            key="loading"
-                            className="flex items-center justify-center h-64"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            <motion.div
-                                className="rounded-full h-8 w-8 border-b-2 border-gray-900"
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                            ></motion.div>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="table"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <SalesOrderTable data={salesOrders?.data || []} />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </motion.div>
-        </motion.div>
+            <div className="mt-8">
+                {isLoadingSalesOrders ? (
+                    <div className="flex items-center justify-center h-64">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                    </div>
+                ) : (
+                    <div>
+                        <SalesOrderTable data={salesOrders?.data || []} />
+                    </div>
+                )}
+            </div>
+        </div>
     );
 };
