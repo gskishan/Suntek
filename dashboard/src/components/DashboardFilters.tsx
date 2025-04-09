@@ -14,6 +14,7 @@ interface DashboardFiltersProps {
     selectedDistricts: string[];
     selectedDepartment: string;
     salesOrderStatus: string;
+    selectedTypeOfCase: string;
     fromDate: Date | undefined;
     toDate: Date | undefined;
     limit: number;
@@ -28,6 +29,7 @@ interface DashboardFiltersProps {
     onDistrictChange: (values: string[]) => void;
     onDepartmentChange: (value: string) => void;
     onStatusChange: (value: string) => void;
+    onTypeOfCaseChange: (value: string) => void;
     onLimitChange: (value: number) => void;
     onFromDateChange: (date: Date | undefined) => void;
     onToDateChange: (date: Date | undefined) => void;
@@ -42,6 +44,7 @@ export const DashboardFilters = ({
     selectedDistricts,
     selectedDepartment,
     salesOrderStatus,
+    selectedTypeOfCase,
     fromDate,
     toDate,
     limit,
@@ -56,6 +59,7 @@ export const DashboardFilters = ({
     onDistrictChange,
     onDepartmentChange,
     onStatusChange,
+    onTypeOfCaseChange,
     onLimitChange,
     onFromDateChange,
     onToDateChange,
@@ -77,6 +81,7 @@ export const DashboardFilters = ({
             selectedDistricts.length > 0 ||
             selectedDepartment !== "all" ||
             salesOrderStatus !== "all" ||
+            selectedTypeOfCase !== "all" ||
             limit !== 100 ||
             fromDate !== undefined ||
             toDate !== undefined
@@ -88,6 +93,7 @@ export const DashboardFilters = ({
         selectedDistricts,
         selectedDepartment,
         salesOrderStatus,
+        selectedTypeOfCase,
         limit,
         fromDate,
         toDate,
@@ -206,6 +212,24 @@ export const DashboardFilters = ({
                                     <SelectItem value="Completed">Completed</SelectItem>
                                     <SelectItem value="Cancelled">Cancelled</SelectItem>
                                     <SelectItem value="Closed">Closed</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-1">
+                            <label className="text-xs font-medium text-gray-700">Type of Case</label>
+                            <Select
+                                value={selectedTypeOfCase}
+                                onValueChange={onTypeOfCaseChange}
+                            >
+                                <SelectTrigger className="w-full h-9">
+                                    <SelectValue placeholder="Select Type of Case" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Types</SelectItem>
+                                    <SelectItem value="Subsidy">Subsidy</SelectItem>
+                                    <SelectItem value="Non Subsidy">Non Subsidy</SelectItem>
+                                    <SelectItem value="No Subsidy No Discom">No Subsidy No Discom</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

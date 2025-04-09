@@ -118,6 +118,7 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
     ) => {
         if (!value) return `Unspecified ${type.charAt(0).toUpperCase() + type.slice(1)}`;
         if (type === "district" && districtName) return districtName;
+        if (type === "territory") return `${value} (Zone)`;
         return value;
     };
 
@@ -139,11 +140,17 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
         return colors[type] || "bg-gray-100 text-gray-800";
     };
 
+    // Helper function to create unique keys even for null values
+    const createUniqueKey = (value: string | null, prefix: string, index: number): string => {
+        if (value) return value;
+        return `${prefix}-unknown-${index}`;
+    };
+
     return (
         <div className="w-full space-y-6">
-            {data.map((stateData) => (
+            {data.map((stateData, stateIndex) => (
                 <Card
-                    key={stateData.state || "unknown"}
+                    key={createUniqueKey(stateData.state, "state", stateIndex)}
                     className="overflow-hidden"
                 >
                     <div className="p-4 border-b bg-gray-50/50">
@@ -203,9 +210,13 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
 
                     {expandedStates.has(stateData.state || "unknown") && (
                         <div className="p-4 space-y-4">
-                            {stateData.territories.map((territoryData) => (
+                            {stateData.territories.map((territoryData, territoryIndex) => (
                                 <div
-                                    key={territoryData.territory}
+                                    key={createUniqueKey(
+                                        territoryData.territory,
+                                        `state-${stateIndex}-territory`,
+                                        territoryIndex,
+                                    )}
                                     className="bg-white rounded-lg shadow-sm border"
                                 >
                                     <button
@@ -218,7 +229,7 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                             ) : (
                                                 <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
                                             )}
-                                            {territoryData.territory}
+                                            {territoryData.territory} (Zone)
                                         </div>
                                         <div className="flex items-center space-x-4">
                                             <Tooltip>
@@ -228,7 +239,7 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                     </span>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
-                                                    <p>Total number of orders in {territoryData.territory}</p>
+                                                    <p>Total number of orders in {territoryData.territory} (Zone)</p>
                                                 </TooltipContent>
                                             </Tooltip>
                                             <Tooltip>
@@ -238,7 +249,25 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                     </span>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
-                                                    <p>Total revenue from all orders in {territoryData.territory}</p>
+                                                    <p>
+                                                        Total revenue from all orders in {territoryData.territory}{" "}
+                                                        (Zone)
+                                                    </p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full flex items-center">
+                                                        <TrendingUp className="h-3 w-3 mr-1" />₹
+                                                        {territoryData.count > 0
+                                                            ? (
+                                                                  territoryData.total_amount / territoryData.count
+                                                              ).toLocaleString()
+                                                            : "0"}
+                                                    </span>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Average Order Value (AOV) in {territoryData.territory} (Zone)</p>
                                                 </TooltipContent>
                                             </Tooltip>
                                         </div>
@@ -246,9 +275,13 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
 
                                     {expandedTerritories.has(territoryData.territory) && (
                                         <div className="px-6 pb-4 space-y-3">
-                                            {territoryData.cities.map((cityData) => (
+                                            {territoryData.cities.map((cityData, cityIndex) => (
                                                 <div
-                                                    key={cityData.city || "unknown"}
+                                                    key={createUniqueKey(
+                                                        cityData.city,
+                                                        `territory-${territoryData.territory}-city`,
+                                                        cityIndex,
+                                                    )}
                                                     className="bg-gray-50 rounded-lg p-3"
                                                 >
                                                     <button
@@ -290,14 +323,36 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                     </p>
                                                                 </TooltipContent>
                                                             </Tooltip>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full flex items-center">
+                                                                        <TrendingUp className="h-3 w-3 mr-1" />₹
+                                                                        {cityData.count > 0
+                                                                            ? (
+                                                                                  cityData.total_amount / cityData.count
+                                                                              ).toLocaleString()
+                                                                            : "0"}
+                                                                    </span>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent>
+                                                                    <p>
+                                                                        Average Order Value (AOV) in{" "}
+                                                                        {getLocationName(cityData.city, "city")}
+                                                                    </p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
                                                         </div>
                                                     </button>
 
                                                     {expandedCities.has(cityData.city || "unknown") && (
                                                         <div className="px-6 mt-3 space-y-3">
-                                                            {cityData.districts.map((districtData) => (
+                                                            {cityData.districts.map((districtData, districtIndex) => (
                                                                 <div
-                                                                    key={districtData.district || "unknown"}
+                                                                    key={createUniqueKey(
+                                                                        districtData.district,
+                                                                        `city-${cityIndex}-district`,
+                                                                        districtIndex,
+                                                                    )}
                                                                     className="bg-white rounded-lg p-3"
                                                                 >
                                                                     <button
@@ -356,6 +411,30 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                                     </p>
                                                                                 </TooltipContent>
                                                                             </Tooltip>
+                                                                            <Tooltip>
+                                                                                <TooltipTrigger asChild>
+                                                                                    <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full flex items-center">
+                                                                                        <TrendingUp className="h-3 w-3 mr-1" />
+                                                                                        ₹
+                                                                                        {districtData.count > 0
+                                                                                            ? (
+                                                                                                  districtData.total_amount /
+                                                                                                  districtData.count
+                                                                                              ).toLocaleString()
+                                                                                            : "0"}
+                                                                                    </span>
+                                                                                </TooltipTrigger>
+                                                                                <TooltipContent>
+                                                                                    <p>
+                                                                                        Average Order Value (AOV) in{" "}
+                                                                                        {getLocationName(
+                                                                                            districtData.district,
+                                                                                            "district",
+                                                                                            districtData.district_name,
+                                                                                        )}
+                                                                                    </p>
+                                                                                </TooltipContent>
+                                                                            </Tooltip>
                                                                         </div>
                                                                     </button>
 
@@ -374,42 +453,43 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                                         }
                                                                                         className="w-full text-left"
                                                                                     >
-                                                                                        <div className="flex items-center justify-between">
-                                                                                            <div>
-                                                                                                <div className="font-medium text-gray-900">
-                                                                                                    <a
-                                                                                                        href={`/app/sales-order/${order.name}`}
-                                                                                                        target="_blank"
-                                                                                                        rel="noopener noreferrer"
-                                                                                                        className="text-blue-600 hover:text-blue-800 hover:underline"
-                                                                                                        onClick={(e) =>
-                                                                                                            e.stopPropagation()
-                                                                                                        }
-                                                                                                    >
-                                                                                                        {order.name}
-                                                                                                    </a>
+                                                                                        <div className="flex flex-col w-full">
+                                                                                            <div className="flex items-center justify-between">
+                                                                                                <div>
+                                                                                                    <div className="font-medium text-gray-900">
+                                                                                                        <a
+                                                                                                            href={`/app/sales-order/${order.name}`}
+                                                                                                            target="_blank"
+                                                                                                            rel="noopener noreferrer"
+                                                                                                            className="text-blue-600 hover:text-blue-800 hover:underline"
+                                                                                                            onClick={(
+                                                                                                                e,
+                                                                                                            ) =>
+                                                                                                                e.stopPropagation()
+                                                                                                            }
+                                                                                                        >
+                                                                                                            {order.name}
+                                                                                                        </a>
+                                                                                                    </div>
+                                                                                                    <div className="text-sm text-gray-600">
+                                                                                                        {order.customer}
+                                                                                                    </div>
                                                                                                 </div>
-                                                                                                <div className="text-sm text-gray-600">
-                                                                                                    {order.customer}
+                                                                                                <div className="text-right">
+                                                                                                    <div className="font-medium text-gray-900">
+                                                                                                        ₹
+                                                                                                        {order.grand_total.toLocaleString()}
+                                                                                                    </div>
+                                                                                                    <div className="text-sm text-gray-600">
+                                                                                                        {new Date(
+                                                                                                            order.creation,
+                                                                                                        ).toLocaleDateString()}
+                                                                                                    </div>
                                                                                                 </div>
                                                                                             </div>
-                                                                                            <div className="text-right">
-                                                                                                <div className="font-medium text-gray-900">
-                                                                                                    ₹
-                                                                                                    {order.grand_total.toLocaleString()}
-                                                                                                </div>
-                                                                                                <div className="text-sm text-gray-600">
-                                                                                                    {new Date(
-                                                                                                        order.creation,
-                                                                                                    ).toLocaleDateString()}
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </button>
 
-                                                                                    {expandedOrders.has(order.name) && (
-                                                                                        <div className="mt-3 pt-3 border-t border-gray-200">
-                                                                                            <div className="flex flex-wrap gap-2">
+                                                                                            {/* Show badges by default */}
+                                                                                            <div className="flex flex-wrap gap-2 mt-2">
                                                                                                 <span
                                                                                                     className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
                                                                                                         order.status,
@@ -433,6 +513,25 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                                                         }
                                                                                                     </span>
                                                                                                 )}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </button>
+
+                                                                                    {expandedOrders.has(order.name) && (
+                                                                                        <div className="mt-3 pt-3 border-t border-gray-200">
+                                                                                            {/* Add any additional details you want to show when expanded */}
+                                                                                            <div className="text-sm text-gray-600">
+                                                                                                <div className="flex justify-between">
+                                                                                                    <span>
+                                                                                                        Order created
+                                                                                                        on:
+                                                                                                    </span>
+                                                                                                    <span>
+                                                                                                        {new Date(
+                                                                                                            order.creation,
+                                                                                                        ).toLocaleString()}
+                                                                                                    </span>
+                                                                                                </div>
                                                                                             </div>
                                                                                         </div>
                                                                                     )}

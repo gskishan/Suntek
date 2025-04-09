@@ -13,6 +13,7 @@ interface SalesOrderFilters {
     district?: string[];
     department?: string;
     status?: string;
+    type_of_case?: string;
     from_date?: string;
     to_date?: string;
     limit?: number;
@@ -25,6 +26,7 @@ export const Dashboard = () => {
     const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
     const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
     const [salesOrderStatus, setSalesOrderStatus] = useState<string>("all");
+    const [selectedTypeOfCase, setSelectedTypeOfCase] = useState<string>("all");
     const [fromDate, setFromDate] = useState<Date>();
     const [toDate, setToDate] = useState<Date>();
     const [limit, setLimit] = useState<number>(100);
@@ -100,6 +102,7 @@ export const Dashboard = () => {
             if (selectedDistricts.length > 0) params.district = selectedDistricts.join(",");
             if (selectedDepartment !== "all") params.department = selectedDepartment;
             if (salesOrderStatus !== "all") params.status = salesOrderStatus;
+            if (selectedTypeOfCase !== "all") params.type_of_case = selectedTypeOfCase;
             if (fromDate) params.from_date = fromDate.toISOString().split("T")[0];
             if (toDate) params.to_date = toDate.toISOString().split("T")[0];
         }
@@ -113,6 +116,7 @@ export const Dashboard = () => {
         selectedDistricts,
         selectedDepartment,
         salesOrderStatus,
+        selectedTypeOfCase,
         fromDate,
         toDate,
         limit,
@@ -148,6 +152,7 @@ export const Dashboard = () => {
         setSelectedDistricts([]);
         setSelectedDepartment("all");
         setSalesOrderStatus("all");
+        setSelectedTypeOfCase("all");
         setFromDate(undefined);
         setToDate(undefined);
         setLimit(100); // Reset limit to default
@@ -170,6 +175,7 @@ export const Dashboard = () => {
         setSelectedDistricts([]);
         setSelectedDepartment("all");
         setSalesOrderStatus("all");
+        setSelectedTypeOfCase("all");
         setFromDate(undefined);
         setToDate(undefined);
         setLimit(100); // Reset limit to default
@@ -183,6 +189,20 @@ export const Dashboard = () => {
             refreshSalesOrders();
         }, 50);
     }, [refreshSalesOrders]);
+
+    // Handle type of case change
+    const handleTypeOfCaseChange = useCallback(
+        (value: string) => {
+            setSelectedTypeOfCase(value);
+            setFiltersApplied(true);
+
+            // Apply the filter immediately
+            setTimeout(() => {
+                refreshSalesOrders();
+            }, 50);
+        },
+        [refreshSalesOrders],
+    );
 
     // Handle limit change
     const handleLimitChange = useCallback(
@@ -223,6 +243,7 @@ export const Dashboard = () => {
                 selectedDistricts={selectedDistricts}
                 selectedDepartment={selectedDepartment}
                 salesOrderStatus={salesOrderStatus}
+                selectedTypeOfCase={selectedTypeOfCase}
                 fromDate={fromDate}
                 toDate={toDate}
                 limit={limit}
@@ -285,6 +306,7 @@ export const Dashboard = () => {
                 }}
                 onDepartmentChange={setSelectedDepartment}
                 onStatusChange={setSalesOrderStatus}
+                onTypeOfCaseChange={handleTypeOfCaseChange}
                 onLimitChange={handleLimitChange}
                 onFromDateChange={setFromDate}
                 onToDateChange={setToDate}
