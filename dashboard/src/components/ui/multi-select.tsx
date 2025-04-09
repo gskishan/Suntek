@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { motion, AnimatePresence } from "framer-motion";
 
 export interface MultiSelectOption {
     value: string;
@@ -63,6 +64,19 @@ export const MultiSelect = ({
         return options.filter((option) => option.label.toLowerCase().includes(searchQuery.toLowerCase()));
     }, [options, searchQuery]);
 
+    // Sort options to show selected ones at the top
+    const sortedFilteredOptions = React.useMemo(() => {
+        // Return a new array with selected options first, maintaining original order within each group
+        return [...filteredOptions].sort((a, b) => {
+            const aSelected = values.includes(a.value);
+            const bSelected = values.includes(b.value);
+
+            if (aSelected && !bSelected) return -1;
+            if (!aSelected && bSelected) return 1;
+            return 0;
+        });
+    }, [filteredOptions, values]);
+
     return (
         <Popover
             open={open}
@@ -74,8 +88,9 @@ export const MultiSelect = ({
                     role="combobox"
                     aria-expanded={open}
                     className={cn(
-                        "w-full justify-between h-9 px-3 py-2 text-left",
+                        "w-full justify-between h-9 px-3 py-2 text-left transition-all duration-200",
                         !values.length && "text-muted-foreground",
+                        open && "border-primary ring-1 ring-primary",
                     )}
                     disabled={disabled}
                     onClick={() => setOpen(!open)}
@@ -86,27 +101,42 @@ export const MultiSelect = ({
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <div className="flex flex-wrap gap-1 max-w-[90%] overflow-hidden">
-                                            {selectedLabels.slice(0, MAX_VISIBLE_BADGES).map((option) => (
-                                                <Badge
-                                                    key={option.value}
-                                                    variant="secondary"
-                                                    className="text-xs px-1.5 py-0.5 h-5 truncate max-w-[120px]"
-                                                    onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-                                                        e.stopPropagation();
-                                                        handleRemove(option.value);
-                                                    }}
-                                                >
-                                                    {option.label}
-                                                    <X className="ml-1 h-3 w-3 text-muted-foreground hover:text-foreground cursor-pointer" />
-                                                </Badge>
-                                            ))}
+                                            <AnimatePresence>
+                                                {selectedLabels.slice(0, MAX_VISIBLE_BADGES).map((option) => (
+                                                    <motion.div
+                                                        key={option.value}
+                                                        initial={{ opacity: 0, scale: 0.8 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        exit={{ opacity: 0, scale: 0.8 }}
+                                                        transition={{ duration: 0.15 }}
+                                                    >
+                                                        <Badge
+                                                            variant="secondary"
+                                                            className="text-xs px-1.5 py-0.5 h-5 truncate max-w-[120px]"
+                                                            onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+                                                                e.stopPropagation();
+                                                                handleRemove(option.value);
+                                                            }}
+                                                        >
+                                                            {option.label}
+                                                            <X className="ml-1 h-3 w-3 text-muted-foreground hover:text-foreground cursor-pointer" />
+                                                        </Badge>
+                                                    </motion.div>
+                                                ))}
+                                            </AnimatePresence>
                                             {selectedLabels.length > MAX_VISIBLE_BADGES && (
-                                                <Badge
-                                                    variant="secondary"
-                                                    className="text-xs px-1.5 py-0.5 h-5 bg-primary text-primary-foreground hover:bg-primary/80"
+                                                <motion.div
+                                                    initial={{ opacity: 0, scale: 0.8 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    transition={{ duration: 0.15 }}
                                                 >
-                                                    +{selectedLabels.length - MAX_VISIBLE_BADGES}
-                                                </Badge>
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className="text-xs px-1.5 py-0.5 h-5 bg-primary text-primary-foreground hover:bg-primary/80"
+                                                    >
+                                                        +{selectedLabels.length - MAX_VISIBLE_BADGES}
+                                                    </Badge>
+                                                </motion.div>
                                             )}
                                         </div>
                                     </TooltipTrigger>
@@ -122,7 +152,12 @@ export const MultiSelect = ({
                             <span>{placeholder}</span>
                         )}
                     </div>
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    <motion.div
+                        animate={{ rotate: open ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </motion.div>
                 </Button>
             </PopoverTrigger>
             <PopoverContent
@@ -145,31 +180,49 @@ export const MultiSelect = ({
                     <div className="py-6 text-center text-sm">No options found</div>
                 ) : (
                     <ScrollArea className="h-60 overflow-auto">
-                        <div className="p-1">
-                            {filteredOptions.map((option) => {
+                        <motion.div
+                            className="p-1"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            {sortedFilteredOptions.map((option) => {
                                 const isSelected = values.includes(option.value);
                                 return (
-                                    <div
+                                    <motion.div
                                         key={option.value}
                                         className={cn(
-                                            "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
+                                            "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground transition-colors",
                                             isSelected && "bg-accent/50",
                                         )}
                                         onClick={() => toggleOption(option.value)}
+                                        whileHover={{ x: 2 }}
+                                        transition={{ duration: 0.1 }}
                                     >
                                         <div
                                             className={cn(
-                                                "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                                "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary transition-colors",
                                                 isSelected ? "bg-primary text-primary-foreground" : "opacity-50",
                                             )}
                                         >
-                                            {isSelected && <Check className="h-3 w-3" />}
+                                            <AnimatePresence>
+                                                {isSelected && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, scale: 0 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        exit={{ opacity: 0, scale: 0 }}
+                                                        transition={{ duration: 0.1 }}
+                                                    >
+                                                        <Check className="h-3 w-3" />
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                         <span>{option.label}</span>
-                                    </div>
+                                    </motion.div>
                                 );
                             })}
-                        </div>
+                        </motion.div>
                     </ScrollArea>
                 )}
             </PopoverContent>

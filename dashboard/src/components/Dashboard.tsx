@@ -5,6 +5,7 @@ import { DashboardFilters } from "./DashboardFilters";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface SalesOrderFilters {
     state?: string[];
@@ -15,6 +16,7 @@ interface SalesOrderFilters {
     status?: string;
     from_date?: string;
     to_date?: string;
+    limit?: number;
 }
 
 export const Dashboard = () => {
@@ -26,6 +28,7 @@ export const Dashboard = () => {
     const [salesOrderStatus, setSalesOrderStatus] = useState<string>("all");
     const [fromDate, setFromDate] = useState<Date>();
     const [toDate, setToDate] = useState<Date>();
+    const [limit, setLimit] = useState<number>(100);
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
     const [filtersApplied, setFiltersApplied] = useState<boolean>(false);
 
@@ -87,6 +90,9 @@ export const Dashboard = () => {
             params.state = selectedStates.join(",");
         }
 
+        // Always include limit
+        params.limit = limit;
+
         if (filtersApplied) {
             // Add all filters when filters are explicitly applied
             if (selectedStates.length > 0) params.state = selectedStates.join(",");
@@ -110,6 +116,7 @@ export const Dashboard = () => {
         salesOrderStatus,
         fromDate,
         toDate,
+        limit,
     ]);
 
     // Fetch sales orders with filters
@@ -144,6 +151,7 @@ export const Dashboard = () => {
         setSalesOrderStatus("all");
         setFromDate(undefined);
         setToDate(undefined);
+        setLimit(100); // Reset limit to default
 
         // Keep filtersApplied true to ensure the API call goes through with cleared filters
         setLastUpdated(new Date());
@@ -165,6 +173,7 @@ export const Dashboard = () => {
         setSalesOrderStatus("all");
         setFromDate(undefined);
         setToDate(undefined);
+        setLimit(100); // Reset limit to default
 
         // Reset filters applied flag
         setFiltersApplied(false);
@@ -176,9 +185,33 @@ export const Dashboard = () => {
         }, 50);
     }, [refreshSalesOrders]);
 
+    // Handle limit change
+    const handleLimitChange = useCallback(
+        (newLimit: number) => {
+            setLimit(newLimit);
+            setFiltersApplied(true);
+
+            // Apply the filter immediately
+            setTimeout(() => {
+                refreshSalesOrders();
+            }, 50);
+        },
+        [refreshSalesOrders],
+    );
+
     return (
-        <div className="min-h-screen bg-gray-50/50 p-6 space-y-6">
-            <div className="flex items-center justify-between">
+        <motion.div
+            className="min-h-screen bg-gray-50/50 p-6 space-y-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+        >
+            <motion.div
+                className="flex items-center justify-between"
+                initial={{ y: -20 }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.3 }}
+            >
                 <h1 className="text-3xl font-bold text-gray-900">Sales Dashboard</h1>
                 <div className="flex items-center gap-4">
                     <Button
@@ -192,7 +225,7 @@ export const Dashboard = () => {
                     </Button>
                     <div className="text-sm text-gray-500">Last updated: {lastUpdated.toLocaleString()}</div>
                 </div>
-            </div>
+            </motion.div>
 
             <DashboardFilters
                 selectedStates={selectedStates}
@@ -203,6 +236,7 @@ export const Dashboard = () => {
                 salesOrderStatus={salesOrderStatus}
                 fromDate={fromDate}
                 toDate={toDate}
+                limit={limit}
                 states={states || []}
                 territories={territories}
                 cities={cities}
@@ -262,6 +296,7 @@ export const Dashboard = () => {
                 }}
                 onDepartmentChange={setSelectedDepartment}
                 onStatusChange={setSalesOrderStatus}
+                onLimitChange={handleLimitChange}
                 onFromDateChange={setFromDate}
                 onToDateChange={setToDate}
                 onApplyFilters={handleApplyFilters}
@@ -271,15 +306,41 @@ export const Dashboard = () => {
             <Separator className="my-6" />
 
             {/* Display sales orders data */}
-            <div className="mt-8">
-                {isLoadingSalesOrders ? (
-                    <div className="flex items-center justify-center h-64">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-                    </div>
-                ) : (
-                    <SalesOrderTable data={salesOrders?.data || []} />
-                )}
-            </div>
-        </div>
+            <motion.div
+                className="mt-8"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+            >
+                <AnimatePresence mode="wait">
+                    {isLoadingSalesOrders ? (
+                        <motion.div
+                            key="loading"
+                            className="flex items-center justify-center h-64"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <motion.div
+                                className="rounded-full h-8 w-8 border-b-2 border-gray-900"
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            ></motion.div>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="table"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <SalesOrderTable data={salesOrders?.data || []} />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </motion.div>
+        </motion.div>
     );
 };

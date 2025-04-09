@@ -21,10 +21,16 @@ def get_sales_order_data():
         department = form_dict.get("department")
         status = form_dict.get("status")
         type_of_case = form_dict.get("type_of_case")
-        limit = form_dict.get("limit")
+        limit = form_dict.get("limit", 100)
+        try:
+            limit = int(limit)
+        except (ValueError, TypeError):
+            limit = 100
         show_sql = form_dict.get("show_sql") == "1"
 
-        frappe.logger().info(f"Received state: {state}, territory: {territory}, city: {city}, district: {district}")
+        frappe.logger().info(
+            f"Received state: {state}, territory: {territory}, city: {city}, district: {district}, limit: {limit}"
+        )
 
     except Exception as e:
         frappe.logger().error(f"Error getting parameters: {e}")
@@ -38,10 +44,16 @@ def get_sales_order_data():
         department = frappe.request.args.get("department")
         status = frappe.request.args.get("status")
         type_of_case = frappe.request.args.get("type_of_case")
-        limit = frappe.request.args.get("limit")
+        limit = frappe.request.args.get("limit", 100)
+        try:
+            limit = int(limit)
+        except (ValueError, TypeError):
+            limit = 100
         show_sql = frappe.request.args.get("show_sql") == "1"
 
-        frappe.logger().info(f"Using args: state: {state}, territory: {territory}, city: {city}, district: {district}")
+        frappe.logger().info(
+            f"Using args: state: {state}, territory: {territory}, city: {city}, district: {district}, limit: {limit}"
+        )
 
     filters = {
         "from_date": from_date,
