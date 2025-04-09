@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export interface MultiSelectOption {
     value: string;
@@ -29,6 +30,7 @@ export const MultiSelect = ({
 }: MultiSelectProps) => {
     const [open, setOpen] = React.useState(false);
     const [searchQuery, setSearchQuery] = React.useState("");
+    const MAX_VISIBLE_BADGES = 2; // Maximum number of badges to display
 
     const toggleOption = React.useCallback(
         (value: string) => {
@@ -51,6 +53,11 @@ export const MultiSelect = ({
             .filter(Boolean) as MultiSelectOption[];
     }, [values, options]);
 
+    // Get all selected labels as a comma-separated string for the tooltip
+    const allSelectedLabelsText = React.useMemo(() => {
+        return selectedLabels.map((option) => option.label).join(", ");
+    }, [selectedLabels]);
+
     const filteredOptions = React.useMemo(() => {
         if (!searchQuery) return options;
         return options.filter((option) => option.label.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -66,26 +73,51 @@ export const MultiSelect = ({
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className={cn("w-full justify-between h-9 px-3 py-2", !values.length && "text-muted-foreground")}
+                    className={cn(
+                        "w-full justify-between h-9 px-3 py-2 text-left",
+                        !values.length && "text-muted-foreground",
+                    )}
                     disabled={disabled}
                     onClick={() => setOpen(!open)}
                 >
-                    <div className="flex flex-wrap gap-1 items-center">
+                    <div className="flex flex-wrap gap-1 items-center overflow-hidden">
                         {selectedLabels.length > 0 ? (
-                            selectedLabels.map((option) => (
-                                <Badge
-                                    key={option.value}
-                                    variant="secondary"
-                                    className="mr-1"
-                                    onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-                                        e.stopPropagation();
-                                        handleRemove(option.value);
-                                    }}
-                                >
-                                    {option.label}
-                                    <X className="ml-1 h-3 w-3 text-muted-foreground hover:text-foreground cursor-pointer" />
-                                </Badge>
-                            ))
+                            <TooltipProvider delayDuration={300}>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex flex-wrap gap-1 max-w-[90%] overflow-hidden">
+                                            {selectedLabels.slice(0, MAX_VISIBLE_BADGES).map((option) => (
+                                                <Badge
+                                                    key={option.value}
+                                                    variant="secondary"
+                                                    className="text-xs px-1.5 py-0.5 h-5 truncate max-w-[120px]"
+                                                    onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+                                                        e.stopPropagation();
+                                                        handleRemove(option.value);
+                                                    }}
+                                                >
+                                                    {option.label}
+                                                    <X className="ml-1 h-3 w-3 text-muted-foreground hover:text-foreground cursor-pointer" />
+                                                </Badge>
+                                            ))}
+                                            {selectedLabels.length > MAX_VISIBLE_BADGES && (
+                                                <Badge
+                                                    variant="secondary"
+                                                    className="text-xs px-1.5 py-0.5 h-5 bg-primary text-primary-foreground hover:bg-primary/80"
+                                                >
+                                                    +{selectedLabels.length - MAX_VISIBLE_BADGES}
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent
+                                        side="bottom"
+                                        className="max-w-xs"
+                                    >
+                                        <p className="text-sm">{allSelectedLabelsText}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         ) : (
                             <span>{placeholder}</span>
                         )}

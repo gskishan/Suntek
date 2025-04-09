@@ -1,8 +1,9 @@
 import { DatePicker } from "./ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { MultiSelect } from "./ui/multi-select";
 
@@ -29,6 +30,7 @@ interface DashboardFiltersProps {
     onFromDateChange: (date: Date | undefined) => void;
     onToDateChange: (date: Date | undefined) => void;
     onApplyFilters: () => void;
+    onClearFilters: () => void;
 }
 
 export const DashboardFilters = ({
@@ -54,12 +56,36 @@ export const DashboardFilters = ({
     onFromDateChange,
     onToDateChange,
     onApplyFilters,
+    onClearFilters,
 }: DashboardFiltersProps) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const toggleExpand = () => {
         setIsExpanded(!isExpanded);
     };
+
+    // Check if any filters are applied
+    const hasFilters = useMemo(() => {
+        return (
+            selectedStates.length > 0 ||
+            selectedTerritories.length > 0 ||
+            selectedCities.length > 0 ||
+            selectedDistricts.length > 0 ||
+            selectedDepartment !== "all" ||
+            salesOrderStatus !== "all" ||
+            fromDate !== undefined ||
+            toDate !== undefined
+        );
+    }, [
+        selectedStates,
+        selectedTerritories,
+        selectedCities,
+        selectedDistricts,
+        selectedDepartment,
+        salesOrderStatus,
+        fromDate,
+        toDate,
+    ]);
 
     return (
         <Card className="shadow-sm">
@@ -79,6 +105,7 @@ export const DashboardFilters = ({
                                 values={selectedStates}
                                 onValuesChange={(values: string[]) => {
                                     onStateChange(values);
+                                    // Automatically apply filters when states are selected
                                     if (values.length > 0) {
                                         setTimeout(() => {
                                             onApplyFilters();
@@ -195,14 +222,23 @@ export const DashboardFilters = ({
                         </div>
                     </div>
 
-                    <div className="flex justify-end pt-2">
-                        <Button
-                            onClick={onApplyFilters}
-                            className="px-4 py-2"
-                        >
-                            Apply Filters
-                        </Button>
-                    </div>
+                    {hasFilters && (
+                        <div className="flex justify-end pt-2 gap-2">
+                            <Button
+                                variant="outline"
+                                onClick={onClearFilters}
+                                className="px-4 py-2"
+                            >
+                                Clear Filters
+                            </Button>
+                            <Button
+                                onClick={onApplyFilters}
+                                className="px-4 py-2"
+                            >
+                                Apply Filters
+                            </Button>
+                        </div>
+                    )}
                 </CardContent>
             )}
         </Card>

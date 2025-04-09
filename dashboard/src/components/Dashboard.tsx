@@ -133,6 +133,27 @@ export const Dashboard = () => {
         }, 50);
     }, [refreshSalesOrders]);
 
+    // Handle clear filters
+    const handleClearFilters = useCallback(() => {
+        // Reset all filters
+        setSelectedStates([]);
+        setSelectedTerritories([]);
+        setSelectedCities([]);
+        setSelectedDistricts([]);
+        setSelectedDepartment("all");
+        setSalesOrderStatus("all");
+        setFromDate(undefined);
+        setToDate(undefined);
+
+        // Keep filtersApplied true to ensure the API call goes through with cleared filters
+        setLastUpdated(new Date());
+
+        // Add a delay to ensure state updates are processed
+        setTimeout(() => {
+            refreshSalesOrders();
+        }, 50);
+    }, [refreshSalesOrders]);
+
     // Handle refresh button click
     const handleRefresh = useCallback(() => {
         // Reset all filters
@@ -207,17 +228,44 @@ export const Dashboard = () => {
                     // Reset dependent filters
                     setSelectedCities([]);
                     setSelectedDistricts([]);
+
+                    // Automatically apply filters when territories are selected
+                    if (values.length > 0) {
+                        setFiltersApplied(true);
+                        setTimeout(() => {
+                            refreshSalesOrders();
+                        }, 50);
+                    }
                 }}
                 onCityChange={(values) => {
                     setSelectedCities(values);
                     setSelectedDistricts([]);
+
+                    // Automatically apply filters when cities are selected
+                    if (values.length > 0) {
+                        setFiltersApplied(true);
+                        setTimeout(() => {
+                            refreshSalesOrders();
+                        }, 50);
+                    }
                 }}
-                onDistrictChange={setSelectedDistricts}
+                onDistrictChange={(values) => {
+                    setSelectedDistricts(values);
+
+                    // Automatically apply filters when districts are selected
+                    if (values.length > 0) {
+                        setFiltersApplied(true);
+                        setTimeout(() => {
+                            refreshSalesOrders();
+                        }, 50);
+                    }
+                }}
                 onDepartmentChange={setSelectedDepartment}
                 onStatusChange={setSalesOrderStatus}
                 onFromDateChange={setFromDate}
                 onToDateChange={setToDate}
                 onApplyFilters={handleApplyFilters}
+                onClearFilters={handleClearFilters}
             />
 
             <Separator className="my-6" />

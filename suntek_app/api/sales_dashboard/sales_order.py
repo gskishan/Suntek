@@ -85,15 +85,22 @@ def _get_sales_orders(filters=None, limit=100):
         if filters.get("to_date"):
             where_clause += f" AND creation <= '{filters['to_date']}'"
         if filters.get("territory"):
-            where_clause += f" AND territory = '{filters['territory']}'"
+            territory_values = filters["territory"].split(",")
+            territory_list = ", ".join([f"'{t}'" for t in territory_values])
+            where_clause += f" AND territory IN ({territory_list})"
         if filters.get("state"):
-            state_value = filters["state"]
-            frappe.logger().info(f"Applying state filter with value: {state_value}")
-            where_clause += f" AND custom_suntek_state = '{state_value}'"
+            state_values = filters["state"].split(",")
+            state_list = ", ".join([f"'{s}'" for s in state_values])
+            frappe.logger().info(f"Applying state filter with values: {state_values}")
+            where_clause += f" AND custom_suntek_state IN ({state_list})"
         if filters.get("city"):
-            where_clause += f" AND custom_suntek_city = '{filters['city']}'"
+            city_values = filters["city"].split(",")
+            city_list = ", ".join([f"'{c}'" for c in city_values])
+            where_clause += f" AND custom_suntek_city IN ({city_list})"
         if filters.get("district"):
-            where_clause += f" AND custom_suntek_district = '{filters['district']}'"
+            district_values = filters["district"].split(",")
+            district_list = ", ".join([f"'{d}'" for d in district_values])
+            where_clause += f" AND custom_suntek_district IN ({district_list})"
         if filters.get("department"):
             where_clause += f" AND custom_department = '{filters['department']}'"
         if filters.get("status"):
