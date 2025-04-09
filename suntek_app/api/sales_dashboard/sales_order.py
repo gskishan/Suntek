@@ -8,6 +8,17 @@ from suntek_app.suntek.utils.api_handler import create_api_response
 
 @frappe.whitelist()
 def get_sales_order_data():
+    # Check if user has required role permissions
+    if not frappe.has_permission("Sales Order", "read"):
+        return create_api_response(403, "error", "Access Denied: Insufficient permissions to view sales data", {})
+
+    # Check for required roles
+    user_roles = frappe.get_roles(frappe.session.user)
+    allowed_roles = ["System Manager", "Sales Manager"]
+
+    if not any(role in user_roles for role in allowed_roles):
+        return create_api_response(403, "error", "Access Denied: Requires System Manager or Sales Manager role", {})
+
     try:
         form_dict = frappe.local.form_dict
         frappe.logger().info(f"Form dict: {form_dict}")

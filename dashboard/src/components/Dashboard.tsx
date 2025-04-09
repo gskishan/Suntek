@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useFrappeGetCall, useFrappeGetDocList } from "frappe-react-sdk";
 import { SalesOrderTable } from "./SalesOrderTable";
+import { HierarchicalDataTable } from "./HierarchicalDataTable";
 import { DashboardFilters } from "./DashboardFilters";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ShieldAlert } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 interface SalesOrderFilters {
     state?: string[];
@@ -32,6 +34,9 @@ export const Dashboard = () => {
     const [limit, setLimit] = useState<number>(100);
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
     const [filtersApplied, setFiltersApplied] = useState<boolean>(false);
+
+    // Add a state to track permission errors
+    const [permissionError, setPermissionError] = useState<string | null>(null);
 
     // Fetch all states
     const { data: states } = useFrappeGetDocList("State", {
@@ -81,35 +86,50 @@ export const Dashboard = () => {
         return allDistricts || [];
     }, [allDistricts]);
 
-    // Build query parameters for API call
+    // Build query parameters from filters
     const queryParams = useMemo(() => {
-        const params: Record<string, any> = { show_sql: "1" };
+        const params: Record<string, any> = {
+            limit,
+        };
 
-        // Always include state filter if it's not empty, even if filters are not "applied"
         if (selectedStates.length > 0) {
-            // Convert array to comma-separated string for API compatibility
             params.state = selectedStates.join(",");
         }
 
-        // Always include limit
-        params.limit = limit;
+        if (selectedTerritories.length > 0) {
+            params.territory = selectedTerritories.join(",");
+        }
 
-        if (filtersApplied) {
-            // Add all filters when filters are explicitly applied
-            if (selectedStates.length > 0) params.state = selectedStates.join(",");
-            if (selectedTerritories.length > 0) params.territory = selectedTerritories.join(",");
-            if (selectedCities.length > 0) params.city = selectedCities.join(",");
-            if (selectedDistricts.length > 0) params.district = selectedDistricts.join(",");
-            if (selectedDepartment !== "all") params.department = selectedDepartment;
-            if (salesOrderStatus !== "all") params.status = salesOrderStatus;
-            if (selectedTypeOfCase !== "all") params.type_of_case = selectedTypeOfCase;
-            if (fromDate) params.from_date = fromDate.toISOString().split("T")[0];
-            if (toDate) params.to_date = toDate.toISOString().split("T")[0];
+        if (selectedCities.length > 0) {
+            params.city = selectedCities.join(",");
+        }
+
+        if (selectedDistricts.length > 0) {
+            params.district = selectedDistricts.join(",");
+        }
+
+        if (selectedDepartment !== "all") {
+            params.department = selectedDepartment;
+        }
+
+        if (salesOrderStatus !== "all") {
+            params.status = salesOrderStatus;
+        }
+
+        if (selectedTypeOfCase !== "all") {
+            params.type_of_case = selectedTypeOfCase;
+        }
+
+        if (fromDate) {
+            params.from_date = fromDate.toISOString().split("T")[0];
+        }
+
+        if (toDate) {
+            params.to_date = toDate.toISOString().split("T")[0];
         }
 
         return params;
     }, [
-        filtersApplied,
         selectedStates,
         selectedTerritories,
         selectedCities,
@@ -124,13 +144,49 @@ export const Dashboard = () => {
 
     // Fetch sales orders with filters
     const {
-        data: salesOrders,
+        data: salesOrdersResponse,
         isLoading: isLoadingSalesOrders,
+        error: salesOrdersError,
         mutate: refreshSalesOrders,
     } = useFrappeGetCall("suntek_app.api.sales_dashboard.sales_order.get_sales_order_data", queryParams, {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
     });
+
+    // Type-safe access to sales order data
+    const salesOrdersData = useMemo(() => {
+        if (!salesOrdersResponse) return null;
+
+        // Handle different response formats
+        const response = salesOrdersResponse as any;
+        if (response.message && response.message.data) {
+            return response.message.data;
+        }
+        if (response.data) {
+            return response.data;
+        }
+        return null;
+    }, [salesOrdersResponse]);
+
+    // Check for permission errors
+    useEffect(() => {
+        if (salesOrdersError) {
+            const errorObj = salesOrdersError as any;
+            const errorMessage =
+                errorObj?.message?.message ||
+                errorObj?.error?.message ||
+                errorObj?.message ||
+                "An error occurred while fetching sales data";
+
+            if (typeof errorMessage === "string" && errorMessage.includes("Access Denied")) {
+                setPermissionError(errorMessage);
+            } else {
+                setPermissionError(null);
+            }
+        } else {
+            setPermissionError(null);
+        }
+    }, [salesOrdersError]);
 
     // Handle apply filters
     const handleApplyFilters = useCallback(() => {
@@ -166,74 +222,20 @@ export const Dashboard = () => {
         }, 50);
     }, [refreshSalesOrders]);
 
-    // Handle refresh button click
-    const handleRefresh = useCallback(() => {
-        // Reset all filters
-        setSelectedStates([]);
-        setSelectedTerritories([]);
-        setSelectedCities([]);
-        setSelectedDistricts([]);
-        setSelectedDepartment("all");
-        setSalesOrderStatus("all");
-        setSelectedTypeOfCase("all");
-        setFromDate(undefined);
-        setToDate(undefined);
-        setLimit(100); // Reset limit to default
-
-        // Reset filters applied flag
-        setFiltersApplied(false);
-        setLastUpdated(new Date());
-
-        // Add a delay before refreshing to ensure state updates are processed
-        setTimeout(() => {
-            refreshSalesOrders();
-        }, 50);
-    }, [refreshSalesOrders]);
-
-    // Handle type of case change
-    const handleTypeOfCaseChange = useCallback(
-        (value: string) => {
-            setSelectedTypeOfCase(value);
-            setFiltersApplied(true);
-
-            // Apply the filter immediately
-            setTimeout(() => {
-                refreshSalesOrders();
-            }, 50);
-        },
-        [refreshSalesOrders],
-    );
-
-    // Handle limit change
-    const handleLimitChange = useCallback(
-        (newLimit: number) => {
-            setLimit(newLimit);
-            setFiltersApplied(true);
-
-            // Apply the filter immediately
-            setTimeout(() => {
-                refreshSalesOrders();
-            }, 50);
-        },
-        [refreshSalesOrders],
-    );
-
     return (
-        <div className="min-h-screen bg-gray-50/50 p-6 space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold text-gray-900">Sales Dashboard</h1>
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRefresh}
-                        className="flex items-center gap-2"
-                    >
-                        <RefreshCw className="h-4 w-4" />
-                        Refresh
-                    </Button>
-                    <div className="text-sm text-gray-500">Last updated: {lastUpdated.toLocaleString()}</div>
-                </div>
+        <div className="container mx-auto py-6 space-y-6">
+            <div className="flex justify-between items-center">
+                <h1 className="text-2xl font-bold">Sales Dashboard</h1>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => refreshSalesOrders()}
+                    disabled={isLoadingSalesOrders}
+                    className="flex items-center gap-2"
+                >
+                    <RefreshCw className={`h-4 w-4 ${isLoadingSalesOrders ? "animate-spin" : ""}`} />
+                    Refresh Data
+                </Button>
             </div>
 
             <DashboardFilters
@@ -252,82 +254,53 @@ export const Dashboard = () => {
                 cities={cities}
                 districts={districts}
                 departments={departments || []}
-                onStateChange={(values) => {
-                    setSelectedStates(values);
-                    // Reset dependent filters when states change
-                    setSelectedTerritories([]);
-                    setSelectedCities([]);
-                    setSelectedDistricts([]);
-
-                    // Automatically apply filters when states are selected
-                    if (values.length > 0) {
-                        setFiltersApplied(true);
-                        setTimeout(() => {
-                            refreshSalesOrders();
-                        }, 50);
-                    }
-                }}
-                onTerritoryChange={(values) => {
-                    setSelectedTerritories(values);
-                    // Reset dependent filters
-                    setSelectedCities([]);
-                    setSelectedDistricts([]);
-
-                    // Automatically apply filters when territories are selected
-                    if (values.length > 0) {
-                        setFiltersApplied(true);
-                        setTimeout(() => {
-                            refreshSalesOrders();
-                        }, 50);
-                    }
-                }}
-                onCityChange={(values) => {
-                    setSelectedCities(values);
-                    setSelectedDistricts([]);
-
-                    // Automatically apply filters when cities are selected
-                    if (values.length > 0) {
-                        setFiltersApplied(true);
-                        setTimeout(() => {
-                            refreshSalesOrders();
-                        }, 50);
-                    }
-                }}
-                onDistrictChange={(values) => {
-                    setSelectedDistricts(values);
-
-                    // Automatically apply filters when districts are selected
-                    if (values.length > 0) {
-                        setFiltersApplied(true);
-                        setTimeout(() => {
-                            refreshSalesOrders();
-                        }, 50);
-                    }
-                }}
+                onStateChange={setSelectedStates}
+                onTerritoryChange={setSelectedTerritories}
+                onCityChange={setSelectedCities}
+                onDistrictChange={setSelectedDistricts}
                 onDepartmentChange={setSelectedDepartment}
                 onStatusChange={setSalesOrderStatus}
-                onTypeOfCaseChange={handleTypeOfCaseChange}
-                onLimitChange={handleLimitChange}
+                onTypeOfCaseChange={setSelectedTypeOfCase}
                 onFromDateChange={setFromDate}
                 onToDateChange={setToDate}
+                onLimitChange={setLimit}
                 onApplyFilters={handleApplyFilters}
                 onClearFilters={handleClearFilters}
             />
 
-            <Separator className="my-6" />
+            <Separator />
 
-            {/* Display sales orders data */}
-            <div className="mt-8">
-                {isLoadingSalesOrders ? (
-                    <div className="flex items-center justify-center h-64">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            {/* Permission Error Message */}
+            {permissionError && (
+                <Card className="p-8 border-red-200 bg-red-50">
+                    <div className="flex items-center gap-4">
+                        <ShieldAlert className="h-10 w-10 text-red-500" />
+                        <div>
+                            <h2 className="text-lg font-semibold text-red-700">Permission Error</h2>
+                            <p className="text-red-600">{permissionError}</p>
+                            <p className="mt-2 text-sm text-red-600">
+                                You need to have System Manager or Sales Manager role to view this data. Please contact
+                                your administrator for access.
+                            </p>
+                        </div>
                     </div>
-                ) : (
-                    <div>
-                        <SalesOrderTable data={salesOrders?.data || []} />
-                    </div>
-                )}
-            </div>
+                </Card>
+            )}
+
+            {/* Display sales data only if no permission error */}
+            {!permissionError && (
+                <>
+                    {isLoadingSalesOrders ? (
+                        <div className="flex justify-center items-center h-64">
+                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+                        </div>
+                    ) : (
+                        salesOrdersData && <HierarchicalDataTable data={salesOrdersData} />
+                    )}
+
+                    <div className="text-xs text-gray-500 text-right">Last updated: {lastUpdated.toLocaleString()}</div>
+                </>
+            )}
         </div>
     );
 };
