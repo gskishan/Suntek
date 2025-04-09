@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 
 import frappe
@@ -7,13 +8,65 @@ from suntek_app.suntek.utils.api_handler import create_api_response
 
 @frappe.whitelist()
 def get_sales_order_data():
-    from_date = frappe.request.args.get("from_date")
-    to_date = frappe.request.args.get("to_date")
-    territory = frappe.request.args.get("territory")
-    type_of_case = frappe.request.args.get("type_of_case")
-    limit = frappe.request.args.get("limit")
+    # Get query parameters directly from the request
+    try:
+        # First try to get from frappe.local.form_dict
+        form_dict = frappe.local.form_dict
+        frappe.logger().info(f"Form dict: {form_dict}")
 
-    filters = {"from_date": from_date, "to_date": to_date, "territory": territory, "type_of_case": type_of_case}
+        from_date = form_dict.get("from_date")
+        to_date = form_dict.get("to_date")
+        territory = form_dict.get("territory")
+        state = form_dict.get("state")
+        city = form_dict.get("city")
+        district = form_dict.get("district")
+        department = form_dict.get("department")
+        status = form_dict.get("status")
+        type_of_case = form_dict.get("type_of_case")
+        limit = form_dict.get("limit")
+        show_sql = form_dict.get("show_sql") == "1"
+
+        # Log the key parameters for debugging
+        frappe.logger().info(f"Received state: {state}, territory: {territory}, city: {city}, district: {district}")
+
+    except Exception as e:
+        frappe.logger().error(f"Error getting parameters: {e}")
+        # Fallback to request.args
+        from_date = frappe.request.args.get("from_date")
+        to_date = frappe.request.args.get("to_date")
+        territory = frappe.request.args.get("territory")
+        state = frappe.request.args.get("state")
+        city = frappe.request.args.get("city")
+        district = frappe.request.args.get("district")
+        department = frappe.request.args.get("department")
+        status = frappe.request.args.get("status")
+        type_of_case = frappe.request.args.get("type_of_case")
+        limit = frappe.request.args.get("limit")
+        show_sql = frappe.request.args.get("show_sql") == "1"
+
+        frappe.logger().info(f"Using args: state: {state}, territory: {territory}, city: {city}, district: {district}")
+
+    filters = {
+        "from_date": from_date,
+        "to_date": to_date,
+        "territory": territory,
+        "state": state,
+        "city": city,
+        "district": district,
+        "department": department,
+        "status": status,
+        "type_of_case": type_of_case,
+        "show_sql": show_sql,
+    }
+
+    # Remove None values and "all" values for hierarchy filters
+    filters = {
+        k: v
+        for k, v in filters.items()
+        if v is not None and (k not in ["state", "territory", "city", "district"] or v != "all")
+    }
+
+    frappe.logger().info(f"Processed Filters: {filters}")
 
     sales_orders = _get_sales_orders(filters, limit)
 
@@ -21,7 +74,16 @@ def get_sales_order_data():
 
 
 def _get_sales_orders(filters=None, limit=100):
+    # Debug specific state issues
+    frappe.logger().info(f"DEBUG STATE FILTER: Called _get_sales_orders with filters: {filters}")
+    if filters and filters.get("state"):
+        frappe.logger().info(f"DEBUG STATE FILTER: Filter includes state: {filters.get('state')}")
+
     where_clause = "1=1"
+    show_sql = filters.pop("show_sql", False) if filters else False
+
+    # Add more detailed logging of incoming filters
+    frappe.logger().info(f"_get_sales_orders called with filters: {filters}")
 
     if filters:
         if filters.get("from_date"):
@@ -30,6 +92,19 @@ def _get_sales_orders(filters=None, limit=100):
             where_clause += f" AND creation <= '{filters['to_date']}'"
         if filters.get("territory"):
             where_clause += f" AND territory = '{filters['territory']}'"
+        if filters.get("state"):
+            # Ensure state filter is properly applied
+            state_value = filters["state"]
+            frappe.logger().info(f"Applying state filter with value: {state_value}")
+            where_clause += f" AND custom_suntek_state = '{state_value}'"
+        if filters.get("city"):
+            where_clause += f" AND custom_suntek_city = '{filters['city']}'"
+        if filters.get("district"):
+            where_clause += f" AND custom_suntek_district = '{filters['district']}'"
+        if filters.get("department"):
+            where_clause += f" AND custom_department = '{filters['department']}'"
+        if filters.get("status"):
+            where_clause += f" AND status = '{filters['status']}'"
         if filters.get("type_of_case"):
             where_clause += f" AND custom_type_of_case = '{filters['type_of_case']}'"
 
@@ -45,6 +120,7 @@ def _get_sales_orders(filters=None, limit=100):
         custom_suntek_state as state,
         custom_suntek_city as city,
         custom_type_of_case as type_of_case,
+        custom_department as department,
         status
     FROM
         `tabSales Order`
@@ -59,21 +135,33 @@ def _get_sales_orders(filters=None, limit=100):
     else:
         query += " LIMIT 100"
 
+    # Always log the SQL query when state filter is applied
+    if filters and filters.get("state"):
+        frappe.logger().info(f"SQL Query with state filter: {query}")
+    elif show_sql:
+        frappe.logger().info(f"SQL Query: {query}")
+
     sales_orders = frappe.db.sql(
         query,
         as_dict=1,
     )
 
+    # Log the number of results returned
+    frappe.logger().info(f"Query returned {len(sales_orders)} sales orders")
+
     grouped_data = defaultdict(
         lambda: {
+            "state": None,
             "total_amount": 0,
             "count": 0,
-            "states": defaultdict(
+            "territories": defaultdict(
                 lambda: {
+                    "territory": None,
                     "total_amount": 0,
                     "count": 0,
                     "cities": defaultdict(
                         lambda: {
+                            "city": None,
                             "total_amount": 0,
                             "count": 0,
                             "districts": defaultdict(
@@ -93,98 +181,60 @@ def _get_sales_orders(filters=None, limit=100):
     )
 
     for order in sales_orders:
-        territory = order.get("territory", "Unknown Territory")
         state = order.get("state", "Unknown State")
+        territory = order.get("territory", "Unknown Territory")
         city = order.get("city", "Unknown City")
         district = order.get("district", "Unknown District")
         district_name = order.get("district_name", "Unknown District")
 
-        grouped_data[territory]["total_amount"] += float(order.get("grand_total", 0))
-        grouped_data[territory]["count"] += 1
+        grouped_data[state]["state"] = state
+        grouped_data[state]["total_amount"] += float(order.get("grand_total", 0))
+        grouped_data[state]["count"] += 1
 
-        grouped_data[territory]["states"][state]["total_amount"] += float(order.get("grand_total", 0))
-        grouped_data[territory]["states"][state]["count"] += 1
+        grouped_data[state]["territories"][territory]["territory"] = territory
+        grouped_data[state]["territories"][territory]["total_amount"] += float(order.get("grand_total", 0))
+        grouped_data[state]["territories"][territory]["count"] += 1
 
-        grouped_data[territory]["states"][state]["cities"][city]["total_amount"] += float(order.get("grand_total", 0))
-        grouped_data[territory]["states"][state]["cities"][city]["count"] += 1
-
-        grouped_data[territory]["states"][state]["cities"][city]["districts"][district]["district"] = district
-        grouped_data[territory]["states"][state]["cities"][city]["districts"][district]["district_name"] = district_name
-        grouped_data[territory]["states"][state]["cities"][city]["districts"][district]["total_amount"] += float(
+        grouped_data[state]["territories"][territory]["cities"][city]["city"] = city
+        grouped_data[state]["territories"][territory]["cities"][city]["total_amount"] += float(
             order.get("grand_total", 0)
         )
-        grouped_data[territory]["states"][state]["cities"][city]["districts"][district]["count"] += 1
-        grouped_data[territory]["states"][state]["cities"][city]["districts"][district]["orders"].append(order)
+        grouped_data[state]["territories"][territory]["cities"][city]["count"] += 1
+
+        grouped_data[state]["territories"][territory]["cities"][city]["districts"][district]["district"] = district
+        grouped_data[state]["territories"][territory]["cities"][city]["districts"][district]["district_name"] = (
+            district_name
+        )
+        grouped_data[state]["territories"][territory]["cities"][city]["districts"][district]["total_amount"] += float(
+            order.get("grand_total", 0)
+        )
+        grouped_data[state]["territories"][territory]["cities"][city]["districts"][district]["count"] += 1
+        grouped_data[state]["territories"][territory]["cities"][city]["districts"][district]["orders"].append(order)
 
     result = []
-    for territory, territory_data in grouped_data.items():
-        territory_entry = {
-            "territory": territory,
-            "total_amount": territory_data["total_amount"],
-            "count": territory_data["count"],
-            "states": [],
+    for _, state_data in grouped_data.items():
+        state_entry = {
+            "state": state_data["state"],
+            "total_amount": state_data["total_amount"],
+            "count": state_data["count"],
+            "territories": [],
         }
 
-        if not territory_data["states"]:
-            territory_data["states"]["Unknown State"] = {
+        for _, territory_data in state_data["territories"].items():
+            territory_entry = {
+                "territory": territory_data["territory"],
                 "total_amount": territory_data["total_amount"],
                 "count": territory_data["count"],
-                "cities": defaultdict(
-                    lambda: {
-                        "total_amount": 0,
-                        "count": 0,
-                        "districts": defaultdict(
-                            lambda: {
-                                "district": None,
-                                "district_name": None,
-                                "total_amount": 0,
-                                "count": 0,
-                                "orders": [],
-                            }
-                        ),
-                    }
-                ),
-            }
-
-        for state, state_data in territory_data["states"].items():
-            state_entry = {
-                "state": state,
-                "total_amount": state_data["total_amount"],
-                "count": state_data["count"],
                 "cities": [],
             }
 
-            if not state_data["cities"]:
-                state_data["cities"]["Unknown City"] = {
-                    "total_amount": state_data["total_amount"],
-                    "count": state_data["count"],
-                    "districts": defaultdict(
-                        lambda: {
-                            "district": None,
-                            "district_name": None,
-                            "total_amount": 0,
-                            "count": 0,
-                            "orders": [],
-                        }
-                    ),
-                }
-
-            for city, city_data in state_data["cities"].items():
+            for _, city_data in territory_data["cities"].items():
                 city_entry = {
-                    "city": city,
+                    "city": city_data["city"],
                     "total_amount": city_data["total_amount"],
                     "count": city_data["count"],
                     "districts": [],
                 }
-
-                if not city_data["districts"]:
-                    city_data["districts"]["Unknown District"] = {
-                        "district": None,
-                        "district_name": None,
-                        "total_amount": city_data["total_amount"],
-                        "count": city_data["count"],
-                        "orders": [],
-                    }
 
                 for _, district_data in city_data["districts"].items():
                     district_entry = {
@@ -196,10 +246,10 @@ def _get_sales_orders(filters=None, limit=100):
                     }
                     city_entry["districts"].append(district_entry)
 
-                state_entry["cities"].append(city_entry)
+                territory_entry["cities"].append(city_entry)
 
-            territory_entry["states"].append(state_entry)
+            state_entry["territories"].append(territory_entry)
 
-        result.append(territory_entry)
+        result.append(state_entry)
 
     return result

@@ -15,6 +15,7 @@ interface SalesOrder {
     district: string | null;
     district_name: string | null;
     city: string | null;
+    department: string | null;
 }
 
 interface DistrictData {
@@ -32,40 +33,30 @@ interface CityData {
     districts: DistrictData[];
 }
 
-interface StateData {
-    state: string | null;
+interface TerritoryData {
+    territory: string;
     total_amount: number;
     count: number;
     cities: CityData[];
 }
 
-interface TerritoryData {
-    territory: string;
+interface StateData {
+    state: string | null;
     total_amount: number;
     count: number;
-    states: StateData[];
+    territories: TerritoryData[];
 }
 
 interface SalesOrderTableProps {
-    data: TerritoryData[];
+    data: StateData[];
 }
 
 export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
-    const [expandedTerritories, setExpandedTerritories] = useState<Set<string>>(new Set());
     const [expandedStates, setExpandedStates] = useState<Set<string>>(new Set());
+    const [expandedTerritories, setExpandedTerritories] = useState<Set<string>>(new Set());
     const [expandedCities, setExpandedCities] = useState<Set<string>>(new Set());
     const [expandedDistricts, setExpandedDistricts] = useState<Set<string>>(new Set());
     const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
-
-    const toggleTerritory = (territory: string) => {
-        const newExpanded = new Set(expandedTerritories);
-        if (newExpanded.has(territory)) {
-            newExpanded.delete(territory);
-        } else {
-            newExpanded.add(territory);
-        }
-        setExpandedTerritories(newExpanded);
-    };
 
     const toggleState = (state: string | null) => {
         const stateKey = state || "unknown";
@@ -76,6 +67,16 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
             newExpanded.add(stateKey);
         }
         setExpandedStates(newExpanded);
+    };
+
+    const toggleTerritory = (territory: string) => {
+        const newExpanded = new Set(expandedTerritories);
+        if (newExpanded.has(territory)) {
+            newExpanded.delete(territory);
+        } else {
+            newExpanded.add(territory);
+        }
+        setExpandedTerritories(newExpanded);
     };
 
     const toggleCity = (city: string | null) => {
@@ -112,7 +113,7 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
 
     const getLocationName = (
         value: string | null,
-        type: "state" | "city" | "district",
+        type: "state" | "city" | "district" | "territory",
         districtName?: string | null,
     ) => {
         if (!value) return `Unspecified ${type.charAt(0).toUpperCase() + type.slice(1)}`;
@@ -138,592 +139,321 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
         return colors[type] || "bg-gray-100 text-gray-800";
     };
 
-    // Helper function to process states and handle null states
-    const processStates = (states: StateData[]) => {
-        const specifiedStates = states.filter((s) => s.state !== null);
-        const unspecifiedState = states.find((s) => s.state === null);
-
-        // If we have an unspecified state, merge its data with any other unspecified states
-        if (unspecifiedState) {
-            const otherUnspecifiedStates = states.filter((s) => s.state === null && s !== unspecifiedState);
-
-            if (otherUnspecifiedStates.length > 0) {
-                // Merge all unspecified states
-                otherUnspecifiedStates.forEach((state) => {
-                    unspecifiedState.total_amount += state.total_amount;
-                    unspecifiedState.count += state.count;
-                    state.cities.forEach((city) => {
-                        const existingCity = unspecifiedState.cities.find((c) => c.city === city.city);
-                        if (existingCity) {
-                            existingCity.total_amount += city.total_amount;
-                            existingCity.count += city.count;
-                            city.districts.forEach((district) => {
-                                const existingDistrict = existingCity.districts.find(
-                                    (d) => d.district === district.district,
-                                );
-                                if (existingDistrict) {
-                                    existingDistrict.total_amount += district.total_amount;
-                                    existingDistrict.count += district.count;
-                                    existingDistrict.orders.push(...district.orders);
-                                } else {
-                                    existingCity.districts.push(district);
-                                }
-                            });
-                        } else {
-                            unspecifiedState.cities.push(city);
-                        }
-                    });
-                });
-            }
-        }
-
-        return specifiedStates;
-    };
-
     return (
         <div className="w-full space-y-6">
-            {data.map((territoryData) => {
-                const processedStates = processStates(territoryData.states);
-                const unspecifiedState = territoryData.states.find((s) => s.state === null);
-
-                return (
-                    <Card
-                        key={territoryData.territory}
-                        className="overflow-hidden"
-                    >
-                        <div className="p-4 border-b bg-gray-50/50">
-                            <button
-                                onClick={() => toggleTerritory(territoryData.territory)}
-                                className="flex items-center justify-between w-full text-lg font-semibold text-gray-900 hover:bg-gray-100/50 p-2 rounded-lg transition-colors"
-                            >
-                                <div className="flex items-center">
-                                    {expandedTerritories.has(territoryData.territory) ? (
-                                        <ChevronDown className="h-5 w-5 mr-2 text-gray-500" />
-                                    ) : (
-                                        <ChevronRight className="h-5 w-5 mr-2 text-gray-500" />
-                                    )}
-                                    {territoryData.territory}
-                                </div>
-                                <div className="flex items-center space-x-6">
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
-                                                <Package className="h-4 w-4 mr-1.5" />
-                                                {territoryData.count} Orders
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Total number of orders in {territoryData.territory}</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
-                                                <DollarSign className="h-4 w-4 mr-1.5" />₹
-                                                {territoryData.total_amount.toLocaleString()}
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Total revenue from all orders in {territoryData.territory}</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
-                                                <TrendingUp className="h-4 w-4 mr-1.5" />₹
-                                                {(territoryData.total_amount / territoryData.count).toLocaleString()}
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Average Order Value (AOV) in {territoryData.territory}</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </div>
-                            </button>
-                        </div>
-
-                        {expandedTerritories.has(territoryData.territory) && (
-                            <div className="p-4 space-y-4">
-                                {/* Render specified states first */}
-                                {processedStates.map((stateData) => (
-                                    <div
-                                        key={stateData.state || "unknown"}
-                                        className="bg-white rounded-lg shadow-sm border"
-                                    >
-                                        <button
-                                            onClick={() => toggleState(stateData.state)}
-                                            className="flex items-center justify-between w-full text-md font-medium text-gray-800 hover:bg-gray-50 p-3 rounded-lg transition-colors"
-                                        >
-                                            <div className="flex items-center">
-                                                {expandedStates.has(stateData.state || "unknown") ? (
-                                                    <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
-                                                ) : (
-                                                    <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
-                                                )}
-                                                {getLocationName(stateData.state, "state")}
-                                            </div>
-                                            <div className="flex items-center space-x-4">
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
-                                                            {stateData.count} Orders
-                                                        </span>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>
-                                                            Total number of orders in{" "}
-                                                            {getLocationName(stateData.state, "state")}
-                                                        </p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
-                                                            ₹{stateData.total_amount.toLocaleString()}
-                                                        </span>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>
-                                                            Total revenue from all orders in{" "}
-                                                            {getLocationName(stateData.state, "state")}
-                                                        </p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            </div>
-                                        </button>
-
-                                        {expandedStates.has(stateData.state || "unknown") && (
-                                            <div className="px-6 pb-4 space-y-3">
-                                                {stateData.cities.map((cityData) => (
-                                                    <div
-                                                        key={cityData.city || "unknown"}
-                                                        className="bg-gray-50 rounded-lg p-3"
-                                                    >
-                                                        <button
-                                                            onClick={() => toggleCity(cityData.city)}
-                                                            className="flex items-center justify-between w-full text-sm text-gray-700 hover:bg-gray-100/50 p-2 rounded-lg transition-colors"
-                                                        >
-                                                            <div className="flex items-center">
-                                                                {expandedCities.has(cityData.city || "unknown") ? (
-                                                                    <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
-                                                                ) : (
-                                                                    <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
-                                                                )}
-                                                                {getLocationName(cityData.city, "city")}
-                                                            </div>
-                                                            <div className="flex items-center space-x-4">
-                                                                <Tooltip>
-                                                                    <TooltipTrigger asChild>
-                                                                        <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
-                                                                            {cityData.count} Orders
-                                                                        </span>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipContent>
-                                                                        <p>
-                                                                            Total number of orders in{" "}
-                                                                            {getLocationName(cityData.city, "city")}
-                                                                        </p>
-                                                                    </TooltipContent>
-                                                                </Tooltip>
-                                                                <Tooltip>
-                                                                    <TooltipTrigger asChild>
-                                                                        <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
-                                                                            ₹{cityData.total_amount.toLocaleString()}
-                                                                        </span>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipContent>
-                                                                        <p>
-                                                                            Total revenue from all orders in{" "}
-                                                                            {getLocationName(cityData.city, "city")}
-                                                                        </p>
-                                                                    </TooltipContent>
-                                                                </Tooltip>
-                                                            </div>
-                                                        </button>
-
-                                                        {expandedCities.has(cityData.city || "unknown") && (
-                                                            <div className="px-6 mt-3 space-y-3">
-                                                                {cityData.districts.map((districtData) => (
-                                                                    <div
-                                                                        key={districtData.district || "unknown"}
-                                                                        className="bg-white rounded-lg p-3"
-                                                                    >
-                                                                        <button
-                                                                            onClick={() =>
-                                                                                toggleDistrict(districtData.district)
-                                                                            }
-                                                                            className="flex items-center justify-between w-full text-sm text-gray-700 hover:bg-gray-100/50 p-2 rounded-lg transition-colors"
-                                                                        >
-                                                                            <div className="flex items-center">
-                                                                                {expandedDistricts.has(
-                                                                                    districtData.district || "unknown",
-                                                                                ) ? (
-                                                                                    <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
-                                                                                ) : (
-                                                                                    <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
-                                                                                )}
-                                                                                {getLocationName(
-                                                                                    districtData.district,
-                                                                                    "district",
-                                                                                    districtData.district_name,
-                                                                                )}
-                                                                            </div>
-                                                                            <div className="flex items-center space-x-4">
-                                                                                <Tooltip>
-                                                                                    <TooltipTrigger asChild>
-                                                                                        <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
-                                                                                            {districtData.count} Orders
-                                                                                        </span>
-                                                                                    </TooltipTrigger>
-                                                                                    <TooltipContent>
-                                                                                        <p>
-                                                                                            Total number of orders in{" "}
-                                                                                            {getLocationName(
-                                                                                                districtData.district,
-                                                                                                "district",
-                                                                                                districtData.district_name,
-                                                                                            )}
-                                                                                        </p>
-                                                                                    </TooltipContent>
-                                                                                </Tooltip>
-                                                                                <Tooltip>
-                                                                                    <TooltipTrigger asChild>
-                                                                                        <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
-                                                                                            ₹
-                                                                                            {districtData.total_amount.toLocaleString()}
-                                                                                        </span>
-                                                                                    </TooltipTrigger>
-                                                                                    <TooltipContent>
-                                                                                        <p>
-                                                                                            Total revenue from all
-                                                                                            orders in{" "}
-                                                                                            {getLocationName(
-                                                                                                districtData.district,
-                                                                                                "district",
-                                                                                                districtData.district_name,
-                                                                                            )}
-                                                                                        </p>
-                                                                                    </TooltipContent>
-                                                                                </Tooltip>
-                                                                            </div>
-                                                                        </button>
-
-                                                                        {expandedDistricts.has(
-                                                                            districtData.district || "unknown",
-                                                                        ) && (
-                                                                            <div className="px-6 mt-3 space-y-2">
-                                                                                {districtData.orders.map((order) => (
-                                                                                    <div
-                                                                                        key={order.name}
-                                                                                        className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100/50 transition-colors"
-                                                                                    >
-                                                                                        <button
-                                                                                            onClick={() =>
-                                                                                                toggleOrder(order.name)
-                                                                                            }
-                                                                                            className="w-full text-left"
-                                                                                        >
-                                                                                            <div className="flex items-center justify-between">
-                                                                                                <div>
-                                                                                                    <div className="font-medium text-gray-900">
-                                                                                                        {order.name}
-                                                                                                    </div>
-                                                                                                    <div className="text-sm text-gray-600">
-                                                                                                        {order.customer}
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                                <div className="text-right">
-                                                                                                    <div className="font-medium text-gray-900">
-                                                                                                        ₹
-                                                                                                        {order.grand_total.toLocaleString()}
-                                                                                                    </div>
-                                                                                                    <div className="text-sm text-gray-600">
-                                                                                                        {new Date(
-                                                                                                            order.creation,
-                                                                                                        ).toLocaleDateString()}
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </button>
-
-                                                                                        {expandedOrders.has(
-                                                                                            order.name,
-                                                                                        ) && (
-                                                                                            <div className="mt-3 pt-3 border-t border-gray-200">
-                                                                                                <div className="flex flex-wrap gap-2">
-                                                                                                    <span
-                                                                                                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                                                                                            order.status,
-                                                                                                        )}`}
-                                                                                                    >
-                                                                                                        {order.status}
-                                                                                                    </span>
-                                                                                                    <span
-                                                                                                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${getTypeColor(
-                                                                                                            order.type_of_case,
-                                                                                                        )}`}
-                                                                                                    >
-                                                                                                        {order.type_of_case ||
-                                                                                                            "Unspecified Type"}
-                                                                                                    </span>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        )}
-                                                                                    </div>
-                                                                                ))}
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-
-                                {/* Render unspecified state data if it exists */}
-                                {unspecifiedState && (
-                                    <div
-                                        key="unspecified"
-                                        className="bg-gray-50 rounded-lg shadow-sm border"
-                                    >
-                                        <button
-                                            onClick={() => toggleState(null)}
-                                            className="flex items-center justify-between w-full text-md font-medium text-gray-800 hover:bg-gray-100 p-3 rounded-lg transition-colors"
-                                        >
-                                            <div className="flex items-center">
-                                                {expandedStates.has("unknown") ? (
-                                                    <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
-                                                ) : (
-                                                    <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
-                                                )}
-                                                Unspecified State
-                                            </div>
-                                            <div className="flex items-center space-x-4">
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
-                                                            {unspecifiedState.count} Orders
-                                                        </span>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>Total number of orders with unspecified state</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
-                                                            ₹{unspecifiedState.total_amount.toLocaleString()}
-                                                        </span>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>Total revenue from all orders with unspecified state</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            </div>
-                                        </button>
-
-                                        {expandedStates.has("unknown") && (
-                                            <div className="px-6 pb-4 space-y-3">
-                                                {unspecifiedState.cities.map((cityData) => (
-                                                    <div
-                                                        key={cityData.city || "unknown"}
-                                                        className="bg-white rounded-lg p-3"
-                                                    >
-                                                        <button
-                                                            onClick={() => toggleCity(cityData.city)}
-                                                            className="flex items-center justify-between w-full text-sm text-gray-700 hover:bg-gray-50 p-2 rounded-lg transition-colors"
-                                                        >
-                                                            <div className="flex items-center">
-                                                                {expandedCities.has(cityData.city || "unknown") ? (
-                                                                    <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
-                                                                ) : (
-                                                                    <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
-                                                                )}
-                                                                {getLocationName(cityData.city, "city")}
-                                                            </div>
-                                                            <div className="flex items-center space-x-4">
-                                                                <Tooltip>
-                                                                    <TooltipTrigger asChild>
-                                                                        <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
-                                                                            {cityData.count} Orders
-                                                                        </span>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipContent>
-                                                                        <p>
-                                                                            Total number of orders in{" "}
-                                                                            {getLocationName(cityData.city, "city")}
-                                                                        </p>
-                                                                    </TooltipContent>
-                                                                </Tooltip>
-                                                                <Tooltip>
-                                                                    <TooltipTrigger asChild>
-                                                                        <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
-                                                                            ₹{cityData.total_amount.toLocaleString()}
-                                                                        </span>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipContent>
-                                                                        <p>
-                                                                            Total revenue from all orders in{" "}
-                                                                            {getLocationName(cityData.city, "city")}
-                                                                        </p>
-                                                                    </TooltipContent>
-                                                                </Tooltip>
-                                                            </div>
-                                                        </button>
-
-                                                        {expandedCities.has(cityData.city || "unknown") && (
-                                                            <div className="px-6 mt-3 space-y-3">
-                                                                {cityData.districts.map((districtData) => (
-                                                                    <div
-                                                                        key={districtData.district || "unknown"}
-                                                                        className="bg-gray-50 rounded-lg p-3"
-                                                                    >
-                                                                        <button
-                                                                            onClick={() =>
-                                                                                toggleDistrict(districtData.district)
-                                                                            }
-                                                                            className="flex items-center justify-between w-full text-sm text-gray-700 hover:bg-gray-100/50 p-2 rounded-lg transition-colors"
-                                                                        >
-                                                                            <div className="flex items-center">
-                                                                                {expandedDistricts.has(
-                                                                                    districtData.district || "unknown",
-                                                                                ) ? (
-                                                                                    <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
-                                                                                ) : (
-                                                                                    <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
-                                                                                )}
-                                                                                {getLocationName(
-                                                                                    districtData.district,
-                                                                                    "district",
-                                                                                    districtData.district_name,
-                                                                                )}
-                                                                            </div>
-                                                                            <div className="flex items-center space-x-4">
-                                                                                <Tooltip>
-                                                                                    <TooltipTrigger asChild>
-                                                                                        <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
-                                                                                            {districtData.count} Orders
-                                                                                        </span>
-                                                                                    </TooltipTrigger>
-                                                                                    <TooltipContent>
-                                                                                        <p>
-                                                                                            Total number of orders in{" "}
-                                                                                            {getLocationName(
-                                                                                                districtData.district,
-                                                                                                "district",
-                                                                                                districtData.district_name,
-                                                                                            )}
-                                                                                        </p>
-                                                                                    </TooltipContent>
-                                                                                </Tooltip>
-                                                                                <Tooltip>
-                                                                                    <TooltipTrigger asChild>
-                                                                                        <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
-                                                                                            ₹
-                                                                                            {districtData.total_amount.toLocaleString()}
-                                                                                        </span>
-                                                                                    </TooltipTrigger>
-                                                                                    <TooltipContent>
-                                                                                        <p>
-                                                                                            Total revenue from all
-                                                                                            orders in{" "}
-                                                                                            {getLocationName(
-                                                                                                districtData.district,
-                                                                                                "district",
-                                                                                                districtData.district_name,
-                                                                                            )}
-                                                                                        </p>
-                                                                                    </TooltipContent>
-                                                                                </Tooltip>
-                                                                            </div>
-                                                                        </button>
-
-                                                                        {expandedDistricts.has(
-                                                                            districtData.district || "unknown",
-                                                                        ) && (
-                                                                            <div className="px-6 mt-3 space-y-2">
-                                                                                {districtData.orders.map((order) => (
-                                                                                    <div
-                                                                                        key={order.name}
-                                                                                        className="bg-white rounded-lg p-3 hover:bg-gray-50 transition-colors"
-                                                                                    >
-                                                                                        <button
-                                                                                            onClick={() =>
-                                                                                                toggleOrder(order.name)
-                                                                                            }
-                                                                                            className="w-full text-left"
-                                                                                        >
-                                                                                            <div className="flex items-center justify-between">
-                                                                                                <div>
-                                                                                                    <div className="font-medium text-gray-900">
-                                                                                                        {order.name}
-                                                                                                    </div>
-                                                                                                    <div className="text-sm text-gray-600">
-                                                                                                        {order.customer}
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                                <div className="text-right">
-                                                                                                    <div className="font-medium text-gray-900">
-                                                                                                        ₹
-                                                                                                        {order.grand_total.toLocaleString()}
-                                                                                                    </div>
-                                                                                                    <div className="text-sm text-gray-600">
-                                                                                                        {new Date(
-                                                                                                            order.creation,
-                                                                                                        ).toLocaleDateString()}
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </button>
-
-                                                                                        {expandedOrders.has(
-                                                                                            order.name,
-                                                                                        ) && (
-                                                                                            <div className="mt-3 pt-3 border-t border-gray-200">
-                                                                                                <div className="flex flex-wrap gap-2">
-                                                                                                    <span
-                                                                                                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                                                                                            order.status,
-                                                                                                        )}`}
-                                                                                                    >
-                                                                                                        {order.status}
-                                                                                                    </span>
-                                                                                                    <span
-                                                                                                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${getTypeColor(
-                                                                                                            order.type_of_case,
-                                                                                                        )}`}
-                                                                                                    >
-                                                                                                        {order.type_of_case ||
-                                                                                                            "Unspecified Type"}
-                                                                                                    </span>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        )}
-                                                                                    </div>
-                                                                                ))}
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
+            {data.map((stateData) => (
+                <Card
+                    key={stateData.state || "unknown"}
+                    className="overflow-hidden"
+                >
+                    <div className="p-4 border-b bg-gray-50/50">
+                        <button
+                            onClick={() => toggleState(stateData.state)}
+                            className="flex items-center justify-between w-full text-lg font-semibold text-gray-900 hover:bg-gray-100/50 p-2 rounded-lg transition-colors"
+                        >
+                            <div className="flex items-center">
+                                {expandedStates.has(stateData.state || "unknown") ? (
+                                    <ChevronDown className="h-5 w-5 mr-2 text-gray-500" />
+                                ) : (
+                                    <ChevronRight className="h-5 w-5 mr-2 text-gray-500" />
                                 )}
+                                {getLocationName(stateData.state, "state")}
                             </div>
-                        )}
-                    </Card>
-                );
-            })}
+                            <div className="flex items-center space-x-6">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
+                                            <Package className="h-4 w-4 mr-1.5" />
+                                            {stateData.count} Orders
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Total number of orders in {getLocationName(stateData.state, "state")}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
+                                            <DollarSign className="h-4 w-4 mr-1.5" />₹
+                                            {stateData.total_amount.toLocaleString()}
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>
+                                            Total revenue from all orders in {getLocationName(stateData.state, "state")}
+                                        </p>
+                                    </TooltipContent>
+                                </Tooltip>
+
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
+                                            <TrendingUp className="h-4 w-4 mr-1.5" />₹
+                                            {(stateData.total_amount / stateData.count).toLocaleString()}
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Average Order Value (AOV) in {getLocationName(stateData.state, "state")}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </div>
+                        </button>
+                    </div>
+
+                    {expandedStates.has(stateData.state || "unknown") && (
+                        <div className="p-4 space-y-4">
+                            {stateData.territories.map((territoryData) => (
+                                <div
+                                    key={territoryData.territory}
+                                    className="bg-white rounded-lg shadow-sm border"
+                                >
+                                    <button
+                                        onClick={() => toggleTerritory(territoryData.territory)}
+                                        className="flex items-center justify-between w-full text-md font-medium text-gray-800 hover:bg-gray-50 p-3 rounded-lg transition-colors"
+                                    >
+                                        <div className="flex items-center">
+                                            {expandedTerritories.has(territoryData.territory) ? (
+                                                <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
+                                            ) : (
+                                                <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
+                                            )}
+                                            {territoryData.territory}
+                                        </div>
+                                        <div className="flex items-center space-x-4">
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
+                                                        {territoryData.count} Orders
+                                                    </span>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Total number of orders in {territoryData.territory}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
+                                                        ₹{territoryData.total_amount.toLocaleString()}
+                                                    </span>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Total revenue from all orders in {territoryData.territory}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </div>
+                                    </button>
+
+                                    {expandedTerritories.has(territoryData.territory) && (
+                                        <div className="px-6 pb-4 space-y-3">
+                                            {territoryData.cities.map((cityData) => (
+                                                <div
+                                                    key={cityData.city || "unknown"}
+                                                    className="bg-gray-50 rounded-lg p-3"
+                                                >
+                                                    <button
+                                                        onClick={() => toggleCity(cityData.city)}
+                                                        className="flex items-center justify-between w-full text-sm text-gray-700 hover:bg-gray-100/50 p-2 rounded-lg transition-colors"
+                                                    >
+                                                        <div className="flex items-center">
+                                                            {expandedCities.has(cityData.city || "unknown") ? (
+                                                                <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
+                                                            ) : (
+                                                                <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
+                                                            )}
+                                                            {getLocationName(cityData.city, "city")}
+                                                        </div>
+                                                        <div className="flex items-center space-x-4">
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
+                                                                        {cityData.count} Orders
+                                                                    </span>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent>
+                                                                    <p>
+                                                                        Total number of orders in{" "}
+                                                                        {getLocationName(cityData.city, "city")}
+                                                                    </p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
+                                                                        ₹{cityData.total_amount.toLocaleString()}
+                                                                    </span>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent>
+                                                                    <p>
+                                                                        Total revenue from all orders in{" "}
+                                                                        {getLocationName(cityData.city, "city")}
+                                                                    </p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </div>
+                                                    </button>
+
+                                                    {expandedCities.has(cityData.city || "unknown") && (
+                                                        <div className="px-6 mt-3 space-y-3">
+                                                            {cityData.districts.map((districtData) => (
+                                                                <div
+                                                                    key={districtData.district || "unknown"}
+                                                                    className="bg-white rounded-lg p-3"
+                                                                >
+                                                                    <button
+                                                                        onClick={() =>
+                                                                            toggleDistrict(districtData.district)
+                                                                        }
+                                                                        className="flex items-center justify-between w-full text-sm text-gray-700 hover:bg-gray-100/50 p-2 rounded-lg transition-colors"
+                                                                    >
+                                                                        <div className="flex items-center">
+                                                                            {expandedDistricts.has(
+                                                                                districtData.district || "unknown",
+                                                                            ) ? (
+                                                                                <ChevronDown className="h-4 w-4 mr-2 text-gray-500" />
+                                                                            ) : (
+                                                                                <ChevronRight className="h-4 w-4 mr-2 text-gray-500" />
+                                                                            )}
+                                                                            {getLocationName(
+                                                                                districtData.district,
+                                                                                "district",
+                                                                                districtData.district_name,
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="flex items-center space-x-4">
+                                                                            <Tooltip>
+                                                                                <TooltipTrigger asChild>
+                                                                                    <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
+                                                                                        {districtData.count} Orders
+                                                                                    </span>
+                                                                                </TooltipTrigger>
+                                                                                <TooltipContent>
+                                                                                    <p>
+                                                                                        Total number of orders in{" "}
+                                                                                        {getLocationName(
+                                                                                            districtData.district,
+                                                                                            "district",
+                                                                                            districtData.district_name,
+                                                                                        )}
+                                                                                    </p>
+                                                                                </TooltipContent>
+                                                                            </Tooltip>
+                                                                            <Tooltip>
+                                                                                <TooltipTrigger asChild>
+                                                                                    <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
+                                                                                        ₹
+                                                                                        {districtData.total_amount.toLocaleString()}
+                                                                                    </span>
+                                                                                </TooltipTrigger>
+                                                                                <TooltipContent>
+                                                                                    <p>
+                                                                                        Total revenue from all orders in{" "}
+                                                                                        {getLocationName(
+                                                                                            districtData.district,
+                                                                                            "district",
+                                                                                            districtData.district_name,
+                                                                                        )}
+                                                                                    </p>
+                                                                                </TooltipContent>
+                                                                            </Tooltip>
+                                                                        </div>
+                                                                    </button>
+
+                                                                    {expandedDistricts.has(
+                                                                        districtData.district || "unknown",
+                                                                    ) && (
+                                                                        <div className="px-6 mt-3 space-y-2">
+                                                                            {districtData.orders.map((order) => (
+                                                                                <div
+                                                                                    key={order.name}
+                                                                                    className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100/50 transition-colors"
+                                                                                >
+                                                                                    <button
+                                                                                        onClick={() =>
+                                                                                            toggleOrder(order.name)
+                                                                                        }
+                                                                                        className="w-full text-left"
+                                                                                    >
+                                                                                        <div className="flex items-center justify-between">
+                                                                                            <div>
+                                                                                                <div className="font-medium text-gray-900">
+                                                                                                    <a
+                                                                                                        href={`/app/sales-order/${order.name}`}
+                                                                                                        target="_blank"
+                                                                                                        rel="noopener noreferrer"
+                                                                                                        className="text-blue-600 hover:text-blue-800 hover:underline"
+                                                                                                        onClick={(e) =>
+                                                                                                            e.stopPropagation()
+                                                                                                        }
+                                                                                                    >
+                                                                                                        {order.name}
+                                                                                                    </a>
+                                                                                                </div>
+                                                                                                <div className="text-sm text-gray-600">
+                                                                                                    {order.customer}
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div className="text-right">
+                                                                                                <div className="font-medium text-gray-900">
+                                                                                                    ₹
+                                                                                                    {order.grand_total.toLocaleString()}
+                                                                                                </div>
+                                                                                                <div className="text-sm text-gray-600">
+                                                                                                    {new Date(
+                                                                                                        order.creation,
+                                                                                                    ).toLocaleDateString()}
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </button>
+
+                                                                                    {expandedOrders.has(order.name) && (
+                                                                                        <div className="mt-3 pt-3 border-t border-gray-200">
+                                                                                            <div className="flex flex-wrap gap-2">
+                                                                                                <span
+                                                                                                    className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                                                                                        order.status,
+                                                                                                    )}`}
+                                                                                                >
+                                                                                                    {order.status}
+                                                                                                </span>
+                                                                                                <span
+                                                                                                    className={`px-2.5 py-1 rounded-full text-xs font-medium ${getTypeColor(
+                                                                                                        order.type_of_case,
+                                                                                                    )}`}
+                                                                                                >
+                                                                                                    {order.type_of_case ||
+                                                                                                        "Unspecified Type"}
+                                                                                                </span>
+                                                                                                {order.department && (
+                                                                                                    <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                                                                        Dept:{" "}
+                                                                                                        {
+                                                                                                            order.department
+                                                                                                        }
+                                                                                                    </span>
+                                                                                                )}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </Card>
+            ))}
         </div>
     );
 };
