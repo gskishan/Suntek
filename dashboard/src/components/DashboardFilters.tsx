@@ -1,16 +1,16 @@
 import { DatePicker } from "./ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { MultiSelect } from "./ui/multi-select";
 
 interface DashboardFiltersProps {
-    selectedState: string;
-    selectedTerritory: string;
-    selectedCity: string;
-    selectedDistrict: string;
+    selectedStates: string[];
+    selectedTerritories: string[];
+    selectedCities: string[];
+    selectedDistricts: string[];
     selectedDepartment: string;
     salesOrderStatus: string;
     fromDate: Date | undefined;
@@ -20,10 +20,10 @@ interface DashboardFiltersProps {
     cities: Array<{ name: string; creation: string; city: string }>;
     districts: Array<{ name: string; creation: string; district: string }>;
     departments: Array<{ name: string; creation: string }>;
-    onStateChange: (value: string) => void;
-    onTerritoryChange: (value: string) => void;
-    onCityChange: (value: string) => void;
-    onDistrictChange: (value: string) => void;
+    onStateChange: (values: string[]) => void;
+    onTerritoryChange: (values: string[]) => void;
+    onCityChange: (values: string[]) => void;
+    onDistrictChange: (values: string[]) => void;
     onDepartmentChange: (value: string) => void;
     onStatusChange: (value: string) => void;
     onFromDateChange: (date: Date | undefined) => void;
@@ -32,10 +32,10 @@ interface DashboardFiltersProps {
 }
 
 export const DashboardFilters = ({
-    selectedState,
-    selectedTerritory,
-    selectedCity,
-    selectedDistrict,
+    selectedStates,
+    selectedTerritories,
+    selectedCities,
+    selectedDistricts,
     selectedDepartment,
     salesOrderStatus,
     fromDate,
@@ -74,103 +74,62 @@ export const DashboardFilters = ({
                 <CardContent className="space-y-4 pt-0">
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
                         <div className="space-y-1">
-                            <label className="text-xs font-medium text-gray-700">State</label>
-                            <Select
-                                value={selectedState}
-                                onValueChange={(value) => {
-                                    onStateChange(value);
-                                    // Automatically apply filters when a state is selected and it's not "all"
-                                    if (value !== "all") {
+                            <label className="text-xs font-medium text-gray-700">States</label>
+                            <MultiSelect
+                                values={selectedStates}
+                                onValuesChange={(values: string[]) => {
+                                    onStateChange(values);
+                                    if (values.length > 0) {
                                         setTimeout(() => {
                                             onApplyFilters();
                                         }, 0);
                                     }
                                 }}
-                            >
-                                <SelectTrigger className="w-full h-9">
-                                    <SelectValue placeholder="Select State" />
-                                </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-auto">
-                                    <SelectItem value="all">All States</SelectItem>
-                                    {states?.map((state) => (
-                                        <SelectItem
-                                            key={state.creation}
-                                            value={state.name}
-                                        >
-                                            {state.state}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                options={states.map((state) => ({
+                                    value: state.name,
+                                    label: state.state,
+                                }))}
+                                placeholder="Select States"
+                            />
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-xs font-medium text-gray-700">Territory</label>
-                            <Select
-                                value={selectedTerritory}
-                                onValueChange={onTerritoryChange}
-                            >
-                                <SelectTrigger className="w-full h-9">
-                                    <SelectValue placeholder="Select Territory" />
-                                </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-auto">
-                                    <SelectItem value="all">All Territories</SelectItem>
-                                    {territories?.map((territory) => (
-                                        <SelectItem
-                                            key={territory.creation}
-                                            value={territory.name}
-                                        >
-                                            {territory.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <label className="text-xs font-medium text-gray-700">Territories</label>
+                            <MultiSelect
+                                values={selectedTerritories}
+                                onValuesChange={onTerritoryChange}
+                                options={territories.map((territory) => ({
+                                    value: territory.name,
+                                    label: territory.name,
+                                }))}
+                                placeholder="Select Territories"
+                            />
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-xs font-medium text-gray-700">City</label>
-                            <Select
-                                value={selectedCity}
-                                onValueChange={onCityChange}
-                            >
-                                <SelectTrigger className="w-full h-9">
-                                    <SelectValue placeholder="Select City" />
-                                </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-auto">
-                                    <SelectItem value="all">All Cities</SelectItem>
-                                    {cities?.map((city) => (
-                                        <SelectItem
-                                            key={city.creation}
-                                            value={city.name}
-                                        >
-                                            {city.city}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <label className="text-xs font-medium text-gray-700">Cities</label>
+                            <MultiSelect
+                                values={selectedCities}
+                                onValuesChange={onCityChange}
+                                options={cities.map((city) => ({
+                                    value: city.name,
+                                    label: city.city,
+                                }))}
+                                placeholder="Select Cities"
+                            />
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-xs font-medium text-gray-700">District</label>
-                            <Select
-                                value={selectedDistrict}
-                                onValueChange={onDistrictChange}
-                            >
-                                <SelectTrigger className="w-full h-9">
-                                    <SelectValue placeholder="Select District" />
-                                </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-auto">
-                                    <SelectItem value="all">All Districts</SelectItem>
-                                    {districts?.map((district) => (
-                                        <SelectItem
-                                            key={district.creation}
-                                            value={district.name}
-                                        >
-                                            {district.district}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <label className="text-xs font-medium text-gray-700">Districts</label>
+                            <MultiSelect
+                                values={selectedDistricts}
+                                onValuesChange={onDistrictChange}
+                                options={districts.map((district) => ({
+                                    value: district.name,
+                                    label: district.district,
+                                }))}
+                                placeholder="Select Districts"
+                            />
                         </div>
 
                         <div className="space-y-1">

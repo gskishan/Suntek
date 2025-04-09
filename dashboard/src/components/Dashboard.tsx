@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 
 interface SalesOrderFilters {
-    state?: string;
-    territory?: string;
-    city?: string;
-    district?: string;
+    state?: string[];
+    territory?: string[];
+    city?: string[];
+    district?: string[];
     department?: string;
     status?: string;
     from_date?: string;
@@ -18,15 +18,14 @@ interface SalesOrderFilters {
 }
 
 export const Dashboard = () => {
-    const [selectedState, setSelectedState] = useState<string>("all");
-    const [selectedTerritory, setSelectedTerritory] = useState<string>("all");
-    const [selectedCity, setSelectedCity] = useState<string>("all");
-    const [selectedDistrict, setSelectedDistrict] = useState<string>("all");
+    const [selectedStates, setSelectedStates] = useState<string[]>([]);
+    const [selectedTerritories, setSelectedTerritories] = useState<string[]>([]);
+    const [selectedCities, setSelectedCities] = useState<string[]>([]);
+    const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
     const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
     const [salesOrderStatus, setSalesOrderStatus] = useState<string>("all");
     const [fromDate, setFromDate] = useState<Date>();
     const [toDate, setToDate] = useState<Date>();
-    const [refreshKey, setRefreshKey] = useState<number>(0);
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
     const [filtersApplied, setFiltersApplied] = useState<boolean>(false);
 
@@ -80,22 +79,20 @@ export const Dashboard = () => {
 
     // Build query parameters for API call
     const queryParams = useMemo(() => {
-        const params: Record<string, string> = { show_sql: "1" };
+        const params: Record<string, any> = { show_sql: "1" };
 
-        // Always include state filter if it's not "all", even if filters are not "applied"
-        if (selectedState !== "all") {
-            params.state = selectedState;
-            // Set filtersApplied to true if state is selected but filters aren't applied
-            if (!filtersApplied) {
-                setTimeout(() => setFiltersApplied(true), 0);
-            }
+        // Always include state filter if it's not empty, even if filters are not "applied"
+        if (selectedStates.length > 0) {
+            // Convert array to comma-separated string for API compatibility
+            params.state = selectedStates.join(",");
         }
 
         if (filtersApplied) {
-            // State is already handled above
-            if (selectedTerritory !== "all") params.territory = selectedTerritory;
-            if (selectedCity !== "all") params.city = selectedCity;
-            if (selectedDistrict !== "all") params.district = selectedDistrict;
+            // Add all filters when filters are explicitly applied
+            if (selectedStates.length > 0) params.state = selectedStates.join(",");
+            if (selectedTerritories.length > 0) params.territory = selectedTerritories.join(",");
+            if (selectedCities.length > 0) params.city = selectedCities.join(",");
+            if (selectedDistricts.length > 0) params.district = selectedDistricts.join(",");
             if (selectedDepartment !== "all") params.department = selectedDepartment;
             if (salesOrderStatus !== "all") params.status = salesOrderStatus;
             if (fromDate) params.from_date = fromDate.toISOString().split("T")[0];
@@ -105,10 +102,10 @@ export const Dashboard = () => {
         return params;
     }, [
         filtersApplied,
-        selectedState,
-        selectedTerritory,
-        selectedCity,
-        selectedDistrict,
+        selectedStates,
+        selectedTerritories,
+        selectedCities,
+        selectedDistricts,
         selectedDepartment,
         salesOrderStatus,
         fromDate,
@@ -129,16 +126,20 @@ export const Dashboard = () => {
     const handleApplyFilters = useCallback(() => {
         setFiltersApplied(true);
         setLastUpdated(new Date());
-        refreshSalesOrders();
+
+        // Add a delay to ensure state updates are processed
+        setTimeout(() => {
+            refreshSalesOrders();
+        }, 50);
     }, [refreshSalesOrders]);
 
     // Handle refresh button click
     const handleRefresh = useCallback(() => {
         // Reset all filters
-        setSelectedState("all");
-        setSelectedTerritory("all");
-        setSelectedCity("all");
-        setSelectedDistrict("all");
+        setSelectedStates([]);
+        setSelectedTerritories([]);
+        setSelectedCities([]);
+        setSelectedDistricts([]);
         setSelectedDepartment("all");
         setSalesOrderStatus("all");
         setFromDate(undefined);
@@ -146,30 +147,13 @@ export const Dashboard = () => {
 
         // Reset filters applied flag
         setFiltersApplied(false);
-        setRefreshKey((prev) => prev + 1);
         setLastUpdated(new Date());
 
-        // Add a slight delay before refreshing to ensure state updates are processed
+        // Add a delay before refreshing to ensure state updates are processed
         setTimeout(() => {
             refreshSalesOrders();
-        }, 10);
+        }, 50);
     }, [refreshSalesOrders]);
-
-    // Log data sizes for debugging
-    useEffect(() => {
-        if (salesOrders?.data) {
-            console.log(`Data size: ${JSON.stringify(salesOrders.data).length} characters`);
-            console.log(`Number of states: ${salesOrders.data.length}`);
-            console.log(`Applied filters:`, queryParams);
-        }
-    }, [salesOrders, queryParams]);
-
-    // Log state changes for debugging
-    useEffect(() => {
-        console.log(`State changed to: ${selectedState}`);
-        console.log(`Current filters applied state: ${filtersApplied}`);
-        console.log(`Current query params:`, queryParams);
-    }, [selectedState, filtersApplied, queryParams]);
 
     return (
         <div className="min-h-screen bg-gray-50/50 p-6 space-y-6">
@@ -190,10 +174,10 @@ export const Dashboard = () => {
             </div>
 
             <DashboardFilters
-                selectedState={selectedState}
-                selectedTerritory={selectedTerritory}
-                selectedCity={selectedCity}
-                selectedDistrict={selectedDistrict}
+                selectedStates={selectedStates}
+                selectedTerritories={selectedTerritories}
+                selectedCities={selectedCities}
+                selectedDistricts={selectedDistricts}
                 selectedDepartment={selectedDepartment}
                 salesOrderStatus={salesOrderStatus}
                 fromDate={fromDate}
@@ -203,30 +187,32 @@ export const Dashboard = () => {
                 cities={cities}
                 districts={districts}
                 departments={departments || []}
-                onStateChange={(value) => {
-                    setSelectedState(value);
-                    setSelectedTerritory("all");
-                    setSelectedCity("all");
-                    setSelectedDistrict("all");
+                onStateChange={(values) => {
+                    setSelectedStates(values);
+                    // Reset dependent filters when states change
+                    setSelectedTerritories([]);
+                    setSelectedCities([]);
+                    setSelectedDistricts([]);
 
-                    // Automatically apply filters when a state is selected
-                    if (value !== "all") {
+                    // Automatically apply filters when states are selected
+                    if (values.length > 0) {
                         setFiltersApplied(true);
                         setTimeout(() => {
                             refreshSalesOrders();
-                        }, 0);
+                        }, 50);
                     }
                 }}
-                onTerritoryChange={(value) => {
-                    setSelectedTerritory(value);
-                    setSelectedCity("all");
-                    setSelectedDistrict("all");
+                onTerritoryChange={(values) => {
+                    setSelectedTerritories(values);
+                    // Reset dependent filters
+                    setSelectedCities([]);
+                    setSelectedDistricts([]);
                 }}
-                onCityChange={(value) => {
-                    setSelectedCity(value);
-                    setSelectedDistrict("all");
+                onCityChange={(values) => {
+                    setSelectedCities(values);
+                    setSelectedDistricts([]);
                 }}
-                onDistrictChange={setSelectedDistrict}
+                onDistrictChange={setSelectedDistricts}
                 onDepartmentChange={setSelectedDepartment}
                 onStatusChange={setSalesOrderStatus}
                 onFromDateChange={setFromDate}
