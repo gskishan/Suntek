@@ -72,6 +72,35 @@ interface HierarchicalDataTableProps {
     data: StateData[];
 }
 
+// Helper component for consistent metric display in table cells
+const TableCellMetric = ({
+    icon: Icon,
+    value,
+    tooltip,
+}: {
+    icon: React.ElementType;
+    value: React.ReactNode;
+    tooltip: string;
+}) => {
+    return (
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <div className="inline-flex items-center w-auto">
+                    <Icon className="h-4 w-4 mr-1.5" />
+                    {value}
+                </div>
+            </TooltipTrigger>
+            <TooltipContent
+                side="top"
+                align="center"
+                sideOffset={5}
+            >
+                <p>{tooltip}</p>
+            </TooltipContent>
+        </Tooltip>
+    );
+};
+
 export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
     // Create refs to access row component states
     const stateRowRefs = useRef<Map<string, (expanded: boolean) => void>>(new Map());
@@ -645,43 +674,25 @@ const StateRow = ({
                     </div>
                 </TableCell>
                 <TableCell>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                                <Package className="h-4 w-4 mr-1.5" />
-                                {stateData.count}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Total number of orders in {getLocationName(stateData.state, "state")}</p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <TableCellMetric
+                        icon={Package}
+                        value={stateData.count}
+                        tooltip={`Total number of orders in ${getLocationName(stateData.state, "state")}`}
+                    />
                 </TableCell>
                 <TableCell>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                                <DollarSign className="h-4 w-4 mr-1.5" />
-                                {formatCurrency(stateData.total_amount)}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Total revenue from all orders in {getLocationName(stateData.state, "state")}</p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <TableCellMetric
+                        icon={DollarSign}
+                        value={formatCurrency(stateData.total_amount)}
+                        tooltip={`Total revenue from all orders in ${getLocationName(stateData.state, "state")}`}
+                    />
                 </TableCell>
                 <TableCell>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                                <TrendingUp className="h-4 w-4 mr-1.5" />
-                                {formatCurrency(calculateAverage(stateData.total_amount, stateData.count))}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Average order value in {getLocationName(stateData.state, "state")}</p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <TableCellMetric
+                        icon={TrendingUp}
+                        value={formatCurrency(calculateAverage(stateData.total_amount, stateData.count))}
+                        tooltip={`Average order value in ${getLocationName(stateData.state, "state")}`}
+                    />
                 </TableCell>
             </TableRow>
 
@@ -776,45 +787,25 @@ const TerritoryRow = ({
                     </div>
                 </TableCell>
                 <TableCell>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                                <Package className="h-4 w-4 mr-1.5" />
-                                {territoryData.count}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Total number of orders in {getLocationName(territoryData.territory, "territory")}</p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <TableCellMetric
+                        icon={Package}
+                        value={territoryData.count}
+                        tooltip={`Total number of orders in ${getLocationName(territoryData.territory, "territory")}`}
+                    />
                 </TableCell>
                 <TableCell>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                                <DollarSign className="h-4 w-4 mr-1.5" />
-                                {formatCurrency(territoryData.total_amount)}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>
-                                Total revenue from all orders in {getLocationName(territoryData.territory, "territory")}
-                            </p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <TableCellMetric
+                        icon={DollarSign}
+                        value={formatCurrency(territoryData.total_amount)}
+                        tooltip={`Total revenue from all orders in ${getLocationName(territoryData.territory, "territory")}`}
+                    />
                 </TableCell>
                 <TableCell>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                                <TrendingUp className="h-4 w-4 mr-1.5" />
-                                {formatCurrency(calculateAverage(territoryData.total_amount, territoryData.count))}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Average order value in {getLocationName(territoryData.territory, "territory")}</p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <TableCellMetric
+                        icon={TrendingUp}
+                        value={formatCurrency(calculateAverage(territoryData.total_amount, territoryData.count))}
+                        tooltip={`Average order value in ${getLocationName(territoryData.territory, "territory")}`}
+                    />
                 </TableCell>
             </TableRow>
 
@@ -909,43 +900,25 @@ const CityRow = ({
                     </div>
                 </TableCell>
                 <TableCell>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                                <Package className="h-4 w-4 mr-1.5" />
-                                {cityData.count}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Total number of orders in {getLocationName(cityData.city, "city")}</p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <TableCellMetric
+                        icon={Package}
+                        value={cityData.count}
+                        tooltip={`Total number of orders in ${getLocationName(cityData.city, "city")}`}
+                    />
                 </TableCell>
                 <TableCell>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                                <DollarSign className="h-4 w-4 mr-1.5" />
-                                {formatCurrency(cityData.total_amount)}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Total revenue from all orders in {getLocationName(cityData.city, "city")}</p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <TableCellMetric
+                        icon={DollarSign}
+                        value={formatCurrency(cityData.total_amount)}
+                        tooltip={`Total revenue from all orders in ${getLocationName(cityData.city, "city")}`}
+                    />
                 </TableCell>
                 <TableCell>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                                <TrendingUp className="h-4 w-4 mr-1.5" />
-                                {formatCurrency(calculateAverage(cityData.total_amount, cityData.count))}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Average order value in {getLocationName(cityData.city, "city")}</p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <TableCellMetric
+                        icon={TrendingUp}
+                        value={formatCurrency(calculateAverage(cityData.total_amount, cityData.count))}
+                        tooltip={`Average order value in ${getLocationName(cityData.city, "city")}`}
+                    />
                 </TableCell>
             </TableRow>
 
@@ -1052,52 +1025,25 @@ const DistrictRow = ({
                     </div>
                 </TableCell>
                 <TableCell>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                                <Package className="h-4 w-4 mr-1.5" />
-                                {districtData.count}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>
-                                Total number of orders in{" "}
-                                {getLocationName(districtData.district, "district", districtData.district_name)}
-                            </p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <TableCellMetric
+                        icon={Package}
+                        value={districtData.count}
+                        tooltip={`Total number of orders in ${getLocationName(districtData.district, "district", districtData.district_name)}`}
+                    />
                 </TableCell>
                 <TableCell>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                                <DollarSign className="h-4 w-4 mr-1.5" />
-                                {formatCurrency(districtData.total_amount)}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>
-                                Total revenue from all orders in{" "}
-                                {getLocationName(districtData.district, "district", districtData.district_name)}
-                            </p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <TableCellMetric
+                        icon={DollarSign}
+                        value={formatCurrency(districtData.total_amount)}
+                        tooltip={`Total revenue from all orders in ${getLocationName(districtData.district, "district", districtData.district_name)}`}
+                    />
                 </TableCell>
                 <TableCell>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <div className="flex items-center">
-                                <TrendingUp className="h-4 w-4 mr-1.5" />
-                                {formatCurrency(calculateAverage(districtData.total_amount, districtData.count))}
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>
-                                Average order value in{" "}
-                                {getLocationName(districtData.district, "district", districtData.district_name)}
-                            </p>
-                        </TooltipContent>
-                    </Tooltip>
+                    <TableCellMetric
+                        icon={TrendingUp}
+                        value={formatCurrency(calculateAverage(districtData.total_amount, districtData.count))}
+                        tooltip={`Average order value in ${getLocationName(districtData.district, "district", districtData.district_name)}`}
+                    />
                 </TableCell>
             </TableRow>
 

@@ -234,19 +234,22 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                         <div className="flex items-center space-x-4">
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
-                                                    <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
+                                                    <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
+                                                        <Package className="h-4 w-4 mr-1.5" />
                                                         {territoryData.count} Orders
-                                                    </span>
+                                                    </div>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
                                                     <p>Total number of orders in {territoryData.territory} (Zone)</p>
                                                 </TooltipContent>
                                             </Tooltip>
+
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
-                                                    <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
-                                                        ₹{territoryData.total_amount.toLocaleString()}
-                                                    </span>
+                                                    <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
+                                                        <DollarSign className="h-4 w-4 mr-1.5" />₹
+                                                        {territoryData.total_amount.toLocaleString()}
+                                                    </div>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
                                                     <p>
@@ -255,16 +258,17 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                     </p>
                                                 </TooltipContent>
                                             </Tooltip>
+
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
-                                                    <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full flex items-center">
-                                                        <TrendingUp className="h-3 w-3 mr-1" />₹
+                                                    <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
+                                                        <TrendingUp className="h-4 w-4 mr-1.5" />₹
                                                         {territoryData.count > 0
                                                             ? (
                                                                   territoryData.total_amount / territoryData.count
                                                               ).toLocaleString()
                                                             : "0"}
-                                                    </span>
+                                                    </div>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
                                                     <p>Average Order Value (AOV) in {territoryData.territory} (Zone)</p>
@@ -299,9 +303,10 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                         <div className="flex items-center space-x-4">
                                                             <Tooltip>
                                                                 <TooltipTrigger asChild>
-                                                                    <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
+                                                                    <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
+                                                                        <Package className="h-4 w-4 mr-1.5" />
                                                                         {cityData.count} Orders
-                                                                    </span>
+                                                                    </div>
                                                                 </TooltipTrigger>
                                                                 <TooltipContent>
                                                                     <p>
@@ -310,11 +315,13 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                     </p>
                                                                 </TooltipContent>
                                                             </Tooltip>
+
                                                             <Tooltip>
                                                                 <TooltipTrigger asChild>
-                                                                    <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full">
-                                                                        ₹{cityData.total_amount.toLocaleString()}
-                                                                    </span>
+                                                                    <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
+                                                                        <DollarSign className="h-4 w-4 mr-1.5" />₹
+                                                                        {cityData.total_amount.toLocaleString()}
+                                                                    </div>
                                                                 </TooltipTrigger>
                                                                 <TooltipContent>
                                                                     <p>
@@ -323,16 +330,17 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                     </p>
                                                                 </TooltipContent>
                                                             </Tooltip>
+
                                                             <Tooltip>
                                                                 <TooltipTrigger asChild>
-                                                                    <span className="text-sm text-gray-600 bg-white px-2.5 py-1 rounded-full flex items-center">
-                                                                        <TrendingUp className="h-3 w-3 mr-1" />₹
+                                                                    <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
+                                                                        <TrendingUp className="h-4 w-4 mr-1.5" />₹
                                                                         {cityData.count > 0
                                                                             ? (
                                                                                   cityData.total_amount / cityData.count
                                                                               ).toLocaleString()
                                                                             : "0"}
-                                                                    </span>
+                                                                    </div>
                                                                 </TooltipTrigger>
                                                                 <TooltipContent>
                                                                     <p>
@@ -378,9 +386,10 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                         <div className="flex items-center space-x-4">
                                                                             <Tooltip>
                                                                                 <TooltipTrigger asChild>
-                                                                                    <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
+                                                                                    <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
+                                                                                        <Package className="h-4 w-4 mr-1.5" />
                                                                                         {districtData.count} Orders
-                                                                                    </span>
+                                                                                    </div>
                                                                                 </TooltipTrigger>
                                                                                 <TooltipContent>
                                                                                     <p>
@@ -393,12 +402,14 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                                     </p>
                                                                                 </TooltipContent>
                                                                             </Tooltip>
+
                                                                             <Tooltip>
                                                                                 <TooltipTrigger asChild>
-                                                                                    <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full">
+                                                                                    <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
+                                                                                        <DollarSign className="h-4 w-4 mr-1.5" />
                                                                                         ₹
                                                                                         {districtData.total_amount.toLocaleString()}
-                                                                                    </span>
+                                                                                    </div>
                                                                                 </TooltipTrigger>
                                                                                 <TooltipContent>
                                                                                     <p>
@@ -411,10 +422,11 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                                     </p>
                                                                                 </TooltipContent>
                                                                             </Tooltip>
+
                                                                             <Tooltip>
                                                                                 <TooltipTrigger asChild>
-                                                                                    <span className="text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-full flex items-center">
-                                                                                        <TrendingUp className="h-3 w-3 mr-1" />
+                                                                                    <div className="flex items-center text-sm text-gray-600 bg-white px-3 py-1 rounded-full shadow-sm">
+                                                                                        <TrendingUp className="h-4 w-4 mr-1.5" />
                                                                                         ₹
                                                                                         {districtData.count > 0
                                                                                             ? (
@@ -422,7 +434,7 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                                                   districtData.count
                                                                                               ).toLocaleString()
                                                                                             : "0"}
-                                                                                    </span>
+                                                                                    </div>
                                                                                 </TooltipTrigger>
                                                                                 <TooltipContent>
                                                                                     <p>
