@@ -6,10 +6,8 @@ const App = () => {
     const [userName, setUserName] = useState("User");
     const [userInitial, setUserInitial] = useState("U");
 
-    // Fetch current user information
     const { data: userData } = useFrappeGetCall("frappe.auth.get_logged_user");
 
-    // Get user's full name
     const { data: userInfo } = useFrappeGetCall(
         "frappe.client.get",
         {
