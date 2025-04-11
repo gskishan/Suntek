@@ -30,7 +30,7 @@ export const MultiSelect = ({
 }: MultiSelectProps) => {
     const [open, setOpen] = React.useState(false);
     const [searchQuery, setSearchQuery] = React.useState("");
-    const MAX_VISIBLE_BADGES = 2; // Maximum number of badges to display
+    const MAX_VISIBLE_BADGES = 3; // Increased from 2 to 3
 
     const toggleOption = React.useCallback(
         (value: string) => {
@@ -87,37 +87,38 @@ export const MultiSelect = ({
                     role="combobox"
                     aria-expanded={open}
                     className={cn(
-                        "w-full justify-between h-9 px-3 py-2 text-left",
+                        "w-full justify-between min-h-9 px-3 py-1.5 text-left",
                         !values.length && "text-muted-foreground",
                         open && "border-primary ring-1 ring-primary",
+                        "h-auto", // Allow height to adjust based on content
                     )}
                     disabled={disabled}
                     onClick={() => setOpen(!open)}
                 >
-                    <div className="flex flex-wrap gap-1 items-center overflow-hidden">
+                    <div className="flex flex-wrap gap-1.5 items-center overflow-hidden">
                         {selectedLabels.length > 0 ? (
                             <TooltipProvider delayDuration={300}>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <div className="flex flex-wrap gap-1 max-w-[90%] overflow-hidden">
+                                        <div className="flex flex-wrap gap-1.5 max-w-[90%] overflow-hidden py-1">
                                             {selectedLabels.slice(0, MAX_VISIBLE_BADGES).map((option) => (
                                                 <Badge
                                                     key={option.value}
                                                     variant="secondary"
-                                                    className="text-xs px-1.5 py-0.5 h-5 truncate max-w-[120px]"
+                                                    className="text-xs px-2 py-0.5 h-5 truncate max-w-[150px] bg-black text-white hover:bg-black/80 border border-black/10"
                                                     onClick={(e: React.MouseEvent<HTMLDivElement>) => {
                                                         e.stopPropagation();
                                                         handleRemove(option.value);
                                                     }}
                                                 >
                                                     {option.label}
-                                                    <X className="ml-1 h-3 w-3 text-muted-foreground hover:text-foreground cursor-pointer" />
+                                                    <X className="ml-1.5 h-3 w-3 text-white/70 hover:text-white cursor-pointer" />
                                                 </Badge>
                                             ))}
                                             {selectedLabels.length > MAX_VISIBLE_BADGES && (
                                                 <Badge
                                                     variant="secondary"
-                                                    className="text-xs px-1.5 py-0.5 h-5 bg-primary text-primary-foreground hover:bg-primary/80"
+                                                    className="text-xs px-2 py-0.5 h-5 bg-gray-800 text-white hover:bg-gray-700 border border-gray-700"
                                                 >
                                                     +{selectedLabels.length - MAX_VISIBLE_BADGES}
                                                 </Badge>

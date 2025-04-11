@@ -382,7 +382,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                     <div className="relative w-96">
                         <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <Input
-                            placeholder="Search by ID, customer, status, amount (>500000), location... Use commas to combine filters"
+                            placeholder="Search by ID, customer, status, amount or location..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-8 h-9"

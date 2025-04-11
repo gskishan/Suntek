@@ -35,45 +35,38 @@ export const Dashboard = () => {
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
     const [filtersApplied, setFiltersApplied] = useState<boolean>(false);
 
-    // Add a state to track permission errors
     const [permissionError, setPermissionError] = useState<string | null>(null);
 
-    // Fetch all states
     const { data: states } = useFrappeGetDocList("State", {
         fields: ["name", "creation", "state"],
         asDict: true,
         limit: 0,
     });
 
-    // Fetch all territories
     const { data: allTerritories } = useFrappeGetDocList("Territory", {
         fields: ["name", "creation"],
         asDict: true,
         limit: 0,
     });
 
-    // Fetch all cities
     const { data: allCities } = useFrappeGetDocList("City", {
         fields: ["name", "creation", "city"],
         asDict: true,
         limit: 0,
     });
 
-    // Fetch all districts
     const { data: allDistricts } = useFrappeGetDocList("District", {
         fields: ["name", "creation", "district"],
         asDict: true,
         limit: 0,
     });
 
-    // Fetch all departments
     const { data: departments } = useFrappeGetDocList("Department", {
         fields: ["name", "creation"],
         asDict: true,
         limit: 0,
     });
 
-    // Filter territories, cities, and districts based on selected values
     const territories = useMemo(() => {
         return allTerritories || [];
     }, [allTerritories]);
@@ -86,7 +79,6 @@ export const Dashboard = () => {
         return allDistricts || [];
     }, [allDistricts]);
 
-    // Build query parameters from filters
     const queryParams = useMemo(() => {
         const params: Record<string, any> = {
             limit,
@@ -142,7 +134,6 @@ export const Dashboard = () => {
         limit,
     ]);
 
-    // Fetch sales orders with filters
     const {
         data: salesOrdersResponse,
         isLoading: isLoadingSalesOrders,
@@ -153,11 +144,9 @@ export const Dashboard = () => {
         revalidateOnReconnect: false,
     });
 
-    // Type-safe access to sales order data
     const salesOrdersData = useMemo(() => {
         if (!salesOrdersResponse) return null;
 
-        // Handle different response formats
         const response = salesOrdersResponse as any;
         if (response.message && response.message.data) {
             return response.message.data;
@@ -168,7 +157,6 @@ export const Dashboard = () => {
         return null;
     }, [salesOrdersResponse]);
 
-    // Check for permission errors
     useEffect(() => {
         if (salesOrdersError) {
             const errorObj = salesOrdersError as any;
@@ -188,20 +176,20 @@ export const Dashboard = () => {
         }
     }, [salesOrdersError]);
 
-    // Handle apply filters
     const handleApplyFilters = useCallback(() => {
+        // Always set filtersApplied to true when manually applying filters
+        // This ensures we track that the user has explicitly requested data
         setFiltersApplied(true);
         setLastUpdated(new Date());
 
-        // Add a delay to ensure state updates are processed
+        // Always refresh sales orders when Apply Filters is clicked
+        // Even if no filters are selected, this will fetch fresh data
         setTimeout(() => {
             refreshSalesOrders();
         }, 50);
     }, [refreshSalesOrders]);
 
-    // Handle clear filters
     const handleClearFilters = useCallback(() => {
-        // Reset all filters
         setSelectedStates([]);
         setSelectedTerritories([]);
         setSelectedCities([]);
@@ -211,12 +199,10 @@ export const Dashboard = () => {
         setSelectedTypeOfCase("all");
         setFromDate(undefined);
         setToDate(undefined);
-        setLimit(100); // Reset limit to default
+        setLimit(100);
 
-        // Keep filtersApplied true to ensure the API call goes through with cleared filters
         setLastUpdated(new Date());
 
-        // Add a delay to ensure state updates are processed
         setTimeout(() => {
             refreshSalesOrders();
         }, 50);
@@ -299,7 +285,33 @@ export const Dashboard = () => {
                                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
                                 </div>
                             ) : (
-                                salesOrdersData && <HierarchicalDataTable data={salesOrdersData} />
+                                <>
+                                    {salesOrdersData && salesOrdersData.length > 0 ? (
+                                        <HierarchicalDataTable data={salesOrdersData} />
+                                    ) : (
+                                        <div className="flex flex-col justify-center items-center h-64 bg-gray-50 rounded-lg border border-gray-200">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-16 w-16 text-gray-400 mb-4"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={1.5}
+                                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 2a10 10 0 110 20 10 10 0 010-20z"
+                                                />
+                                            </svg>
+                                            <h3 className="text-xl font-medium text-gray-700">No data found</h3>
+                                            <p className="text-sm text-gray-500 text-center mt-2 max-w-md">
+                                                No sales data is available for the selected filters. Try adjusting your
+                                                filters or selecting a different date range.
+                                            </p>
+                                        </div>
+                                    )}
+                                </>
                             )}
 
                             <div className="text-xs text-gray-500 text-right mt-2">

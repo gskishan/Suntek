@@ -119,11 +119,6 @@ export const DashboardFilters = ({
                                     values={selectedStates}
                                     onValuesChange={(values: string[]) => {
                                         onStateChange(values);
-                                        if (values.length > 0) {
-                                            setTimeout(() => {
-                                                onApplyFilters();
-                                            }, 0);
-                                        }
                                     }}
                                     options={states.map((state) => ({
                                         value: state.name,
@@ -280,8 +275,8 @@ export const DashboardFilters = ({
                         </div>
                     </div>
 
-                    {hasFilters && (
-                        <div className="flex justify-end pt-2 gap-2">
+                    <div className="flex justify-end pt-2 gap-2">
+                        {hasFilters && (
                             <Button
                                 variant="outline"
                                 onClick={onClearFilters}
@@ -289,14 +284,14 @@ export const DashboardFilters = ({
                             >
                                 Clear Filters
                             </Button>
-                            <Button
-                                onClick={onApplyFilters}
-                                className="px-4 py-2"
-                            >
-                                Apply Filters
-                            </Button>
-                        </div>
-                    )}
+                        )}
+                        <Button
+                            onClick={onApplyFilters}
+                            className="px-4 py-2"
+                        >
+                            Apply Filters
+                        </Button>
+                    </div>
                 </CardContent>
             )}
         </Card>
