@@ -253,6 +253,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                 Completed: "bg-green-100 text-green-800",
                 Closed: "bg-gray-100 text-gray-800",
                 Draft: "bg-blue-100 text-blue-800",
+                Cancelled: "bg-rose-100 text-rose-800",
             };
             return colors[status] || "bg-gray-100 text-gray-800";
         };
@@ -296,33 +297,46 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
     const filterOrders = (order: SalesOrder) => {
         if (!searchQuery.trim()) return true;
 
-        const query = searchQuery.toLowerCase().trim();
+        // Split the search query by commas to support multiple search criteria
+        const searchTerms = searchQuery
+            .toLowerCase()
+            .split(",")
+            .map((term) => term.trim())
+            .filter((term) => term);
 
-        if (query.startsWith(">") || query.startsWith("<") || query.startsWith("=")) {
-            const operator = query.charAt(0);
-            const amountStr = query.substring(1);
-            const amount = parseFloat(amountStr);
+        // If no valid search terms, return all orders
+        if (searchTerms.length === 0) return true;
 
-            if (!isNaN(amount)) {
-                if (operator === ">") return order.grand_total > amount;
-                if (operator === "<") return order.grand_total < amount;
-                if (operator === "=") return order.grand_total === amount;
+        // Every search term must match for the order to be included
+        return searchTerms.every((term) => {
+            // Check if it's an amount comparison (like >500000 or <1000000)
+            if (term.startsWith(">") || term.startsWith("<") || term.startsWith("=")) {
+                const operator = term.charAt(0);
+                const amountStr = term.substring(1);
+                const amount = parseFloat(amountStr);
+
+                if (!isNaN(amount)) {
+                    if (operator === ">") return order.grand_total > amount;
+                    if (operator === "<") return order.grand_total < amount;
+                    if (operator === "=") return order.grand_total === amount;
+                }
             }
-        }
 
-        return (
-            order.name.toLowerCase().includes(query) ||
-            order.customer.toLowerCase().includes(query) ||
-            (order.type_of_case?.toLowerCase() || "").includes(query) ||
-            (order.department?.toLowerCase() || "").includes(query) ||
-            order.status.toLowerCase().includes(query) ||
-            order.grand_total.toString().includes(query) ||
-            (order.city?.toLowerCase() || "").includes(query) ||
-            (order.state?.toLowerCase() || "").includes(query) ||
-            order.territory.toLowerCase().includes(query) ||
-            (order.district?.toLowerCase() || "").includes(query) ||
-            (order.district_name?.toLowerCase() || "").includes(query)
-        );
+            // Standard text search across all fields
+            return (
+                order.name.toLowerCase().includes(term) ||
+                order.customer.toLowerCase().includes(term) ||
+                (order.type_of_case?.toLowerCase() || "").includes(term) ||
+                (order.department?.toLowerCase() || "").includes(term) ||
+                order.status.toLowerCase().includes(term) ||
+                order.grand_total.toString().includes(term) ||
+                (order.city?.toLowerCase() || "").includes(term) ||
+                (order.state?.toLowerCase() || "").includes(term) ||
+                order.territory.toLowerCase().includes(term) ||
+                (order.district?.toLowerCase() || "").includes(term) ||
+                (order.district_name?.toLowerCase() || "").includes(term)
+            );
+        });
     };
 
     const filteredData = useMemo(() => {
@@ -368,7 +382,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                     <div className="relative w-96">
                         <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <Input
-                            placeholder="Search by ID, customer, status, amount, location..."
+                            placeholder="Search by ID, customer, status, amount (>500000), location... Use commas to combine filters"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-8 h-9"
