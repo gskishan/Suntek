@@ -58,7 +58,7 @@ const App = () => {
                     </div>
                 </div>
             </header>
-            <main className="flex-1 container mx-auto px-4 py-6">
+            <main className="flex-1 w-full max-w-[99%] mx-auto py-4">
                 <Dashboard />
             </main>
         </div>

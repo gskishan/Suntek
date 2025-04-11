@@ -110,157 +110,167 @@ export const DashboardFilters = ({
             </CardHeader>
             {isExpanded && (
                 <CardContent className="space-y-4 pt-0">
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                        <div className="space-y-1">
-                            <label className="text-xs font-medium text-gray-700">States</label>
-                            <MultiSelect
-                                values={selectedStates}
-                                onValuesChange={(values: string[]) => {
-                                    onStateChange(values);
-                                    if (values.length > 0) {
-                                        setTimeout(() => {
-                                            onApplyFilters();
-                                        }, 0);
-                                    }
-                                }}
-                                options={states.map((state) => ({
-                                    value: state.name,
-                                    label: state.state,
-                                }))}
-                                placeholder="Select States"
-                            />
+                    <div className="flex flex-col space-y-4">
+                        {/* Location Filters Row - Two fields per row */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1 w-full">
+                                <label className="text-xs font-medium text-gray-700">States</label>
+                                <MultiSelect
+                                    values={selectedStates}
+                                    onValuesChange={(values: string[]) => {
+                                        onStateChange(values);
+                                        if (values.length > 0) {
+                                            setTimeout(() => {
+                                                onApplyFilters();
+                                            }, 0);
+                                        }
+                                    }}
+                                    options={states.map((state) => ({
+                                        value: state.name,
+                                        label: state.state,
+                                    }))}
+                                    placeholder="Select States"
+                                />
+                            </div>
+
+                            <div className="space-y-1 w-full">
+                                <label className="text-xs font-medium text-gray-700">Territories</label>
+                                <MultiSelect
+                                    values={selectedTerritories}
+                                    onValuesChange={onTerritoryChange}
+                                    options={territories.map((territory) => ({
+                                        value: territory.name,
+                                        label: territory.name,
+                                    }))}
+                                    placeholder="Select Territories"
+                                />
+                            </div>
+
+                            <div className="space-y-1 w-full">
+                                <label className="text-xs font-medium text-gray-700">Cities</label>
+                                <MultiSelect
+                                    values={selectedCities}
+                                    onValuesChange={onCityChange}
+                                    options={cities.map((city) => ({
+                                        value: city.name,
+                                        label: city.city,
+                                    }))}
+                                    placeholder="Select Cities"
+                                />
+                            </div>
+
+                            <div className="space-y-1 w-full">
+                                <label className="text-xs font-medium text-gray-700">Districts</label>
+                                <MultiSelect
+                                    values={selectedDistricts}
+                                    onValuesChange={onDistrictChange}
+                                    options={districts.map((district) => ({
+                                        value: district.name,
+                                        label: district.district,
+                                    }))}
+                                    placeholder="Select Districts"
+                                />
+                            </div>
                         </div>
 
-                        <div className="space-y-1">
-                            <label className="text-xs font-medium text-gray-700">Territories</label>
-                            <MultiSelect
-                                values={selectedTerritories}
-                                onValuesChange={onTerritoryChange}
-                                options={territories.map((territory) => ({
-                                    value: territory.name,
-                                    label: territory.name,
-                                }))}
-                                placeholder="Select Territories"
-                            />
+                        {/* Status and Type Filters Row - Two fields per row */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1 w-full">
+                                <label className="text-xs font-medium text-gray-700">Department</label>
+                                <Select
+                                    value={selectedDepartment}
+                                    onValueChange={onDepartmentChange}
+                                >
+                                    <SelectTrigger className="w-full h-9">
+                                        <SelectValue placeholder="Select Department" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-[200px] overflow-y-auto">
+                                        <SelectItem value="all">All Departments</SelectItem>
+                                        {departments?.map((department) => (
+                                            <SelectItem
+                                                key={department.creation}
+                                                value={department.name}
+                                            >
+                                                {department.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-1 w-full">
+                                <label className="text-xs font-medium text-gray-700">Status</label>
+                                <Select
+                                    value={salesOrderStatus}
+                                    onValueChange={onStatusChange}
+                                >
+                                    <SelectTrigger className="w-full h-9">
+                                        <SelectValue placeholder="Select Status" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-[200px] overflow-y-auto">
+                                        <SelectItem value="all">All Statuses</SelectItem>
+                                        <SelectItem value="Draft">Draft</SelectItem>
+                                        <SelectItem value="On Hold">On Hold</SelectItem>
+                                        <SelectItem value="To Deliver and Bill">To Deliver and Bill</SelectItem>
+                                        <SelectItem value="To Bill">To Bill</SelectItem>
+                                        <SelectItem value="To Deliver">To Deliver</SelectItem>
+                                        <SelectItem value="Completed">Completed</SelectItem>
+                                        <SelectItem value="Cancelled">Cancelled</SelectItem>
+                                        <SelectItem value="Closed">Closed</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-1 w-full">
+                                <label className="text-xs font-medium text-gray-700">Type of Case</label>
+                                <Select
+                                    value={selectedTypeOfCase}
+                                    onValueChange={onTypeOfCaseChange}
+                                >
+                                    <SelectTrigger className="w-full h-9">
+                                        <SelectValue placeholder="Select Type of Case" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Types</SelectItem>
+                                        <SelectItem value="Subsidy">Subsidy</SelectItem>
+                                        <SelectItem value="Non Subsidy">Non Subsidy</SelectItem>
+                                        <SelectItem value="No Subsidy No Discom">No Subsidy No Discom</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-1 w-full">
+                                <label className="text-xs font-medium text-gray-700">Limit</label>
+                                <Select
+                                    value={limit.toString()}
+                                    onValueChange={(value) => onLimitChange(parseInt(value))}
+                                >
+                                    <SelectTrigger className="w-full h-9">
+                                        <SelectValue placeholder="Select Limit" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="50">50 items</SelectItem>
+                                        <SelectItem value="100">100 items</SelectItem>
+                                        <SelectItem value="200">200 items</SelectItem>
+                                        <SelectItem value="500">500 items</SelectItem>
+                                        <SelectItem value="1000">1000 items</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
 
-                        <div className="space-y-1">
-                            <label className="text-xs font-medium text-gray-700">Cities</label>
-                            <MultiSelect
-                                values={selectedCities}
-                                onValuesChange={onCityChange}
-                                options={cities.map((city) => ({
-                                    value: city.name,
-                                    label: city.city,
-                                }))}
-                                placeholder="Select Cities"
-                            />
-                        </div>
-
-                        <div className="space-y-1">
-                            <label className="text-xs font-medium text-gray-700">Districts</label>
-                            <MultiSelect
-                                values={selectedDistricts}
-                                onValuesChange={onDistrictChange}
-                                options={districts.map((district) => ({
-                                    value: district.name,
-                                    label: district.district,
-                                }))}
-                                placeholder="Select Districts"
-                            />
-                        </div>
-
-                        <div className="space-y-1">
-                            <label className="text-xs font-medium text-gray-700">Department</label>
-                            <Select
-                                value={selectedDepartment}
-                                onValueChange={onDepartmentChange}
-                            >
-                                <SelectTrigger className="w-full h-9">
-                                    <SelectValue placeholder="Select Department" />
-                                </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-auto">
-                                    <SelectItem value="all">All Departments</SelectItem>
-                                    {departments?.map((department) => (
-                                        <SelectItem
-                                            key={department.creation}
-                                            value={department.name}
-                                        >
-                                            {department.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-1">
-                            <label className="text-xs font-medium text-gray-700">Status</label>
-                            <Select
-                                value={salesOrderStatus}
-                                onValueChange={onStatusChange}
-                            >
-                                <SelectTrigger className="w-full h-9">
-                                    <SelectValue placeholder="Select Status" />
-                                </SelectTrigger>
-                                <SelectContent className="max-h-[200px] overflow-y-auto">
-                                    <SelectItem value="all">All Statuses</SelectItem>
-                                    <SelectItem value="Draft">Draft</SelectItem>
-                                    <SelectItem value="On Hold">On Hold</SelectItem>
-                                    <SelectItem value="To Deliver and Bill">To Deliver and Bill</SelectItem>
-                                    <SelectItem value="To Bill">To Bill</SelectItem>
-                                    <SelectItem value="To Deliver">To Deliver</SelectItem>
-                                    <SelectItem value="Completed">Completed</SelectItem>
-                                    <SelectItem value="Cancelled">Cancelled</SelectItem>
-                                    <SelectItem value="Closed">Closed</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-1">
-                            <label className="text-xs font-medium text-gray-700">Type of Case</label>
-                            <Select
-                                value={selectedTypeOfCase}
-                                onValueChange={onTypeOfCaseChange}
-                            >
-                                <SelectTrigger className="w-full h-9">
-                                    <SelectValue placeholder="Select Type of Case" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Types</SelectItem>
-                                    <SelectItem value="Subsidy">Subsidy</SelectItem>
-                                    <SelectItem value="Non Subsidy">Non Subsidy</SelectItem>
-                                    <SelectItem value="No Subsidy No Discom">No Subsidy No Discom</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-1">
-                            <label className="text-xs font-medium text-gray-700">Limit</label>
-                            <Select
-                                value={limit.toString()}
-                                onValueChange={(value) => onLimitChange(parseInt(value))}
-                            >
-                                <SelectTrigger className="w-full h-9">
-                                    <SelectValue placeholder="Select Limit" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="50">50 items</SelectItem>
-                                    <SelectItem value="100">100 items</SelectItem>
-                                    <SelectItem value="200">200 items</SelectItem>
-                                    <SelectItem value="500">500 items</SelectItem>
-                                    <SelectItem value="1000">1000 items</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="space-y-1 md:col-span-2">
-                            <label className="text-xs font-medium text-gray-700">Date Range</label>
-                            <div className="flex gap-2">
+                        {/* Date Range Row - Two fields in one row */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1 w-full">
+                                <label className="text-xs font-medium text-gray-700">From Date</label>
                                 <DatePicker
                                     label="From"
                                     date={fromDate}
                                     setDate={onFromDateChange}
                                 />
+                            </div>
+                            <div className="space-y-1 w-full">
+                                <label className="text-xs font-medium text-gray-700">To Date</label>
                                 <DatePicker
                                     label="To"
                                     date={toDate}

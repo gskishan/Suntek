@@ -223,7 +223,7 @@ export const Dashboard = () => {
     }, [refreshSalesOrders]);
 
     return (
-        <div className="container mx-auto py-6 space-y-6">
+        <div className="py-4 space-y-4">
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold">Sales Dashboard</h1>
                 <Button
@@ -238,69 +238,77 @@ export const Dashboard = () => {
                 </Button>
             </div>
 
-            <DashboardFilters
-                selectedStates={selectedStates}
-                selectedTerritories={selectedTerritories}
-                selectedCities={selectedCities}
-                selectedDistricts={selectedDistricts}
-                selectedDepartment={selectedDepartment}
-                salesOrderStatus={salesOrderStatus}
-                selectedTypeOfCase={selectedTypeOfCase}
-                fromDate={fromDate}
-                toDate={toDate}
-                limit={limit}
-                states={states || []}
-                territories={territories}
-                cities={cities}
-                districts={districts}
-                departments={departments || []}
-                onStateChange={setSelectedStates}
-                onTerritoryChange={setSelectedTerritories}
-                onCityChange={setSelectedCities}
-                onDistrictChange={setSelectedDistricts}
-                onDepartmentChange={setSelectedDepartment}
-                onStatusChange={setSalesOrderStatus}
-                onTypeOfCaseChange={setSelectedTypeOfCase}
-                onFromDateChange={setFromDate}
-                onToDateChange={setToDate}
-                onLimitChange={setLimit}
-                onApplyFilters={handleApplyFilters}
-                onClearFilters={handleClearFilters}
-            />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Filters - Left Side */}
+                <div className="lg:col-span-4">
+                    <DashboardFilters
+                        selectedStates={selectedStates}
+                        selectedTerritories={selectedTerritories}
+                        selectedCities={selectedCities}
+                        selectedDistricts={selectedDistricts}
+                        selectedDepartment={selectedDepartment}
+                        salesOrderStatus={salesOrderStatus}
+                        selectedTypeOfCase={selectedTypeOfCase}
+                        fromDate={fromDate}
+                        toDate={toDate}
+                        limit={limit}
+                        states={states || []}
+                        territories={territories}
+                        cities={cities}
+                        districts={districts}
+                        departments={departments || []}
+                        onStateChange={setSelectedStates}
+                        onTerritoryChange={setSelectedTerritories}
+                        onCityChange={setSelectedCities}
+                        onDistrictChange={setSelectedDistricts}
+                        onDepartmentChange={setSelectedDepartment}
+                        onStatusChange={setSalesOrderStatus}
+                        onTypeOfCaseChange={setSelectedTypeOfCase}
+                        onFromDateChange={setFromDate}
+                        onToDateChange={setToDate}
+                        onLimitChange={setLimit}
+                        onApplyFilters={handleApplyFilters}
+                        onClearFilters={handleClearFilters}
+                    />
+                </div>
 
-            <Separator />
-
-            {/* Permission Error Message */}
-            {permissionError && (
-                <Card className="p-8 border-red-200 bg-red-50">
-                    <div className="flex items-center gap-4">
-                        <ShieldAlert className="h-10 w-10 text-red-500" />
-                        <div>
-                            <h2 className="text-lg font-semibold text-red-700">Permission Error</h2>
-                            <p className="text-red-600">{permissionError}</p>
-                            <p className="mt-2 text-sm text-red-600">
-                                You need to have System Manager or Sales Manager role to view this data. Please contact
-                                your administrator for access.
-                            </p>
-                        </div>
-                    </div>
-                </Card>
-            )}
-
-            {/* Display sales data only if no permission error */}
-            {!permissionError && (
-                <>
-                    {isLoadingSalesOrders ? (
-                        <div className="flex justify-center items-center h-64">
-                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-                        </div>
-                    ) : (
-                        salesOrdersData && <HierarchicalDataTable data={salesOrdersData} />
+                {/* Main Content - Right Side */}
+                <div className="lg:col-span-8">
+                    {/* Permission Error Message */}
+                    {permissionError && (
+                        <Card className="p-8 border-red-200 bg-red-50">
+                            <div className="flex items-center gap-4">
+                                <ShieldAlert className="h-10 w-10 text-red-500" />
+                                <div>
+                                    <h2 className="text-lg font-semibold text-red-700">Permission Error</h2>
+                                    <p className="text-red-600">{permissionError}</p>
+                                    <p className="mt-2 text-sm text-red-600">
+                                        You need to have System Manager or Sales Manager role to view this data. Please
+                                        contact your administrator for access.
+                                    </p>
+                                </div>
+                            </div>
+                        </Card>
                     )}
 
-                    <div className="text-xs text-gray-500 text-right">Last updated: {lastUpdated.toLocaleString()}</div>
-                </>
-            )}
+                    {/* Display sales data only if no permission error */}
+                    {!permissionError && (
+                        <>
+                            {isLoadingSalesOrders ? (
+                                <div className="flex justify-center items-center h-64">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+                                </div>
+                            ) : (
+                                salesOrdersData && <HierarchicalDataTable data={salesOrdersData} />
+                            )}
+
+                            <div className="text-xs text-gray-500 text-right mt-2">
+                                Last updated: {lastUpdated.toLocaleString()}
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
         </div>
     );
 };
