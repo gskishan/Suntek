@@ -1,168 +1,169 @@
 {
- "actions": [],
- "allow_rename": 1,
- "autoname": "format:{Site Survey}-{#####}",
- "creation": "2023-11-17 13:01:55.947740",
- "default_view": "List",
- "doctype": "DocType",
- "editable_grid": 1,
- "engine": "InnoDB",
- "field_order": [
-  "department",
-  "site_engineer",
-  "site_engineer_name",
-  "site_location",
-  "column_break_yioui",
-  "opportunity_name",
-  "site_survey_status",
-  "channel_partner_details_section",
-  "channel_partner",
-  "channel_partner_name",
-  "channel_partner_mobile",
-  "section_break_ycske",
-  "hand_sketch",
-  "column_break_nqpc9",
-  "site_photos",
-  "column_break_qryma",
-  "site_survey_report",
-  "amended_from"
- ],
- "fields": [
-  {
-   "fieldname": "site_engineer",
-   "fieldtype": "Link",
-   "label": "Site Engineer",
-   "options": "Employee"
-  },
-  {
-   "fieldname": "site_photos",
-   "fieldtype": "Table",
-   "label": "Site Photos",
-   "options": "Site Photos"
-  },
-  {
-   "fieldname": "site_survey_report",
-   "fieldtype": "Table",
-   "label": "Site Survey Report",
-   "options": "Site Survey Report"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Site Survey",
-   "print_hide": 1,
-   "read_only": 1
-  },
-  {
-   "fieldname": "opportunity_name",
-   "fieldtype": "Link",
-   "label": "Opportunity Name",
-   "options": "Opportunity"
-  },
-  {
-   "fieldname": "column_break_yioui",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "section_break_ycske",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "column_break_nqpc9",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "column_break_qryma",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "hand_sketch",
-   "fieldtype": "Table",
-   "label": "Hand Sketch",
-   "options": "Attachment Table"
-  },
-  {
-   "fieldname": "department",
-   "fieldtype": "Link",
-   "label": "Department",
-   "options": "Department"
-  },
-  {
-   "fieldname": "site_location",
-   "fieldtype": "Small Text",
-   "label": "Site Location"
-  },
-  {
-   "fetch_from": "site_engineer.employee_name",
-   "fieldname": "site_engineer_name",
-   "fieldtype": "Data",
-   "label": "Site Engineer Name"
-  },
-  {
-   "fieldname": "site_survey_status",
-   "fieldtype": "Select",
-   "label": "Site Survey Status",
-   "options": "\nSite Survey Assigned\nSite Survey Completed"
-  },
-  {
-   "depends_on": "eval:doc.channel_partner",
-   "fieldname": "channel_partner_details_section",
-   "fieldtype": "Section Break",
-   "label": "Channel Partner Details"
-  },
-  {
-   "fieldname": "channel_partner",
-   "fieldtype": "Link",
-   "label": "Channel Partner",
-   "options": "Channel Partner",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "channel_partner.channel_partner_name",
-   "fieldname": "channel_partner_name",
-   "fieldtype": "Data",
-   "label": "Channel Partner Name",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "channel_partner.suntek_mobile_number",
-   "fieldname": "channel_partner_mobile",
-   "fieldtype": "Data",
-   "label": "Channel Partner Mobile",
-   "read_only": 1
-  }
- ],
- "index_web_pages_for_search": 1,
- "is_submittable": 1,
- "links": [
-  {
-   "link_doctype": "Designing",
-   "link_fieldname": "site_survey"
-  }
- ],
- "modified": "2025-02-19 16:05:05.118077",
- "modified_by": "Administrator",
- "module": "suntek",
- "name": "Site Survey",
- "naming_rule": "Expression",
- "owner": "Administrator",
- "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "share": 1,
-   "write": 1
-  }
- ],
- "sort_field": "modified",
- "sort_order": "DESC",
- "states": []
+  "actions": [],
+  "allow_rename": 1,
+  "autoname": "format:{Site Survey}-{#####}",
+  "creation": "2023-11-17 13:01:55.947740",
+  "default_view": "List",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "department",
+    "site_engineer",
+    "site_engineer_name",
+    "site_location",
+    "column_break_yioui",
+    "opportunity_name",
+    "site_survey_status",
+    "channel_partner_details_section",
+    "channel_partner",
+    "channel_partner_name",
+    "channel_partner_mobile",
+    "section_break_ycske",
+    "hand_sketch",
+    "column_break_nqpc9",
+    "site_photos",
+    "column_break_qryma",
+    "site_survey_report",
+    "amended_from"
+  ],
+  "fields": [
+    {
+      "fieldname": "site_engineer",
+      "fieldtype": "Link",
+      "label": "Site Engineer",
+      "options": "Employee",
+      "ignore_user_permissions": 1
+    },
+    {
+      "fieldname": "site_photos",
+      "fieldtype": "Table",
+      "label": "Site Photos",
+      "options": "Site Photos"
+    },
+    {
+      "fieldname": "site_survey_report",
+      "fieldtype": "Table",
+      "label": "Site Survey Report",
+      "options": "Site Survey Report"
+    },
+    {
+      "fieldname": "amended_from",
+      "fieldtype": "Link",
+      "label": "Amended From",
+      "no_copy": 1,
+      "options": "Site Survey",
+      "print_hide": 1,
+      "read_only": 1
+    },
+    {
+      "fieldname": "opportunity_name",
+      "fieldtype": "Link",
+      "label": "Opportunity Name",
+      "options": "Opportunity"
+    },
+    {
+      "fieldname": "column_break_yioui",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "section_break_ycske",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "column_break_nqpc9",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "column_break_qryma",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "hand_sketch",
+      "fieldtype": "Table",
+      "label": "Hand Sketch",
+      "options": "Attachment Table"
+    },
+    {
+      "fieldname": "department",
+      "fieldtype": "Link",
+      "label": "Department",
+      "options": "Department"
+    },
+    {
+      "fieldname": "site_location",
+      "fieldtype": "Small Text",
+      "label": "Site Location"
+    },
+    {
+      "fetch_from": "site_engineer.employee_name",
+      "fieldname": "site_engineer_name",
+      "fieldtype": "Data",
+      "label": "Site Engineer Name"
+    },
+    {
+      "fieldname": "site_survey_status",
+      "fieldtype": "Select",
+      "label": "Site Survey Status",
+      "options": "\nSite Survey Assigned\nSite Survey Completed"
+    },
+    {
+      "depends_on": "eval:doc.channel_partner",
+      "fieldname": "channel_partner_details_section",
+      "fieldtype": "Section Break",
+      "label": "Channel Partner Details"
+    },
+    {
+      "fieldname": "channel_partner",
+      "fieldtype": "Link",
+      "label": "Channel Partner",
+      "options": "Channel Partner",
+      "read_only": 1
+    },
+    {
+      "fetch_from": "channel_partner.channel_partner_name",
+      "fieldname": "channel_partner_name",
+      "fieldtype": "Data",
+      "label": "Channel Partner Name",
+      "read_only": 1
+    },
+    {
+      "fetch_from": "channel_partner.suntek_mobile_number",
+      "fieldname": "channel_partner_mobile",
+      "fieldtype": "Data",
+      "label": "Channel Partner Mobile",
+      "read_only": 1
+    }
+  ],
+  "index_web_pages_for_search": 1,
+  "is_submittable": 1,
+  "links": [
+    {
+      "link_doctype": "Designing",
+      "link_fieldname": "site_survey"
+    }
+  ],
+  "modified": "2025-02-19 16:05:05.118077",
+  "modified_by": "Administrator",
+  "module": "suntek",
+  "name": "Site Survey",
+  "naming_rule": "Expression",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": []
 }
