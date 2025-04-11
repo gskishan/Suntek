@@ -8,11 +8,9 @@ from suntek_app.suntek.utils.api_handler import create_api_response
 
 @frappe.whitelist()
 def get_sales_order_data():
-    # Check if user has required role permissions
     if not frappe.has_permission("Sales Order", "read"):
         return create_api_response(403, "error", "Access Denied: Insufficient permissions to view sales data", {})
 
-    # Check for required roles
     user_roles = frappe.get_roles(frappe.session.user)
     allowed_roles = ["System Manager", "Sales Manager"]
 
@@ -167,6 +165,10 @@ def _get_sales_orders(filters=None, limit=100):
         query,
         as_dict=1,
     )
+
+    for order in sales_orders:
+        if "type_of_case" in order and (order["type_of_case"] == "" or order["type_of_case"] is None):
+            order["type_of_case"] = "No Type of Case"
 
     frappe.logger().info(f"Query returned {len(sales_orders)} sales orders")
 

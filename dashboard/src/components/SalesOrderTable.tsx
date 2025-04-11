@@ -133,6 +133,10 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
     };
 
     const getTypeColor = (type: string) => {
+        if (type === "No Type of Case") {
+            return "bg-gray-100 text-gray-600";
+        }
+
         const colors: { [key: string]: string } = {
             Subsidy: "bg-purple-100 text-purple-800",
             "Non Subsidy": "bg-orange-100 text-orange-800",
