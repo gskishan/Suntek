@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -16,6 +17,7 @@ import {
     ExternalLink,
     MapPin,
     Package,
+    Search,
     TrendingUp,
     User,
     X,
@@ -105,6 +107,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
     const districtRowRefs = useRef<Map<string, (expanded: boolean) => void>>(new Map());
 
     const [isFullExpansion, setIsFullExpansion] = useState(false);
+    const [searchQuery, setSearchQuery] = useState<string>("");
 
     const normalizedData = useMemo(() => {
         const dataCopy: StateData[] = JSON.parse(JSON.stringify(data));
@@ -290,26 +293,105 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
         setSelectedOrder(null);
     };
 
+    const filterOrders = (order: SalesOrder) => {
+        if (!searchQuery.trim()) return true;
+
+        const query = searchQuery.toLowerCase().trim();
+
+        if (query.startsWith(">") || query.startsWith("<") || query.startsWith("=")) {
+            const operator = query.charAt(0);
+            const amountStr = query.substring(1);
+            const amount = parseFloat(amountStr);
+
+            if (!isNaN(amount)) {
+                if (operator === ">") return order.grand_total > amount;
+                if (operator === "<") return order.grand_total < amount;
+                if (operator === "=") return order.grand_total === amount;
+            }
+        }
+
+        return (
+            order.name.toLowerCase().includes(query) ||
+            order.customer.toLowerCase().includes(query) ||
+            (order.type_of_case?.toLowerCase() || "").includes(query) ||
+            (order.department?.toLowerCase() || "").includes(query) ||
+            order.status.toLowerCase().includes(query) ||
+            order.grand_total.toString().includes(query) ||
+            (order.city?.toLowerCase() || "").includes(query) ||
+            (order.state?.toLowerCase() || "").includes(query) ||
+            order.territory.toLowerCase().includes(query) ||
+            (order.district?.toLowerCase() || "").includes(query) ||
+            (order.district_name?.toLowerCase() || "").includes(query)
+        );
+    };
+
+    const filteredData = useMemo(() => {
+        if (!searchQuery.trim()) return normalizedData;
+
+        if (searchQuery.trim()) {
+            setTimeout(() => {
+                expandAll();
+            }, 0);
+        }
+
+        return normalizedData
+            .map((stateData) => {
+                const filteredState = {
+                    ...stateData,
+                    territories: stateData.territories
+                        .map((territory) => ({
+                            ...territory,
+                            cities: territory.cities
+                                .map((city) => ({
+                                    ...city,
+                                    districts: city.districts
+                                        .map((district) => ({
+                                            ...district,
+                                            orders: district.orders.filter(filterOrders),
+                                        }))
+                                        .filter((district) => district.orders.length > 0),
+                                }))
+                                .filter((city) => city.districts.length > 0),
+                        }))
+                        .filter((territory) => territory.cities.length > 0),
+                };
+
+                return filteredState;
+            })
+            .filter((state) => state.territories.length > 0);
+    }, [normalizedData, searchQuery, expandAll]);
+
     return (
         <>
             <Card className="overflow-hidden border border-gray-200 shadow-sm">
-                <div className="p-2 flex justify-end gap-2 border-b">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={collapseAll}
-                        className="flex items-center gap-1"
-                    >
-                        <ChevronRight className="h-4 w-4" /> Collapse All
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={expandAll}
-                        className="flex items-center gap-1"
-                    >
-                        <ChevronDown className="h-4 w-4" /> Expand All
-                    </Button>
+                <div className="p-2 flex justify-between items-center border-b">
+                    <div className="relative w-96">
+                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input
+                            placeholder="Search by ID, customer, status, amount, location..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-8 h-9"
+                        />
+                    </div>
+                    <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={collapseAll}
+                            className="flex items-center gap-1"
+                        >
+                            <ChevronRight className="h-4 w-4" /> Collapse All
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={expandAll}
+                            className="flex items-center gap-1"
+                        >
+                            <ChevronDown className="h-4 w-4" /> Expand All
+                        </Button>
+                    </div>
                 </div>
                 <ScrollArea className="h-[calc(70vh-120px)] min-h-[300px]">
                     <div className="min-w-[750px]">
@@ -323,7 +405,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {normalizedData.length === 0 ? (
+                                {filteredData.length === 0 ? (
                                     <TableRow>
                                         <TableCell
                                             colSpan={4}
@@ -332,13 +414,15 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                                             <div className="flex flex-col items-center justify-center text-muted-foreground">
                                                 <p>No sales data found.</p>
                                                 <p className="text-sm">
-                                                    Try adjusting the filters or refresh the data.
+                                                    {searchQuery.trim()
+                                                        ? "No results match your search. Try a different query."
+                                                        : "Try adjusting the filters or refresh the data."}
                                                 </p>
                                             </div>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    normalizedData.map((stateData, stateIndex) => (
+                                    filteredData.map((stateData, stateIndex) => (
                                         <StateRow
                                             key={createUniqueKey(stateData.state, "state", stateIndex)}
                                             stateData={stateData}
