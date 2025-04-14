@@ -16,6 +16,7 @@ interface DashboardFiltersProps {
     selectedDepartment: string;
     salesOrderStatus: string;
     selectedTypeOfCase: string;
+    selectedTypeOfStructure: string;
     fromDate: Date | undefined;
     toDate: Date | undefined;
     limit: number | null;
@@ -33,6 +34,7 @@ interface DashboardFiltersProps {
     onDepartmentChange: (value: string) => void;
     onStatusChange: (value: string) => void;
     onTypeOfCaseChange: (value: string) => void;
+    onTypeOfStructureChange: (value: string) => void;
     onLimitChange: (limit: number | null) => void;
     onFromDateChange: (date: Date | undefined) => void;
     onToDateChange: (date: Date | undefined) => void;
@@ -52,6 +54,7 @@ export const DashboardFilters = ({
     selectedDepartment,
     salesOrderStatus,
     selectedTypeOfCase,
+    selectedTypeOfStructure,
     fromDate,
     toDate,
     limit,
@@ -69,6 +72,7 @@ export const DashboardFilters = ({
     onDepartmentChange,
     onStatusChange,
     onTypeOfCaseChange,
+    onTypeOfStructureChange,
     onLimitChange,
     onFromDateChange,
     onToDateChange,
@@ -93,6 +97,7 @@ export const DashboardFilters = ({
             selectedDepartment !== "all" ||
             salesOrderStatus !== "all" ||
             selectedTypeOfCase !== "all" ||
+            selectedTypeOfStructure !== "all" ||
             limit !== 100 ||
             fromDate !== undefined ||
             toDate !== undefined ||
@@ -107,6 +112,7 @@ export const DashboardFilters = ({
         selectedDepartment,
         salesOrderStatus,
         selectedTypeOfCase,
+        selectedTypeOfStructure,
         limit,
         fromDate,
         toDate,
@@ -147,6 +153,9 @@ export const DashboardFilters = ({
         if (selectedTypeOfCase !== "all") {
             filters.push(`Type: ${selectedTypeOfCase}`);
         }
+        if (selectedTypeOfStructure !== "all") {
+            filters.push(`Structure: ${selectedTypeOfStructure}`);
+        }
         if (limit !== 100) {
             filters.push(`Limit: ${limit}`);
         }
@@ -172,6 +181,7 @@ export const DashboardFilters = ({
         selectedDepartment,
         salesOrderStatus,
         selectedTypeOfCase,
+        selectedTypeOfStructure,
         limit,
         fromDate,
         toDate,
@@ -181,7 +191,7 @@ export const DashboardFilters = ({
 
     return (
         <Card
-            className={`shadow-sm transition-all duration-300 ease-in-out ${isExpanded ? "h-[calc(80vh-140px)] w-[400px]" : "h-[50px] w-[50px] my-0 mt-0 rounded-md"}`}
+            className={`shadow-sm transition-all duration-300 ease-in-out ${isExpanded ? "h-[calc(85vh-120px)] w-[400px]" : "h-[50px] w-[50px] my-0 mt-0 rounded-md"}`}
         >
             <CardHeader
                 className={`${isExpanded ? "px-4 py-3 flex flex-row items-center justify-between" : "p-0 flex items-center justify-center h-full"} cursor-pointer hover:bg-gray-50`}
@@ -201,7 +211,7 @@ export const DashboardFilters = ({
             {isExpanded && (
                 <CardContent
                     className="space-y-4 pt-0 overflow-y-auto"
-                    style={{ maxHeight: "calc(80vh - 200px)" }}
+                    style={{ maxHeight: "calc(85vh - 180px)" }}
                 >
                     {/* Filters Applied Label */}
                     <div className="text-xs text-gray-500 italic">Filters Applied: {getFiltersAppliedLabel}</div>
@@ -311,7 +321,9 @@ export const DashboardFilters = ({
                                     </SelectContent>
                                 </Select>
                             </div>
+                        </div>
 
+                        <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-1 w-full">
                                 <label className="text-xs font-medium text-gray-700">Type of Case</label>
                                 <Select
@@ -330,6 +342,34 @@ export const DashboardFilters = ({
                                 </Select>
                             </div>
 
+                            <div className="space-y-1 w-full">
+                                <label className="text-xs font-medium text-gray-700">Type of Structure</label>
+                                <Select
+                                    value={selectedTypeOfStructure}
+                                    onValueChange={onTypeOfStructureChange}
+                                >
+                                    <SelectTrigger className="w-full h-9">
+                                        <SelectValue placeholder="Select Type of Structure" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Structures</SelectItem>
+                                        <SelectItem value="Customized">Customized</SelectItem>
+                                        <SelectItem value="Shed">Shed</SelectItem>
+                                        <SelectItem value="Elevated">Elevated</SelectItem>
+                                        <SelectItem value="On Shed">On Shed</SelectItem>
+                                        <SelectItem value="On Shed Aluminium Triangle">
+                                            On Shed Aluminium Triangle
+                                        </SelectItem>
+                                        <SelectItem value="Onsite Fabrication">Onsite Fabrication</SelectItem>
+                                        <SelectItem value="Others">Others</SelectItem>
+                                        <SelectItem value="Regular Structure">Regular Structure</SelectItem>
+                                        <SelectItem value="RCC">RCC</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3">
                             <div className="space-y-1 w-full">
                                 <label className="text-xs font-medium text-gray-700">Limit</label>
                                 <Select
