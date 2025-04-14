@@ -60,7 +60,7 @@ def _create_lead(data: dict[str, Any]) -> Any:
     lead.email_id = data.get("email")
     lead.source = "Just Dial"
     lead.status = "Open"
-    lead.owner = get_next_telecaller()
+    lead.lead_owner = get_next_telecaller()
 
     pincode = data.get("pincode")
     if pincode:
