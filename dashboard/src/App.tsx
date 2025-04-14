@@ -35,13 +35,6 @@ const App = () => {
             <header className="bg-white border-b border-slate-200 shadow-sm">
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
-                            <img
-                                src="/app/file/ab19b34e3c"
-                                alt="Suntek Logo"
-                                className="w-full h-full object-contain"
-                            />
-                        </div>
                         <div>
                             <h1 className="text-xl font-bold text-gray-900">Suntek Analytics</h1>
                             <p className="text-sm text-gray-500">Sales Performance Dashboard</p>
