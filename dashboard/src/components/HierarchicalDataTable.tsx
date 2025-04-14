@@ -345,27 +345,85 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
 
         return normalizedData
             .map((stateData) => {
+                // Create a deep copy of the state data
                 const filteredState = {
                     ...stateData,
                     territories: stateData.territories
-                        .map((territory) => ({
-                            ...territory,
-                            cities: territory.cities
-                                .map((city) => ({
-                                    ...city,
-                                    districts: city.districts
-                                        .map((district) => ({
-                                            ...district,
-                                            orders: district.orders.filter(filterOrders),
-                                        }))
-                                        .filter((district) => district.orders.length > 0),
-                                }))
-                                .filter((city) => city.districts.length > 0),
-                        }))
+                        .map((territory) => {
+                            // Create a deep copy of the territory data
+                            const filteredTerritory = {
+                                ...territory,
+                                cities: territory.cities
+                                    .map((city) => {
+                                        // Create a deep copy of the city data
+                                        const filteredCity = {
+                                            ...city,
+                                            districts: city.districts
+                                                .map((district) => {
+                                                    // Filter orders and create a deep copy of the district data
+                                                    const filteredOrders = district.orders.filter(filterOrders);
+                                                    return {
+                                                        ...district,
+                                                        orders: filteredOrders,
+                                                        // Update count based on filtered orders
+                                                        count: filteredOrders.length,
+                                                        // Update total_amount based on filtered orders
+                                                        total_amount: filteredOrders.reduce(
+                                                            (sum, order) => sum + (order.grand_total || 0),
+                                                            0,
+                                                        ),
+                                                    };
+                                                })
+                                                .filter((district) => district.orders.length > 0),
+                                        };
+
+                                        // Update city count and total_amount based on filtered districts
+                                        const districtCount = filteredCity.districts.reduce(
+                                            (sum, district) => sum + district.count,
+                                            0,
+                                        );
+                                        const districtTotal = filteredCity.districts.reduce(
+                                            (sum, district) => sum + district.total_amount,
+                                            0,
+                                        );
+
+                                        return {
+                                            ...filteredCity,
+                                            count: districtCount,
+                                            total_amount: districtTotal,
+                                        };
+                                    })
+                                    .filter((city) => city.districts.length > 0),
+                            };
+
+                            // Update territory count and total_amount based on filtered cities
+                            const cityCount = filteredTerritory.cities.reduce((sum, city) => sum + city.count, 0);
+                            const cityTotal = filteredTerritory.cities.reduce(
+                                (sum, city) => sum + city.total_amount,
+                                0,
+                            );
+
+                            return {
+                                ...filteredTerritory,
+                                count: cityCount,
+                                total_amount: cityTotal,
+                            };
+                        })
                         .filter((territory) => territory.cities.length > 0),
                 };
 
-                return filteredState;
+                // Update state count and total_amount based on filtered territories
+                const territoryCount = filteredState.territories.reduce((sum, territory) => sum + territory.count, 0);
+                const territoryTotal = filteredState.territories.reduce(
+                    (sum, territory) => sum + territory.total_amount,
+                    0,
+                );
+
+                return {
+                    ...filteredState,
+                    count: territoryCount,
+                    total_amount: territoryTotal,
+                };
             })
             .filter((state) => state.territories.length > 0);
     }, [normalizedData, searchQuery, expandAll]);
@@ -390,6 +448,21 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-8 h-9"
                         />
+                        {searchQuery.trim() && (
+                            <>
+                                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                    {filteredData.reduce((total, state) => total + state.count, 0)} items
+                                </div>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setSearchQuery("")}
+                                    className="absolute right-10 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </>
+                        )}
                     </div>
                     <Button
                         variant="outline"
