@@ -1,25 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useFrappeGetCall, useFrappeGetDocList } from "frappe-react-sdk";
-import { SalesOrderTable } from "./SalesOrderTable";
 import { HierarchicalDataTable } from "./HierarchicalDataTable";
 import { DashboardFilters } from "./DashboardFilters";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, ShieldAlert } from "lucide-react";
 import { Card } from "@/components/ui/card";
-
-interface SalesOrderFilters {
-    state?: string[];
-    territory?: string[];
-    city?: string[];
-    district?: string[];
-    department?: string;
-    status?: string;
-    type_of_case?: string;
-    from_date?: string;
-    to_date?: string;
-    limit?: number;
-}
 
 export const Dashboard = () => {
     const [selectedStates, setSelectedStates] = useState<string[]>([]);
@@ -31,9 +16,8 @@ export const Dashboard = () => {
     const [selectedTypeOfCase, setSelectedTypeOfCase] = useState<string>("all");
     const [fromDate, setFromDate] = useState<Date>();
     const [toDate, setToDate] = useState<Date>();
-    const [limit, setLimit] = useState<number>(100);
+    const [limit, setLimit] = useState<number | null>(100);
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-    const [filtersApplied, setFiltersApplied] = useState<boolean>(false);
 
     const [permissionError, setPermissionError] = useState<string | null>(null);
 
@@ -81,7 +65,7 @@ export const Dashboard = () => {
 
     const queryParams = useMemo(() => {
         const params: Record<string, any> = {
-            limit,
+            limit: limit === null ? "all" : limit.toString(),
         };
 
         if (selectedStates.length > 0) {
@@ -177,13 +161,7 @@ export const Dashboard = () => {
     }, [salesOrdersError]);
 
     const handleApplyFilters = useCallback(() => {
-        // Always set filtersApplied to true when manually applying filters
-        // This ensures we track that the user has explicitly requested data
-        setFiltersApplied(true);
         setLastUpdated(new Date());
-
-        // Always refresh sales orders when Apply Filters is clicked
-        // Even if no filters are selected, this will fetch fresh data
         setTimeout(() => {
             refreshSalesOrders();
         }, 50);
@@ -200,9 +178,7 @@ export const Dashboard = () => {
         setFromDate(undefined);
         setToDate(undefined);
         setLimit(100);
-
         setLastUpdated(new Date());
-
         setTimeout(() => {
             refreshSalesOrders();
         }, 50);
@@ -225,7 +201,6 @@ export const Dashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Filters - Left Side */}
                 <div className="lg:col-span-4">
                     <DashboardFilters
                         selectedStates={selectedStates}
@@ -258,9 +233,7 @@ export const Dashboard = () => {
                     />
                 </div>
 
-                {/* Main Content - Right Side */}
                 <div className="lg:col-span-8">
-                    {/* Permission Error Message */}
                     {permissionError && (
                         <Card className="p-8 border-red-200 bg-red-50">
                             <div className="flex items-center gap-4">
@@ -277,7 +250,6 @@ export const Dashboard = () => {
                         </Card>
                     )}
 
-                    {/* Display sales data only if no permission error */}
                     {!permissionError && (
                         <>
                             {isLoadingSalesOrders ? (

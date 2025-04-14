@@ -32,9 +32,17 @@ def get_sales_order_data():
         type_of_case = form_dict.get("type_of_case")
         limit = form_dict.get("limit", 100)
         try:
-            limit = int(limit)
-        except (ValueError, TypeError):
+            frappe.logger().info(f"Raw limit value: {limit}, type: {type(limit)}")
+            if limit == "all":
+                limit = None
+                frappe.logger().info("Limit set to None for 'all' option")
+            else:
+                limit = int(limit)
+                frappe.logger().info(f"Limit converted to int: {limit}")
+        except (ValueError, TypeError) as e:
+            frappe.logger().error(f"Error converting limit to int: {e}")
             limit = 100
+            frappe.logger().info(f"Limit set to default: {limit}")
         show_sql = form_dict.get("show_sql") == "1"
 
         frappe.logger().info(
@@ -55,9 +63,17 @@ def get_sales_order_data():
         type_of_case = frappe.request.args.get("type_of_case")
         limit = frappe.request.args.get("limit", 100)
         try:
-            limit = int(limit)
-        except (ValueError, TypeError):
+            frappe.logger().info(f"Raw limit value: {limit}, type: {type(limit)}")
+            if limit == "all":
+                limit = None
+                frappe.logger().info("Limit set to None for 'all' option")
+            else:
+                limit = int(limit)
+                frappe.logger().info(f"Limit converted to int: {limit}")
+        except (ValueError, TypeError) as e:
+            frappe.logger().error(f"Error converting limit to int: {e}")
             limit = 100
+            frappe.logger().info(f"Limit set to default: {limit}")
         show_sql = frappe.request.args.get("show_sql") == "1"
 
         frappe.logger().info(
@@ -153,8 +169,11 @@ def _get_sales_orders(filters=None, limit=100):
 
     if limit:
         query += f" LIMIT {limit}"
+        frappe.logger().info(f"Added LIMIT {limit} to query")
     else:
-        query += " LIMIT 100"
+        # No limit clause needed for "all" option
+        frappe.logger().info("No LIMIT clause added to query (all items)")
+        pass
 
     if filters and filters.get("state"):
         frappe.logger().info(f"SQL Query with state filter: {query}")
@@ -171,6 +190,10 @@ def _get_sales_orders(filters=None, limit=100):
             order["type_of_case"] = "No Type of Case"
 
     frappe.logger().info(f"Query returned {len(sales_orders)} sales orders")
+    if limit:
+        frappe.logger().info(f"Query was limited to {limit} records")
+    else:
+        frappe.logger().info("Query was not limited (all records)")
 
     grouped_data = defaultdict(
         lambda: {

@@ -11,7 +11,7 @@ export default defineConfig({
         port: 8080,
         host: "0.0.0.0",
         proxy: proxyOptions,
-        allowedHosts: ["suntek.test", "suntek-dev.frappe.cloud", "suntekerp.frappe.cloud"],
+        allowedHosts: ["suntek.test", "suntek-dev.frappe.cloud", "suntekerp.frappe.cloud", "suntek.local"],
     },
     resolve: {
         alias: {

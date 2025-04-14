@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useMemo } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { MultiSelect } from "./ui/multi-select";
+import { DateRange } from "react-day-picker";
 
 interface DashboardFiltersProps {
     selectedStates: string[];
@@ -17,7 +18,7 @@ interface DashboardFiltersProps {
     selectedTypeOfCase: string;
     fromDate: Date | undefined;
     toDate: Date | undefined;
-    limit: number;
+    limit: number | null;
     states: Array<{ name: string; creation: string; state: string }>;
     territories: Array<{ name: string; creation: string }>;
     cities: Array<{ name: string; creation: string; city: string }>;
@@ -30,11 +31,14 @@ interface DashboardFiltersProps {
     onDepartmentChange: (value: string) => void;
     onStatusChange: (value: string) => void;
     onTypeOfCaseChange: (value: string) => void;
-    onLimitChange: (value: number) => void;
+    onLimitChange: (limit: number | null) => void;
     onFromDateChange: (date: Date | undefined) => void;
     onToDateChange: (date: Date | undefined) => void;
     onApplyFilters: () => void;
     onClearFilters: () => void;
+    onDateRangeChange: (range: DateRange) => void;
+    dateRange: DateRange;
+    search: string;
 }
 
 export const DashboardFilters = ({
@@ -65,6 +69,9 @@ export const DashboardFilters = ({
     onToDateChange,
     onApplyFilters,
     onClearFilters,
+    onDateRangeChange,
+    dateRange,
+    search,
 }: DashboardFiltersProps) => {
     const [isExpanded, setIsExpanded] = useState(true);
 
@@ -73,7 +80,7 @@ export const DashboardFilters = ({
     };
 
     // Check if any filters are applied
-    const hasFilters = useMemo(() => {
+    const filtersApplied = useMemo(() => {
         return (
             selectedStates.length > 0 ||
             selectedTerritories.length > 0 ||
@@ -237,13 +244,14 @@ export const DashboardFilters = ({
                             <div className="space-y-1 w-full">
                                 <label className="text-xs font-medium text-gray-700">Limit</label>
                                 <Select
-                                    value={limit.toString()}
-                                    onValueChange={(value) => onLimitChange(parseInt(value))}
+                                    value={limit === null ? "all" : limit.toString()}
+                                    onValueChange={(value) => onLimitChange(value === "all" ? null : parseInt(value))}
                                 >
                                     <SelectTrigger className="w-full h-9">
                                         <SelectValue placeholder="Select Limit" />
                                     </SelectTrigger>
                                     <SelectContent>
+                                        <SelectItem value="all">All items</SelectItem>
                                         <SelectItem value="50">50 items</SelectItem>
                                         <SelectItem value="100">100 items</SelectItem>
                                         <SelectItem value="200">200 items</SelectItem>
@@ -276,7 +284,7 @@ export const DashboardFilters = ({
                     </div>
 
                     <div className="flex justify-end pt-2 gap-2">
-                        {hasFilters && (
+                        {filtersApplied && (
                             <Button
                                 variant="outline"
                                 onClick={onClearFilters}
