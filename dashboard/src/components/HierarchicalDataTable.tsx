@@ -438,7 +438,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
 
     return (
         <>
-            <Card className="overflow-hidden border border-gray-200 shadow-sm">
+            <Card className="overflow-hidden border border-gray-200 shadow-sm rounded-lg">
                 <div className="p-2 flex justify-between items-center border-b">
                     <div className="flex items-center gap-4">
                         <div className="relative w-96">
@@ -489,7 +489,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                         )}
                     </Button>
                 </div>
-                <ScrollArea className="h-[calc(70vh-120px)] min-h-[300px]">
+                <ScrollArea className="h-[calc(80vh-140px)] min-h-[500px]">
                     <div className="min-w-[750px]">
                         <Table className="w-full table-fixed">
                             <TableHeader className="bg-gray-50 sticky top-0 z-10">

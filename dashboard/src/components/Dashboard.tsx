@@ -200,8 +200,8 @@ export const Dashboard = () => {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div className="lg:col-span-4">
+            <div className="flex flex-row gap-4 h-[calc(100vh-180px)]">
+                <div className="transition-all duration-300 ease-in-out flex items-start">
                     <DashboardFilters
                         selectedStates={selectedStates}
                         selectedTerritories={selectedTerritories}
@@ -230,12 +230,49 @@ export const Dashboard = () => {
                         onLimitChange={setLimit}
                         onApplyFilters={handleApplyFilters}
                         onClearFilters={handleClearFilters}
+                        onDateRangeChange={(range) => {}}
+                        dateRange={{ from: undefined, to: undefined }}
+                        search=""
                     />
                 </div>
 
-                <div className="lg:col-span-8">
+                <div className="flex-grow transition-all duration-300 ease-in-out overflow-hidden flex flex-col">
+                    {/* Filters summary */}
+                    {(selectedStates.length > 0 ||
+                        selectedTerritories.length > 0 ||
+                        selectedCities.length > 0 ||
+                        selectedDistricts.length > 0 ||
+                        selectedDepartment !== "all" ||
+                        salesOrderStatus !== "all" ||
+                        selectedTypeOfCase !== "all" ||
+                        limit !== 100 ||
+                        fromDate !== undefined ||
+                        toDate !== undefined) && (
+                        <div className="bg-blue-50 p-2 text-sm text-blue-800 mb-3 rounded-md">
+                            <span className="font-medium">Filters applied: </span>
+                            {selectedStates.length > 0 && (
+                                <span className="mr-2">States ({selectedStates.length})</span>
+                            )}
+                            {selectedTerritories.length > 0 && (
+                                <span className="mr-2">Territories ({selectedTerritories.length})</span>
+                            )}
+                            {selectedCities.length > 0 && (
+                                <span className="mr-2">Cities ({selectedCities.length})</span>
+                            )}
+                            {selectedDistricts.length > 0 && (
+                                <span className="mr-2">Districts ({selectedDistricts.length})</span>
+                            )}
+                            {selectedDepartment !== "all" && <span className="mr-2">Department</span>}
+                            {salesOrderStatus !== "all" && <span className="mr-2">Status: {salesOrderStatus}</span>}
+                            {selectedTypeOfCase !== "all" && <span className="mr-2">Type: {selectedTypeOfCase}</span>}
+                            {limit !== 100 && <span className="mr-2">Limit: {limit}</span>}
+                            {fromDate && <span className="mr-2">From: {fromDate.toLocaleDateString()}</span>}
+                            {toDate && <span className="mr-2">To: {toDate.toLocaleDateString()}</span>}
+                        </div>
+                    )}
+
                     {permissionError && (
-                        <Card className="p-8 border-red-200 bg-red-50">
+                        <Card className="p-8 border-red-200 bg-red-50 rounded-lg">
                             <div className="flex items-center gap-4">
                                 <ShieldAlert className="h-10 w-10 text-red-500" />
                                 <div>
@@ -259,7 +296,12 @@ export const Dashboard = () => {
                             ) : (
                                 <>
                                     {salesOrdersData && salesOrdersData.length > 0 ? (
-                                        <HierarchicalDataTable data={salesOrdersData} />
+                                        <>
+                                            <HierarchicalDataTable data={salesOrdersData} />
+                                            <div className="text-xs text-gray-500 text-right mt-2">
+                                                Last updated: {lastUpdated.toLocaleString()}
+                                            </div>
+                                        </>
                                     ) : (
                                         <div className="flex flex-col justify-center items-center h-64 bg-gray-50 rounded-lg border border-gray-200">
                                             <svg
@@ -285,10 +327,6 @@ export const Dashboard = () => {
                                     )}
                                 </>
                             )}
-
-                            <div className="text-xs text-gray-500 text-right mt-2">
-                                Last updated: {lastUpdated.toLocaleString()}
-                            </div>
                         </>
                     )}
                 </div>
