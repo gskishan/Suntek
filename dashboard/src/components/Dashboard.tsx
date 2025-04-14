@@ -230,7 +230,6 @@ export const Dashboard = () => {
                         onLimitChange={setLimit}
                         onApplyFilters={handleApplyFilters}
                         onClearFilters={handleClearFilters}
-                        onDateRangeChange={(range) => {}}
                         dateRange={{ from: undefined, to: undefined }}
                         search=""
                     />
@@ -265,7 +264,9 @@ export const Dashboard = () => {
                             {selectedDepartment !== "all" && <span className="mr-2">Department</span>}
                             {salesOrderStatus !== "all" && <span className="mr-2">Status: {salesOrderStatus}</span>}
                             {selectedTypeOfCase !== "all" && <span className="mr-2">Type: {selectedTypeOfCase}</span>}
-                            {limit !== 100 && <span className="mr-2">Limit: {limit}</span>}
+                            {limit !== 100 && (
+                                <span className="mr-2">Limit: {limit === null ? "All Items" : limit}</span>
+                            )}
                             {fromDate && <span className="mr-2">From: {fromDate.toLocaleDateString()}</span>}
                             {toDate && <span className="mr-2">To: {toDate.toLocaleDateString()}</span>}
                         </div>
