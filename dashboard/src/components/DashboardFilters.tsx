@@ -6,6 +6,7 @@ import { useState, useMemo } from "react";
 import { ChevronLeft, SlidersHorizontal } from "lucide-react";
 import { MultiSelect } from "./ui/multi-select";
 import { DateRange } from "react-day-picker";
+import { Input } from "@/components/ui/input";
 
 interface DashboardFiltersProps {
     selectedStates: string[];
@@ -18,6 +19,8 @@ interface DashboardFiltersProps {
     fromDate: Date | undefined;
     toDate: Date | undefined;
     limit: number | null;
+    minCapacity: number | null;
+    maxCapacity: number | null;
     states: Array<{ name: string; creation: string; state: string }>;
     territories: Array<{ name: string; creation: string }>;
     cities: Array<{ name: string; creation: string; city: string }>;
@@ -33,6 +36,8 @@ interface DashboardFiltersProps {
     onLimitChange: (limit: number | null) => void;
     onFromDateChange: (date: Date | undefined) => void;
     onToDateChange: (date: Date | undefined) => void;
+    onMinCapacityChange: (value: number | null) => void;
+    onMaxCapacityChange: (value: number | null) => void;
     onApplyFilters: () => void;
     onClearFilters: () => void;
     dateRange: DateRange;
@@ -50,6 +55,8 @@ export const DashboardFilters = ({
     fromDate,
     toDate,
     limit,
+    minCapacity,
+    maxCapacity,
     states,
     territories,
     cities,
@@ -65,6 +72,8 @@ export const DashboardFilters = ({
     onLimitChange,
     onFromDateChange,
     onToDateChange,
+    onMinCapacityChange,
+    onMaxCapacityChange,
     onApplyFilters,
     onClearFilters,
 }: DashboardFiltersProps) => {
@@ -86,7 +95,9 @@ export const DashboardFilters = ({
             selectedTypeOfCase !== "all" ||
             limit !== 100 ||
             fromDate !== undefined ||
-            toDate !== undefined
+            toDate !== undefined ||
+            minCapacity !== null ||
+            maxCapacity !== null
         );
     }, [
         selectedStates,
@@ -99,6 +110,73 @@ export const DashboardFilters = ({
         limit,
         fromDate,
         toDate,
+        minCapacity,
+        maxCapacity,
+    ]);
+
+    // Get the filters applied label
+    const getFiltersAppliedLabel = useMemo(() => {
+        const filters = [];
+
+        // Format date to DD/MM/YYYY
+        const formatDate = (date: Date) => {
+            const day = date.getDate().toString().padStart(2, "0");
+            const month = (date.getMonth() + 1).toString().padStart(2, "0");
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        };
+
+        if (selectedStates.length > 0) {
+            filters.push(`States: ${selectedStates.length}`);
+        }
+        if (selectedTerritories.length > 0) {
+            filters.push(`Territories: ${selectedTerritories.length}`);
+        }
+        if (selectedCities.length > 0) {
+            filters.push(`Cities: ${selectedCities.length}`);
+        }
+        if (selectedDistricts.length > 0) {
+            filters.push(`Districts: ${selectedDistricts.length}`);
+        }
+        if (selectedDepartment !== "all") {
+            filters.push(`Department: ${selectedDepartment}`);
+        }
+        if (salesOrderStatus !== "all") {
+            filters.push(`Status: ${salesOrderStatus}`);
+        }
+        if (selectedTypeOfCase !== "all") {
+            filters.push(`Type: ${selectedTypeOfCase}`);
+        }
+        if (limit !== 100) {
+            filters.push(`Limit: ${limit}`);
+        }
+        if (fromDate) {
+            filters.push(`From: ${formatDate(fromDate)}`);
+        }
+        if (toDate) {
+            filters.push(`To: ${formatDate(toDate)}`);
+        }
+        if (minCapacity !== null) {
+            filters.push(`Min Capacity: ${minCapacity} kW`);
+        }
+        if (maxCapacity !== null) {
+            filters.push(`Max Capacity: ${maxCapacity} kW`);
+        }
+
+        return filters.length > 0 ? filters.join(", ") : "No filters applied";
+    }, [
+        selectedStates,
+        selectedTerritories,
+        selectedCities,
+        selectedDistricts,
+        selectedDepartment,
+        salesOrderStatus,
+        selectedTypeOfCase,
+        limit,
+        fromDate,
+        toDate,
+        minCapacity,
+        maxCapacity,
     ]);
 
     return (
@@ -125,6 +203,9 @@ export const DashboardFilters = ({
                     className="space-y-4 pt-0 overflow-y-auto"
                     style={{ maxHeight: "calc(80vh - 200px)" }}
                 >
+                    {/* Filters Applied Label */}
+                    <div className="text-xs text-gray-500 italic">Filters Applied: {getFiltersAppliedLabel}</div>
+
                     <div className="flex flex-col space-y-4">
                         {/* Location Filters Row - Two fields per row */}
                         <div className="grid grid-cols-2 gap-3">
@@ -289,6 +370,36 @@ export const DashboardFilters = ({
                                 />
                             </div>
                         </div>
+
+                        {/* Capacity Range Row - Two fields in one row */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1 w-full">
+                                <label className="text-xs font-medium text-gray-700">Min Capacity (kW)</label>
+                                <Input
+                                    type="number"
+                                    placeholder="Min capacity"
+                                    value={minCapacity === null ? "" : minCapacity}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        onMinCapacityChange(value === "" ? null : parseFloat(value));
+                                    }}
+                                    className="h-9"
+                                />
+                            </div>
+                            <div className="space-y-1 w-full">
+                                <label className="text-xs font-medium text-gray-700">Max Capacity (kW)</label>
+                                <Input
+                                    type="number"
+                                    placeholder="Max capacity"
+                                    value={maxCapacity === null ? "" : maxCapacity}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        onMaxCapacityChange(value === "" ? null : parseFloat(value));
+                                    }}
+                                    className="h-9"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="flex justify-end pt-2 gap-2">
@@ -303,7 +414,7 @@ export const DashboardFilters = ({
                         )}
                         <Button
                             onClick={onApplyFilters}
-                            className="px-4 py-2"
+                            className="px-4 py-2 cursor-pointer"
                         >
                             Apply Filters
                         </Button>

@@ -1,9 +1,25 @@
 import json
+import re
 from collections import defaultdict
 
 import frappe
 
 from suntek_app.suntek.utils.api_handler import create_api_response
+
+
+# Function to extract numeric value from capacity string
+def extract_capacity_number(capacity_str):
+    if not capacity_str or capacity_str == "":
+        return None
+
+    # Convert to string in case it's a number already
+    capacity_str = str(capacity_str)
+
+    # Extract numbers with optional decimal point
+    matches = re.findall(r"(\d+\.?\d*)", capacity_str)
+    if matches:
+        return float(matches[0])
+    return None
 
 
 @frappe.whitelist()
@@ -30,6 +46,8 @@ def get_sales_order_data():
         department = form_dict.get("department")
         status = form_dict.get("status")
         type_of_case = form_dict.get("type_of_case")
+        min_capacity = form_dict.get("min_capacity")
+        max_capacity = form_dict.get("max_capacity")
         limit = form_dict.get("limit", 100)
         try:
             frappe.logger().info(f"Raw limit value: {limit}, type: {type(limit)}")
@@ -46,7 +64,7 @@ def get_sales_order_data():
         show_sql = form_dict.get("show_sql") == "1"
 
         frappe.logger().info(
-            f"Received state: {state}, territory: {territory}, city: {city}, district: {district}, limit: {limit}"
+            f"Received state: {state}, territory: {territory}, city: {city}, district: {district}, limit: {limit}, min_capacity: {min_capacity}, max_capacity: {max_capacity}"
         )
 
     except Exception as e:
@@ -61,6 +79,8 @@ def get_sales_order_data():
         department = frappe.request.args.get("department")
         status = frappe.request.args.get("status")
         type_of_case = frappe.request.args.get("type_of_case")
+        min_capacity = frappe.request.args.get("min_capacity")
+        max_capacity = frappe.request.args.get("max_capacity")
         limit = frappe.request.args.get("limit", 100)
         try:
             frappe.logger().info(f"Raw limit value: {limit}, type: {type(limit)}")
@@ -77,7 +97,7 @@ def get_sales_order_data():
         show_sql = frappe.request.args.get("show_sql") == "1"
 
         frappe.logger().info(
-            f"Using args: state: {state}, territory: {territory}, city: {city}, district: {district}, limit: {limit}"
+            f"Using args: state: {state}, territory: {territory}, city: {city}, district: {district}, limit: {limit}, min_capacity: {min_capacity}, max_capacity: {max_capacity}"
         )
 
     filters = {
@@ -90,6 +110,8 @@ def get_sales_order_data():
         "department": department,
         "status": status,
         "type_of_case": type_of_case,
+        "min_capacity": min_capacity,
+        "max_capacity": max_capacity,
         "show_sql": show_sql,
     }
 
@@ -144,6 +166,10 @@ def _get_sales_orders(filters=None, limit=100):
             where_clause += f" AND status = '{filters['status']}'"
         if filters.get("type_of_case"):
             where_clause += f" AND custom_type_of_case = '{filters['type_of_case']}'"
+        if filters.get("min_capacity"):
+            where_clause += f" AND CAST(REGEXP_REPLACE(custom_capacity, '[^0-9.]', '') AS DECIMAL(10,2)) >= {float(filters['min_capacity'])}"
+        if filters.get("max_capacity"):
+            where_clause += f" AND CAST(REGEXP_REPLACE(custom_capacity, '[^0-9.]', '') AS DECIMAL(10,2)) <= {float(filters['max_capacity'])}"
 
     query = f"""
     SELECT
@@ -158,6 +184,7 @@ def _get_sales_orders(filters=None, limit=100):
         custom_suntek_city as city,
         custom_type_of_case as type_of_case,
         custom_department as department,
+        custom_capacity as capacity,
         status
     FROM
         `tabSales Order`
@@ -188,6 +215,11 @@ def _get_sales_orders(filters=None, limit=100):
     for order in sales_orders:
         if "type_of_case" in order and (order["type_of_case"] == "" or order["type_of_case"] is None):
             order["type_of_case"] = "No Type of Case"
+
+        # Extract numeric capacity from the custom_capacity field
+        if "capacity" in order:
+            order["capacity_raw"] = order["capacity"]
+            order["capacity_value"] = extract_capacity_number(order["capacity"])
 
     frappe.logger().info(f"Query returned {len(sales_orders)} sales orders")
     if limit:

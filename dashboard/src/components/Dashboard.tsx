@@ -17,6 +17,8 @@ export const Dashboard = () => {
     const [fromDate, setFromDate] = useState<Date>();
     const [toDate, setToDate] = useState<Date>();
     const [limit, setLimit] = useState<number | null>(100);
+    const [minCapacity, setMinCapacity] = useState<number | null>(null);
+    const [maxCapacity, setMaxCapacity] = useState<number | null>(null);
     const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
     const [permissionError, setPermissionError] = useState<string | null>(null);
@@ -104,6 +106,14 @@ export const Dashboard = () => {
             params.to_date = toDate.toISOString().split("T")[0];
         }
 
+        if (minCapacity !== null) {
+            params.min_capacity = minCapacity.toString();
+        }
+
+        if (maxCapacity !== null) {
+            params.max_capacity = maxCapacity.toString();
+        }
+
         return params;
     }, [
         selectedStates,
@@ -116,6 +126,8 @@ export const Dashboard = () => {
         fromDate,
         toDate,
         limit,
+        minCapacity,
+        maxCapacity,
     ]);
 
     const {
@@ -178,6 +190,8 @@ export const Dashboard = () => {
         setFromDate(undefined);
         setToDate(undefined);
         setLimit(100);
+        setMinCapacity(null);
+        setMaxCapacity(null);
         setLastUpdated(new Date());
         setTimeout(() => {
             refreshSalesOrders();
@@ -213,6 +227,8 @@ export const Dashboard = () => {
                         fromDate={fromDate}
                         toDate={toDate}
                         limit={limit}
+                        minCapacity={minCapacity}
+                        maxCapacity={maxCapacity}
                         states={states || []}
                         territories={territories}
                         cities={cities}
@@ -228,6 +244,8 @@ export const Dashboard = () => {
                         onFromDateChange={setFromDate}
                         onToDateChange={setToDate}
                         onLimitChange={setLimit}
+                        onMinCapacityChange={setMinCapacity}
+                        onMaxCapacityChange={setMaxCapacity}
                         onApplyFilters={handleApplyFilters}
                         onClearFilters={handleClearFilters}
                         dateRange={{ from: undefined, to: undefined }}
@@ -236,42 +254,6 @@ export const Dashboard = () => {
                 </div>
 
                 <div className="flex-grow transition-all duration-300 ease-in-out overflow-hidden flex flex-col">
-                    {/* Filters summary */}
-                    {(selectedStates.length > 0 ||
-                        selectedTerritories.length > 0 ||
-                        selectedCities.length > 0 ||
-                        selectedDistricts.length > 0 ||
-                        selectedDepartment !== "all" ||
-                        salesOrderStatus !== "all" ||
-                        selectedTypeOfCase !== "all" ||
-                        limit !== 100 ||
-                        fromDate !== undefined ||
-                        toDate !== undefined) && (
-                        <div className="bg-blue-50 p-2 text-sm text-blue-800 mb-3 rounded-md">
-                            <span className="font-medium">Filters applied: </span>
-                            {selectedStates.length > 0 && (
-                                <span className="mr-2">States ({selectedStates.length})</span>
-                            )}
-                            {selectedTerritories.length > 0 && (
-                                <span className="mr-2">Territories ({selectedTerritories.length})</span>
-                            )}
-                            {selectedCities.length > 0 && (
-                                <span className="mr-2">Cities ({selectedCities.length})</span>
-                            )}
-                            {selectedDistricts.length > 0 && (
-                                <span className="mr-2">Districts ({selectedDistricts.length})</span>
-                            )}
-                            {selectedDepartment !== "all" && <span className="mr-2">Department</span>}
-                            {salesOrderStatus !== "all" && <span className="mr-2">Status: {salesOrderStatus}</span>}
-                            {selectedTypeOfCase !== "all" && <span className="mr-2">Type: {selectedTypeOfCase}</span>}
-                            {limit !== 100 && (
-                                <span className="mr-2">Limit: {limit === null ? "All Items" : limit}</span>
-                            )}
-                            {fromDate && <span className="mr-2">From: {fromDate.toLocaleDateString()}</span>}
-                            {toDate && <span className="mr-2">To: {toDate.toLocaleDateString()}</span>}
-                        </div>
-                    )}
-
                     {permissionError && (
                         <Card className="p-8 border-red-200 bg-red-50 rounded-lg">
                             <div className="flex items-center gap-4">
