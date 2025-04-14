@@ -46,6 +46,7 @@ def get_sales_order_data():
         department = form_dict.get("department")
         status = form_dict.get("status")
         type_of_case = form_dict.get("type_of_case")
+        type_of_structure = form_dict.get("type_of_structure")
         min_capacity = form_dict.get("min_capacity")
         max_capacity = form_dict.get("max_capacity")
         limit = form_dict.get("limit", 100)
@@ -64,7 +65,7 @@ def get_sales_order_data():
         show_sql = form_dict.get("show_sql") == "1"
 
         frappe.logger().info(
-            f"Received state: {state}, territory: {territory}, city: {city}, district: {district}, limit: {limit}, min_capacity: {min_capacity}, max_capacity: {max_capacity}"
+            f"Received state: {state}, territory: {territory}, city: {city}, district: {district}, limit: {limit}, min_capacity: {min_capacity}, max_capacity: {max_capacity}, type_of_structure: {type_of_structure}"
         )
 
     except Exception as e:
@@ -79,6 +80,7 @@ def get_sales_order_data():
         department = frappe.request.args.get("department")
         status = frappe.request.args.get("status")
         type_of_case = frappe.request.args.get("type_of_case")
+        type_of_structure = frappe.request.args.get("type_of_structure")
         min_capacity = frappe.request.args.get("min_capacity")
         max_capacity = frappe.request.args.get("max_capacity")
         limit = frappe.request.args.get("limit", 100)
@@ -97,7 +99,7 @@ def get_sales_order_data():
         show_sql = frappe.request.args.get("show_sql") == "1"
 
         frappe.logger().info(
-            f"Using args: state: {state}, territory: {territory}, city: {city}, district: {district}, limit: {limit}, min_capacity: {min_capacity}, max_capacity: {max_capacity}"
+            f"Using args: state: {state}, territory: {territory}, city: {city}, district: {district}, limit: {limit}, min_capacity: {min_capacity}, max_capacity: {max_capacity}, type_of_structure: {type_of_structure}"
         )
 
     filters = {
@@ -110,6 +112,7 @@ def get_sales_order_data():
         "department": department,
         "status": status,
         "type_of_case": type_of_case,
+        "type_of_structure": type_of_structure,
         "min_capacity": min_capacity,
         "max_capacity": max_capacity,
         "show_sql": show_sql,
@@ -166,6 +169,8 @@ def _get_sales_orders(filters=None, limit=100):
             where_clause += f" AND status = '{filters['status']}'"
         if filters.get("type_of_case"):
             where_clause += f" AND custom_type_of_case = '{filters['type_of_case']}'"
+        if filters.get("type_of_structure"):
+            where_clause += f" AND custom_type_of_structure = '{filters['type_of_structure']}'"
         if filters.get("min_capacity"):
             where_clause += f" AND CAST(REGEXP_REPLACE(custom_capacity, '[^0-9.]', '') AS DECIMAL(10,2)) >= {float(filters['min_capacity'])}"
         if filters.get("max_capacity"):
@@ -183,6 +188,7 @@ def _get_sales_orders(filters=None, limit=100):
         custom_suntek_state as state,
         custom_suntek_city as city,
         custom_type_of_case as type_of_case,
+        custom_type_of_structure as type_of_structure,
         custom_department as department,
         custom_capacity as capacity,
         status
