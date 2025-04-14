@@ -440,29 +440,37 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
         <>
             <Card className="overflow-hidden border border-gray-200 shadow-sm">
                 <div className="p-2 flex justify-between items-center border-b">
-                    <div className="relative w-96">
-                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <Input
-                            placeholder="Search by ID, customer, status, amount or location..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-8 h-9"
-                        />
-                        {searchQuery.trim() && (
-                            <>
-                                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                                    {filteredData.reduce((total, state) => total + state.count, 0)} items
-                                </div>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setSearchQuery("")}
-                                    className="absolute right-10 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
-                                >
-                                    <X className="h-4 w-4" />
-                                </Button>
-                            </>
-                        )}
+                    <div className="flex items-center gap-4">
+                        <div className="relative w-96">
+                            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Input
+                                placeholder="Search by ID, customer, status, amount or location..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-8 h-9"
+                            />
+                            {searchQuery.trim() && (
+                                <>
+                                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                        {filteredData.reduce((total, state) => total + state.count, 0)} items
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setSearchQuery("")}
+                                        className="absolute right-10 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </>
+                            )}
+                        </div>
+                        <Badge
+                            variant="outline"
+                            className="h-9 px-3 flex items-center"
+                        >
+                            Showing {filteredData.reduce((total, state) => total + state.count, 0)} items
+                        </Badge>
                     </div>
                     <Button
                         variant="outline"
