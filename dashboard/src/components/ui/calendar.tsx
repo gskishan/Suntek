@@ -15,10 +15,10 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: R
                 month: "flex flex-col gap-4",
                 caption: "flex justify-center pt-1 relative items-center w-full",
                 caption_label: "text-sm font-medium",
-                nav: "flex items-center gap-1",
+                nav: "flex items-center gap-1 justify-between",
                 nav_button: cn(
                     buttonVariants({ variant: "outline" }),
-                    "size-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                    "h-7 w-7 bg-transparent p-0 opacity-80 hover:opacity-100 flex items-center justify-center",
                 ),
                 nav_button_previous: "absolute left-1",
                 nav_button_next: "absolute right-1",
@@ -47,13 +47,13 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: R
             components={{
                 IconLeft: ({ className, ...props }) => (
                     <ChevronLeft
-                        className={cn("size-4", className)}
+                        className={cn("h-5 w-5", className)}
                         {...props}
                     />
                 ),
                 IconRight: ({ className, ...props }) => (
                     <ChevronRight
-                        className={cn("size-4", className)}
+                        className={cn("h-5 w-5", className)}
                         {...props}
                     />
                 ),
