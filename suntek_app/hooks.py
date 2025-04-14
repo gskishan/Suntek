@@ -175,3 +175,7 @@ fixtures = [
     },
     {"doctype": "Stock Entry Type", "filters": [["name", "=", "Material Transfer to Channel Partner"]]},
 ]
+
+website_route_rules = [
+    {"from_route": "/dashboard/<path:app_path>", "to_route": "dashboard"},
+]
