@@ -72,10 +72,7 @@ def create_issue_from_api():
         "custom_mode_of_complaint": str,
         "custom_source": str,
         "custom_product_category": str,
-
-
-
-        "custom_images": list[str]
+        "custom_images": list[str],
     }
     ```
 
@@ -85,13 +82,7 @@ def create_issue_from_api():
         {
             "status": "success",
             "message": "Issue created successfully",
-            "data": {
-                "name": str,
-                "subject": str,
-                "customer": str,
-                "issue_status": str,
-                "mobile_no": str
-            }
+            "data": {"name": str, "subject": str, "customer": str, "issue_status": str, "mobile_no": str},
         }
         ```
 

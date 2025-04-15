@@ -41,6 +41,19 @@ override_doctype_class = {
     "Quotation": "suntek_app.custom_script.quotation.CustomQuotation",
     "Salary Slip": "suntek_app.custom_script.salary_slip.CustomSalarySlip",
 }
+
+# Handle permissions for lead and Opportunity
+# If user has read access and is not manager, then he can only see his leads or leads shared to him
+permission_query_conditions = {
+    "Lead": "suntek_app.overrides.lead.get_permission_query_conditions",
+    "Opportunity": "suntek_app.overrides.opportunity.get_permission_query_conditions",
+}
+
+has_permission = {
+    "Lead": "suntek_app.overrides.lead.has_permission",
+    "Opportunity": "suntek_app.overrides.opportunity.has_permission",
+}
+
 doc_events = {
     "Address": {"before_save": ["suntek_app.custom_script.address.add_enquiry_to_links"]},
     "Delivery Note": {"before_save": ["suntek_app.custom_script.delivery_note.set_channel_partner_data"]},
@@ -174,4 +187,8 @@ fixtures = [
         ],
     },
     {"doctype": "Stock Entry Type", "filters": [["name", "=", "Material Transfer to Channel Partner"]]},
+]
+
+website_route_rules = [
+    {"from_route": "/dashboard/<path:app_path>", "to_route": "dashboard"},
 ]

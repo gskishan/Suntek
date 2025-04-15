@@ -84,7 +84,7 @@ frappe.ui.form.on("Lead", {
     let show_section =
       frm.doc.custom_customer_category &&
       ["Apartments", "Gated Communities", "Government", "C & I"].includes(
-        frm.doc.custom_customer_category,
+        frm.doc.custom_customer_category
       );
     frm.toggle_display("organization_section", show_section);
   },
@@ -110,7 +110,7 @@ frappe.ui.form.on("Lead", {
         },
         "name",
         null,
-        "Prospect",
+        "Prospect"
       )
     ).message.name;
     let fields = [];
@@ -138,7 +138,7 @@ frappe.ui.form.on("Lead", {
           first_name: frm.doc.first_name || frm.doc.lead_name,
           last_name: frm.doc.last_name,
         },
-        "name",
+        "name"
       )
     ).message.name;
 

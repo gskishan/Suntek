@@ -1,0 +1,24 @@
+{
+  "name": "suntek_app",
+  "version": "1.0.0",
+  "description": "custom_app",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "cd dashboard && yarn install",
+    "dev": "cd dashboard && yarn dev",
+    "build": "cd dashboard && yarn build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gskishan/Suntek.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gskishan/Suntek/issues"
+  },
+  "homepage": "https://github.com/gskishan/Suntek#readme"
+}
