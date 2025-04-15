@@ -297,7 +297,7 @@ export const DashboardFilters = ({
                                     <SelectTrigger className="w-full h-9">
                                         <SelectValue placeholder="Select Department" />
                                     </SelectTrigger>
-                                    <SelectContent className="max-h-[200px] overflow-y-auto">
+                                    <SelectContent>
                                         <SelectItem value="all">All Departments</SelectItem>
                                         {departments?.map((department) => (
                                             <SelectItem
@@ -320,7 +320,7 @@ export const DashboardFilters = ({
                                     <SelectTrigger className="w-full h-9">
                                         <SelectValue placeholder="Select Status" />
                                     </SelectTrigger>
-                                    <SelectContent className="max-h-[200px] overflow-y-auto">
+                                    <SelectContent>
                                         <SelectItem value="all">All Statuses</SelectItem>
                                         <SelectItem value="Draft">Draft</SelectItem>
                                         <SelectItem value="On Hold">On Hold</SelectItem>

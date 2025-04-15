@@ -14,7 +14,7 @@ import {
     ChevronRight,
     ChevronsLeft,
     ChevronsRight,
-    DollarSign,
+    Coins,
     ExternalLink,
     MapPin,
     Package,
@@ -366,7 +366,11 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
 
     const formatCurrency = useMemo(() => {
         return (amount: number) => {
-            return `₹${amount.toLocaleString()}`;
+            // Format in Indian style (lakhs and crores)
+            const formatter = new Intl.NumberFormat("en-IN", {
+                maximumFractionDigits: 0,
+            });
+            return `₹${formatter.format(amount)}`;
         };
     }, []);
 
@@ -621,18 +625,20 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                                 </>
                             )}
                         </div>
-                        <Badge
-                            variant="outline"
-                            className="h-9 px-3 flex items-center"
-                        >
-                            Showing {filteredData.reduce((total, state) => total + state.count, 0)} items
-                        </Badge>
+                        {searchQuery.trim() && (
+                            <Badge
+                                variant="outline"
+                                className="h-9 px-3 flex items-center"
+                            >
+                                <Search className="h-3.5 w-3.5 mr-1.5" /> Filtered results
+                            </Badge>
+                        )}
                     </div>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={toggleExpansion}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-1 cursor-pointer"
                     >
                         {isFullExpansion ? (
                             <>
@@ -646,7 +652,66 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                     </Button>
                 </div>
 
-                <ScrollArea className="h-[calc(80vh-140px)] min-h-[500px]">
+                {/* New Stats Section */}
+                <div className="p-3 bg-muted/20 border-b grid grid-cols-4 gap-4">
+                    {(() => {
+                        // Calculate summary stats
+                        const totalOrders = filteredData.reduce((total, state) => total + state.count, 0);
+                        const inactiveOrders = filteredData.reduce((total, state) => total + state.inactive_count, 0);
+                        const completedOrders = filteredData.reduce((total, state) => {
+                            let completed = 0;
+                            state.territories.forEach((territory) => {
+                                territory.cities.forEach((city) => {
+                                    city.districts.forEach((district) => {
+                                        completed += district.orders.filter(
+                                            (order) => order.status === "Completed" || order.status === "Closed",
+                                        ).length;
+                                    });
+                                });
+                            });
+                            return total + completed;
+                        }, 0);
+
+                        const activeOrders = totalOrders - inactiveOrders - completedOrders;
+
+                        const totalRevenue = filteredData.reduce((total, state) => total + state.total_amount, 0);
+                        const formatter = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
+
+                        return (
+                            <>
+                                <div className="bg-white rounded-md p-3 shadow-sm border">
+                                    <div className="text-sm text-muted-foreground mb-1">Orders Found</div>
+                                    <div className="text-2xl font-bold flex items-center">
+                                        <Package className="h-5 w-5 text-primary mr-2" />
+                                        {totalOrders}
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-md p-3 shadow-sm border border-green-200">
+                                    <div className="text-sm text-green-700 mb-1">Active Orders</div>
+                                    <div className="text-2xl font-bold flex items-center text-green-600">
+                                        <TrendingUp className="h-5 w-5 mr-2" />
+                                        {activeOrders}
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-md p-3 shadow-sm border">
+                                    <div className="text-sm text-muted-foreground mb-1">Draft/Cancelled</div>
+                                    <div className="text-2xl font-bold flex items-center text-yellow-600">
+                                        <X className="h-5 w-5 mr-2" />
+                                        {inactiveOrders}
+                                    </div>
+                                </div>
+                                <div className="bg-white rounded-md p-3 shadow-sm border">
+                                    <div className="text-sm text-muted-foreground mb-1">Total Revenue</div>
+                                    <div className="text-2xl font-bold flex items-center text-blue-600">
+                                        <Coins className="h-5 w-5 mr-2" />₹{formatter.format(totalRevenue)}
+                                    </div>
+                                </div>
+                            </>
+                        );
+                    })()}
+                </div>
+
+                <ScrollArea className="h-[calc(80vh-200px)] min-h-[450px]">
                     <div className="min-w-[750px]">
                         <Table className="w-full table-fixed">
                             <TableHeader className="bg-gray-50 sticky top-0 z-10">
@@ -781,10 +846,14 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
 
                             <div className="flex justify-between items-center mt-4 pt-4 border-t">
                                 <div className="flex items-center gap-4">
-                                    <Badge className={getStatusColor(selectedOrder.status)}>
+                                    <Badge
+                                        className={`${getStatusColor(selectedOrder.status)} text-[13px] py-0.5 px-3`}
+                                    >
                                         {selectedOrder.status}
                                     </Badge>
-                                    <Badge className={getTypeColor(selectedOrder.type_of_case)}>
+                                    <Badge
+                                        className={`${getTypeColor(selectedOrder.type_of_case)} text-[13px] py-0.5 px-3`}
+                                    >
                                         {selectedOrder.type_of_case}
                                     </Badge>
                                 </div>
@@ -900,7 +969,7 @@ const StateRow = ({
                 </TableCell>
                 <TableCell>
                     <TableCellMetric
-                        icon={DollarSign}
+                        icon={Coins}
                         value={formatCurrency(stateData.total_amount)}
                         tooltip={`Total revenue from all orders in ${getLocationName(stateData.state, "state")}`}
                     />
@@ -1045,7 +1114,7 @@ const TerritoryRow = ({
                 </TableCell>
                 <TableCell>
                     <TableCellMetric
-                        icon={DollarSign}
+                        icon={Coins}
                         value={formatCurrency(territoryData.total_amount)}
                         tooltip={`Total revenue from all orders in ${getLocationName(territoryData.territory, "territory")}`}
                     />
@@ -1190,7 +1259,7 @@ const CityRow = ({
                 </TableCell>
                 <TableCell>
                     <TableCellMetric
-                        icon={DollarSign}
+                        icon={Coins}
                         value={formatCurrency(cityData.total_amount)}
                         tooltip={`Total revenue from all orders in ${getLocationName(cityData.city, "city")}`}
                     />
@@ -1382,7 +1451,7 @@ const DistrictRow = ({
                 </TableCell>
                 <TableCell>
                     <TableCellMetric
-                        icon={DollarSign}
+                        icon={Coins}
                         value={formatCurrency(districtData.total_amount)}
                         tooltip={`Total revenue from all orders in ${getLocationName(districtData.district, "district", districtData.district_name)}`}
                     />
@@ -1419,10 +1488,10 @@ const DistrictRow = ({
                                     <Table className="w-full table-fixed">
                                         <TableHeader className="bg-muted/20">
                                             <TableRow>
-                                                <TableHead className="font-medium text-xs h-8 py-1 w-[15%]">
+                                                <TableHead className="font-medium text-xs h-8 py-1 w-[14%]">
                                                     Order ID
                                                 </TableHead>
-                                                <TableHead className="font-medium text-xs h-8 py-1 w-[15%]">
+                                                <TableHead className="font-medium text-xs h-8 py-1 w-[14%]">
                                                     Customer
                                                 </TableHead>
                                                 <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
@@ -1431,7 +1500,7 @@ const DistrictRow = ({
                                                 <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
                                                     Sales Person
                                                 </TableHead>
-                                                <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
+                                                <TableHead className="font-medium text-xs h-8 py-1 w-[8%]">
                                                     Capacity
                                                 </TableHead>
                                                 <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
@@ -1440,7 +1509,7 @@ const DistrictRow = ({
                                                 <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
                                                     Date
                                                 </TableHead>
-                                                <TableHead className="font-medium text-xs h-8 py-1 w-[20%] text-right">
+                                                <TableHead className="font-medium text-xs h-8 py-1 w-[24%] text-right">
                                                     Details
                                                 </TableHead>
                                             </TableRow>
@@ -1488,24 +1557,24 @@ const DistrictRow = ({
                                                     <TableCell className="py-2 text-sm whitespace-nowrap">
                                                         {formatDate(order.creation)}
                                                     </TableCell>
-                                                    <TableCell className="py-2 text-sm text-right">
-                                                        <div className="flex items-center justify-end gap-1">
+                                                    <TableCell className="py-1 px-1 text-sm text-right">
+                                                        <div className="flex items-center justify-end gap-1 flex-wrap">
                                                             <Badge
-                                                                className={getDepartmentColor(order.department)}
+                                                                className={`${getDepartmentColor(order.department)} text-[11px] py-0.5 px-2 whitespace-nowrap`}
                                                                 variant="outline"
                                                                 title={order.department || "None"}
                                                             >
                                                                 {getDepartmentAcronym(order.department)}
                                                             </Badge>
                                                             <Badge
-                                                                className={getTypeColor(order.type_of_case)}
+                                                                className={`${getTypeColor(order.type_of_case)} text-[11px] py-0.5 px-2 whitespace-nowrap`}
                                                                 variant="outline"
                                                                 title={order.type_of_case}
                                                             >
                                                                 {order.type_of_case}
                                                             </Badge>
                                                             <Badge
-                                                                className={getStatusColor(order.status)}
+                                                                className={`${getStatusColor(order.status)} text-[11px] py-0.5 px-2 whitespace-nowrap`}
                                                                 title={order.status}
                                                             >
                                                                 {order.status}
@@ -1660,10 +1729,14 @@ const DistrictRow = ({
 
                             <div className="flex justify-between items-center mt-4 pt-4 border-t">
                                 <div className="flex items-center gap-4">
-                                    <Badge className={getStatusColor(selectedOrder.status)}>
+                                    <Badge
+                                        className={`${getStatusColor(selectedOrder.status)} text-[13px] py-0.5 px-3`}
+                                    >
                                         {selectedOrder.status}
                                     </Badge>
-                                    <Badge className={getTypeColor(selectedOrder.type_of_case)}>
+                                    <Badge
+                                        className={`${getTypeColor(selectedOrder.type_of_case)} text-[13px] py-0.5 px-3`}
+                                    >
                                         {selectedOrder.type_of_case}
                                     </Badge>
                                 </div>
