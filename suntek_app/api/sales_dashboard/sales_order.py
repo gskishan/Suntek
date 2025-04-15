@@ -49,6 +49,7 @@ def get_sales_order_data():
         type_of_structure = form_dict.get("type_of_structure")
         min_capacity = form_dict.get("min_capacity")
         max_capacity = form_dict.get("max_capacity")
+        sales_person = form_dict.get("sales_person")
         limit = form_dict.get("limit", 100)
         try:
             frappe.logger().info(f"Raw limit value: {limit}, type: {type(limit)}")
@@ -83,6 +84,7 @@ def get_sales_order_data():
         type_of_structure = frappe.request.args.get("type_of_structure")
         min_capacity = frappe.request.args.get("min_capacity")
         max_capacity = frappe.request.args.get("max_capacity")
+        sales_person = frappe.request.args.get("sales_person")
         limit = frappe.request.args.get("limit", 100)
         try:
             frappe.logger().info(f"Raw limit value: {limit}, type: {type(limit)}")
@@ -115,6 +117,7 @@ def get_sales_order_data():
         "type_of_structure": type_of_structure,
         "min_capacity": min_capacity,
         "max_capacity": max_capacity,
+        "sales_person": sales_person,
         "show_sql": show_sql,
     }
 
@@ -175,6 +178,10 @@ def _get_sales_orders(filters=None, limit=100):
             where_clause += f" AND CAST(REGEXP_REPLACE(custom_capacity, '[^0-9.]', '') AS DECIMAL(10,2)) >= {float(filters['min_capacity'])}"
         if filters.get("max_capacity"):
             where_clause += f" AND CAST(REGEXP_REPLACE(custom_capacity, '[^0-9.]', '') AS DECIMAL(10,2)) <= {float(filters['max_capacity'])}"
+        if filters.get("sales_person"):
+            sales_person_values = filters["sales_person"].split(",")
+            sales_person_list = ", ".join([f"'{s}'" for s in sales_person_values])
+            where_clause += f" AND sales_person IN ({sales_person_list})"
 
     query = f"""
     SELECT
@@ -191,7 +198,8 @@ def _get_sales_orders(filters=None, limit=100):
         custom_type_of_structure as type_of_structure,
         custom_department as department,
         custom_capacity as capacity,
-        status
+        status,
+        sales_person
     FROM
         `tabSales Order`
     WHERE

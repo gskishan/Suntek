@@ -19,6 +19,7 @@ export const Dashboard = () => {
     const [salesOrderStatus, setSalesOrderStatus] = useState<string>("all");
     const [selectedTypeOfCase, setSelectedTypeOfCase] = useState<string>("all");
     const [selectedTypeOfStructure, setSelectedTypeOfStructure] = useState<string>("all");
+    const [selectedSalesPersons, setSelectedSalesPersons] = useState<string[]>([]);
     const [fromDate, setFromDate] = useState<Date>();
     const [toDate, setToDate] = useState<Date>();
     const [limit, setLimit] = useState<number | null>(100);
@@ -54,6 +55,12 @@ export const Dashboard = () => {
 
     const { data: departments } = useFrappeGetDocList("Department", {
         fields: ["name", "creation"],
+        asDict: true,
+        limit: 0,
+    });
+
+    const { data: salesPersons } = useFrappeGetDocList("Sales Person", {
+        fields: ["name", "sales_person_name"],
         asDict: true,
         limit: 0,
     });
@@ -107,6 +114,10 @@ export const Dashboard = () => {
             params.type_of_structure = selectedTypeOfStructure;
         }
 
+        if (selectedSalesPersons.length > 0) {
+            params.sales_person = selectedSalesPersons.join(",");
+        }
+
         if (fromDate) {
             params.from_date = fromDate.toISOString().split("T")[0];
         }
@@ -133,6 +144,7 @@ export const Dashboard = () => {
         salesOrderStatus,
         selectedTypeOfCase,
         selectedTypeOfStructure,
+        selectedSalesPersons,
         fromDate,
         toDate,
         limit,
@@ -198,6 +210,7 @@ export const Dashboard = () => {
         setSalesOrderStatus("all");
         setSelectedTypeOfCase("all");
         setSelectedTypeOfStructure("all");
+        setSelectedSalesPersons([]);
         setFromDate(undefined);
         setToDate(undefined);
         setLimit(100);
@@ -267,6 +280,7 @@ export const Dashboard = () => {
                             salesOrderStatus={salesOrderStatus}
                             selectedTypeOfCase={selectedTypeOfCase}
                             selectedTypeOfStructure={selectedTypeOfStructure}
+                            selectedSalesPersons={selectedSalesPersons}
                             fromDate={fromDate}
                             toDate={toDate}
                             limit={limit}
@@ -277,6 +291,7 @@ export const Dashboard = () => {
                             cities={cities}
                             districts={districts}
                             departments={departments || []}
+                            salesPersons={salesPersons || []}
                             onStateChange={setSelectedStates}
                             onTerritoryChange={setSelectedTerritories}
                             onCityChange={setSelectedCities}
@@ -285,6 +300,7 @@ export const Dashboard = () => {
                             onStatusChange={setSalesOrderStatus}
                             onTypeOfCaseChange={setSelectedTypeOfCase}
                             onTypeOfStructureChange={setSelectedTypeOfStructure}
+                            onSalesPersonChange={setSelectedSalesPersons}
                             onFromDateChange={setFromDate}
                             onToDateChange={setToDate}
                             onLimitChange={setLimit}

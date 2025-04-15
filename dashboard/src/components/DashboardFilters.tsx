@@ -17,6 +17,7 @@ interface DashboardFiltersProps {
     salesOrderStatus: string;
     selectedTypeOfCase: string;
     selectedTypeOfStructure: string;
+    selectedSalesPersons: string[];
     fromDate: Date | undefined;
     toDate: Date | undefined;
     limit: number | null;
@@ -27,6 +28,7 @@ interface DashboardFiltersProps {
     cities: Array<{ name: string; creation: string; city: string }>;
     districts: Array<{ name: string; creation: string; district: string }>;
     departments: Array<{ name: string; creation: string }>;
+    salesPersons: Array<{ name: string; sales_person_name: string }>;
     onStateChange: (values: string[]) => void;
     onTerritoryChange: (values: string[]) => void;
     onCityChange: (values: string[]) => void;
@@ -35,6 +37,7 @@ interface DashboardFiltersProps {
     onStatusChange: (value: string) => void;
     onTypeOfCaseChange: (value: string) => void;
     onTypeOfStructureChange: (value: string) => void;
+    onSalesPersonChange: (values: string[]) => void;
     onLimitChange: (limit: number | null) => void;
     onFromDateChange: (date: Date | undefined) => void;
     onToDateChange: (date: Date | undefined) => void;
@@ -55,6 +58,7 @@ export const DashboardFilters = ({
     salesOrderStatus,
     selectedTypeOfCase,
     selectedTypeOfStructure,
+    selectedSalesPersons,
     fromDate,
     toDate,
     limit,
@@ -65,6 +69,7 @@ export const DashboardFilters = ({
     cities,
     districts,
     departments,
+    salesPersons,
     onStateChange,
     onTerritoryChange,
     onCityChange,
@@ -73,6 +78,7 @@ export const DashboardFilters = ({
     onStatusChange,
     onTypeOfCaseChange,
     onTypeOfStructureChange,
+    onSalesPersonChange,
     onLimitChange,
     onFromDateChange,
     onToDateChange,
@@ -98,6 +104,7 @@ export const DashboardFilters = ({
             salesOrderStatus !== "all" ||
             selectedTypeOfCase !== "all" ||
             selectedTypeOfStructure !== "all" ||
+            selectedSalesPersons.length > 0 ||
             limit !== 100 ||
             fromDate !== undefined ||
             toDate !== undefined ||
@@ -113,6 +120,7 @@ export const DashboardFilters = ({
         salesOrderStatus,
         selectedTypeOfCase,
         selectedTypeOfStructure,
+        selectedSalesPersons,
         limit,
         fromDate,
         toDate,
@@ -156,6 +164,9 @@ export const DashboardFilters = ({
         if (selectedTypeOfStructure !== "all") {
             filters.push(`Structure: ${selectedTypeOfStructure}`);
         }
+        if (selectedSalesPersons.length > 0) {
+            filters.push(`Sales Persons: ${selectedSalesPersons.length}`);
+        }
         if (limit !== 100) {
             filters.push(`Limit: ${limit}`);
         }
@@ -182,6 +193,7 @@ export const DashboardFilters = ({
         salesOrderStatus,
         selectedTypeOfCase,
         selectedTypeOfStructure,
+        selectedSalesPersons,
         limit,
         fromDate,
         toDate,
@@ -191,7 +203,7 @@ export const DashboardFilters = ({
 
     return (
         <Card
-            className={`shadow-sm transition-all duration-300 ease-in-out ${isExpanded ? "h-[calc(85vh-120px)] w-[400px]" : "h-[50px] w-[50px] my-0 mt-0 rounded-md"}`}
+            className={`shadow-sm transition-all duration-300 ease-in-out ${isExpanded ? "h-[calc(88vh-100px)] w-[400px]" : "h-[50px] w-[50px] my-0 mt-0 rounded-md"}`}
         >
             <CardHeader
                 className={`${isExpanded ? "px-4 py-3 flex flex-row items-center justify-between" : "p-0 flex items-center justify-center h-full"} cursor-pointer hover:bg-gray-50`}
@@ -211,7 +223,7 @@ export const DashboardFilters = ({
             {isExpanded && (
                 <CardContent
                     className="space-y-4 pt-0 overflow-y-auto"
-                    style={{ maxHeight: "calc(85vh - 180px)" }}
+                    style={{ maxHeight: "calc(88vh - 160px)" }}
                 >
                     {/* Filters Applied Label */}
                     <div className="text-xs text-gray-500 italic">Filters Applied: {getFiltersAppliedLabel}</div>
@@ -367,6 +379,19 @@ export const DashboardFilters = ({
                                     </SelectContent>
                                 </Select>
                             </div>
+                        </div>
+
+                        <div className="space-y-1 w-full">
+                            <label className="text-xs font-medium text-gray-700">Sales Persons</label>
+                            <MultiSelect
+                                values={selectedSalesPersons}
+                                onValuesChange={onSalesPersonChange}
+                                options={salesPersons.map((person) => ({
+                                    value: person.name,
+                                    label: person.sales_person_name || person.name,
+                                }))}
+                                placeholder="Select Sales Persons"
+                            />
                         </div>
 
                         <div className="grid grid-cols-1 gap-3">
