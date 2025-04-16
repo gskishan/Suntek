@@ -9,7 +9,12 @@ import { DashboardTabs } from "./DashboardTabs";
 
 type DashboardType = "sales" | "crm" | "activity";
 
-export const Dashboard = () => {
+interface DashboardProps {
+    userName: string;
+    userInitial: string;
+}
+
+export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
     const [dashboardType, setDashboardType] = useState<DashboardType>("sales");
     const [selectedStates, setSelectedStates] = useState<string[]>([]);
     const [selectedTerritories, setSelectedTerritories] = useState<string[]>([]);
@@ -236,8 +241,24 @@ export const Dashboard = () => {
 
     return (
         <div className="py-4 space-y-4">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold">Dashboard</h1>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center">
+                        <span className="text-sm text-slate-600 mr-2">Welcome, {userName}</span>
+                        <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 text-sm">
+                            {userInitial || userName?.charAt(0)?.toUpperCase() || "U"}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Dashboard Tabs and Actions */}
+            <div className="flex items-center justify-between">
+                <DashboardTabs
+                    activeDashboard={dashboardType}
+                    onDashboardChange={handleDashboardChange}
+                />
                 <div className="flex items-center gap-2">
                     <Button
                         variant="outline"
@@ -260,12 +281,6 @@ export const Dashboard = () => {
                     </Button>
                 </div>
             </div>
-
-            {/* Dashboard Tabs */}
-            <DashboardTabs
-                activeDashboard={dashboardType}
-                onDashboardChange={handleDashboardChange}
-            />
 
             {/* Sales Dashboard Content */}
             {dashboardType === "sales" && (
