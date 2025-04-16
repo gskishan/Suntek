@@ -22,6 +22,7 @@ import {
     TrendingUp,
     User,
     X,
+    Users,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -41,6 +42,7 @@ interface SalesOrder {
     department: string | null;
     capacity_raw?: string | null;
     capacity_value?: number | null;
+    sales_person?: string | null;
 }
 
 interface DistrictData {
@@ -49,6 +51,7 @@ interface DistrictData {
     total_amount: number;
     count: number;
     inactive_count: number;
+    total_capacity: number;
     orders: SalesOrder[];
 }
 
@@ -57,6 +60,7 @@ interface CityData {
     total_amount: number;
     count: number;
     inactive_count: number;
+    total_capacity: number;
     districts: DistrictData[];
 }
 
@@ -65,6 +69,7 @@ interface TerritoryData {
     total_amount: number;
     count: number;
     inactive_count: number;
+    total_capacity: number;
     cities: CityData[];
 }
 
@@ -73,6 +78,7 @@ interface StateData {
     total_amount: number;
     count: number;
     inactive_count: number;
+    total_capacity: number;
     territories: TerritoryData[];
 }
 
@@ -123,12 +129,15 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
 
         processedData.forEach((stateData) => {
             stateData.inactive_count = 0;
+            stateData.total_capacity = 0;
 
             stateData.territories.forEach((territory) => {
                 territory.inactive_count = 0;
+                territory.total_capacity = 0;
 
                 territory.cities.forEach((city) => {
                     city.inactive_count = 0;
+                    city.total_capacity = 0;
 
                     city.districts.forEach((district) => {
                         const inactiveOrders = district.orders.filter(
@@ -136,13 +145,20 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                         );
                         district.inactive_count = inactiveOrders.length;
 
+                        district.total_capacity = district.orders
+                            .filter((order) => order.status !== "Cancelled" && order.status !== "Draft")
+                            .reduce((sum, order) => sum + (order.capacity_value || 0), 0);
+
                         city.inactive_count += district.inactive_count;
+                        city.total_capacity += district.total_capacity;
                     });
 
                     territory.inactive_count += city.inactive_count;
+                    territory.total_capacity += city.total_capacity;
                 });
 
                 stateData.inactive_count += territory.inactive_count;
+                stateData.total_capacity += territory.total_capacity;
             });
         });
 
@@ -187,6 +203,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
             total_amount: 0,
             count: 0,
             inactive_count: 0,
+            total_capacity: 0,
             territories: [],
         };
 
@@ -194,6 +211,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
             mergedRow.total_amount += stateRow.total_amount;
             mergedRow.count += stateRow.count;
             mergedRow.inactive_count += stateRow.inactive_count;
+            mergedRow.total_capacity += stateRow.total_capacity;
 
             stateRow.territories.forEach((territory) => {
                 const existingTerritory = mergedRow.territories.find((t) => t.territory === territory.territory);
@@ -202,6 +220,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                     existingTerritory.total_amount += territory.total_amount;
                     existingTerritory.count += territory.count;
                     existingTerritory.inactive_count += territory.inactive_count;
+                    existingTerritory.total_capacity += territory.total_capacity;
 
                     territory.cities.forEach((city) => {
                         const existingCity = existingTerritory.cities.find(
@@ -212,6 +231,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                             existingCity.total_amount += city.total_amount;
                             existingCity.count += city.count;
                             existingCity.inactive_count += city.inactive_count;
+                            existingCity.total_capacity += city.total_capacity;
 
                             city.districts.forEach((district) => {
                                 const existingDistrict = existingCity.districts.find(
@@ -222,6 +242,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                                     existingDistrict.total_amount += district.total_amount;
                                     existingDistrict.count += district.count;
                                     existingDistrict.inactive_count += district.inactive_count;
+                                    existingDistrict.total_capacity += district.total_capacity;
 
                                     existingDistrict.orders = [...existingDistrict.orders, ...district.orders];
                                 } else {
@@ -369,6 +390,17 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
         setSelectedOrder(null);
     };
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape" && selectedOrder) {
+                closeOrderDetails();
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [selectedOrder]);
+
     const filterOrders = (order: SalesOrder) => {
         if (!searchQuery.trim()) return true;
 
@@ -398,6 +430,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
             (order.type_of_case?.toLowerCase() || "").includes(searchTerms[0]) ||
             (order.type_of_structure?.toLowerCase() || "").includes(searchTerms[0]) ||
             (order.department?.toLowerCase() || "").includes(searchTerms[0]) ||
+            (order.sales_person?.toLowerCase() || "").includes(searchTerms[0]) ||
             order.status.toLowerCase().includes(searchTerms[0]) ||
             order.grand_total.toString().includes(searchTerms[0]) ||
             (order.city?.toLowerCase() || "").includes(searchTerms[0]) ||
@@ -442,18 +475,22 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                                                         (order) =>
                                                             order.status === "Cancelled" || order.status === "Draft",
                                                     );
+
+                                                    const total_capacity = validOrders.reduce(
+                                                        (sum, order) => sum + (order.capacity_value || 0),
+                                                        0,
+                                                    );
+
                                                     return {
                                                         ...district,
                                                         orders: filteredOrders,
-
                                                         count: filteredOrders.length,
-
                                                         inactive_count: inactiveOrders.length,
-
                                                         total_amount: validOrders.reduce(
                                                             (sum, order) => sum + (order.grand_total || 0),
                                                             0,
                                                         ),
+                                                        total_capacity: total_capacity,
                                                     };
                                                 })
                                                 .filter((district) => district.orders.length > 0),
@@ -474,11 +511,17 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                                             0,
                                         );
 
+                                        const cityTotalCapacity = filteredCity.districts.reduce(
+                                            (sum, district) => sum + district.total_capacity,
+                                            0,
+                                        );
+
                                         return {
                                             ...filteredCity,
                                             count: districtTotalCount,
                                             inactive_count: districtInactiveCount,
                                             total_amount: districtTotal,
+                                            total_capacity: cityTotalCapacity,
                                         };
                                     })
                                     .filter((city) => city.districts.length > 0),
@@ -496,11 +539,17 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                                 0,
                             );
 
+                            const territoryTotalCapacity = filteredTerritory.cities.reduce(
+                                (sum, city) => sum + city.total_capacity,
+                                0,
+                            );
+
                             return {
                                 ...filteredTerritory,
                                 count: cityTotalCount,
                                 inactive_count: cityInactiveCount,
                                 total_amount: cityTotal,
+                                total_capacity: territoryTotalCapacity,
                             };
                         })
                         .filter((territory) => territory.cities.length > 0),
@@ -521,11 +570,17 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                     0,
                 );
 
+                const stateTotalCapacity = filteredState.territories.reduce(
+                    (sum, territory) => sum + territory.total_capacity,
+                    0,
+                );
+
                 return {
                     ...filteredState,
                     count: territoryTotalCount,
                     inactive_count: territoryInactiveCount,
                     total_amount: territoryTotal,
+                    total_capacity: stateTotalCapacity,
                 };
             })
             .filter((state) => state.territories.length > 0);
@@ -601,13 +656,14 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                                     <TableHead className="w-[120px]">Draft/Cancelled</TableHead>
                                     <TableHead className="w-[150px]">Total Revenue</TableHead>
                                     <TableHead className="w-[120px]">Avg. Order Value</TableHead>
+                                    <TableHead className="w-[120px]">Total Capacity</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {filteredData.length === 0 ? (
                                     <TableRow>
                                         <TableCell
-                                            colSpan={5}
+                                            colSpan={6}
                                             className="h-24 text-center"
                                         >
                                             <div className="flex flex-col items-center justify-center text-muted-foreground">
@@ -648,8 +704,15 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
             </Card>
 
             {selectedOrder && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl mx-auto overflow-hidden">
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                    onClick={(event: React.MouseEvent<HTMLDivElement>) => {
+                        if (event.target === event.currentTarget) {
+                            closeOrderDetails();
+                        }
+                    }}
+                >
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl mx-auto overflow-hidden">
                         <div className="flex items-center justify-between p-4 border-b">
                             <div>
                                 <h3 className="text-lg font-semibold">Sales Order Details</h3>
@@ -690,6 +753,15 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                                     ) : (
                                         "N/A"
                                     )}
+                                </div>
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Users className="h-4 w-4 text-muted-foreground" />
+                                    <span className="font-medium">Sales Person:</span>{" "}
+                                    {selectedOrder.sales_person
+                                        ? selectedOrder.sales_person.length > 17
+                                            ? selectedOrder.sales_person.substring(0, 17) + "..."
+                                            : selectedOrder.sales_person
+                                        : "-"}
                                 </div>
                                 <div className="flex items-center gap-2 text-sm">
                                     <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -840,13 +912,20 @@ const StateRow = ({
                         tooltip={`Average order value in ${getLocationName(stateData.state, "state")}`}
                     />
                 </TableCell>
+                <TableCell>
+                    <TableCellMetric
+                        icon={Battery}
+                        value={`${stateData.total_capacity.toFixed(2)} kW`}
+                        tooltip={`Total capacity in ${getLocationName(stateData.state, "state")}`}
+                    />
+                </TableCell>
             </TableRow>
 
             <TableRow
                 className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? "opacity-100" : "opacity-0 h-0"}`}
             >
                 <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className={`p-0 ${!isOpen ? "py-0" : ""}`}
                 >
                     <div
@@ -978,13 +1057,20 @@ const TerritoryRow = ({
                         tooltip={`Average order value in ${getLocationName(territoryData.territory, "territory")}`}
                     />
                 </TableCell>
+                <TableCell>
+                    <TableCellMetric
+                        icon={Battery}
+                        value={`${territoryData.total_capacity.toFixed(2)} kW`}
+                        tooltip={`Total capacity in ${getLocationName(territoryData.territory, "territory")}`}
+                    />
+                </TableCell>
             </TableRow>
 
             <TableRow
                 className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? "opacity-100" : "opacity-0 h-0"}`}
             >
                 <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className={`p-0 ${!isOpen ? "py-0" : ""}`}
                 >
                     <div
@@ -1116,13 +1202,20 @@ const CityRow = ({
                         tooltip={`Average order value in ${getLocationName(cityData.city, "city")}`}
                     />
                 </TableCell>
+                <TableCell>
+                    <TableCellMetric
+                        icon={Battery}
+                        value={`${cityData.total_capacity.toFixed(2)} kW`}
+                        tooltip={`Total capacity in ${getLocationName(cityData.city, "city")}`}
+                    />
+                </TableCell>
             </TableRow>
 
             <TableRow
                 className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? "opacity-100" : "opacity-0 h-0"}`}
             >
                 <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className={`p-0 ${!isOpen ? "py-0" : ""}`}
                 >
                     <div
@@ -1244,6 +1337,17 @@ const DistrictRow = ({
         setSelectedOrder(null);
     };
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape" && selectedOrder) {
+                closeOrderDetails();
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [selectedOrder]);
+
     const activeOrdersCount = districtData.count - districtData.inactive_count;
 
     return (
@@ -1290,13 +1394,20 @@ const DistrictRow = ({
                         tooltip={`Average order value in ${getLocationName(districtData.district, "district", districtData.district_name)}`}
                     />
                 </TableCell>
+                <TableCell>
+                    <TableCellMetric
+                        icon={Battery}
+                        value={`${districtData.total_capacity.toFixed(2)} kW`}
+                        tooltip={`Total capacity in ${getLocationName(districtData.district, "district", districtData.district_name)}`}
+                    />
+                </TableCell>
             </TableRow>
 
             <TableRow
                 className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? "opacity-100" : "opacity-0 h-0"}`}
             >
                 <TableCell
-                    colSpan={5}
+                    colSpan={6}
                     className={`p-0 ${!isOpen ? "py-0" : ""}`}
                 >
                     <div
@@ -1311,11 +1422,14 @@ const DistrictRow = ({
                                                 <TableHead className="font-medium text-xs h-8 py-1 w-[15%]">
                                                     Order ID
                                                 </TableHead>
-                                                <TableHead className="font-medium text-xs h-8 py-1 w-[20%]">
+                                                <TableHead className="font-medium text-xs h-8 py-1 w-[15%]">
                                                     Customer
                                                 </TableHead>
                                                 <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
                                                     Amount
+                                                </TableHead>
+                                                <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
+                                                    Sales Person
                                                 </TableHead>
                                                 <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
                                                     Capacity
@@ -1326,7 +1440,7 @@ const DistrictRow = ({
                                                 <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
                                                     Date
                                                 </TableHead>
-                                                <TableHead className="font-medium text-xs h-8 py-1 w-[25%] text-right">
+                                                <TableHead className="font-medium text-xs h-8 py-1 w-[20%] text-right">
                                                     Details
                                                 </TableHead>
                                             </TableRow>
@@ -1348,10 +1462,22 @@ const DistrictRow = ({
                                                         className="py-2 text-sm truncate"
                                                         title={order.customer}
                                                     >
-                                                        {order.customer}
+                                                        {order.customer.length > 17
+                                                            ? order.customer.substring(0, 17) + "..."
+                                                            : order.customer}
                                                     </TableCell>
                                                     <TableCell className="py-2 text-sm whitespace-nowrap">
                                                         {formatCurrency(order.grand_total)}
+                                                    </TableCell>
+                                                    <TableCell
+                                                        className="py-2 text-sm whitespace-nowrap"
+                                                        title={order.sales_person || "No sales person assigned"}
+                                                    >
+                                                        {order.sales_person
+                                                            ? order.sales_person.length > 17
+                                                                ? order.sales_person.substring(0, 17) + "..."
+                                                                : order.sales_person
+                                                            : "-"}
                                                     </TableCell>
                                                     <TableCell className="py-2 text-sm whitespace-nowrap">
                                                         {order.capacity_value ? `${order.capacity_value} kW` : "-"}
@@ -1461,8 +1587,15 @@ const DistrictRow = ({
             </TableRow>
 
             {selectedOrder && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-                    <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl mx-auto overflow-hidden">
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                    onClick={(event: React.MouseEvent<HTMLDivElement>) => {
+                        if (event.target === event.currentTarget) {
+                            closeOrderDetails();
+                        }
+                    }}
+                >
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl mx-auto overflow-hidden">
                         <div className="flex items-center justify-between p-4 border-b">
                             <div>
                                 <h3 className="text-lg font-semibold">Sales Order Details</h3>
@@ -1503,6 +1636,11 @@ const DistrictRow = ({
                                     ) : (
                                         "N/A"
                                     )}
+                                </div>
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Users className="h-4 w-4 text-muted-foreground" />
+                                    <span className="font-medium">Sales Person:</span>{" "}
+                                    {selectedOrder.sales_person || "-"}
                                 </div>
                                 <div className="flex items-center gap-2 text-sm">
                                     <MapPin className="h-4 w-4 text-muted-foreground" />
