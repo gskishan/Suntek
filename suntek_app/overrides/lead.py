@@ -61,6 +61,12 @@ def has_permission(doc, user=None, permission_type=None):
     if "Sales Manager" in frappe.get_roles(user):
         return True
 
+    if permission_type == "create":
+        return True
+
+    if getattr(doc, "is_new", None) or not doc.name:
+        return True
+
     if doc.lead_owner == user:
         return True
 
