@@ -17,47 +17,37 @@ def execute(filters=None):
 
 def process_data_for_display(raw_data):
     processed_data = []
-    previous_so = None
-    previous_item = None
 
     for row in raw_data:
         curr_row = row.copy()
 
-        raw_material_qty = row.get("raw_material_qty") or 0
-        order_qty = row.get("order_qty") or 0
-        required_qty = raw_material_qty * order_qty
-        curr_row["required_qty"] = required_qty
-
-        available_qty = row.get("available_qty") or 0
-        shortage_qty = available_qty - required_qty
-        curr_row["shortage_surplus"] = shortage_qty
-
-        if shortage_qty < 0:
-            curr_row["status"] = "Shortage"
-        elif shortage_qty == 0 and required_qty > 0:
-            curr_row["status"] = "Exact"
-        elif required_qty == 0:
-            curr_row["status"] = "No Requirement"
+        if row.get("bom_no") == "Project has no attached BOM":
+            curr_row["raw_material_qty"] = 0
+            curr_row["raw_material_uom"] = ""
+            curr_row["available_qty"] = 0
+            curr_row["required_qty"] = 0
+            curr_row["shortage_surplus"] = 0
+            curr_row["status"] = "No BOM Found"
         else:
-            curr_row["status"] = "Surplus"
+            raw_material_qty = row.get("raw_material_qty") or 0
+            order_qty = row.get("order_qty") or 0
+            required_qty = raw_material_qty * order_qty
+            curr_row["required_qty"] = required_qty
 
-        if previous_so and row["sales_order_no"] == previous_so:
-            curr_row["sales_order_no"] = ""
-            curr_row["customer"] = ""
-            curr_row["project"] = ""
-            curr_row["custom_department"] = ""
-            curr_row["delivery_date"] = ""
-            curr_row["delivery_status"] = ""
-            curr_row["billing_status"] = ""
+            available_qty = row.get("available_qty") or 0
+            shortage_qty = available_qty - required_qty
+            curr_row["shortage_surplus"] = shortage_qty
 
-            if previous_item and row["finished_item_code"] == previous_item:
-                curr_row["finished_item_code"] = ""
-                curr_row["finished_item_name"] = ""
-                curr_row["bom_no"] = ""
+            if shortage_qty < 0:
+                curr_row["status"] = "Shortage"
+            elif shortage_qty == 0 and required_qty > 0:
+                curr_row["status"] = "Exact"
+            elif required_qty == 0:
+                curr_row["status"] = "No Requirement"
+            else:
+                curr_row["status"] = "Surplus"
 
         processed_data.append(curr_row)
-        previous_so = row["sales_order_no"]
-        previous_item = row["finished_item_code"]
 
     return processed_data
 
@@ -299,7 +289,19 @@ def get_data_internal(filters):
             soi.item_code as finished_item_code,
             soi.item_name as finished_item_name,
             soi.qty as order_qty,
-            soi.bom_no,
+            
+            /* Get BOM from project instead of sales order */
+            COALESCE(
+                (SELECT b.name 
+                 FROM `tabBOM` b 
+                 WHERE b.project = so.project 
+                 AND b.docstatus = 1 
+                 ORDER BY b.modified DESC 
+                 LIMIT 1),
+                'Project has no attached BOM'
+            ) as bom_no,
+            
+            /* Use the project BOM for items */
             bom_item.item_code as raw_material_code,
             bom_item.item_name as raw_material_name,
             bom_item.qty as raw_material_qty,
@@ -311,16 +313,14 @@ def get_data_internal(filters):
             /* Use a subquery to find the most relevant work order */
             (SELECT wo.name 
              FROM `tabWork Order` wo 
-             WHERE (wo.bom_no = soi.bom_no OR wo.production_item = soi.item_code)
-             AND (wo.sales_order = so.name OR wo.project = so.project)
+             WHERE wo.project = so.project
              AND wo.docstatus = 1
              LIMIT 1) as work_order,
              
             /* Get the work order status */
             (SELECT wo.status
              FROM `tabWork Order` wo 
-             WHERE (wo.bom_no = soi.bom_no OR wo.production_item = soi.item_code)
-             AND (wo.sales_order = so.name OR wo.project = so.project)
+             WHERE wo.project = so.project
              AND wo.docstatus = 1
              LIMIT 1) as work_order_status,
              
@@ -329,8 +329,7 @@ def get_data_internal(filters):
              FROM `tabStock Entry Detail` sed
              JOIN `tabStock Entry` se ON se.name = sed.parent
              JOIN `tabWork Order` wo ON se.work_order = wo.name 
-             WHERE (wo.bom_no = soi.bom_no OR wo.production_item = soi.item_code)
-             AND (wo.sales_order = so.name OR wo.project = so.project)
+             WHERE wo.project = so.project
              AND sed.item_code = bom_item.item_code
              AND se.docstatus = 1
              AND se.stock_entry_type = 'Material Transfer for Manufacture'
@@ -341,8 +340,7 @@ def get_data_internal(filters):
              FROM `tabStock Entry Detail` sed
              JOIN `tabStock Entry` se ON se.name = sed.parent
              JOIN `tabWork Order` wo ON se.work_order = wo.name 
-             WHERE (wo.bom_no = soi.bom_no OR wo.production_item = soi.item_code)
-             AND (wo.sales_order = so.name OR wo.project = so.project)
+             WHERE wo.project = so.project
              AND sed.item_code = bom_item.item_code
              AND se.docstatus = 1
              AND se.stock_entry_type = 'Manufacture'
@@ -353,7 +351,9 @@ def get_data_internal(filters):
         INNER JOIN 
             `tabSales Order Item` soi ON so.name = soi.parent
         LEFT JOIN 
-            `tabBOM Item` bom_item ON soi.bom_no = bom_item.parent
+            `tabBOM` project_bom ON project_bom.project = so.project AND project_bom.docstatus = 1
+        LEFT JOIN 
+            `tabBOM Item` bom_item ON project_bom.name = bom_item.parent
         LEFT JOIN
             `tabBin` bin ON bom_item.item_code = bin.item_code
             AND bin.warehouse = %(warehouse)s
