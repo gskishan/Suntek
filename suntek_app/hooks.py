@@ -42,8 +42,6 @@ override_doctype_class = {
     "Salary Slip": "suntek_app.custom_script.salary_slip.CustomSalarySlip",
 }
 
-# Handle permissions for lead and Opportunity
-# If user has read access and is not manager, then he can only see his leads or leads shared to him
 permission_query_conditions = {
     "Lead": "suntek_app.overrides.lead.get_permission_query_conditions",
     "Opportunity": "suntek_app.overrides.opportunity.get_permission_query_conditions",
