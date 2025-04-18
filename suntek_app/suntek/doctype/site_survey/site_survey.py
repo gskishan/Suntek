@@ -1,8 +1,12 @@
 import frappe
 from frappe.model.document import Document
+from frappe.model.naming import make_autoname
 
 
 class SiteSurvey(Document):
+    def autoname(self):
+        self.name = make_autoname("SITE-SURVEY-.#####")
+
     def onload(self):
         if self.docstatus == 1:
             self.update_site_survery_status()
@@ -38,7 +42,7 @@ class SiteSurvey(Document):
 
     @frappe.whitelist()
     def get_opportunity_details(self):
-        data = None  # Initialize data with None
+        data = None
 
         if self.is_new() and self.custom_project:
             project_doc = frappe.get_doc("Project", self.custom_project)
@@ -54,13 +58,13 @@ class SiteSurvey(Document):
             self.poc_contact = project_doc.custom_poc_mobile_no
 
             sql = """
-                SELECT 
-                    parent 
-                FROM 
-                    `tabDynamic Link` 
-                WHERE 
-                    link_doctype = 'Lead' 
-                    AND link_name = %s 
+                SELECT
+                    parent
+                FROM
+                    `tabDynamic Link`
+                WHERE
+                    link_doctype = 'Lead'
+                    AND link_name = %s
                     AND parenttype = 'Address'
             """
             data = frappe.db.sql(sql, as_dict=True)
