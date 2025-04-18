@@ -16,7 +16,7 @@ def execute(filters=None):
             row["status_color"] = "orange"
         elif row.get("status") == "Not Started":
             row["status_color"] = "red"
-        elif row.get("status") == "No BOM":
+        elif row.get("status") == "No Design":
             row["status_color"] = "gray"
 
         if row.get("pending_qty") > 0:
@@ -24,37 +24,7 @@ def execute(filters=None):
         else:
             row["pending_color"] = ""
 
-    chart = get_chart_data(data)
-
-    return columns, data, None, chart
-
-
-def get_chart_data(data):
-    """Generate chart based on status distribution"""
-    status_count = {"Not Started": 0, "Partial": 0, "Completed": 0, "No BOM": 0}
-
-    for row in data:
-        status = row.get("status")
-        if status in status_count:
-            status_count[status] += 1
-
-    labels = []
-    values = []
-    colors = ["#ff5858", "#ffb65c", "#28a745", "#8c8c8c"]
-
-    for _i, status in enumerate(["Not Started", "Partial", "Completed", "No BOM"]):
-        if status_count[status] > 0:
-            labels.append(status)
-            values.append(status_count[status])
-
-    chart = {
-        "data": {"labels": labels, "datasets": [{"name": "Status Distribution", "values": values}]},
-        "type": "donut",
-        "colors": colors[: len(labels)],
-        "height": 300,
-    }
-
-    return chart
+    return columns, data
 
 
 def get_columns():
@@ -65,19 +35,19 @@ def get_columns():
             "fieldname": "sales_order",
             "fieldtype": "Link",
             "options": "Sales Order",
-            "width": 170,
+            "width": 235,
         },
-        {"label": _("Project"), "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 170},
-        {"label": _("BOM"), "fieldname": "bom", "fieldtype": "Link", "options": "BOM", "width": 180},
-        {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 200},
+        {"label": _("Project"), "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 100},
+        {"label": _("Design"), "fieldname": "design", "fieldtype": "Link", "options": "Designing", "width": 220},
+        {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 151},
         {"label": _("Item Name"), "fieldname": "item_name", "fieldtype": "Data", "width": 150},
-        {"label": _("Required Qty"), "fieldname": "required_qty", "fieldtype": "Float", "width": 100},
-        {"label": _("Transferred Qty"), "fieldname": "transferred_qty", "fieldtype": "Float", "width": 120},
+        {"label": _("Required Qty"), "fieldname": "required_qty", "fieldtype": "Float", "width": 80},
+        {"label": _("Transferred Qty"), "fieldname": "transferred_qty", "fieldtype": "Float", "width": 80},
         {
             "label": _("Pending Qty"),
             "fieldname": "pending_qty",
             "fieldtype": "Float",
-            "width": 120,
+            "width": 80,
             "indicator": {"color_field": "pending_color"},
         },
         {
@@ -95,6 +65,16 @@ def get_columns():
             "width": 130,
         },
         {"label": _("Last Transfer Date"), "fieldname": "last_transfer_date", "fieldtype": "Date", "width": 120},
+        {"label": _("Required Qty (WO)"), "fieldname": "required_qty_wo", "fieldtype": "Float", "width": 80},
+        {"label": _("Consumed Qty (WO)"), "fieldname": "consumed_qty_wo", "fieldtype": "Float", "width": 80},
+        {
+            "label": _("Work Order"),
+            "fieldname": "work_order",
+            "fieldtype": "Link",
+            "options": "Work Order",
+            "width": 130,
+        },
+        {"label": _("WO Status"), "fieldname": "wo_status", "fieldtype": "Data", "width": 100},
     ]
 
 
@@ -120,16 +100,16 @@ def get_data(filters=None):
 
     sales_orders = frappe.db.sql(
         f"""
-        SELECT
+        SELECT 
             so.name as sales_order,
             so.project
-        FROM
+        FROM 
             `tabSales Order` so
-        WHERE
+        WHERE 
             so.docstatus = 1
             AND so.project IS NOT NULL
             {conditions}
-        ORDER BY
+        ORDER BY 
             so.creation DESC
     """,
         values,
@@ -139,136 +119,185 @@ def get_data(filters=None):
     for so in sales_orders:
         project_id = so.project
 
-        bom_conditions = ""
-        bom_values = {"project": project_id}
+        # Get designing documents linked to the project
+        design_conditions = ""
+        design_values = {"project": project_id}
 
-        if filters.get("bom"):
-            bom_conditions += " AND name = %(bom)s"
-            bom_values["bom"] = filters.get("bom")
+        if filters.get("design"):
+            design_conditions += " AND name = %(design)s"
+            design_values["design"] = filters.get("design")
 
-        bom = frappe.db.sql(
+        designs = frappe.db.sql(
             f"""
-            SELECT
+            SELECT 
                 name
-            FROM
-                `tabBOM`
-            WHERE
-                project = %(project)s
+            FROM 
+                `tabDesigning` 
+            WHERE 
+                custom_project = %(project)s 
                 AND docstatus = 1
-                {bom_conditions}
-            ORDER BY
+                {design_conditions}
+            ORDER BY 
                 modified DESC
-            LIMIT 1
-        """,
-            bom_values,
+            """,
+            design_values,
             as_dict=1,
         )
 
-        if bom and len(bom) > 0:
-            bom_id = bom[0].name
+        if designs and len(designs) > 0:
+            for design in designs:
+                design_id = design.name
 
-            bom_items = frappe.db.sql(
-                """
-                SELECT
-                    bi.item_code,
-                    bi.item_name,
-                    bi.qty as required_qty
-                FROM
-                    `tabBOM Item` bi
-                WHERE
-                    bi.parent = %s
-            """,
-                bom_id,
-                as_dict=1,
-            )
-
-            for item in bom_items:
-                stock_entry_conditions = ""
-                stock_entry_values = {"project": project_id, "item_code": item.item_code}
-
-                if filters.get("from_date") and filters.get("to_date"):
-                    stock_entry_conditions += " AND se.posting_date BETWEEN %(from_date)s AND %(to_date)s"
-                    stock_entry_values["from_date"] = filters.get("from_date")
-                    stock_entry_values["to_date"] = filters.get("to_date")
-
-                transferred_items = frappe.db.sql(
-                    f"""
-                    SELECT
-                        se.name as stock_entry,
-                        se.posting_date,
-                        sed.qty
-                    FROM
-                        `tabStock Entry Detail` sed
-                    JOIN
-                        `tabStock Entry` se ON se.name = sed.parent
-                    WHERE
-                        se.project = %(project)s
-                        AND sed.item_code = %(item_code)s
-                        AND se.docstatus = 1
-                        AND sed.t_warehouse IS NOT NULL
-                        AND se.stock_entry_type = 'Material Transfer to Customer'
-                        {stock_entry_conditions}
-                    ORDER BY
-                        se.posting_date DESC
-                """,
-                    stock_entry_values,
+                # Get items from designing document
+                design_items = frappe.db.sql(
+                    """
+                    SELECT 
+                        di.item_code,
+                        di.item_name,
+                        di.qty as required_qty
+                    FROM 
+                        `tabDesigning Item` di
+                    WHERE 
+                        di.parent = %s
+                    """,
+                    design_id,
                     as_dict=1,
                 )
 
-                total_transferred = 0
-                last_stock_entry = None
-                last_transfer_date = None
+                for item in design_items:
+                    # Get stock entries for this project and item
+                    stock_entry_conditions = ""
+                    stock_entry_values = {"project": project_id, "item_code": item.item_code}
 
-                if transferred_items:
-                    for transfer in transferred_items:
-                        total_transferred += transfer.qty
+                    if filters.get("from_date") and filters.get("to_date"):
+                        stock_entry_conditions += " AND se.posting_date BETWEEN %(from_date)s AND %(to_date)s"
+                        stock_entry_values["from_date"] = filters.get("from_date")
+                        stock_entry_values["to_date"] = filters.get("to_date")
 
-                    last_stock_entry = transferred_items[0].stock_entry
-                    last_transfer_date = transferred_items[0].posting_date
+                    transferred_items = frappe.db.sql(
+                        f"""
+                        SELECT 
+                            se.name as stock_entry,
+                            se.posting_date,
+                            sed.qty
+                        FROM 
+                            `tabStock Entry Detail` sed
+                        JOIN 
+                            `tabStock Entry` se ON se.name = sed.parent
+                        WHERE 
+                            se.project = %(project)s
+                            AND sed.item_code = %(item_code)s
+                            AND se.docstatus = 1
+                            AND sed.t_warehouse IS NOT NULL
+                            AND se.stock_entry_type = 'Material Transfer to Customer'
+                            {stock_entry_conditions}
+                        ORDER BY 
+                            se.posting_date DESC
+                    """,
+                        stock_entry_values,
+                        as_dict=1,
+                    )
 
-                pending_qty = item.required_qty - total_transferred
+                    # Get Work Order data for the item - can use BOM from project still for work orders
+                    work_order_data = frappe.db.sql(
+                        """
+                        SELECT 
+                            wo.name as work_order,
+                            wo.status as wo_status,
+                            wo.qty as required_qty_wo,
+                            COALESCE(
+                                (SELECT SUM(se_detail.qty)
+                                FROM `tabStock Entry Detail` se_detail
+                                JOIN `tabStock Entry` se ON se.name = se_detail.parent
+                                WHERE se.work_order = wo.name
+                                AND se_detail.item_code = %s
+                                AND se.docstatus = 1
+                                AND se.stock_entry_type = 'Manufacture'), 0
+                            ) as consumed_qty_wo
+                        FROM 
+                            `tabWork Order` wo
+                        WHERE 
+                            wo.project = %s
+                            AND wo.production_item = %s
+                            AND wo.docstatus = 1
+                        LIMIT 1
+                    """,
+                        (item.item_code, project_id, item.item_code),
+                        as_dict=1,
+                    )
 
-                if total_transferred <= 0:
-                    status = "Not Started"
-                elif pending_qty <= 0:
-                    status = "Completed"
-                else:
-                    status = "Partial"
+                    total_transferred = 0
+                    last_stock_entry = None
+                    last_transfer_date = None
+                    required_qty_wo = 0
+                    consumed_qty_wo = 0
+                    work_order = None
+                    wo_status = None
 
-                if filters.get("status") and filters.get("status") != status:
-                    continue
+                    if transferred_items:
+                        for transfer in transferred_items:
+                            total_transferred += transfer.qty
 
-                row = {
-                    "sales_order": so.sales_order,
-                    "project": project_id,
-                    "bom": bom_id,
-                    "item_code": item.item_code,
-                    "item_name": item.item_name,
-                    "required_qty": item.required_qty,
-                    "transferred_qty": total_transferred,
-                    "pending_qty": pending_qty if pending_qty > 0 else 0,
-                    "status": status,
-                    "last_stock_entry": last_stock_entry,
-                    "last_transfer_date": last_transfer_date,
-                }
+                        last_stock_entry = transferred_items[0].stock_entry
+                        last_transfer_date = transferred_items[0].posting_date
 
-                data.append(row)
+                    if work_order_data and len(work_order_data) > 0:
+                        required_qty_wo = work_order_data[0].required_qty_wo
+                        consumed_qty_wo = work_order_data[0].consumed_qty_wo
+                        work_order = work_order_data[0].work_order
+                        wo_status = work_order_data[0].wo_status
+
+                    pending_qty = item.required_qty - total_transferred
+
+                    if total_transferred <= 0:
+                        status = "Not Started"
+                    elif pending_qty <= 0:
+                        status = "Completed"
+                    else:
+                        status = "Partial"
+
+                    if filters.get("status") and filters.get("status") != status:
+                        continue
+
+                    row = {
+                        "sales_order": so.sales_order,
+                        "project": project_id,
+                        "design": design_id,
+                        "item_code": item.item_code,
+                        "item_name": item.item_name,
+                        "required_qty": item.required_qty,
+                        "transferred_qty": total_transferred,
+                        "pending_qty": pending_qty if pending_qty > 0 else 0,
+                        "status": status,
+                        "last_stock_entry": last_stock_entry,
+                        "last_transfer_date": last_transfer_date,
+                        "required_qty_wo": required_qty_wo,
+                        "consumed_qty_wo": consumed_qty_wo,
+                        "work_order": work_order,
+                        "wo_status": wo_status,
+                    }
+
+                    data.append(row)
         else:
-            if (not filters.get("status") or filters.get("status") == "No BOM") and not filters.get(
-                "only_bom_projects"
+            if (not filters.get("status") or filters.get("status") == "No Design") and not filters.get(
+                "only_design_projects"
             ):
                 row = {
                     "sales_order": so.sales_order,
                     "project": project_id,
-                    "bom": "BOM Unavailable",
+                    "design": "Design Unavailable",
                     "item_code": None,
                     "item_name": None,
                     "required_qty": 0,
                     "transferred_qty": 0,
                     "pending_qty": 0,
-                    "status": "No BOM",
+                    "status": "No Design",
                     "last_stock_entry": None,
                     "last_transfer_date": None,
+                    "required_qty_wo": 0,
+                    "consumed_qty_wo": 0,
+                    "work_order": None,
+                    "wo_status": None,
                 }
 
                 data.append(row)

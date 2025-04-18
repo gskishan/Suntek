@@ -7,28 +7,28 @@
             "fieldtype": "Link",
             "label": "Sales Order",
             "options": "Sales Order",
-            "width": 120
+            "width": 235
         },
         {
             "fieldname": "project",
             "fieldtype": "Link",
             "label": "Project",
             "options": "Project",
-            "width": 120
+            "width": 100
         },
         {
-            "fieldname": "bom",
+            "fieldname": "design",
             "fieldtype": "Link",
-            "label": "BOM",
-            "options": "BOM",
-            "width": 120
+            "label": "Design",
+            "options": "Designing",
+            "width": 220
         },
         {
             "fieldname": "item_code",
             "fieldtype": "Link",
             "label": "Item Code",
             "options": "Item",
-            "width": 120
+            "width": 151
         },
         {
             "fieldname": "item_name",
@@ -40,19 +40,19 @@
             "fieldname": "required_qty",
             "fieldtype": "Float",
             "label": "Required Qty",
-            "width": 100
+            "width": 80
         },
         {
             "fieldname": "transferred_qty",
             "fieldtype": "Float",
             "label": "Transferred Qty",
-            "width": 120
+            "width": 80
         },
         {
             "fieldname": "pending_qty",
             "fieldtype": "Float",
             "label": "Pending Qty",
-            "width": 120,
+            "width": 80,
             "indicator": {
                 "color_field": "pending_color"
             }
@@ -78,6 +78,31 @@
             "fieldtype": "Date",
             "label": "Last Transfer Date",
             "width": 120
+        },
+        {
+            "fieldname": "required_qty_wo",
+            "fieldtype": "Float",
+            "label": "Required Qty (WO)",
+            "width": 80
+        },
+        {
+            "fieldname": "consumed_qty_wo",
+            "fieldtype": "Float",
+            "label": "Consumed Qty (WO)",
+            "width": 80
+        },
+        {
+            "fieldname": "work_order",
+            "fieldtype": "Link",
+            "label": "Work Order",
+            "options": "Work Order",
+            "width": 130
+        },
+        {
+            "fieldname": "wo_status",
+            "fieldtype": "Data",
+            "label": "WO Status",
+            "width": 100
         }
     ],
     "creation": "2025-04-18 12:35:59.981139",
@@ -98,10 +123,10 @@
             "options": "Project"
         },
         {
-            "fieldname": "bom",
-            "label": "BOM",
+            "fieldname": "design",
+            "label": "Design",
             "fieldtype": "Link",
-            "options": "BOM"
+            "options": "Designing"
         },
         {
             "fieldname": "from_date",
@@ -117,11 +142,11 @@
             "fieldname": "status",
             "label": "Status",
             "fieldtype": "Select",
-            "options": "\nNot Started\nPartial\nCompleted\nNo BOM"
+            "options": "\nNot Started\nPartial\nCompleted\nNo Design"
         },
         {
-            "fieldname": "only_bom_projects",
-            "label": "Show Only BOM Projects",
+            "fieldname": "only_design_projects",
+            "label": "Show Only Projects with Design",
             "fieldtype": "Check"
         }
     ],
