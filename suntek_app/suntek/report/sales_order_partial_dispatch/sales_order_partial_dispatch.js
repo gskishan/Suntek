@@ -20,10 +20,10 @@ frappe.query_reports["Sales Order Partial Dispatch"] = {
             options: "Project",
         },
         {
-            fieldname: "bom",
-            label: __("BOM"),
+            fieldname: "design",
+            label: __("Design"),
             fieldtype: "Link",
-            options: "BOM",
+            options: "Designing",
             get_query: function () {
                 return {
                     filters: {
@@ -48,11 +48,11 @@ frappe.query_reports["Sales Order Partial Dispatch"] = {
             fieldname: "status",
             label: __("Status"),
             fieldtype: "Select",
-            options: "\nNot Started\nPartial\nCompleted\nNo BOM",
+            options: "\nNot Started\nPartial\nCompleted\nNo Design",
         },
         {
-            fieldname: "only_bom_projects",
-            label: __("Show Only BOM Projects"),
+            fieldname: "only_design_projects",
+            label: __("Ignore Projects without Design"),
             fieldtype: "Check",
             default: 0,
         },

@@ -78,31 +78,6 @@
             "fieldtype": "Date",
             "label": "Last Transfer Date",
             "width": 120
-        },
-        {
-            "fieldname": "required_qty_wo",
-            "fieldtype": "Float",
-            "label": "Required Qty (WO)",
-            "width": 80
-        },
-        {
-            "fieldname": "consumed_qty_wo",
-            "fieldtype": "Float",
-            "label": "Consumed Qty (WO)",
-            "width": 80
-        },
-        {
-            "fieldname": "work_order",
-            "fieldtype": "Link",
-            "label": "Work Order",
-            "options": "Work Order",
-            "width": 130
-        },
-        {
-            "fieldname": "wo_status",
-            "fieldtype": "Data",
-            "label": "WO Status",
-            "width": 100
         }
     ],
     "creation": "2025-04-18 12:35:59.981139",
@@ -146,7 +121,7 @@
         },
         {
             "fieldname": "only_design_projects",
-            "label": "Show Only Projects with Design",
+            "label": "Ignore Projects without Design",
             "fieldtype": "Check"
         }
     ],

@@ -37,12 +37,45 @@ def get_columns():
             "options": "Sales Order",
             "width": 235,
         },
-        {"label": _("Project"), "fieldname": "project", "fieldtype": "Link", "options": "Project", "width": 100},
-        {"label": _("Design"), "fieldname": "design", "fieldtype": "Link", "options": "Designing", "width": 220},
-        {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 151},
-        {"label": _("Item Name"), "fieldname": "item_name", "fieldtype": "Data", "width": 150},
-        {"label": _("Required Qty"), "fieldname": "required_qty", "fieldtype": "Float", "width": 80},
-        {"label": _("Transferred Qty"), "fieldname": "transferred_qty", "fieldtype": "Float", "width": 80},
+        {
+            "label": _("Project"),
+            "fieldname": "project",
+            "fieldtype": "Link",
+            "options": "Project",
+            "width": 100,
+        },
+        {
+            "label": _("Design"),
+            "fieldname": "design",
+            "fieldtype": "Link",
+            "options": "Designing",
+            "width": 220,
+        },
+        {
+            "label": _("Item Code"),
+            "fieldname": "item_code",
+            "fieldtype": "Link",
+            "options": "Item",
+            "width": 151,
+        },
+        {
+            "label": _("Item Name"),
+            "fieldname": "item_name",
+            "fieldtype": "Data",
+            "width": 150,
+        },
+        {
+            "label": _("Required Qty"),
+            "fieldname": "required_qty",
+            "fieldtype": "Float",
+            "width": 80,
+        },
+        {
+            "label": _("Transferred Qty"),
+            "fieldname": "transferred_qty",
+            "fieldtype": "Float",
+            "width": 80,
+        },
         {
             "label": _("Pending Qty"),
             "fieldname": "pending_qty",
@@ -64,17 +97,12 @@ def get_columns():
             "options": "Stock Entry",
             "width": 130,
         },
-        {"label": _("Last Transfer Date"), "fieldname": "last_transfer_date", "fieldtype": "Date", "width": 120},
-        {"label": _("Required Qty (WO)"), "fieldname": "required_qty_wo", "fieldtype": "Float", "width": 80},
-        {"label": _("Consumed Qty (WO)"), "fieldname": "consumed_qty_wo", "fieldtype": "Float", "width": 80},
         {
-            "label": _("Work Order"),
-            "fieldname": "work_order",
-            "fieldtype": "Link",
-            "options": "Work Order",
-            "width": 130,
+            "label": _("Last Transfer Date"),
+            "fieldname": "last_transfer_date",
+            "fieldtype": "Date",
+            "width": 120,
         },
-        {"label": _("WO Status"), "fieldname": "wo_status", "fieldtype": "Data", "width": 100},
     ]
 
 
@@ -167,10 +195,15 @@ def get_data(filters=None):
                 for item in design_items:
                     # Get stock entries for this project and item
                     stock_entry_conditions = ""
-                    stock_entry_values = {"project": project_id, "item_code": item.item_code}
+                    stock_entry_values = {
+                        "project": project_id,
+                        "item_code": item.item_code,
+                    }
 
                     if filters.get("from_date") and filters.get("to_date"):
-                        stock_entry_conditions += " AND se.posting_date BETWEEN %(from_date)s AND %(to_date)s"
+                        stock_entry_conditions += (
+                            " AND se.posting_date BETWEEN %(from_date)s AND %(to_date)s"
+                        )
                         stock_entry_values["from_date"] = filters.get("from_date")
                         stock_entry_values["to_date"] = filters.get("to_date")
 
@@ -198,41 +231,9 @@ def get_data(filters=None):
                         as_dict=1,
                     )
 
-                    # Get Work Order data for the item - can use BOM from project still for work orders
-                    work_order_data = frappe.db.sql(
-                        """
-                        SELECT 
-                            wo.name as work_order,
-                            wo.status as wo_status,
-                            wo.qty as required_qty_wo,
-                            COALESCE(
-                                (SELECT SUM(se_detail.qty)
-                                FROM `tabStock Entry Detail` se_detail
-                                JOIN `tabStock Entry` se ON se.name = se_detail.parent
-                                WHERE se.work_order = wo.name
-                                AND se_detail.item_code = %s
-                                AND se.docstatus = 1
-                                AND se.stock_entry_type = 'Manufacture'), 0
-                            ) as consumed_qty_wo
-                        FROM 
-                            `tabWork Order` wo
-                        WHERE 
-                            wo.project = %s
-                            AND wo.production_item = %s
-                            AND wo.docstatus = 1
-                        LIMIT 1
-                    """,
-                        (item.item_code, project_id, item.item_code),
-                        as_dict=1,
-                    )
-
                     total_transferred = 0
                     last_stock_entry = None
                     last_transfer_date = None
-                    required_qty_wo = 0
-                    consumed_qty_wo = 0
-                    work_order = None
-                    wo_status = None
 
                     if transferred_items:
                         for transfer in transferred_items:
@@ -240,12 +241,6 @@ def get_data(filters=None):
 
                         last_stock_entry = transferred_items[0].stock_entry
                         last_transfer_date = transferred_items[0].posting_date
-
-                    if work_order_data and len(work_order_data) > 0:
-                        required_qty_wo = work_order_data[0].required_qty_wo
-                        consumed_qty_wo = work_order_data[0].consumed_qty_wo
-                        work_order = work_order_data[0].work_order
-                        wo_status = work_order_data[0].wo_status
 
                     pending_qty = item.required_qty - total_transferred
 
@@ -271,17 +266,13 @@ def get_data(filters=None):
                         "status": status,
                         "last_stock_entry": last_stock_entry,
                         "last_transfer_date": last_transfer_date,
-                        "required_qty_wo": required_qty_wo,
-                        "consumed_qty_wo": consumed_qty_wo,
-                        "work_order": work_order,
-                        "wo_status": wo_status,
                     }
 
                     data.append(row)
         else:
-            if (not filters.get("status") or filters.get("status") == "No Design") and not filters.get(
-                "only_design_projects"
-            ):
+            if (
+                not filters.get("status") or filters.get("status") == "No Design"
+            ) and not filters.get("only_design_projects"):
                 row = {
                     "sales_order": so.sales_order,
                     "project": project_id,
@@ -294,10 +285,6 @@ def get_data(filters=None):
                     "status": "No Design",
                     "last_stock_entry": None,
                     "last_transfer_date": None,
-                    "required_qty_wo": 0,
-                    "consumed_qty_wo": 0,
-                    "work_order": None,
-                    "wo_status": None,
                 }
 
                 data.append(row)
