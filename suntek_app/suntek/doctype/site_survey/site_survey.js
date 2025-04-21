@@ -1,4 +1,26 @@
 frappe.ui.form.on("Site Survey", {
+    onload: function (frm) {
+        if (frm.is_new()) {
+            frm.call({
+                method: "set_site_engineer",
+                doc: frm.doc,
+                callback: function (r) {
+                    if (r.message) {
+                        user = r.message.user;
+                        employee = r.message.employee;
+
+                        if (user) {
+                            frm.set_value("custom_site_visitor", user.name);
+                        }
+
+                        if (employee) {
+                            frm.set_value("site_engineer", employee.name);
+                        }
+                    }
+                },
+            });
+        }
+    },
     refresh: function (frm) {
         if (frm.is_new()) {
             frappe.call({

@@ -41,6 +41,19 @@ class SiteSurvey(Document):
             self.channel_partner = opportunity.custom_channel_partner
 
     @frappe.whitelist()
+    def set_site_engineer(self):
+        user = frappe.db.get_value("User", {"name": frappe.session.user}, "name", as_dict=1)
+        employee = frappe.db.get_value("Employee", {"user_id": user.name}, "name", as_dict=1)
+
+        response = {
+            "user": user,
+        }
+        if employee:
+            response["employee"] = employee
+
+        return response
+
+    @frappe.whitelist()
     def get_opportunity_details(self):
         data = None
 
