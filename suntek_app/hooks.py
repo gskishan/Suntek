@@ -54,13 +54,18 @@ has_permission = {
 
 doc_events = {
     "Address": {"before_save": ["suntek_app.custom_script.address.add_enquiry_to_links"]},
-    "Delivery Note": {"before_save": ["suntek_app.custom_script.delivery_note.set_channel_partner_data"]},
+    "Delivery Note": {
+        "before_save": [
+            "suntek_app.custom_script.delivery_note.set_channel_partner_data",
+        ]
+    },
     "Installation Note": {"before_save": ["suntek_app.custom_script.installation_note.set_channel_partner_data"]},
     "BOM": {
         "before_save": [
             "suntek_app.custom_script.bom.set_channel_partner_data",
         ]
     },
+    "Item": {"before_save": ["suntek_app.overrides.item.set_item_code_from_item_id"]},
     "Lead": {
         "validate": [
             "suntek_app.suntek.custom.lead.change_enquiry_status",
