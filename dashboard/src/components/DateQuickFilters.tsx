@@ -338,15 +338,7 @@ export function DateQuickFilters({
                     <>
                         {/* Stats Presets Section */}
                         <div className="mb-3">
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                            <div className="text-xs text-slate-500 font-medium mb-1.5">Statistical Presets</div>
-=======
                             <div className="text-xs text-slate-500 font-medium mb-1.5">Other Presets</div>
->>>>>>> Stashed changes
-=======
-                            <div className="text-xs text-slate-500 font-medium mb-1.5">Other Presets</div>
->>>>>>> Stashed changes
                             <div className="flex flex-wrap gap-1.5">
                                 {statFilters.map((filter) => (
                                     <Button
