@@ -77,6 +77,7 @@
    "options": "Attachment Table"
   },
   {
+   "fetch_from": "opportunity_name.custom_department",
    "fieldname": "department",
    "fieldtype": "Link",
    "label": "Department",
@@ -94,6 +95,7 @@
    "label": "Site Engineer Name"
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "site_survey_status",
    "fieldtype": "Select",
    "label": "Site Survey Status",
@@ -146,7 +148,7 @@
    "link_fieldname": "site_survey"
   }
  ],
- "modified": "2025-04-18 11:47:21.644053",
+ "modified": "2025-04-22 11:55:10.675906",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Site Survey",
@@ -162,7 +164,35 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "select": 1,
    "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Field Sales Exec",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "select": 1,
+   "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],

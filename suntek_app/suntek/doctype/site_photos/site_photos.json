@@ -13,18 +13,21 @@
    "fieldname": "site_photos",
    "fieldtype": "Attach",
    "in_list_view": 1,
-   "label": "Site Photos"
+   "label": "Site Photos",
+   "make_attachment_public": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-12-03 21:43:16.189818",
+ "modified": "2025-04-22 10:55:16.407760",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Site Photos",
  "owner": "Administrator",
  "permissions": [],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
