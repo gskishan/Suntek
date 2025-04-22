@@ -3,12 +3,14 @@ import { useFrappeGetCall, useFrappeGetDocList } from "frappe-react-sdk";
 import { HierarchicalDataTable } from "./HierarchicalDataTable";
 import { DashboardFilters } from "./DashboardFilters";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, ShieldAlert, Users, Calendar, ExternalLink } from "lucide-react";
+import { RefreshCw, ShieldAlert, Users, Calendar, ExternalLink, Building, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { DashboardTabs } from "./DashboardTabs";
 import { DateRangeType } from "./DateQuickFilters";
 
-type DashboardType = "sales" | "crm" | "activity";
+type MainTabType = "sales" | "crm" | "activity";
+type SalesSubTabType = "location" | "department";
+type TabType = MainTabType | SalesSubTabType;
 
 interface DashboardProps {
     userName: string;
@@ -16,7 +18,7 @@ interface DashboardProps {
 }
 
 export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
-    const [dashboardType, setDashboardType] = useState<DashboardType>("sales");
+    const [dashboardType, setDashboardType] = useState<TabType>("location");
     const [selectedStates, setSelectedStates] = useState<string[]>([]);
     const [selectedTerritories, setSelectedTerritories] = useState<string[]>([]);
     const [selectedCities, setSelectedCities] = useState<string[]>([]);
@@ -86,8 +88,9 @@ export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
     }, [allDistricts]);
 
     const queryParams = useMemo(() => {
-        const params: Record<string, any> = {
+        const params: Record<string, string | number | boolean> = {
             limit: limit === null ? "all" : limit.toString(),
+            dashboard_type: dashboardType,
         };
 
         if (selectedStates.length > 0) {
@@ -168,6 +171,7 @@ export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
         limit,
         minCapacity,
         maxCapacity,
+        dashboardType,
     ]);
 
     const {
@@ -183,6 +187,8 @@ export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
     const salesOrdersData = useMemo(() => {
         if (!salesOrdersResponse) return null;
 
+        // Use a type assertion but be more specific with unknown
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const response = salesOrdersResponse as any;
         if (response.message && response.message.data) {
             return response.message.data;
@@ -195,6 +201,8 @@ export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
 
     useEffect(() => {
         if (salesOrdersError) {
+            // Use a type assertion but be more specific with unknown
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const errorObj = salesOrdersError as any;
             const errorMessage =
                 errorObj?.message?.message ||
@@ -265,7 +273,7 @@ export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
         [refreshSalesOrders],
     );
 
-    const handleDashboardChange = useCallback((type: DashboardType) => {
+    const handleDashboardChange = useCallback((type: TabType) => {
         setDashboardType(type);
     }, []);
 
@@ -320,8 +328,8 @@ export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
                 </div>
             </div>
 
-            {/* Sales Dashboard Content */}
-            {dashboardType === "sales" && (
+            {/* Sales by Location Dashboard Content */}
+            {dashboardType === "location" && (
                 <div className="flex flex-row gap-4 h-[calc(100vh-180px)]">
                     <div className="transition-all duration-300 ease-in-out flex items-start">
                         <DashboardFilters
@@ -404,24 +412,11 @@ export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
                                             </>
                                         ) : (
                                             <div className="flex flex-col justify-center items-center h-full bg-gray-50 rounded-lg border border-gray-200">
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    className="h-16 w-16 text-gray-400 mb-4"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    stroke="currentColor"
-                                                >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={1.5}
-                                                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 2a10 10 0 110 20 10 10 0 010-20z"
-                                                    />
-                                                </svg>
+                                                <MapPin className="h-16 w-16 text-gray-400 mb-4" />
                                                 <h3 className="text-xl font-medium text-gray-700">No data found</h3>
                                                 <p className="text-sm text-gray-500 text-center mt-2 max-w-md">
-                                                    No sales data is available for the selected filters. Try adjusting
-                                                    your filters or selecting a different date range.
+                                                    No location sales data is available for the selected filters. Try
+                                                    adjusting your filters or selecting a different date range.
                                                 </p>
                                             </div>
                                         )}
@@ -430,6 +425,18 @@ export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
                             </>
                         )}
                     </div>
+                </div>
+            )}
+
+            {/* Sales by Department Dashboard Content */}
+            {dashboardType === "department" && (
+                <div className="flex flex-col items-center justify-center h-[calc(100vh-220px)] bg-gray-50 rounded-lg border border-gray-200">
+                    <Building className="h-16 w-16 text-gray-400 mb-4" />
+                    <h2 className="text-2xl font-medium text-gray-700 mb-2">Department Dashboard</h2>
+                    <p className="text-gray-500 text-center max-w-md">
+                        The Department dashboard is being developed. It will provide sales insights organized by
+                        department.
+                    </p>
                 </div>
             )}
 
