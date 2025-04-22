@@ -49,6 +49,12 @@
             "width": 80
         },
         {
+            "fieldname": "consumed_qty",
+            "fieldtype": "Float",
+            "label": "Consumed Qty (WO)",
+            "width": 80
+        },
+        {
             "fieldname": "pending_qty",
             "fieldtype": "Float",
             "label": "Pending Qty",
@@ -78,6 +84,12 @@
             "fieldtype": "Date",
             "label": "Last Transfer Date",
             "width": 120
+        },
+        {
+            "fieldname": "work_orders",
+            "fieldtype": "Data",
+            "label": "Work Orders",
+            "width": 130
         }
     ],
     "creation": "2025-04-18 12:35:59.981139",

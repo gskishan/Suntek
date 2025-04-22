@@ -54,7 +54,7 @@ frappe.query_reports["Sales Order Partial Dispatch"] = {
             fieldname: "only_design_projects",
             label: __("Ignore Projects without Design"),
             fieldtype: "Check",
-            default: 0,
+            default: 1,
         },
     ],
 
