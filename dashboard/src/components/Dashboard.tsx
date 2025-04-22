@@ -6,10 +6,16 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw, ShieldAlert, Users, Calendar, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { DashboardTabs } from "./DashboardTabs";
+import { DateRangeType } from "./DateQuickFilters";
 
 type DashboardType = "sales" | "crm" | "activity";
 
-export const Dashboard = () => {
+interface DashboardProps {
+    userName: string;
+    userInitial: string;
+}
+
+export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
     const [dashboardType, setDashboardType] = useState<DashboardType>("sales");
     const [selectedStates, setSelectedStates] = useState<string[]>([]);
     const [selectedTerritories, setSelectedTerritories] = useState<string[]>([]);
@@ -17,11 +23,13 @@ export const Dashboard = () => {
     const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
     const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
     const [salesOrderStatus, setSalesOrderStatus] = useState<string>("all");
+    const [salesOrderStatuses, setSalesOrderStatuses] = useState<string[]>([]);
     const [selectedTypeOfCase, setSelectedTypeOfCase] = useState<string>("all");
     const [selectedTypeOfStructure, setSelectedTypeOfStructure] = useState<string>("all");
     const [selectedSalesPersons, setSelectedSalesPersons] = useState<string[]>([]);
     const [fromDate, setFromDate] = useState<Date>();
     const [toDate, setToDate] = useState<Date>();
+    const [dateRangeType, setDateRangeType] = useState<DateRangeType>("custom");
     const [limit, setLimit] = useState<number | null>(100);
     const [minCapacity, setMinCapacity] = useState<number | null>(null);
     const [maxCapacity, setMaxCapacity] = useState<number | null>(null);
@@ -106,6 +114,10 @@ export const Dashboard = () => {
             params.status = salesOrderStatus;
         }
 
+        if (salesOrderStatuses.length > 0) {
+            params.status = salesOrderStatuses.join(",");
+        }
+
         if (selectedTypeOfCase !== "all") {
             params.type_of_case = selectedTypeOfCase;
         }
@@ -126,6 +138,10 @@ export const Dashboard = () => {
             params.to_date = toDate.toISOString().split("T")[0];
         }
 
+        if (dateRangeType !== "custom") {
+            params.limit = "all";
+        }
+
         if (minCapacity !== null) {
             params.min_capacity = minCapacity.toString();
         }
@@ -142,11 +158,13 @@ export const Dashboard = () => {
         selectedDistricts,
         selectedDepartment,
         salesOrderStatus,
+        salesOrderStatuses,
         selectedTypeOfCase,
         selectedTypeOfStructure,
         selectedSalesPersons,
         fromDate,
         toDate,
+        dateRangeType,
         limit,
         minCapacity,
         maxCapacity,
@@ -208,11 +226,13 @@ export const Dashboard = () => {
         setSelectedDistricts([]);
         setSelectedDepartment("all");
         setSalesOrderStatus("all");
+        setSalesOrderStatuses([]);
         setSelectedTypeOfCase("all");
         setSelectedTypeOfStructure("all");
         setSelectedSalesPersons([]);
         setFromDate(undefined);
         setToDate(undefined);
+        setDateRangeType("custom");
         setLimit(100);
         setMinCapacity(null);
         setMaxCapacity(null);
@@ -221,6 +241,29 @@ export const Dashboard = () => {
             refreshSalesOrders();
         }, 50);
     }, [refreshSalesOrders]);
+
+    const handleMultiStatusChange = useCallback((statuses: string[]) => {
+        setSalesOrderStatuses(statuses);
+        if (statuses.length === 0) {
+            setSalesOrderStatus("all");
+        } else if (statuses.length === 1) {
+            setSalesOrderStatus(statuses[0]);
+        } else {
+            setSalesOrderStatus("multiple");
+        }
+    }, []);
+
+    const handleDateRangeChange = useCallback(
+        (range: { from: Date | undefined; to: Date | undefined; type: DateRangeType }) => {
+            setFromDate(range.from);
+            setToDate(range.to);
+            setDateRangeType(range.type);
+            setTimeout(() => {
+                refreshSalesOrders();
+            }, 50);
+        },
+        [refreshSalesOrders],
+    );
 
     const handleDashboardChange = useCallback((type: DashboardType) => {
         setDashboardType(type);
@@ -236,8 +279,24 @@ export const Dashboard = () => {
 
     return (
         <div className="py-4 space-y-4">
-            <div className="flex justify-between items-center">
+            <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold">Dashboard</h1>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center">
+                        <span className="text-sm text-slate-600 mr-2">Welcome, {userName}</span>
+                        <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-slate-600 text-sm">
+                            {userInitial || userName?.charAt(0)?.toUpperCase() || "U"}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Dashboard Tabs and Actions */}
+            <div className="flex items-center justify-between">
+                <DashboardTabs
+                    activeDashboard={dashboardType}
+                    onDashboardChange={handleDashboardChange}
+                />
                 <div className="flex items-center gap-2">
                     <Button
                         variant="outline"
@@ -261,12 +320,6 @@ export const Dashboard = () => {
                 </div>
             </div>
 
-            {/* Dashboard Tabs */}
-            <DashboardTabs
-                activeDashboard={dashboardType}
-                onDashboardChange={handleDashboardChange}
-            />
-
             {/* Sales Dashboard Content */}
             {dashboardType === "sales" && (
                 <div className="flex flex-row gap-4 h-[calc(100vh-180px)]">
@@ -278,11 +331,13 @@ export const Dashboard = () => {
                             selectedDistricts={selectedDistricts}
                             selectedDepartment={selectedDepartment}
                             salesOrderStatus={salesOrderStatus}
+                            salesOrderStatuses={salesOrderStatuses}
                             selectedTypeOfCase={selectedTypeOfCase}
                             selectedTypeOfStructure={selectedTypeOfStructure}
                             selectedSalesPersons={selectedSalesPersons}
                             fromDate={fromDate}
                             toDate={toDate}
+                            dateRangeType={dateRangeType}
                             limit={limit}
                             minCapacity={minCapacity}
                             maxCapacity={maxCapacity}
@@ -298,17 +353,19 @@ export const Dashboard = () => {
                             onDistrictChange={setSelectedDistricts}
                             onDepartmentChange={setSelectedDepartment}
                             onStatusChange={setSalesOrderStatus}
+                            onMultiStatusChange={handleMultiStatusChange}
                             onTypeOfCaseChange={setSelectedTypeOfCase}
                             onTypeOfStructureChange={setSelectedTypeOfStructure}
                             onSalesPersonChange={setSelectedSalesPersons}
                             onFromDateChange={setFromDate}
                             onToDateChange={setToDate}
+                            onDateRangeChange={handleDateRangeChange}
                             onLimitChange={setLimit}
                             onMinCapacityChange={setMinCapacity}
                             onMaxCapacityChange={setMaxCapacity}
                             onApplyFilters={handleApplyFilters}
                             onClearFilters={handleClearFilters}
-                            dateRange={{ from: undefined, to: undefined }}
+                            dateRange={{ from: fromDate, to: toDate }}
                             search=""
                         />
                     </div>

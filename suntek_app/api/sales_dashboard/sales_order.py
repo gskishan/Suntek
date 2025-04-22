@@ -169,7 +169,14 @@ def _get_sales_orders(filters=None, limit=100):
         if filters.get("department"):
             where_clause += f" AND custom_department = '{filters['department']}'"
         if filters.get("status"):
-            where_clause += f" AND status = '{filters['status']}'"
+            # Check if status is a comma-separated list and handle multiple statuses
+            if "," in filters["status"]:
+                status_values = filters["status"].split(",")
+                status_list = ", ".join([f"'{s}'" for s in status_values])
+                where_clause += f" AND status IN ({status_list})"
+                frappe.logger().info(f"Applying multiple status filter with values: {status_values}")
+            else:
+                where_clause += f" AND status = '{filters['status']}'"
         if filters.get("type_of_case"):
             where_clause += f" AND custom_type_of_case = '{filters['type_of_case']}'"
         if filters.get("type_of_structure"):

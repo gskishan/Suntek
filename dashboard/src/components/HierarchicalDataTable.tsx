@@ -14,7 +14,7 @@ import {
     ChevronRight,
     ChevronsLeft,
     ChevronsRight,
-    DollarSign,
+    Coins,
     ExternalLink,
     MapPin,
     Package,
@@ -23,6 +23,9 @@ import {
     User,
     X,
     Users,
+    CheckCircle,
+    BarChart4,
+    Flag,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -276,11 +279,11 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
 
             switch (department) {
                 case "Domestic (Residential) Sales Team - SESP":
-                    return "DOMESTIC";
+                    return "Domestic";
                 case "Commercial & Industrial (C&I) - SESP":
                     return "C&I";
                 case "Channel Partner - SESP":
-                    return "CHP";
+                    return "Channel Partner";
                 default:
                     return department === "not defined" ? "None" : "Other";
             }
@@ -291,9 +294,9 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
         return (department: string | null) => {
             const acronym = getDepartmentAcronym(department);
             const colors: { [key: string]: string } = {
-                DOMESTIC: "bg-blue-100 text-blue-800",
+                Domestic: "bg-blue-100 text-blue-800",
                 "C&I": "bg-emerald-100 text-emerald-800",
-                CHP: "bg-indigo-100 text-indigo-800",
+                "Channel Partner": "bg-indigo-100 text-indigo-800",
                 None: "bg-gray-100 text-gray-800",
                 Other: "bg-pink-100 text-pink-800",
             };
@@ -366,7 +369,11 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
 
     const formatCurrency = useMemo(() => {
         return (amount: number) => {
-            return `₹${amount.toLocaleString()}`;
+            // Format in Indian style (lakhs and crores)
+            const formatter = new Intl.NumberFormat("en-IN", {
+                maximumFractionDigits: 0,
+            });
+            return `₹${formatter.format(amount)}`;
         };
     }, []);
 
@@ -410,35 +417,79 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
             .map((term) => term.trim())
             .filter((term) => term);
 
+        // If no valid search terms after splitting, show all
         if (searchTerms.length === 0) return true;
 
-        if (searchTerms[0].startsWith(">") || searchTerms[0].startsWith("<") || searchTerms[0].startsWith("=")) {
-            const operator = searchTerms[0].charAt(0);
-            const amountStr = searchTerms[0].substring(1);
-            const amount = parseFloat(amountStr);
+        // Process all search terms (AND logic between terms)
+        return searchTerms.every((term) => {
+            // Price comparisons
+            if (term.startsWith(">") || term.startsWith("<")) {
+                const parts = term.match(/([><])(\d+)/);
+                if (parts && parts.length >= 3) {
+                    const operator = parts[1];
+                    const amount = parseFloat(parts[2]);
 
-            if (!isNaN(amount)) {
-                if (operator === ">") return order.grand_total > amount;
-                if (operator === "<") return order.grand_total < amount;
-                if (operator === "=") return order.grand_total === amount;
+                    if (!isNaN(amount)) {
+                        if (operator === ">") return order.grand_total > amount;
+                        if (operator === "<") return order.grand_total < amount;
+                    }
+                }
+
+                // Price range: >500000, <600000
+                if (searchTerms.length >= 2) {
+                    const otherTermIndex = searchTerms.findIndex(
+                        (t) => t !== term && (t.startsWith(">") || t.startsWith("<")),
+                    );
+
+                    if (otherTermIndex !== -1) {
+                        const otherTerm = searchTerms[otherTermIndex];
+                        const otherParts = otherTerm.match(/([><])(\d+)/);
+
+                        if (parts && otherParts && parts.length >= 3 && otherParts.length >= 3) {
+                            const thisOp = parts[1];
+                            const thisAmount = parseFloat(parts[2]);
+                            const otherOp = otherParts[1];
+                            const otherAmount = parseFloat(otherParts[2]);
+
+                            if (!isNaN(thisAmount) && !isNaN(otherAmount)) {
+                                if (thisOp === ">" && otherOp === "<") {
+                                    return order.grand_total > thisAmount && order.grand_total < otherAmount;
+                                } else if (thisOp === "<" && otherOp === ">") {
+                                    return order.grand_total < thisAmount && order.grand_total > otherAmount;
+                                }
+                            }
+                        }
+                    }
+                }
             }
-        }
 
-        return (
-            order.name.toLowerCase().includes(searchTerms[0]) ||
-            order.customer.toLowerCase().includes(searchTerms[0]) ||
-            (order.type_of_case?.toLowerCase() || "").includes(searchTerms[0]) ||
-            (order.type_of_structure?.toLowerCase() || "").includes(searchTerms[0]) ||
-            (order.department?.toLowerCase() || "").includes(searchTerms[0]) ||
-            (order.sales_person?.toLowerCase() || "").includes(searchTerms[0]) ||
-            order.status.toLowerCase().includes(searchTerms[0]) ||
-            order.grand_total.toString().includes(searchTerms[0]) ||
-            (order.city?.toLowerCase() || "").includes(searchTerms[0]) ||
-            (order.state?.toLowerCase() || "").includes(searchTerms[0]) ||
-            order.territory.toLowerCase().includes(searchTerms[0]) ||
-            (order.district?.toLowerCase() || "").includes(searchTerms[0]) ||
-            (order.district_name?.toLowerCase() || "").includes(searchTerms[0])
-        );
+            // Status exact match (e.g., "to deliver")
+            if (order.status.toLowerCase() === term) {
+                return true;
+            }
+
+            // Department exact match
+            if (order.department?.toLowerCase() === term) {
+                return true;
+            }
+
+            // Check all searchable fields
+            return (
+                order.name.toLowerCase().includes(term) ||
+                order.customer.toLowerCase().includes(term) ||
+                (order.type_of_case?.toLowerCase() || "").includes(term) ||
+                (order.type_of_structure?.toLowerCase() || "").includes(term) ||
+                (order.department?.toLowerCase() || "").includes(term) ||
+                (order.sales_person?.toLowerCase() || "").includes(term) ||
+                order.status.toLowerCase().includes(term) ||
+                order.grand_total.toString().includes(term) ||
+                (order.city?.toLowerCase() || "").includes(term) ||
+                (order.state?.toLowerCase() || "").includes(term) ||
+                order.territory.toLowerCase().includes(term) ||
+                (order.district?.toLowerCase() || "").includes(term) ||
+                (order.district_name?.toLowerCase() || "").includes(term)
+            );
+        });
     };
 
     const filteredData = useMemo(() => {
@@ -606,6 +657,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="pl-8 h-9"
+                                title="Separate multiple search terms with commas. Use > or < for price ranges."
                             />
                             {searchQuery.trim() && (
                                 <>
@@ -621,18 +673,20 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                                 </>
                             )}
                         </div>
-                        <Badge
-                            variant="outline"
-                            className="h-9 px-3 flex items-center"
-                        >
-                            Showing {filteredData.reduce((total, state) => total + state.count, 0)} items
-                        </Badge>
+                        {searchQuery.trim() && (
+                            <Badge
+                                variant="outline"
+                                className="h-9 px-3 flex items-center"
+                            >
+                                <Search className="h-3.5 w-3.5 mr-1.5" /> Filtered results
+                            </Badge>
+                        )}
                     </div>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={toggleExpansion}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-1 cursor-pointer"
                     >
                         {isFullExpansion ? (
                             <>
@@ -646,7 +700,118 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                     </Button>
                 </div>
 
-                <ScrollArea className="h-[calc(80vh-140px)] min-h-[500px]">
+                {/* New Stats Section */}
+                <div className="p-2 bg-muted/20 border-b">
+                    {(() => {
+                        // Calculate summary stats
+                        const totalOrders = filteredData.reduce((total, state) => total + state.count, 0);
+                        const inactiveOrders = filteredData.reduce((total, state) => total + state.inactive_count, 0);
+                        const completedOrders = filteredData.reduce((total, state) => {
+                            let completed = 0;
+                            state.territories.forEach((territory) => {
+                                territory.cities.forEach((city) => {
+                                    city.districts.forEach((district) => {
+                                        completed += district.orders.filter(
+                                            (order) => order.status === "Completed" || order.status === "Closed",
+                                        ).length;
+                                    });
+                                });
+                            });
+                            return total + completed;
+                        }, 0);
+
+                        const activeOrders = totalOrders - inactiveOrders - completedOrders;
+                        const totalRevenue = filteredData.reduce((total, state) => total + state.total_amount, 0);
+                        const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+                        // Calculate department distribution
+                        const departmentCounts: Record<string, number> = {};
+                        let topDepartment = { name: "None", count: 0 };
+
+                        filteredData.forEach((state) => {
+                            state.territories.forEach((territory) => {
+                                territory.cities.forEach((city) => {
+                                    city.districts.forEach((district) => {
+                                        district.orders.forEach((order) => {
+                                            if (order.department) {
+                                                departmentCounts[order.department] =
+                                                    (departmentCounts[order.department] || 0) + 1;
+                                                if (departmentCounts[order.department] > topDepartment.count) {
+                                                    topDepartment = {
+                                                        name: order.department,
+                                                        count: departmentCounts[order.department],
+                                                    };
+                                                }
+                                            }
+                                        });
+                                    });
+                                });
+                            });
+                        });
+
+                        const formatter = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
+                        const percentFormatter = new Intl.NumberFormat("en-IN", {
+                            minimumFractionDigits: 1,
+                            maximumFractionDigits: 1,
+                        });
+
+                        const activePercentage = totalOrders > 0 ? (activeOrders / totalOrders) * 100 : 0;
+                        const completedPercentage = totalOrders > 0 ? (completedOrders / totalOrders) * 100 : 0;
+
+                        return (
+                            <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
+                                <div className="flex items-center gap-1.5 p-1">
+                                    <Package className="h-4 w-4 text-primary" />
+                                    <span className="font-medium mr-1">Total:</span>
+                                    <span>{totalOrders}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 p-1">
+                                    <TrendingUp className="h-4 w-4 text-green-600" />
+                                    <span className="font-medium mr-1">Active:</span>
+                                    <span className="text-green-600">{activeOrders}</span>
+                                    <span className="text-xs text-green-500">
+                                        ({percentFormatter.format(activePercentage)}%)
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-1.5 p-1">
+                                    <CheckCircle className="h-4 w-4 text-purple-600" />
+                                    <span className="font-medium mr-1">Completed:</span>
+                                    <span className="text-purple-600">{completedOrders}</span>
+                                    <span className="text-xs text-purple-500">
+                                        ({percentFormatter.format(completedPercentage)}%)
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-1.5 p-1">
+                                    <X className="h-4 w-4 text-yellow-600" />
+                                    <span className="font-medium mr-1">Draft/Cancelled:</span>
+                                    <span className="text-yellow-600">{inactiveOrders}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 p-1">
+                                    <Coins className="h-4 w-4 text-blue-600" />
+                                    <span className="font-medium mr-1">Revenue:</span>
+                                    <span className="text-blue-600">₹{formatter.format(totalRevenue)}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 p-1">
+                                    <BarChart4 className="h-4 w-4 text-emerald-600" />
+                                    <span className="font-medium mr-1">Avg Value:</span>
+                                    <span className="text-emerald-600">₹{formatter.format(avgOrderValue)}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 p-1">
+                                    <Building className="h-4 w-4 text-gray-600" />
+                                    <span className="font-medium mr-1">Top Dept:</span>
+                                    <span
+                                        className="truncate max-w-[150px]"
+                                        title={topDepartment.name}
+                                    >
+                                        {getDepartmentAcronym(topDepartment.name)}
+                                    </span>
+                                </div>
+                            </div>
+                        );
+                    })()}
+                </div>
+
+                <ScrollArea className="h-[calc(80vh-180px)] min-h-[450px]">
                     <div className="min-w-[750px]">
                         <Table className="w-full table-fixed">
                             <TableHeader className="bg-gray-50 sticky top-0 z-10">
@@ -781,10 +946,14 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
 
                             <div className="flex justify-between items-center mt-4 pt-4 border-t">
                                 <div className="flex items-center gap-4">
-                                    <Badge className={getStatusColor(selectedOrder.status)}>
+                                    <Badge
+                                        className={`${getStatusColor(selectedOrder.status)} text-[13px] py-0.5 px-3`}
+                                    >
                                         {selectedOrder.status}
                                     </Badge>
-                                    <Badge className={getTypeColor(selectedOrder.type_of_case)}>
+                                    <Badge
+                                        className={`${getTypeColor(selectedOrder.type_of_case)} text-[13px] py-0.5 px-3`}
+                                    >
                                         {selectedOrder.type_of_case}
                                     </Badge>
                                 </div>
@@ -900,7 +1069,7 @@ const StateRow = ({
                 </TableCell>
                 <TableCell>
                     <TableCellMetric
-                        icon={DollarSign}
+                        icon={Coins}
                         value={formatCurrency(stateData.total_amount)}
                         tooltip={`Total revenue from all orders in ${getLocationName(stateData.state, "state")}`}
                     />
@@ -1045,7 +1214,7 @@ const TerritoryRow = ({
                 </TableCell>
                 <TableCell>
                     <TableCellMetric
-                        icon={DollarSign}
+                        icon={Coins}
                         value={formatCurrency(territoryData.total_amount)}
                         tooltip={`Total revenue from all orders in ${getLocationName(territoryData.territory, "territory")}`}
                     />
@@ -1190,7 +1359,7 @@ const CityRow = ({
                 </TableCell>
                 <TableCell>
                     <TableCellMetric
-                        icon={DollarSign}
+                        icon={Coins}
                         value={formatCurrency(cityData.total_amount)}
                         tooltip={`Total revenue from all orders in ${getLocationName(cityData.city, "city")}`}
                     />
@@ -1382,7 +1551,7 @@ const DistrictRow = ({
                 </TableCell>
                 <TableCell>
                     <TableCellMetric
-                        icon={DollarSign}
+                        icon={Coins}
                         value={formatCurrency(districtData.total_amount)}
                         tooltip={`Total revenue from all orders in ${getLocationName(districtData.district, "district", districtData.district_name)}`}
                     />
@@ -1419,10 +1588,10 @@ const DistrictRow = ({
                                     <Table className="w-full table-fixed">
                                         <TableHeader className="bg-muted/20">
                                             <TableRow>
-                                                <TableHead className="font-medium text-xs h-8 py-1 w-[15%]">
+                                                <TableHead className="font-medium text-xs h-8 py-1 w-[14%]">
                                                     Order ID
                                                 </TableHead>
-                                                <TableHead className="font-medium text-xs h-8 py-1 w-[15%]">
+                                                <TableHead className="font-medium text-xs h-8 py-1 w-[13%]">
                                                     Customer
                                                 </TableHead>
                                                 <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
@@ -1431,7 +1600,7 @@ const DistrictRow = ({
                                                 <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
                                                     Sales Person
                                                 </TableHead>
-                                                <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
+                                                <TableHead className="font-medium text-xs h-8 py-1 w-[7%]">
                                                     Capacity
                                                 </TableHead>
                                                 <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
@@ -1440,7 +1609,7 @@ const DistrictRow = ({
                                                 <TableHead className="font-medium text-xs h-8 py-1 w-[10%]">
                                                     Date
                                                 </TableHead>
-                                                <TableHead className="font-medium text-xs h-8 py-1 w-[20%] text-right">
+                                                <TableHead className="font-medium text-xs h-8 py-1 w-[26%] text-right">
                                                     Details
                                                 </TableHead>
                                             </TableRow>
@@ -1488,24 +1657,24 @@ const DistrictRow = ({
                                                     <TableCell className="py-2 text-sm whitespace-nowrap">
                                                         {formatDate(order.creation)}
                                                     </TableCell>
-                                                    <TableCell className="py-2 text-sm text-right">
-                                                        <div className="flex items-center justify-end gap-1">
+                                                    <TableCell className="py-1 px-1 text-sm text-right">
+                                                        <div className="flex items-center justify-end gap-1 flex-wrap">
                                                             <Badge
-                                                                className={getDepartmentColor(order.department)}
+                                                                className={`${getDepartmentColor(order.department)} text-[11px] py-0.5 px-2 whitespace-nowrap max-w-[110px]`}
                                                                 variant="outline"
                                                                 title={order.department || "None"}
                                                             >
                                                                 {getDepartmentAcronym(order.department)}
                                                             </Badge>
                                                             <Badge
-                                                                className={getTypeColor(order.type_of_case)}
+                                                                className={`${getTypeColor(order.type_of_case)} text-[11px] py-0.5 px-2 whitespace-nowrap`}
                                                                 variant="outline"
                                                                 title={order.type_of_case}
                                                             >
                                                                 {order.type_of_case}
                                                             </Badge>
                                                             <Badge
-                                                                className={getStatusColor(order.status)}
+                                                                className={`${getStatusColor(order.status)} text-[11px] py-0.5 px-2 whitespace-nowrap`}
                                                                 title={order.status}
                                                             >
                                                                 {order.status}
@@ -1660,10 +1829,14 @@ const DistrictRow = ({
 
                             <div className="flex justify-between items-center mt-4 pt-4 border-t">
                                 <div className="flex items-center gap-4">
-                                    <Badge className={getStatusColor(selectedOrder.status)}>
+                                    <Badge
+                                        className={`${getStatusColor(selectedOrder.status)} text-[13px] py-0.5 px-3`}
+                                    >
                                         {selectedOrder.status}
                                     </Badge>
-                                    <Badge className={getTypeColor(selectedOrder.type_of_case)}>
+                                    <Badge
+                                        className={`${getTypeColor(selectedOrder.type_of_case)} text-[13px] py-0.5 px-3`}
+                                    >
                                         {selectedOrder.type_of_case}
                                     </Badge>
                                 </div>
