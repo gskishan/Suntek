@@ -383,61 +383,63 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                     })()}
                 </div>
 
-                <ScrollArea className="h-[calc(80vh-180px)] min-h-[450px]">
-                    <div className="min-w-[750px]">
-                        <Table className="w-full table-fixed">
-                            <TableHeader className="bg-gray-50 sticky top-0 z-10">
-                                <TableRow>
-                                    <TableHead className="w-[300px]">Location</TableHead>
-                                    <TableHead className="w-[120px]">Orders</TableHead>
-                                    <TableHead className="w-[120px]">Draft/Cancelled</TableHead>
-                                    <TableHead className="w-[150px]">Total Revenue</TableHead>
-                                    <TableHead className="w-[120px]">Avg. Order Value</TableHead>
-                                    <TableHead className="w-[120px]">Total Capacity</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredData.length === 0 ? (
+                <div className="overflow-auto">
+                    <ScrollArea className="h-[calc(80vh-180px)] min-h-[450px] w-full">
+                        <div className="min-w-[750px]">
+                            <Table className="w-full table-fixed">
+                                <TableHeader className="bg-gray-50 sticky top-0 z-10">
                                     <TableRow>
-                                        <TableCell
-                                            colSpan={6}
-                                            className="h-24 text-center"
-                                        >
-                                            <div className="flex flex-col items-center justify-center text-muted-foreground">
-                                                <p>No sales data found.</p>
-                                                <p className="text-sm">
-                                                    {searchQuery.trim()
-                                                        ? "No results match your search. Try a different query."
-                                                        : "Try adjusting the filters or refresh the data."}
-                                                </p>
-                                            </div>
-                                        </TableCell>
+                                        <TableHead className="w-[300px]">Location</TableHead>
+                                        <TableHead className="w-[120px]">Orders</TableHead>
+                                        <TableHead className="w-[120px]">Draft/Cancelled</TableHead>
+                                        <TableHead className="w-[150px]">Total Revenue</TableHead>
+                                        <TableHead className="w-[120px]">Avg. Order Value</TableHead>
+                                        <TableHead className="w-[120px]">Total Capacity</TableHead>
                                     </TableRow>
-                                ) : (
-                                    filteredData.map((stateData, stateIndex) => (
-                                        <StateRow
-                                            key={createUniqueKey(stateData.state, "state", stateIndex)}
-                                            stateData={stateData}
-                                            stateIndex={stateIndex}
-                                            getLocationName={getLocationName}
-                                            formatCurrency={formatCurrency}
-                                            formatDate={formatDate}
-                                            calculateAverage={calculateAverage}
-                                            createUniqueKey={createUniqueKey}
-                                            getStatusColor={getStatusColor}
-                                            getTypeColor={getTypeColor}
-                                            registerRow={registerStateRow}
-                                            isFullExpansion={isFullExpansion}
-                                            getERPUrl={getERPUrl}
-                                            getDepartmentAcronym={getDepartmentAcronym}
-                                            getDepartmentColor={getDepartmentColor}
-                                        />
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </ScrollArea>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredData.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell
+                                                colSpan={6}
+                                                className="h-24 text-center"
+                                            >
+                                                <div className="flex flex-col items-center justify-center text-muted-foreground">
+                                                    <p>No sales data found.</p>
+                                                    <p className="text-sm">
+                                                        {searchQuery.trim()
+                                                            ? "No results match your search. Try a different query."
+                                                            : "Try adjusting the filters or refresh the data."}
+                                                    </p>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        filteredData.map((stateData, stateIndex) => (
+                                            <StateRow
+                                                key={createUniqueKey(stateData.state, "state", stateIndex)}
+                                                stateData={stateData}
+                                                stateIndex={stateIndex}
+                                                getLocationName={getLocationName}
+                                                formatCurrency={formatCurrency}
+                                                formatDate={formatDate}
+                                                calculateAverage={calculateAverage}
+                                                createUniqueKey={createUniqueKey}
+                                                getStatusColor={getStatusColor}
+                                                getTypeColor={getTypeColor}
+                                                registerRow={registerStateRow}
+                                                isFullExpansion={isFullExpansion}
+                                                getERPUrl={getERPUrl}
+                                                getDepartmentAcronym={getDepartmentAcronym}
+                                                getDepartmentColor={getDepartmentColor}
+                                            />
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </ScrollArea>
+                </div>
             </Card>
         </>
     );
