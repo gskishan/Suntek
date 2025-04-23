@@ -107,7 +107,6 @@ export interface BaseRowProps {
     registerRow: (key: string, setExpandedFn: (expanded: boolean) => void) => void;
     isFullExpansion: boolean;
     getERPUrl: (doctype: string, name: string) => string;
-    getDepartmentAcronym: (department: string | null) => string;
     getDepartmentColor: (department: string | null) => string;
 }
 
@@ -128,7 +127,6 @@ export interface StateRowProps {
     registerRow: (key: string, setExpandedFn: (expanded: boolean) => void) => void;
     isFullExpansion: boolean;
     getERPUrl: (doctype: string, name: string) => string;
-    getDepartmentAcronym: (department: string | null) => string;
     getDepartmentColor: (department: string | null) => string;
     viewType?: "location" | "department";
 }
@@ -150,7 +148,6 @@ export interface TerritoryRowProps {
     registerRow: (key: string, setExpandedFn: (expanded: boolean) => void) => void;
     isFullExpansion: boolean;
     getERPUrl: (doctype: string, name: string) => string;
-    getDepartmentAcronym: (department: string | null) => string;
     getDepartmentColor: (department: string | null) => string;
     viewType?: "location" | "department";
 }
@@ -165,9 +162,24 @@ export interface DistrictRowProps extends BaseRowProps {
     districtIndex: number;
 }
 
-export interface DepartmentRowProps extends BaseRowProps {
+export interface DepartmentRowProps {
     departmentData: DepartmentData;
     departmentIndex: number;
+    getLocationName: (
+        value: string | null,
+        type: "state" | "city" | "district" | "territory" | "department",
+        districtName?: string | null,
+    ) => string;
+    formatCurrency: (amount: number) => string;
+    formatDate: (dateString: string) => string;
+    calculateAverage: (total: number, count: number) => number;
+    createUniqueKey: (value: string | null, prefix: string, index: number) => string;
+    getStatusColor: (status: string) => string;
+    getTypeColor: (type: string) => string;
+    registerRow: (key: string, setExpandedFn: (expanded: boolean) => void) => void;
+    isFullExpansion: boolean;
+    getERPUrl: (doctype: string, name: string) => string;
+    getDepartmentColor: (department: string | null) => string;
 }
 
 export interface SalesOrderRowProps {
@@ -179,8 +191,6 @@ export interface SalesOrderRowProps {
     getStatusColor: (status: string) => string;
     getTypeColor: (type: string) => string;
     getERPUrl: (doctype: string, name: string) => string;
-    getDepartmentAcronym: (department: string | null) => string;
-    getDepartmentColor: (department: string | null) => string;
 }
 
 export interface OrderDetailsModalProps {

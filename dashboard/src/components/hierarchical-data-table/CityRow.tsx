@@ -19,7 +19,6 @@ export const CityRow = ({
     registerRow,
     isFullExpansion,
     getERPUrl,
-    getDepartmentAcronym,
     getDepartmentColor,
 }: CityRowProps) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -117,7 +116,6 @@ export const CityRow = ({
                                         registerRow={registerRow}
                                         isFullExpansion={isFullExpansion}
                                         getERPUrl={getERPUrl}
-                                        getDepartmentAcronym={getDepartmentAcronym}
                                         getDepartmentColor={getDepartmentColor}
                                     />
                                 ))}

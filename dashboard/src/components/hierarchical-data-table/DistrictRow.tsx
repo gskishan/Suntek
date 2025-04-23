@@ -21,7 +21,6 @@ export const DistrictRow = ({
     registerRow,
     isFullExpansion,
     getERPUrl,
-    getDepartmentAcronym,
     getDepartmentColor,
 }: DistrictRowProps) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -215,11 +214,10 @@ export const DistrictRow = ({
                                                     <TableCell className="py-1 px-1 text-sm text-right">
                                                         <div className="flex items-center justify-end gap-1 flex-wrap">
                                                             <Badge
-                                                                className={`${getDepartmentColor(order.department)} text-[11px] py-0.5 px-2 whitespace-nowrap max-w-[110px]`}
-                                                                variant="outline"
+                                                                className={`${getDepartmentColor(order.department)} text-[10px] py-0.5 px-2`}
                                                                 title={order.department || "None"}
                                                             >
-                                                                {getDepartmentAcronym(order.department)}
+                                                                {order.department || "None"}
                                                             </Badge>
                                                             <Badge
                                                                 className={`${getTypeColor(order.type_of_case)} text-[11px] py-0.5 px-2 whitespace-nowrap`}

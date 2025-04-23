@@ -11,8 +11,6 @@ export const OrderRow = ({
     getStatusColor,
     getTypeColor,
     getERPUrl,
-    getDepartmentAcronym,
-    getDepartmentColor,
 }: SalesOrderRowProps) => {
     return (
         <>

@@ -20,7 +20,6 @@ export const TerritoryRow = ({
     registerRow,
     isFullExpansion,
     getERPUrl,
-    getDepartmentAcronym,
     getDepartmentColor,
     viewType = "location",
 }: TerritoryRowProps) => {
@@ -119,7 +118,6 @@ export const TerritoryRow = ({
                                             registerRow={registerRow}
                                             isFullExpansion={isFullExpansion}
                                             getERPUrl={getERPUrl}
-                                            getDepartmentAcronym={getDepartmentAcronym}
                                             getDepartmentColor={getDepartmentColor}
                                         />
                                     ))}
@@ -144,7 +142,6 @@ export const TerritoryRow = ({
                                             registerRow={registerRow}
                                             isFullExpansion={isFullExpansion}
                                             getERPUrl={getERPUrl}
-                                            getDepartmentAcronym={getDepartmentAcronym}
                                             getDepartmentColor={getDepartmentColor}
                                         />
                                     ))}

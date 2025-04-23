@@ -7,10 +7,13 @@ import { RefreshCw, ShieldAlert, Users, Calendar, ExternalLink, Building, MapPin
 import { Card } from "@/components/ui/card";
 import { DashboardTabs } from "./DashboardTabs";
 import { DateRangeType } from "./DateQuickFilters";
-import { format } from "date-fns";
 
-// Add the frappe declaration
-declare const frappe: any;
+// Add the frappe declaration for API calls
+declare global {
+    const frappe: {
+        call: (args: { method: string; args?: Record<string, unknown> }) => Promise<unknown>;
+    };
+}
 
 type MainTabType = "sales" | "crm" | "activity";
 type SalesSubTabType = "location" | "department";
@@ -22,10 +25,7 @@ interface DashboardProps {
 }
 
 export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
-    const [activeTab, setActiveTab] = useState<MainTabType>("sales");
-    const [salesTab, setSalesTab] = useState<SalesSubTabType>("location");
     const [dashboardType, setDashboardType] = useState<TabType>("location");
-    const [isOpen, setIsOpen] = useState<boolean>(false);
     const [selectedStates, setSelectedStates] = useState<string[]>([]);
     const [selectedTerritories, setSelectedTerritories] = useState<string[]>([]);
     const [selectedCities, setSelectedCities] = useState<string[]>([]);
@@ -94,93 +94,6 @@ export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
     const districts = useMemo(() => {
         return allDistricts || [];
     }, [allDistricts]);
-
-    const queryParams = useMemo(() => {
-        const params: Record<string, string | number | boolean> = {
-            limit: limit === null ? "all" : limit.toString(),
-            dashboard_type: dashboardType,
-        };
-
-        if (selectedStates.length > 0) {
-            params.state = selectedStates.join(",");
-        }
-
-        if (selectedTerritories.length > 0) {
-            params.territory = selectedTerritories.join(",");
-        }
-
-        if (selectedCities.length > 0) {
-            params.city = selectedCities.join(",");
-        }
-
-        if (selectedDistricts.length > 0) {
-            params.district = selectedDistricts.join(",");
-        }
-
-        if (selectedDepartment !== "all") {
-            params.department = selectedDepartment;
-        }
-
-        if (salesOrderStatus !== "all") {
-            params.status = salesOrderStatus;
-        }
-
-        if (salesOrderStatuses.length > 0) {
-            params.status = salesOrderStatuses.join(",");
-        }
-
-        if (selectedTypeOfCase !== "all") {
-            params.type_of_case = selectedTypeOfCase;
-        }
-
-        if (selectedTypeOfStructure !== "all") {
-            params.type_of_structure = selectedTypeOfStructure;
-        }
-
-        if (selectedSalesPersons.length > 0) {
-            params.sales_person = selectedSalesPersons.join(",");
-        }
-
-        if (fromDate) {
-            params.from_date = fromDate.toISOString().split("T")[0];
-        }
-
-        if (toDate) {
-            params.to_date = toDate.toISOString().split("T")[0];
-        }
-
-        if (dateRangeType !== "custom") {
-            params.limit = "all";
-        }
-
-        if (minCapacity !== null) {
-            params.min_capacity = minCapacity.toString();
-        }
-
-        if (maxCapacity !== null) {
-            params.max_capacity = maxCapacity.toString();
-        }
-
-        return params;
-    }, [
-        selectedStates,
-        selectedTerritories,
-        selectedCities,
-        selectedDistricts,
-        selectedDepartment,
-        salesOrderStatus,
-        salesOrderStatuses,
-        selectedTypeOfCase,
-        selectedTypeOfStructure,
-        selectedSalesPersons,
-        fromDate,
-        toDate,
-        dateRangeType,
-        limit,
-        minCapacity,
-        maxCapacity,
-        dashboardType,
-    ]);
 
     // Fix the queryParams to correctly handle "All Items"
     const getQueryParams = useMemo(() => {
@@ -275,7 +188,6 @@ export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
     const {
         data: departmentOrdersResponseData,
         isValidating: departmentOrdersLoading,
-        error: departmentOrdersError,
         mutate: refreshDepartmentOrders,
     } = useFrappeGetCall(
         "suntek_app.api.sales_dashboard.sales_order.get_sales_order_data_by_department",

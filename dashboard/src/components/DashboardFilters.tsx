@@ -22,7 +22,6 @@ import { MultiSelect } from "./ui/multi-select";
 import { DateRange } from "react-day-picker";
 import { Input } from "@/components/ui/input";
 import { DateQuickFilters, DateRangeType } from "./DateQuickFilters";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
 interface FilterSectionProps {
@@ -70,7 +69,7 @@ const FilterSection = ({
                             className="p-1 rounded-sm hover:bg-slate-200 transition-colors"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onReset && onReset();
+                                if (onReset) onReset();
                             }}
                         >
                             <X className="h-3.5 w-3.5 text-slate-500" />

@@ -51,7 +51,7 @@ export const getDepartmentAcronym = (department: string | null): string => {
 
     // Use department_abbr from the backend if available
     if (typeof department === "object" && department !== null && "department_abbr" in department) {
-        return (department as any).department_abbr;
+        return (department as { department_abbr: string }).department_abbr;
     }
 
     // Handle special cases first
@@ -105,7 +105,7 @@ export const formatDate = (dateString: string): string => {
     try {
         const date = new Date(dateString);
         return date.toLocaleDateString();
-    } catch (error) {
+    } catch {
         return dateString;
     }
 };

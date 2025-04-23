@@ -3,7 +3,6 @@ import { Table, TableCell, TableRow, TableBody, TableHead, TableHeader } from "@
 import { ChevronRight, ChevronLeft, ChevronsLeft, ChevronsRight, ExternalLink } from "lucide-react";
 import { Battery, Coins, Package, TrendingUp } from "lucide-react";
 import { DepartmentRowProps, SalesOrder } from "./types";
-import { TableCellMetric } from "./TableCellMetric";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OrderDetailsModal } from "./OrderDetailsModal";
@@ -22,7 +21,6 @@ export const DepartmentRow = ({
     registerRow,
     isFullExpansion,
     getERPUrl,
-    getDepartmentAcronym,
     getDepartmentColor,
 }: DepartmentRowProps) => {
     const [isOpen, setIsOpen] = useState(false);
