@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { CalendarRange, Zap, TrendingUp, CheckCircle, AlertTriangle, DollarSign } from "lucide-react";
+import { CalendarRange, Zap, CheckCircle, AlertTriangle } from "lucide-react";
 
 export type DateRangeType =
     | "today"

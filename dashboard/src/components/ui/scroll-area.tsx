@@ -7,7 +7,7 @@ function ScrollArea({ className, children, ...props }: React.ComponentProps<type
     return (
         <ScrollAreaPrimitive.Root
             data-slot="scroll-area"
-            className={cn("relative", className)}
+            className={cn("relative overflow-hidden", className)}
             {...props}
         >
             <ScrollAreaPrimitive.Viewport
@@ -16,7 +16,8 @@ function ScrollArea({ className, children, ...props }: React.ComponentProps<type
             >
                 {children}
             </ScrollAreaPrimitive.Viewport>
-            <ScrollBar />
+            <ScrollBar orientation="vertical" />
+            <ScrollBar orientation="horizontal" />
             <ScrollAreaPrimitive.Corner />
         </ScrollAreaPrimitive.Root>
     );

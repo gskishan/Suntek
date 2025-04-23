@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 interface Location {
     name: string;
     creation: string;
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 interface LocationSelectProps {
@@ -36,7 +36,7 @@ export function LocationSelect({ label, value, onSelect, options = [], displayFi
                         aria-expanded={open}
                         className="w-full justify-between"
                     >
-                        {value ? value[displayField] : `Select ${label.toLowerCase()}...`}
+                        {value ? String(value[displayField]) : `Select ${label.toLowerCase()}...`}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                 </PopoverTrigger>
@@ -48,7 +48,7 @@ export function LocationSelect({ label, value, onSelect, options = [], displayFi
                             {options.map((option) => (
                                 <CommandItem
                                     key={option.creation}
-                                    value={option[displayField]}
+                                    value={String(option[displayField])}
                                     onSelect={() => {
                                         onSelect(option);
                                         setOpen(false);
@@ -60,7 +60,7 @@ export function LocationSelect({ label, value, onSelect, options = [], displayFi
                                             value?.creation === option.creation ? "opacity-100" : "opacity-0",
                                         )}
                                     />
-                                    {option[displayField]}
+                                    {String(option[displayField])}
                                 </CommandItem>
                             ))}
                         </CommandGroup>
