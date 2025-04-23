@@ -4,7 +4,7 @@ import { useFrappeAuth } from "frappe-react-sdk";
 
 const App = () => {
     const [userInitial, setUserInitial] = useState<string>("");
-    const { currentUser, isLoading } = useFrappeAuth();
+    const { currentUser } = useFrappeAuth();
 
     useEffect(() => {
         if (currentUser) {

@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "cd dashboard && yarn install",
     "dev": "cd dashboard && yarn dev",
-    "build": "cd dashboard && yarn build"
+    "build": "cd dashboard && yarn build",
+    "lint": "cd dashboard && yarn lint"
   },
   "repository": {
     "type": "git",

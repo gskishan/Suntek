@@ -8,32 +8,10 @@ interface LocationItemProps {
     totalAmount: number;
     isExpanded: boolean;
     onToggle: () => void;
-    level: "territory" | "state" | "district" | "city";
     className?: string;
 }
 
-export const LocationItem = ({
-    name,
-    count,
-    totalAmount,
-    isExpanded,
-    onToggle,
-    level,
-    className = "",
-}: LocationItemProps) => {
-    const getLocationLabel = () => {
-        switch (level) {
-            case "territory":
-                return "Territory";
-            case "state":
-                return "State";
-            case "district":
-                return "District";
-            case "city":
-                return "City";
-        }
-    };
-
+export const LocationItem = ({ name, count, totalAmount, isExpanded, onToggle, className = "" }: LocationItemProps) => {
     return (
         <button
             onClick={onToggle}
