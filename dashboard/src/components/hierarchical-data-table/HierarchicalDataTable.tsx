@@ -33,11 +33,12 @@ import {
     processDataWithFilters,
 } from "./utils";
 
-export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
+export const HierarchicalDataTable = ({ data, viewType = "location" }: HierarchicalDataTableProps) => {
     const stateRowRefs = useRef<Map<string, (expanded: boolean) => void>>(new Map());
     const territoryRowRefs = useRef<Map<string, (expanded: boolean) => void>>(new Map());
     const cityRowRefs = useRef<Map<string, (expanded: boolean) => void>>(new Map());
     const districtRowRefs = useRef<Map<string, (expanded: boolean) => void>>(new Map());
+    const departmentRowRefs = useRef<Map<string, (expanded: boolean) => void>>(new Map());
 
     const [isFullExpansion, setIsFullExpansion] = useState(false);
     const [searchQuery, setSearchQuery] = useState<string>("");
@@ -53,27 +54,46 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                 territory.inactive_count = 0;
                 territory.total_capacity = 0;
 
-                territory.cities.forEach((city) => {
-                    city.inactive_count = 0;
-                    city.total_capacity = 0;
+                // Check if this is location view data structure
+                if (viewType === "location" && "cities" in territory) {
+                    territory.cities.forEach((city) => {
+                        city.inactive_count = 0;
+                        city.total_capacity = 0;
 
-                    city.districts.forEach((district) => {
-                        const inactiveOrders = district.orders.filter(
+                        city.districts.forEach((district) => {
+                            const inactiveOrders = district.orders.filter(
+                                (order) => order.status === "Cancelled" || order.status === "Draft",
+                            );
+                            district.inactive_count = inactiveOrders.length;
+
+                            district.total_capacity = district.orders
+                                .filter((order) => order.status !== "Cancelled" && order.status !== "Draft")
+                                .reduce((sum, order) => sum + (order.capacity_value || 0), 0);
+
+                            city.inactive_count += district.inactive_count;
+                            city.total_capacity += district.total_capacity;
+                        });
+
+                        territory.inactive_count += city.inactive_count;
+                        territory.total_capacity += city.total_capacity;
+                    });
+                }
+                // Check if this is department view data structure
+                else if (viewType === "department" && "departments" in territory) {
+                    territory.departments.forEach((department) => {
+                        const inactiveOrders = department.orders.filter(
                             (order) => order.status === "Cancelled" || order.status === "Draft",
                         );
-                        district.inactive_count = inactiveOrders.length;
+                        department.inactive_count = inactiveOrders.length;
 
-                        district.total_capacity = district.orders
+                        department.total_capacity = department.orders
                             .filter((order) => order.status !== "Cancelled" && order.status !== "Draft")
                             .reduce((sum, order) => sum + (order.capacity_value || 0), 0);
 
-                        city.inactive_count += district.inactive_count;
-                        city.total_capacity += district.total_capacity;
+                        territory.inactive_count += department.inactive_count;
+                        territory.total_capacity += department.total_capacity;
                     });
-
-                    territory.inactive_count += city.inactive_count;
-                    territory.total_capacity += city.total_capacity;
-                });
+                }
 
                 stateData.inactive_count += territory.inactive_count;
                 stateData.total_capacity += territory.total_capacity;
@@ -81,106 +101,130 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
         });
 
         return processedData;
-    }, [data]);
+    }, [data, viewType]);
 
     const normalizedData = useMemo(() => {
-        const dataCopy: StateData[] = JSON.parse(JSON.stringify(initialProcessedData));
-
-        dataCopy.forEach((stateData) => {
-            stateData.territories.forEach((territory) => {
-                territory.cities.forEach((city) => {
-                    city.districts.forEach((district) => {
-                        const inactiveOrders = district.orders.filter(
-                            (order) => order.status === "Cancelled" || order.status === "Draft",
-                        );
-                        district.inactive_count = inactiveOrders.length;
-                    });
-
-                    city.inactive_count = city.districts.reduce((sum, district) => sum + district.inactive_count, 0);
-                });
-
-                territory.inactive_count = territory.cities.reduce((sum, city) => sum + city.inactive_count, 0);
-            });
-
-            stateData.inactive_count = stateData.territories.reduce(
-                (sum, territory) => sum + territory.inactive_count,
-                0,
-            );
-        });
-
-        const unspecifiedStateRows = dataCopy.filter((state) => !state.state || state.state.trim() === "");
-
-        if (unspecifiedStateRows.length <= 1) {
-            return dataCopy;
+        if (!data || data.length === 0) {
+            return [];
         }
 
-        const filteredData = dataCopy.filter((state) => state.state && state.state.trim() !== "");
+        // Early return for department view to avoid unnecessary processing
+        if (viewType === "department") {
+            return initialProcessedData;
+        }
 
-        const mergedRow: StateData = {
-            state: null,
-            total_amount: 0,
-            count: 0,
-            inactive_count: 0,
-            total_capacity: 0,
-            territories: [],
-        };
+        const dataCopy: StateData[] = JSON.parse(JSON.stringify(initialProcessedData));
 
-        unspecifiedStateRows.forEach((stateRow) => {
-            mergedRow.total_amount += stateRow.total_amount;
-            mergedRow.count += stateRow.count;
-            mergedRow.inactive_count += stateRow.inactive_count;
-            mergedRow.total_capacity += stateRow.total_capacity;
-
-            stateRow.territories.forEach((territory) => {
-                const existingTerritory = mergedRow.territories.find((t) => t.territory === territory.territory);
-
-                if (existingTerritory) {
-                    existingTerritory.total_amount += territory.total_amount;
-                    existingTerritory.count += territory.count;
-                    existingTerritory.inactive_count += territory.inactive_count;
-                    existingTerritory.total_capacity += territory.total_capacity;
-
-                    territory.cities.forEach((city) => {
-                        const existingCity = existingTerritory.cities.find(
-                            (c) => (!c.city && !city.city) || c.city === city.city,
-                        );
-
-                        if (existingCity) {
-                            existingCity.total_amount += city.total_amount;
-                            existingCity.count += city.count;
-                            existingCity.inactive_count += city.inactive_count;
-                            existingCity.total_capacity += city.total_capacity;
-
+        // Only proceed with location view normalization
+        if (viewType === "location") {
+            dataCopy.forEach((stateData) => {
+                stateData.territories.forEach((territory) => {
+                    if ("cities" in territory) {
+                        territory.cities.forEach((city) => {
                             city.districts.forEach((district) => {
-                                const existingDistrict = existingCity.districts.find(
-                                    (d) => (!d.district && !district.district) || d.district === district.district,
+                                const inactiveOrders = district.orders.filter(
+                                    (order) => order.status === "Cancelled" || order.status === "Draft",
+                                );
+                                district.inactive_count = inactiveOrders.length;
+                            });
+
+                            city.inactive_count = city.districts.reduce(
+                                (sum, district) => sum + (district.inactive_count || 0),
+                                0,
+                            );
+                        });
+
+                        territory.inactive_count = territory.cities.reduce(
+                            (sum, city) => sum + (city.inactive_count || 0),
+                            0,
+                        );
+                    }
+                });
+
+                stateData.inactive_count = stateData.territories.reduce(
+                    (sum, territory) => sum + (territory.inactive_count || 0),
+                    0,
+                );
+            });
+
+            const unspecifiedStateRows = dataCopy.filter((state) => !state.state || state.state.trim() === "");
+
+            if (unspecifiedStateRows.length <= 1) {
+                return dataCopy;
+            }
+
+            const filteredData = dataCopy.filter((state) => state.state && state.state.trim() !== "");
+
+            const mergedRow: StateData = {
+                state: null,
+                total_amount: 0,
+                count: 0,
+                inactive_count: 0,
+                total_capacity: 0,
+                territories: [],
+            };
+
+            unspecifiedStateRows.forEach((stateRow) => {
+                mergedRow.total_amount += stateRow.total_amount;
+                mergedRow.count += stateRow.count;
+                mergedRow.inactive_count += stateRow.inactive_count || 0;
+                mergedRow.total_capacity += stateRow.total_capacity || 0;
+
+                stateRow.territories.forEach((territory) => {
+                    const existingTerritory = mergedRow.territories.find((t) => t.territory === territory.territory);
+
+                    if (existingTerritory) {
+                        existingTerritory.total_amount += territory.total_amount;
+                        existingTerritory.count += territory.count;
+                        existingTerritory.inactive_count += territory.inactive_count || 0;
+                        existingTerritory.total_capacity += territory.total_capacity || 0;
+
+                        if ("cities" in territory && "cities" in existingTerritory) {
+                            territory.cities.forEach((city) => {
+                                const existingCity = existingTerritory.cities.find(
+                                    (c) => (!c.city && !city.city) || c.city === city.city,
                                 );
 
-                                if (existingDistrict) {
-                                    existingDistrict.total_amount += district.total_amount;
-                                    existingDistrict.count += district.count;
-                                    existingDistrict.inactive_count += district.inactive_count;
-                                    existingDistrict.total_capacity += district.total_capacity;
+                                if (existingCity) {
+                                    existingCity.total_amount += city.total_amount;
+                                    existingCity.count += city.count;
+                                    existingCity.inactive_count += city.inactive_count || 0;
+                                    existingCity.total_capacity += city.total_capacity || 0;
 
-                                    existingDistrict.orders = [...existingDistrict.orders, ...district.orders];
+                                    city.districts.forEach((district) => {
+                                        const existingDistrict = existingCity.districts.find(
+                                            (d) =>
+                                                (!d.district && !district.district) || d.district === district.district,
+                                        );
+
+                                        if (existingDistrict) {
+                                            existingDistrict.total_amount += district.total_amount;
+                                            existingDistrict.count += district.count;
+                                            existingDistrict.inactive_count += district.inactive_count || 0;
+                                            existingDistrict.total_capacity += district.total_capacity || 0;
+
+                                            existingDistrict.orders = [...existingDistrict.orders, ...district.orders];
+                                        } else {
+                                            existingCity.districts.push(district);
+                                        }
+                                    });
                                 } else {
-                                    existingCity.districts.push(district);
+                                    existingTerritory.cities.push(city);
                                 }
                             });
-                        } else {
-                            existingTerritory.cities.push(city);
                         }
-                    });
-                } else {
-                    mergedRow.territories.push(territory);
-                }
+                    } else {
+                        mergedRow.territories.push(territory);
+                    }
+                });
             });
-        });
 
-        filteredData.push(mergedRow);
+            filteredData.push(mergedRow);
+            return filteredData;
+        }
 
-        return filteredData;
-    }, [initialProcessedData]);
+        return dataCopy;
+    }, [initialProcessedData, viewType, data]);
 
     const registerStateRow = (key: string, setExpandedFn: (expanded: boolean) => void) => {
         stateRowRefs.current.set(key, setExpandedFn);
@@ -195,9 +239,13 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
         setIsFullExpansion(false);
         stateRowRefs.current.forEach((setExpanded) => setExpanded(false));
         territoryRowRefs.current.forEach((setExpanded) => setExpanded(false));
-        cityRowRefs.current.forEach((setExpanded) => setExpanded(false));
-        districtRowRefs.current.forEach((setExpanded) => setExpanded(false));
-    }, []);
+        if (viewType === "location") {
+            cityRowRefs.current.forEach((setExpanded) => setExpanded(false));
+            districtRowRefs.current.forEach((setExpanded) => setExpanded(false));
+        } else {
+            departmentRowRefs.current.forEach((setExpanded) => setExpanded(false));
+        }
+    }, [viewType]);
 
     const filteredData = useMemo(() => {
         if (searchQuery.trim()) {
@@ -214,6 +262,33 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
             collapseAll();
         } else {
             expandAll();
+        }
+    };
+
+    // Adjust column headers based on viewType
+    const getColumnHeaders = () => {
+        if (viewType === "location") {
+            return (
+                <TableRow>
+                    <TableHead className="w-[300px]">Location</TableHead>
+                    <TableHead className="w-[120px]">Orders</TableHead>
+                    <TableHead className="w-[120px]">Draft/Cancelled</TableHead>
+                    <TableHead className="w-[150px]">Total Revenue</TableHead>
+                    <TableHead className="w-[120px]">Avg. Order Value</TableHead>
+                    <TableHead className="w-[120px]">Total Capacity</TableHead>
+                </TableRow>
+            );
+        } else {
+            return (
+                <TableRow>
+                    <TableHead className="w-[300px]">Department</TableHead>
+                    <TableHead className="w-[120px]">Orders</TableHead>
+                    <TableHead className="w-[120px]">Draft/Cancelled</TableHead>
+                    <TableHead className="w-[150px]">Total Revenue</TableHead>
+                    <TableHead className="w-[120px]">Avg. Order Value</TableHead>
+                    <TableHead className="w-[120px]">Total Capacity</TableHead>
+                </TableRow>
+            );
         }
     };
 
@@ -277,20 +352,42 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                     {(() => {
                         // Calculate summary stats
                         const totalOrders = filteredData.reduce((total, state) => total + state.count, 0);
-                        const inactiveOrders = filteredData.reduce((total, state) => total + state.inactive_count, 0);
-                        const completedOrders = filteredData.reduce((total, state) => {
-                            let completed = 0;
-                            state.territories.forEach((territory) => {
-                                territory.cities.forEach((city) => {
-                                    city.districts.forEach((district) => {
-                                        completed += district.orders.filter(
-                                            (order) => order.status === "Completed" || order.status === "Closed",
-                                        ).length;
-                                    });
+                        const inactiveOrders = filteredData.reduce(
+                            (total, state) => total + (state.inactive_count || 0),
+                            0,
+                        );
+
+                        let completedOrders = 0;
+
+                        // Calculate completed orders - handle both view types
+                        if (viewType === "location") {
+                            filteredData.forEach((state) => {
+                                state.territories.forEach((territory) => {
+                                    if ("cities" in territory) {
+                                        territory.cities.forEach((city) => {
+                                            city.districts.forEach((district) => {
+                                                completedOrders += district.orders.filter(
+                                                    (order) =>
+                                                        order.status === "Completed" || order.status === "Closed",
+                                                ).length;
+                                            });
+                                        });
+                                    }
                                 });
                             });
-                            return total + completed;
-                        }, 0);
+                        } else if (viewType === "department") {
+                            filteredData.forEach((state) => {
+                                state.territories.forEach((territory) => {
+                                    if ("departments" in territory) {
+                                        territory.departments.forEach((department) => {
+                                            completedOrders += department.orders.filter(
+                                                (order) => order.status === "Completed" || order.status === "Closed",
+                                            ).length;
+                                        });
+                                    }
+                                });
+                            });
+                        }
 
                         const activeOrders = totalOrders - inactiveOrders - completedOrders;
                         const totalRevenue = filteredData.reduce((total, state) => total + state.total_amount, 0);
@@ -300,26 +397,50 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                         const departmentCounts: Record<string, number> = {};
                         let topDepartment = { name: "None", count: 0 };
 
-                        filteredData.forEach((state) => {
-                            state.territories.forEach((territory) => {
-                                territory.cities.forEach((city) => {
-                                    city.districts.forEach((district) => {
-                                        district.orders.forEach((order) => {
-                                            if (order.department) {
-                                                departmentCounts[order.department] =
-                                                    (departmentCounts[order.department] || 0) + 1;
-                                                if (departmentCounts[order.department] > topDepartment.count) {
+                        // Handle both view types for department counts
+                        if (viewType === "location") {
+                            filteredData.forEach((state) => {
+                                state.territories.forEach((territory) => {
+                                    if ("cities" in territory) {
+                                        territory.cities.forEach((city) => {
+                                            city.districts.forEach((district) => {
+                                                district.orders.forEach((order) => {
+                                                    if (order.department) {
+                                                        departmentCounts[order.department] =
+                                                            (departmentCounts[order.department] || 0) + 1;
+                                                        if (departmentCounts[order.department] > topDepartment.count) {
+                                                            topDepartment = {
+                                                                name: order.department,
+                                                                count: departmentCounts[order.department],
+                                                            };
+                                                        }
+                                                    }
+                                                });
+                                            });
+                                        });
+                                    }
+                                });
+                            });
+                        } else if (viewType === "department") {
+                            filteredData.forEach((state) => {
+                                state.territories.forEach((territory) => {
+                                    if ("departments" in territory) {
+                                        territory.departments.forEach((department) => {
+                                            if (department.department) {
+                                                departmentCounts[department.department] =
+                                                    (departmentCounts[department.department] || 0) + department.count;
+                                                if (departmentCounts[department.department] > topDepartment.count) {
                                                     topDepartment = {
-                                                        name: order.department,
-                                                        count: departmentCounts[order.department],
+                                                        name: department.department,
+                                                        count: departmentCounts[department.department],
                                                     };
                                                 }
                                             }
                                         });
-                                    });
+                                    }
                                 });
                             });
-                        });
+                        }
 
                         const formatter = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
                         const percentFormatter = new Intl.NumberFormat("en-IN", {
@@ -387,16 +508,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                     <ScrollArea className="h-[calc(80vh-180px)] min-h-[450px] w-full">
                         <div className="min-w-[750px]">
                             <Table className="w-full table-fixed">
-                                <TableHeader className="bg-gray-50 sticky top-0 z-10">
-                                    <TableRow>
-                                        <TableHead className="w-[300px]">Location</TableHead>
-                                        <TableHead className="w-[120px]">Orders</TableHead>
-                                        <TableHead className="w-[120px]">Draft/Cancelled</TableHead>
-                                        <TableHead className="w-[150px]">Total Revenue</TableHead>
-                                        <TableHead className="w-[120px]">Avg. Order Value</TableHead>
-                                        <TableHead className="w-[120px]">Total Capacity</TableHead>
-                                    </TableRow>
-                                </TableHeader>
+                                <TableHeader className="bg-gray-50 sticky top-0 z-10">{getColumnHeaders()}</TableHeader>
                                 <TableBody>
                                     {filteredData.length === 0 ? (
                                         <TableRow>
@@ -432,6 +544,7 @@ export const HierarchicalDataTable = ({ data }: HierarchicalDataTableProps) => {
                                                 getERPUrl={getERPUrl}
                                                 getDepartmentAcronym={getDepartmentAcronym}
                                                 getDepartmentColor={getDepartmentColor}
+                                                viewType={viewType}
                                             />
                                         ))
                                     )}

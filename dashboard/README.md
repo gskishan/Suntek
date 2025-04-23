@@ -1,54 +1,66 @@
-# React + TypeScript + Vite
+# Suntek Sales Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive dashboard for visualizing sales data across geographical regions and departments.
 
-Currently, two official plugins are available:
+## Features
 
--   [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
--   [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Multiple Views**:
 
-## Expanding the ESLint configuration
+    - **Location View**: Visualize sales data hierarchically by State > Territory > City > District
+    - **Department View**: View sales data organized by department structure
+    - **More views in development**: CRM and Activity dashboards (coming soon)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Advanced Filtering**:
 
-```js
-export default tseslint.config({
-    extends: [
-        // Remove ...tseslint.configs.recommended and replace with this
-        ...tseslint.configs.recommendedTypeChecked,
-        // Alternatively, use this for stricter rules
-        ...tseslint.configs.strictTypeChecked,
-        // Optionally, add this for stylistic rules
-        ...tseslint.configs.stylisticTypeChecked,
-    ],
-    languageOptions: {
-        // other options...
-        parserOptions: {
-            project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-            tsconfigRootDir: import.meta.dirname,
-        },
-    },
-});
+    - Filter by date range
+    - Filter by location (state, territory, city, district)
+    - Filter by department
+    - Filter by sales person
+    - Filter by order status
+    - Filter by type of case
+    - Filter by type of structure
+    - Quick text search with support for multiple terms and operators
+
+- **Interactive UI**:
+    - Expand/collapse hierarchical data
+    - View detailed order information
+    - Navigate to ERP system for more details
+    - Summary statistics and charts
+
+## Development
+
+### Setup
+
+```bash
+# Install dependencies
+cd dashboard
+npm install
+
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Building for Production
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
-
-export default tseslint.config({
-    plugins: {
-        // Add the react-x and react-dom plugins
-        "react-x": reactX,
-        "react-dom": reactDom,
-    },
-    rules: {
-        // other rules...
-        // Enable its recommended typescript rules
-        ...reactX.configs["recommended-typescript"].rules,
-        ...reactDom.configs.recommended.rules,
-    },
-});
+```bash
+# Build the dashboard
+npm run build
 ```
+
+This will generate the static files in the `../suntek_app/public/dashboard/` directory and copy the main HTML file to `../suntek_app/www/dashboard.html`.
+
+## Technology Stack
+
+- React
+- TypeScript
+- shadcn/ui (UI components)
+- Tailwind CSS (styling)
+- Frappe API (data source)
+
+## Browser Compatibility
+
+The dashboard is designed to work with modern browsers:
+
+- Chrome/Edge (latest 2 versions)
+- Firefox (latest 2 versions)
+- Safari (latest 2 versions)

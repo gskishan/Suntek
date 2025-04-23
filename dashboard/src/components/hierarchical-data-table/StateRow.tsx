@@ -21,6 +21,7 @@ export const StateRow = ({
     getERPUrl,
     getDepartmentAcronym,
     getDepartmentColor,
+    viewType = "location",
 }: StateRowProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const rowKey = createUniqueKey(stateData.state, "state", stateIndex);
@@ -35,7 +36,7 @@ export const StateRow = ({
         }
     }, [isFullExpansion]);
 
-    const activeOrdersCount = stateData.count - stateData.inactive_count;
+    const activeOrdersCount = stateData.count - (stateData.inactive_count || 0);
 
     return (
         <>
@@ -84,7 +85,7 @@ export const StateRow = ({
                 <TableCell>
                     <TableCellMetric
                         icon={Battery}
-                        value={`${stateData.total_capacity.toFixed(2)} kW`}
+                        value={`${(stateData.total_capacity || 0).toFixed(2)} kW`}
                         tooltip={`Total capacity in ${getLocationName(stateData.state, "state")}`}
                     />
                 </TableCell>
@@ -119,6 +120,7 @@ export const StateRow = ({
                                         getERPUrl={getERPUrl}
                                         getDepartmentAcronym={getDepartmentAcronym}
                                         getDepartmentColor={getDepartmentColor}
+                                        viewType={viewType}
                                     />
                                 ))}
                             </TableBody>

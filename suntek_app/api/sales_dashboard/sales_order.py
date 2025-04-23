@@ -22,6 +22,27 @@ def extract_capacity_number(capacity_str):
     return None
 
 
+# Function to get department abbreviation
+def get_department_abbreviation(department_name):
+    if not department_name:
+        return "Unknown"
+
+    # Handle specific department mappings
+    if "Domestic (Residential) Sales Team" in department_name:
+        return "Domestic"
+    elif "Channel Partner" in department_name:
+        return "CHP"
+    elif "Commercial & Industrial" in department_name or "C&I" in department_name:
+        return "C&I"
+    else:
+        # For other departments, strip the suffix and use first character of each word
+        # Remove suffixes like -SESP or -S
+        base_department = re.sub(r"\s*[-–—]\s*(SESP|S)$", "", department_name)
+        # Create abbreviation from first letter of each word
+        abbr = "".join([word[0] for word in base_department.split() if word])
+        return abbr
+
+
 @frappe.whitelist()
 def get_sales_order_data():
     if not frappe.has_permission("Sales Order", "read"):
@@ -134,6 +155,274 @@ def get_sales_order_data():
     return create_api_response(200, "success", "Sales Orders Fetched", sales_orders)
 
 
+@frappe.whitelist()
+def get_sales_order_data_by_department():
+    if not frappe.has_permission("Sales Order", "read"):
+        return create_api_response(403, "error", "Access Denied: Insufficient permissions to view sales data", {})
+
+    user_roles = frappe.get_roles(frappe.session.user)
+    allowed_roles = ["System Manager", "Sales Manager"]
+
+    if not any(role in user_roles for role in allowed_roles):
+        return create_api_response(403, "error", "Access Denied: Requires System Manager or Sales Manager role", {})
+
+    try:
+        form_dict = frappe.local.form_dict
+        frappe.logger().info(f"Form dict: {form_dict}")
+
+        from_date = form_dict.get("from_date")
+        to_date = form_dict.get("to_date")
+        territory = form_dict.get("territory")
+        state = form_dict.get("state")
+        department = form_dict.get("department")
+        status = form_dict.get("status")
+        type_of_case = form_dict.get("type_of_case")
+        type_of_structure = form_dict.get("type_of_structure")
+        min_capacity = form_dict.get("min_capacity")
+        max_capacity = form_dict.get("max_capacity")
+        sales_person = form_dict.get("sales_person")
+        limit = form_dict.get("limit", 100)
+        try:
+            if limit == "all":
+                limit = None
+            else:
+                limit = int(limit)
+        except (ValueError, TypeError):
+            limit = 100
+        show_sql = form_dict.get("show_sql") == "1"
+
+    except Exception as e:
+        frappe.logger().error(f"Error getting parameters: {e}")
+
+        from_date = frappe.request.args.get("from_date")
+        to_date = frappe.request.args.get("to_date")
+        territory = frappe.request.args.get("territory")
+        state = frappe.request.args.get("state")
+        department = frappe.request.args.get("department")
+        status = frappe.request.args.get("status")
+        type_of_case = frappe.request.args.get("type_of_case")
+        type_of_structure = frappe.request.args.get("type_of_structure")
+        min_capacity = frappe.request.args.get("min_capacity")
+        max_capacity = frappe.request.args.get("max_capacity")
+        sales_person = frappe.request.args.get("sales_person")
+        limit = frappe.request.args.get("limit", 100)
+        try:
+            if limit == "all":
+                limit = None
+            else:
+                limit = int(limit)
+        except (ValueError, TypeError):
+            limit = 100
+        show_sql = frappe.request.args.get("show_sql") == "1"
+
+    filters = {
+        "from_date": from_date,
+        "to_date": to_date,
+        "territory": territory,
+        "state": state,
+        "department": department,
+        "status": status,
+        "type_of_case": type_of_case,
+        "type_of_structure": type_of_structure,
+        "min_capacity": min_capacity,
+        "max_capacity": max_capacity,
+        "sales_person": sales_person,
+        "show_sql": show_sql,
+    }
+
+    filters = {
+        k: v
+        for k, v in filters.items()
+        if v is not None and (k not in ["state", "territory", "department"] or v != "all")
+    }
+
+    frappe.logger().info(f"Department View - Processed Filters: {filters}")
+
+    sales_orders = _get_sales_orders_by_department(filters, limit)
+
+    return create_api_response(200, "success", "Sales Orders By Department Fetched", sales_orders)
+
+
+def _get_sales_orders_by_department(filters=None, limit=100):
+    where_clause = "1=1"
+    show_sql = filters.pop("show_sql", False) if filters else False
+
+    frappe.logger().info(f"_get_sales_orders_by_department called with filters: {filters}")
+
+    if filters:
+        if filters.get("from_date"):
+            where_clause += f" AND creation >= '{filters['from_date']}'"
+        if filters.get("to_date"):
+            where_clause += f" AND creation <= '{filters['to_date']}'"
+        if filters.get("territory"):
+            territory_values = filters["territory"].split(",")
+            territory_list = ", ".join([f"'{t}'" for t in territory_values])
+            where_clause += f" AND territory IN ({territory_list})"
+        if filters.get("state"):
+            state_values = filters["state"].split(",")
+            state_list = ", ".join([f"'{s}'" for s in state_values])
+            where_clause += f" AND custom_suntek_state IN ({state_list})"
+        if filters.get("department"):
+            department_values = filters["department"].split(",")
+            department_list = ", ".join([f"'{d}'" for d in department_values])
+            where_clause += f" AND custom_department IN ({department_list})"
+        if filters.get("status"):
+            if "," in filters["status"]:
+                status_values = filters["status"].split(",")
+                status_list = ", ".join([f"'{s}'" for s in status_values])
+                where_clause += f" AND status IN ({status_list})"
+            else:
+                where_clause += f" AND status = '{filters['status']}'"
+        if filters.get("type_of_case"):
+            where_clause += f" AND custom_type_of_case = '{filters['type_of_case']}'"
+        if filters.get("type_of_structure"):
+            where_clause += f" AND custom_type_of_structure = '{filters['type_of_structure']}'"
+        if filters.get("min_capacity"):
+            where_clause += f" AND CAST(REGEXP_REPLACE(custom_capacity, '[^0-9.]', '') AS DECIMAL(10,2)) >= {float(filters['min_capacity'])}"
+        if filters.get("max_capacity"):
+            where_clause += f" AND CAST(REGEXP_REPLACE(custom_capacity, '[^0-9.]', '') AS DECIMAL(10,2)) <= {float(filters['max_capacity'])}"
+        if filters.get("sales_person"):
+            sales_person_values = filters["sales_person"].split(",")
+            sales_person_list = ", ".join([f"'{s}'" for s in sales_person_values])
+            where_clause += f" AND sales_person IN ({sales_person_list})"
+
+    query = f"""
+    SELECT
+        name,
+        grand_total,
+        territory,
+        creation,
+        customer,
+        custom_suntek_state as state,
+        custom_department as department,
+        custom_type_of_case as type_of_case,
+        custom_type_of_structure as type_of_structure,
+        custom_capacity as capacity,
+        status,
+        sales_person
+    FROM
+        `tabSales Order`
+    WHERE
+        {where_clause}
+    ORDER BY
+        creation DESC
+    """
+
+    if limit:
+        query += f" LIMIT {limit}"
+
+    if show_sql:
+        frappe.logger().info(f"Department SQL Query: {query}")
+
+    sales_orders = frappe.db.sql(
+        query,
+        as_dict=1,
+    )
+
+    for order in sales_orders:
+        if "type_of_case" in order and (order["type_of_case"] == "" or order["type_of_case"] is None):
+            order["type_of_case"] = "No Type of Case"
+        if "department" in order and (order["department"] == "" or order["department"] is None):
+            order["department"] = "Unassigned Department"
+
+        # Extract numeric capacity from the custom_capacity field
+        if "capacity" in order:
+            order["capacity_raw"] = order["capacity"]
+            order["capacity_value"] = extract_capacity_number(order["capacity"])
+
+        # Add department abbreviation
+        if "department" in order and order["department"]:
+            order["department_abbr"] = get_department_abbreviation(order["department"])
+
+    frappe.logger().info(f"Department query returned {len(sales_orders)} sales orders")
+
+    # Create the hierarchy: State -> Territory -> Department -> Orders
+    grouped_data = defaultdict(
+        lambda: {
+            "state": None,
+            "total_amount": 0,
+            "count": 0,
+            "territories": defaultdict(
+                lambda: {
+                    "territory": None,
+                    "total_amount": 0,
+                    "count": 0,
+                    "departments": defaultdict(
+                        lambda: {
+                            "department": None,
+                            "total_amount": 0,
+                            "count": 0,
+                            "orders": [],
+                        }
+                    ),
+                }
+            ),
+        }
+    )
+
+    for order in sales_orders:
+        state = order.get("state", "Unknown State")
+        territory = order.get("territory", "Unknown Territory")
+        department = order.get("department", "Unassigned Department")
+
+        grouped_data[state]["state"] = state
+        grouped_data[state]["total_amount"] += float(order.get("grand_total", 0))
+        grouped_data[state]["count"] += 1
+
+        grouped_data[state]["territories"][territory]["territory"] = territory
+        grouped_data[state]["territories"][territory]["total_amount"] += float(order.get("grand_total", 0))
+        grouped_data[state]["territories"][territory]["count"] += 1
+
+        grouped_data[state]["territories"][territory]["departments"][department]["department"] = department
+        grouped_data[state]["territories"][territory]["departments"][department]["total_amount"] += float(
+            order.get("grand_total", 0)
+        )
+        grouped_data[state]["territories"][territory]["departments"][department]["count"] += 1
+        grouped_data[state]["territories"][territory]["departments"][department]["orders"].append(order)
+
+    result = []
+    for _, state_data in grouped_data.items():
+        state_entry = {
+            "state": state_data["state"],
+            "total_amount": state_data["total_amount"],
+            "count": state_data["count"],
+            "territories": [],
+        }
+
+        for _, territory_data in state_data["territories"].items():
+            territory_entry = {
+                "territory": territory_data["territory"],
+                "total_amount": territory_data["total_amount"],
+                "count": territory_data["count"],
+                "departments": [],
+            }
+
+            for _, department_data in territory_data["departments"].items():
+                # Add department abbreviation for the department itself
+                dept_abbr = get_department_abbreviation(department_data["department"])
+
+                # Process department abbreviations for all orders in this department
+                for order in department_data["orders"]:
+                    if "department" in order and order["department"]:
+                        if "department_abbr" not in order or not order["department_abbr"]:
+                            order["department_abbr"] = get_department_abbreviation(order["department"])
+
+                department_entry = {
+                    "department": department_data["department"],
+                    "department_abbr": dept_abbr,
+                    "total_amount": department_data["total_amount"],
+                    "count": department_data["count"],
+                    "orders": department_data["orders"],
+                }
+                territory_entry["departments"].append(department_entry)
+
+            state_entry["territories"].append(territory_entry)
+
+        result.append(state_entry)
+
+    return result
+
+
 def _get_sales_orders(filters=None, limit=100):
     frappe.logger().info(f"DEBUG STATE FILTER: Called _get_sales_orders with filters: {filters}")
     if filters and filters.get("state"):
@@ -242,12 +531,17 @@ def _get_sales_orders(filters=None, limit=100):
             order["capacity_raw"] = order["capacity"]
             order["capacity_value"] = extract_capacity_number(order["capacity"])
 
+        # Add department abbreviation
+        if "department" in order and order["department"]:
+            order["department_abbr"] = get_department_abbreviation(order["department"])
+
     frappe.logger().info(f"Query returned {len(sales_orders)} sales orders")
     if limit:
         frappe.logger().info(f"Query was limited to {limit} records")
     else:
         frappe.logger().info("Query was not limited (all records)")
 
+    # Create the hierarchy: State -> Territory -> City -> District -> Orders
     grouped_data = defaultdict(
         lambda: {
             "state": None,
@@ -336,6 +630,12 @@ def _get_sales_orders(filters=None, limit=100):
                 }
 
                 for _, district_data in city_data["districts"].items():
+                    # Process department abbreviations for all orders in this district
+                    for order in district_data["orders"]:
+                        if "department" in order and order["department"]:
+                            if "department_abbr" not in order or not order["department_abbr"]:
+                                order["department_abbr"] = get_department_abbreviation(order["department"])
+
                     district_entry = {
                         "district": district_data["district"],
                         "district_name": district_data["district_name"],

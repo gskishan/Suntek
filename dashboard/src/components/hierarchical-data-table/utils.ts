@@ -1,15 +1,22 @@
-import { SalesOrder, StateData } from "./types";
+import { SalesOrder, StateData, DepartmentStateData } from "./types";
 
 export const getLocationName = (
     value: string | null,
-    type: "state" | "city" | "district" | "territory",
+    type: "state" | "city" | "district" | "territory" | "department",
     districtName?: string | null,
 ): string => {
-    if (!value || value.trim() === "") {
+    if (!value) {
         return `Unspecified ${type.charAt(0).toUpperCase() + type.slice(1)}`;
     }
-    if (type === "district" && districtName) return districtName;
-    if (type === "territory") return `${value} (Zone)`;
+    if (type === "district" && districtName) {
+        return districtName;
+    }
+    if (type === "territory") {
+        return `${value} (Zone)`;
+    }
+    if (type === "department") {
+        return value;
+    }
     return value;
 };
 
@@ -19,70 +26,97 @@ export const getStatusColor = (status: string): string => {
         Completed: "bg-green-100 text-green-800",
         Closed: "bg-gray-100 text-gray-800",
         Draft: "bg-blue-100 text-blue-800",
-        Cancelled: "bg-rose-100 text-rose-800",
+        Cancelled: "bg-red-100 text-red-800",
     };
     return colors[status] || "bg-gray-100 text-gray-800";
 };
 
 export const getTypeColor = (type: string): string => {
+    if (type === "No Type of Case") {
+        return "bg-gray-100 text-gray-600";
+    }
+
     const colors: { [key: string]: string } = {
         Subsidy: "bg-purple-100 text-purple-800",
         "Non Subsidy": "bg-orange-100 text-orange-800",
     };
+
     return colors[type] || "bg-gray-100 text-gray-800";
 };
 
 export const getDepartmentAcronym = (department: string | null): string => {
-    if (!department) return "None";
-
-    switch (department) {
-        case "Domestic (Residential) Sales Team - SESP":
-            return "Domestic";
-        case "Commercial & Industrial (C&I) - SESP":
-            return "C&I";
-        case "Channel Partner - SESP":
-            return "Channel Partner";
-        default:
-            return department === "not defined" ? "None" : "Other";
+    if (!department || department === "Unassigned Department") {
+        return "DEPT";
     }
+
+    // Use department_abbr from the backend if available
+    if (typeof department === "object" && department !== null && "department_abbr" in department) {
+        return (department as any).department_abbr;
+    }
+
+    // Handle special cases first
+    if (department.includes("Domestic") || department.includes("Residential")) {
+        return "Domestic";
+    } else if (department.includes("Channel Partner")) {
+        return "CHP";
+    } else if (department.includes("Commercial & Industrial") || department.includes("C&I")) {
+        return "C&I";
+    }
+
+    // Remove any suffix like -SESP or -S before creating acronym
+    const baseDepartment = department.replace(/\s*[-–—]\s*(SESP|S)$/, "");
+
+    // Split by space and take first letter of each word
+    return baseDepartment
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase())
+        .join("");
 };
 
 export const getDepartmentColor = (department: string | null): string => {
-    const acronym = getDepartmentAcronym(department);
+    if (!department || department === "Unassigned Department") {
+        return "bg-gray-100 text-gray-600";
+    }
+
     const colors: { [key: string]: string } = {
-        Domestic: "bg-blue-100 text-blue-800",
-        "C&I": "bg-emerald-100 text-emerald-800",
-        "Channel Partner": "bg-indigo-100 text-indigo-800",
-        None: "bg-gray-100 text-gray-800",
-        Other: "bg-pink-100 text-pink-800",
+        "Residential Team": "bg-blue-100 text-blue-800",
+        "Commercial Team": "bg-green-100 text-green-800",
+        "Government Team": "bg-purple-100 text-purple-800",
+        "Industrial Team": "bg-orange-100 text-orange-800",
+        "Marketing Team": "bg-pink-100 text-pink-800",
+        "Sales Team": "bg-indigo-100 text-indigo-800",
     };
-    return colors[acronym] || "bg-gray-100 text-gray-800";
+
+    return colors[department] || "bg-emerald-100 text-emerald-800";
 };
 
-export const formatCurrency = (amount: number): string => {
-    const formatter = new Intl.NumberFormat("en-IN", {
+export const formatCurrency = (value: number): string => {
+    return new Intl.NumberFormat("en-IN", {
         maximumFractionDigits: 0,
-    });
-    return `₹${formatter.format(amount)}`;
+    }).format(value);
 };
 
 export const calculateAverage = (total: number, count: number): number => {
-    const validCount = count > 0 ? count : 1;
-    return total / validCount;
+    if (count === 0) return 0;
+    return total / count;
 };
 
 export const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1).toString().padStart(2, "0")}/${date.getFullYear()}`;
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString();
+    } catch (error) {
+        return dateString;
+    }
 };
 
 export const createUniqueKey = (value: string | null, prefix: string, index: number): string => {
-    if (value) return `${prefix}-${value}`;
+    if (value) return value;
     return `${prefix}-unknown-${index}`;
 };
 
-export const getERPUrl = (): string => {
-    return window.location.origin;
+export const getERPUrl = (doctype: string, name: string): string => {
+    return `/app/${doctype.toLowerCase().replace(/ /g, "-")}/${name}`;
 };
 
 export const filterOrders = (order: SalesOrder, searchQuery: string): boolean => {
@@ -162,135 +196,196 @@ export const filterOrders = (order: SalesOrder, searchQuery: string): boolean =>
     });
 };
 
-export const processDataWithFilters = (normalizedData: StateData[], searchQuery: string): StateData[] => {
-    if (!searchQuery.trim()) return normalizedData;
+export const processDataWithFilters = (
+    data: StateData[] | DepartmentStateData[],
+    query: string,
+): StateData[] | DepartmentStateData[] => {
+    if (!query.trim()) {
+        return data;
+    }
 
-    return normalizedData
-        .map((stateData) => {
-            const filteredState = {
-                ...stateData,
-                territories: stateData.territories
-                    .map((territory) => {
-                        const filteredTerritory = {
-                            ...territory,
-                            cities: territory.cities
-                                .map((city) => {
-                                    const filteredCity = {
-                                        ...city,
-                                        districts: city.districts
-                                            .map((district) => {
-                                                const filteredOrders = district.orders.filter((order) =>
-                                                    filterOrders(order, searchQuery),
-                                                );
+    // Multi-term search (comma separated)
+    const terms = query
+        .toLowerCase()
+        .split(",")
+        .map((term) => term.trim())
+        .filter((term) => term);
 
-                                                const validOrders = filteredOrders.filter(
-                                                    (order) => order.status !== "Cancelled" && order.status !== "Draft",
-                                                );
+    if (terms.length === 0) {
+        return data;
+    }
 
-                                                const inactiveOrders = filteredOrders.filter(
-                                                    (order) => order.status === "Cancelled" || order.status === "Draft",
-                                                );
+    const isQueryMatch = (text: string | null | undefined): boolean => {
+        if (!text) return false;
+        return terms.some((term) => text.toLowerCase().includes(term));
+    };
 
-                                                const total_capacity = validOrders.reduce(
-                                                    (sum, order) => sum + (order.capacity_value || 0),
-                                                    0,
-                                                );
+    const isPriceMatch = (price: number, term: string): boolean => {
+        if (term.startsWith(">")) {
+            const value = parseFloat(term.substring(1).trim());
+            return !isNaN(value) && price > value;
+        }
+        if (term.startsWith("<")) {
+            const value = parseFloat(term.substring(1).trim());
+            return !isNaN(value) && price < value;
+        }
+        if (term.startsWith("=")) {
+            const value = parseFloat(term.substring(1).trim());
+            return !isNaN(value) && price === value;
+        }
+        return price.toString().includes(term);
+    };
 
-                                                return {
-                                                    ...district,
-                                                    orders: filteredOrders,
-                                                    count: filteredOrders.length,
-                                                    inactive_count: inactiveOrders.length,
-                                                    total_amount: validOrders.reduce(
-                                                        (sum, order) => sum + (order.grand_total || 0),
-                                                        0,
-                                                    ),
-                                                    total_capacity: total_capacity,
-                                                };
-                                            })
-                                            .filter((district) => district.orders.length > 0),
-                                    };
+    const filteredData: StateData[] | DepartmentStateData[] = JSON.parse(JSON.stringify(data));
 
-                                    const districtTotalCount = filteredCity.districts.reduce(
-                                        (sum, district) => sum + district.count,
-                                        0,
-                                    );
+    if ("cities" in (filteredData[0]?.territories[0] || {})) {
+        // Location view filtering
+        const locationData = filteredData as StateData[];
+        locationData.forEach((state) => {
+            state.territories.forEach((territory) => {
+                territory.cities.forEach((city) => {
+                    city.districts.forEach((district) => {
+                        district.orders = district.orders.filter((order) => {
+                            return terms.some((term) => {
+                                // Check various fields for match
+                                return (
+                                    isQueryMatch(order.name) ||
+                                    isQueryMatch(order.customer) ||
+                                    isQueryMatch(order.type_of_case) ||
+                                    isQueryMatch(order.type_of_structure) ||
+                                    isQueryMatch(order.department) ||
+                                    isQueryMatch(order.sales_person) ||
+                                    isQueryMatch(order.status) ||
+                                    isQueryMatch(state.state) ||
+                                    isQueryMatch(territory.territory) ||
+                                    isQueryMatch(city.city) ||
+                                    isQueryMatch(district.district) ||
+                                    isQueryMatch(district.district_name) ||
+                                    isPriceMatch(order.grand_total, term)
+                                );
+                            });
+                        });
+                    });
 
-                                    const districtInactiveCount = filteredCity.districts.reduce(
-                                        (sum, district) => sum + district.inactive_count,
-                                        0,
-                                    );
+                    // Filter out empty districts
+                    city.districts = city.districts.filter((district) => district.orders.length > 0);
 
-                                    const districtTotal = filteredCity.districts.reduce(
-                                        (sum, district) => sum + district.total_amount,
-                                        0,
-                                    );
-
-                                    const cityTotalCapacity = filteredCity.districts.reduce(
-                                        (sum, district) => sum + district.total_capacity,
-                                        0,
-                                    );
-
-                                    return {
-                                        ...filteredCity,
-                                        count: districtTotalCount,
-                                        inactive_count: districtInactiveCount,
-                                        total_amount: districtTotal,
-                                        total_capacity: cityTotalCapacity,
-                                    };
-                                })
-                                .filter((city) => city.districts.length > 0),
-                        };
-
-                        const cityTotalCount = filteredTerritory.cities.reduce((sum, city) => sum + city.count, 0);
-
-                        const cityInactiveCount = filteredTerritory.cities.reduce(
-                            (sum, city) => sum + city.inactive_count,
+                    // Recalculate counts for city
+                    if (city.districts.length > 0) {
+                        city.count = city.districts.reduce((sum, district) => sum + district.count, 0);
+                        city.total_amount = city.districts.reduce((sum, district) => sum + district.total_amount, 0);
+                        city.inactive_count = city.districts.reduce(
+                            (sum, district) => sum + (district.inactive_count || 0),
                             0,
                         );
-
-                        const cityTotal = filteredTerritory.cities.reduce((sum, city) => sum + city.total_amount, 0);
-
-                        const territoryTotalCapacity = filteredTerritory.cities.reduce(
-                            (sum, city) => sum + city.total_capacity,
+                        city.total_capacity = city.districts.reduce(
+                            (sum, district) => sum + (district.total_capacity || 0),
                             0,
                         );
+                    }
+                });
 
-                        return {
-                            ...filteredTerritory,
-                            count: cityTotalCount,
-                            inactive_count: cityInactiveCount,
-                            total_amount: cityTotal,
-                            total_capacity: territoryTotalCapacity,
-                        };
-                    })
-                    .filter((territory) => territory.cities.length > 0),
-            };
+                // Filter out empty cities
+                territory.cities = territory.cities.filter((city) => city.districts.length > 0);
 
-            const territoryTotalCount = filteredState.territories.reduce((sum, territory) => sum + territory.count, 0);
+                // Recalculate counts for territory
+                if (territory.cities.length > 0) {
+                    territory.count = territory.cities.reduce((sum, city) => sum + city.count, 0);
+                    territory.total_amount = territory.cities.reduce((sum, city) => sum + city.total_amount, 0);
+                    territory.inactive_count = territory.cities.reduce(
+                        (sum, city) => sum + (city.inactive_count || 0),
+                        0,
+                    );
+                    territory.total_capacity = territory.cities.reduce(
+                        (sum, city) => sum + (city.total_capacity || 0),
+                        0,
+                    );
+                }
+            });
 
-            const territoryInactiveCount = filteredState.territories.reduce(
-                (sum, territory) => sum + territory.inactive_count,
-                0,
-            );
+            // Filter out empty territories
+            state.territories = state.territories.filter((territory) => territory.cities.length > 0);
 
-            const territoryTotal = filteredState.territories.reduce(
-                (sum, territory) => sum + territory.total_amount,
-                0,
-            );
+            // Recalculate counts for state
+            if (state.territories.length > 0) {
+                state.count = state.territories.reduce((sum, territory) => sum + territory.count, 0);
+                state.total_amount = state.territories.reduce((sum, territory) => sum + territory.total_amount, 0);
+                state.inactive_count = state.territories.reduce(
+                    (sum, territory) => sum + (territory.inactive_count || 0),
+                    0,
+                );
+                state.total_capacity = state.territories.reduce(
+                    (sum, territory) => sum + (territory.total_capacity || 0),
+                    0,
+                );
+            }
+        });
 
-            const stateTotalCapacity = filteredState.territories.reduce(
-                (sum, territory) => sum + territory.total_capacity,
-                0,
-            );
+        return locationData.filter((state) => state.territories.length > 0);
+    } else {
+        // Department view filtering
+        const departmentData = filteredData as DepartmentStateData[];
+        departmentData.forEach((state) => {
+            state.territories.forEach((territory) => {
+                territory.departments.forEach((department) => {
+                    department.orders = department.orders.filter((order) => {
+                        return terms.some((term) => {
+                            // Check various fields for match
+                            return (
+                                isQueryMatch(order.name) ||
+                                isQueryMatch(order.customer) ||
+                                isQueryMatch(order.type_of_case) ||
+                                isQueryMatch(order.type_of_structure) ||
+                                isQueryMatch(order.department) ||
+                                isQueryMatch(order.sales_person) ||
+                                isQueryMatch(order.status) ||
+                                isQueryMatch(state.state) ||
+                                isQueryMatch(territory.territory) ||
+                                isPriceMatch(order.grand_total, term)
+                            );
+                        });
+                    });
+                });
 
-            return {
-                ...filteredState,
-                count: territoryTotalCount,
-                inactive_count: territoryInactiveCount,
-                total_amount: territoryTotal,
-                total_capacity: stateTotalCapacity,
-            };
-        })
-        .filter((state) => state.territories.length > 0);
+                // Filter out empty departments
+                territory.departments = territory.departments.filter((department) => department.orders.length > 0);
+
+                // Recalculate counts for territory
+                if (territory.departments.length > 0) {
+                    territory.count = territory.departments.reduce((sum, department) => sum + department.count, 0);
+                    territory.total_amount = territory.departments.reduce(
+                        (sum, department) => sum + department.total_amount,
+                        0,
+                    );
+                    territory.inactive_count = territory.departments.reduce(
+                        (sum, department) => sum + (department.inactive_count || 0),
+                        0,
+                    );
+                    territory.total_capacity = territory.departments.reduce(
+                        (sum, department) => sum + (department.total_capacity || 0),
+                        0,
+                    );
+                }
+            });
+
+            // Filter out empty territories
+            state.territories = state.territories.filter((territory) => territory.departments.length > 0);
+
+            // Recalculate counts for state
+            if (state.territories.length > 0) {
+                state.count = state.territories.reduce((sum, territory) => sum + territory.count, 0);
+                state.total_amount = state.territories.reduce((sum, territory) => sum + territory.total_amount, 0);
+                state.inactive_count = state.territories.reduce(
+                    (sum, territory) => sum + (territory.inactive_count || 0),
+                    0,
+                );
+                state.total_capacity = state.territories.reduce(
+                    (sum, territory) => sum + (territory.total_capacity || 0),
+                    0,
+                );
+            }
+        });
+
+        return departmentData.filter((state) => state.territories.length > 0);
+    }
 };

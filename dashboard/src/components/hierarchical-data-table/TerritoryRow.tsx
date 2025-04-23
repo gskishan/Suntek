@@ -5,6 +5,7 @@ import { Battery, Coins, Package, TrendingUp } from "lucide-react";
 import { TerritoryRowProps } from "./types";
 import { TableCellMetric } from "./TableCellMetric";
 import { CityRow } from "./CityRow";
+import { DepartmentRow } from "./DepartmentRow";
 
 export const TerritoryRow = ({
     territoryData,
@@ -21,6 +22,7 @@ export const TerritoryRow = ({
     getERPUrl,
     getDepartmentAcronym,
     getDepartmentColor,
+    viewType = "location",
 }: TerritoryRowProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const rowKey = createUniqueKey(territoryData.territory, "territory", territoryIndex);
@@ -35,7 +37,7 @@ export const TerritoryRow = ({
         }
     }, [isFullExpansion]);
 
-    const activeOrdersCount = territoryData.count - territoryData.inactive_count;
+    const activeOrdersCount = territoryData.count - (territoryData.inactive_count || 0);
 
     return (
         <>
@@ -84,7 +86,7 @@ export const TerritoryRow = ({
                 <TableCell>
                     <TableCellMetric
                         icon={Battery}
-                        value={`${territoryData.total_capacity.toFixed(2)} kW`}
+                        value={`${(territoryData.total_capacity || 0).toFixed(2)} kW`}
                         tooltip={`Total capacity in ${getLocationName(territoryData.territory, "territory")}`}
                     />
                 </TableCell>
@@ -102,25 +104,52 @@ export const TerritoryRow = ({
                     >
                         <Table className="w-full">
                             <TableBody>
-                                {territoryData.cities.map((cityData, cityIndex) => (
-                                    <CityRow
-                                        key={createUniqueKey(cityData.city, "city", cityIndex)}
-                                        cityData={cityData}
-                                        cityIndex={cityIndex}
-                                        getLocationName={getLocationName}
-                                        formatCurrency={formatCurrency}
-                                        formatDate={formatDate}
-                                        calculateAverage={calculateAverage}
-                                        createUniqueKey={createUniqueKey}
-                                        getStatusColor={getStatusColor}
-                                        getTypeColor={getTypeColor}
-                                        registerRow={registerRow}
-                                        isFullExpansion={isFullExpansion}
-                                        getERPUrl={getERPUrl}
-                                        getDepartmentAcronym={getDepartmentAcronym}
-                                        getDepartmentColor={getDepartmentColor}
-                                    />
-                                ))}
+                                {viewType === "location" &&
+                                    "cities" in territoryData &&
+                                    territoryData.cities.map((cityData, cityIndex) => (
+                                        <CityRow
+                                            key={createUniqueKey(cityData.city, "city", cityIndex)}
+                                            cityData={cityData}
+                                            cityIndex={cityIndex}
+                                            getLocationName={getLocationName}
+                                            formatCurrency={formatCurrency}
+                                            formatDate={formatDate}
+                                            calculateAverage={calculateAverage}
+                                            createUniqueKey={createUniqueKey}
+                                            getStatusColor={getStatusColor}
+                                            getTypeColor={getTypeColor}
+                                            registerRow={registerRow}
+                                            isFullExpansion={isFullExpansion}
+                                            getERPUrl={getERPUrl}
+                                            getDepartmentAcronym={getDepartmentAcronym}
+                                            getDepartmentColor={getDepartmentColor}
+                                        />
+                                    ))}
+                                {viewType === "department" &&
+                                    "departments" in territoryData &&
+                                    territoryData.departments.map((departmentData, departmentIndex) => (
+                                        <DepartmentRow
+                                            key={createUniqueKey(
+                                                departmentData.department,
+                                                "department",
+                                                departmentIndex,
+                                            )}
+                                            departmentData={departmentData}
+                                            departmentIndex={departmentIndex}
+                                            getLocationName={getLocationName}
+                                            formatCurrency={formatCurrency}
+                                            formatDate={formatDate}
+                                            calculateAverage={calculateAverage}
+                                            createUniqueKey={createUniqueKey}
+                                            getStatusColor={getStatusColor}
+                                            getTypeColor={getTypeColor}
+                                            registerRow={registerRow}
+                                            isFullExpansion={isFullExpansion}
+                                            getERPUrl={getERPUrl}
+                                            getDepartmentAcronym={getDepartmentAcronym}
+                                            getDepartmentColor={getDepartmentColor}
+                                        />
+                                    ))}
                             </TableBody>
                         </Table>
                     </div>
