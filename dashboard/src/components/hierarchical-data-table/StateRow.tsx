@@ -41,7 +41,7 @@ export const StateRow = ({
     return (
         <>
             <TableRow className="bg-muted/30 hover:bg-muted font-medium">
-                <TableCell>
+                <TableCell className="w-[300px] pl-4">
                     <div
                         className="flex items-center w-full cursor-pointer"
                         onClick={() => setIsOpen(!isOpen)}
@@ -54,35 +54,35 @@ export const StateRow = ({
                         {getLocationName(stateData.state, "state")}
                     </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={Package}
                         value={stateData.count}
                         tooltip={`Total number of orders in ${getLocationName(stateData.state, "state")}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={Package}
                         value={stateData.inactive_count || 0}
                         tooltip={`Number of draft and cancelled orders in ${getLocationName(stateData.state, "state")}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[150px] text-center">
                     <TableCellMetric
                         icon={Coins}
                         value={formatCurrency(stateData.total_amount)}
                         tooltip={`Total revenue from all orders in ${getLocationName(stateData.state, "state")}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={TrendingUp}
                         value={formatCurrency(calculateAverage(stateData.total_amount, activeOrdersCount))}
                         tooltip={`Average order value in ${getLocationName(stateData.state, "state")}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={Battery}
                         value={`${(stateData.total_capacity || 0).toFixed(2)} kW`}

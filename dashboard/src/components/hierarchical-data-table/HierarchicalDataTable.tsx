@@ -270,23 +270,23 @@ export const HierarchicalDataTable = ({ data, viewType = "location" }: Hierarchi
         if (viewType === "location") {
             return (
                 <TableRow>
-                    <TableHead className="w-[300px]">Location</TableHead>
-                    <TableHead className="w-[120px]">Orders</TableHead>
-                    <TableHead className="w-[120px]">Draft/Cancelled</TableHead>
-                    <TableHead className="w-[150px]">Total Revenue</TableHead>
-                    <TableHead className="w-[120px]">Avg. Order Value</TableHead>
-                    <TableHead className="w-[120px]">Total Capacity</TableHead>
+                    <TableHead className="w-[300px] pl-4">Location</TableHead>
+                    <TableHead className="w-[120px] text-center">Orders</TableHead>
+                    <TableHead className="w-[120px] text-center">Draft/Cancelled</TableHead>
+                    <TableHead className="w-[150px] text-center">Total Revenue</TableHead>
+                    <TableHead className="w-[120px] text-center">Avg. Order Value</TableHead>
+                    <TableHead className="w-[120px] text-center">Total Capacity</TableHead>
                 </TableRow>
             );
         } else {
             return (
                 <TableRow>
-                    <TableHead className="w-[300px]">Department</TableHead>
-                    <TableHead className="w-[120px]">Orders</TableHead>
-                    <TableHead className="w-[120px]">Draft/Cancelled</TableHead>
-                    <TableHead className="w-[150px]">Total Revenue</TableHead>
-                    <TableHead className="w-[120px]">Avg. Order Value</TableHead>
-                    <TableHead className="w-[120px]">Total Capacity</TableHead>
+                    <TableHead className="w-[300px] pl-4">Department</TableHead>
+                    <TableHead className="w-[120px] text-center">Orders</TableHead>
+                    <TableHead className="w-[120px] text-center">Draft/Cancelled</TableHead>
+                    <TableHead className="w-[150px] text-center">Total Revenue</TableHead>
+                    <TableHead className="w-[120px] text-center">Avg. Order Value</TableHead>
+                    <TableHead className="w-[120px] text-center">Total Capacity</TableHead>
                 </TableRow>
             );
         }

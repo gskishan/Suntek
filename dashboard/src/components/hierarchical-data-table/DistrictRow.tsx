@@ -72,12 +72,12 @@ export const DistrictRow = ({
         setSelectedOrder(null);
     };
 
-    const activeOrdersCount = districtData.count - districtData.inactive_count;
+    const activeOrdersCount = districtData.count - (districtData.inactive_count || 0);
 
     return (
         <>
             <TableRow className="hover:bg-muted/50">
-                <TableCell className="pl-16">
+                <TableCell className="w-[300px] pl-16">
                     <div
                         className="flex items-center w-full cursor-pointer"
                         onClick={() => setIsOpen(!isOpen)}
@@ -90,38 +90,38 @@ export const DistrictRow = ({
                         {getLocationName(districtData.district, "district", districtData.district_name)}
                     </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={Package}
                         value={districtData.count}
                         tooltip={`Total number of orders in ${getLocationName(districtData.district, "district", districtData.district_name)}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={Package}
                         value={districtData.inactive_count || 0}
                         tooltip={`Number of draft and cancelled orders in ${getLocationName(districtData.district, "district", districtData.district_name)}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[150px] text-center">
                     <TableCellMetric
                         icon={Coins}
                         value={formatCurrency(districtData.total_amount)}
                         tooltip={`Total revenue from all orders in ${getLocationName(districtData.district, "district", districtData.district_name)}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={TrendingUp}
                         value={formatCurrency(calculateAverage(districtData.total_amount, activeOrdersCount))}
                         tooltip={`Average order value in ${getLocationName(districtData.district, "district", districtData.district_name)}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={Battery}
-                        value={`${districtData.total_capacity.toFixed(2)} kW`}
+                        value={`${(districtData.total_capacity || 0).toFixed(2)} kW`}
                         tooltip={`Total capacity in ${getLocationName(districtData.district, "district", districtData.district_name)}`}
                     />
                 </TableCell>

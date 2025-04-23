@@ -7,6 +7,7 @@ import { TableCellMetric } from "./TableCellMetric";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OrderDetailsModal } from "./OrderDetailsModal";
+import { StatCell } from "./StatCell";
 
 export const DepartmentRow = ({
     departmentData,
@@ -74,16 +75,20 @@ export const DepartmentRow = ({
 
     return (
         <>
-            <TableRow className="hover:bg-muted/50">
-                <TableCell className="pl-16">
+            <TableRow
+                data-slot="table-row"
+                className="data-[state=selected]:bg-muted border-b transition-colors hover:bg-muted/50 h-10"
+            >
+                <TableCell
+                    data-slot="table-cell"
+                    className="p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] w-[300px] pl-12"
+                >
                     <div
-                        className="flex items-center w-full cursor-pointer"
+                        className="flex items-center justify-start w-full h-full cursor-pointer"
                         onClick={() => setIsOpen(!isOpen)}
                     >
                         <ChevronRight
-                            className={`h-4 w-4 mr-2 inline transition-transform duration-300 ease-in-out ${
-                                isOpen ? "rotate-90" : "rotate-0"
-                            }`}
+                            className={`h-4 w-4 mr-2 inline transition-transform duration-300 ease-in-out ${isOpen ? "rotate-90" : "rotate-0"}`}
                         />
                         <span
                             className={`px-2 py-0.5 rounded text-xs font-medium ${getDepartmentColor(departmentData.department)}`}
@@ -92,41 +97,32 @@ export const DepartmentRow = ({
                         </span>
                     </div>
                 </TableCell>
-                <TableCell>
-                    <TableCellMetric
-                        icon={Package}
-                        value={departmentData.count}
-                        tooltip={`Total number of orders in ${getLocationName(departmentData.department, "department")}`}
-                    />
-                </TableCell>
-                <TableCell>
-                    <TableCellMetric
-                        icon={Package}
-                        value={departmentData.inactive_count || 0}
-                        tooltip={`Number of draft and cancelled orders in ${getLocationName(departmentData.department, "department")}`}
-                    />
-                </TableCell>
-                <TableCell>
-                    <TableCellMetric
-                        icon={Coins}
-                        value={formatCurrency(departmentData.total_amount)}
-                        tooltip={`Total revenue from all orders in ${getLocationName(departmentData.department, "department")}`}
-                    />
-                </TableCell>
-                <TableCell>
-                    <TableCellMetric
-                        icon={TrendingUp}
-                        value={formatCurrency(calculateAverage(departmentData.total_amount, activeOrdersCount))}
-                        tooltip={`Average order value in ${getLocationName(departmentData.department, "department")}`}
-                    />
-                </TableCell>
-                <TableCell>
-                    <TableCellMetric
-                        icon={Battery}
-                        value={`${(departmentData.total_capacity || 0).toFixed(2)} kW`}
-                        tooltip={`Total capacity in ${getLocationName(departmentData.department, "department")}`}
-                    />
-                </TableCell>
+                <StatCell
+                    icon={Package}
+                    value={departmentData.count}
+                    tooltip={`Total number of orders in ${getLocationName(departmentData.department, "department")}`}
+                />
+                <StatCell
+                    icon={Package}
+                    value={departmentData.inactive_count || 0}
+                    tooltip={`Number of draft and cancelled orders in ${getLocationName(departmentData.department, "department")}`}
+                />
+                <StatCell
+                    icon={Coins}
+                    value={formatCurrency(departmentData.total_amount)}
+                    width="w-[150px]"
+                    tooltip={`Total revenue from all orders in ${getLocationName(departmentData.department, "department")}`}
+                />
+                <StatCell
+                    icon={TrendingUp}
+                    value={formatCurrency(calculateAverage(departmentData.total_amount, activeOrdersCount))}
+                    tooltip={`Average order value in ${getLocationName(departmentData.department, "department")}`}
+                />
+                <StatCell
+                    icon={Battery}
+                    value={`${(departmentData.total_capacity || 0).toFixed(2)} kW`}
+                    tooltip={`Total capacity in ${getLocationName(departmentData.department, "department")}`}
+                />
             </TableRow>
 
             <TableRow

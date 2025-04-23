@@ -3,9 +3,9 @@ import { Table, TableCell, TableRow, TableBody } from "@/components/ui/table";
 import { ChevronRight } from "lucide-react";
 import { Battery, Coins, Package, TrendingUp } from "lucide-react";
 import { TerritoryRowProps } from "./types";
-import { TableCellMetric } from "./TableCellMetric";
 import { CityRow } from "./CityRow";
 import { DepartmentRow } from "./DepartmentRow";
+import { TableCellMetric } from "./TableCellMetric";
 
 export const TerritoryRow = ({
     territoryData,
@@ -42,48 +42,46 @@ export const TerritoryRow = ({
     return (
         <>
             <TableRow className="hover:bg-muted/50">
-                <TableCell className="pl-8">
+                <TableCell className="w-[300px] pl-8">
                     <div
                         className="flex items-center w-full cursor-pointer"
                         onClick={() => setIsOpen(!isOpen)}
                     >
                         <ChevronRight
-                            className={`h-4 w-4 mr-2 inline transition-transform duration-300 ease-in-out ${
-                                isOpen ? "rotate-90" : "rotate-0"
-                            }`}
+                            className={`h-4 w-4 mr-2 inline transition-transform duration-300 ease-in-out ${isOpen ? "rotate-90" : "rotate-0"}`}
                         />
-                        {getLocationName(territoryData.territory, "territory")}
+                        <span className="inline-block">{getLocationName(territoryData.territory, "territory")}</span>
                     </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={Package}
                         value={territoryData.count}
                         tooltip={`Total number of orders in ${getLocationName(territoryData.territory, "territory")}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={Package}
                         value={territoryData.inactive_count || 0}
                         tooltip={`Number of draft and cancelled orders in ${getLocationName(territoryData.territory, "territory")}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[150px] text-center">
                     <TableCellMetric
                         icon={Coins}
                         value={formatCurrency(territoryData.total_amount)}
                         tooltip={`Total revenue from all orders in ${getLocationName(territoryData.territory, "territory")}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={TrendingUp}
                         value={formatCurrency(calculateAverage(territoryData.total_amount, activeOrdersCount))}
                         tooltip={`Average order value in ${getLocationName(territoryData.territory, "territory")}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={Battery}
                         value={`${(territoryData.total_capacity || 0).toFixed(2)} kW`}

@@ -5,9 +5,9 @@ export const TableCellMetric = ({ icon: Icon, value, tooltip }: TableCellMetricP
     return (
         <Tooltip>
             <TooltipTrigger asChild>
-                <div className="inline-flex items-center w-auto">
-                    <Icon className="h-4 w-4 mr-1.5" />
-                    {value !== undefined && value !== null ? value : 0}
+                <div className="inline-flex items-center justify-center w-full">
+                    <Icon className="h-4 w-4 mr-1.5 flex-shrink-0" />
+                    <span className="text-center">{value !== undefined && value !== null ? value : 0}</span>
                 </div>
             </TooltipTrigger>
             <TooltipContent

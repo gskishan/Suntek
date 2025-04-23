@@ -35,12 +35,12 @@ export const CityRow = ({
         }
     }, [isFullExpansion]);
 
-    const activeOrdersCount = cityData.count - cityData.inactive_count;
+    const activeOrdersCount = cityData.count - (cityData.inactive_count || 0);
 
     return (
         <>
             <TableRow className="hover:bg-muted/50">
-                <TableCell className="pl-12">
+                <TableCell className="w-[300px] pl-12">
                     <div
                         className="flex items-center w-full cursor-pointer"
                         onClick={() => setIsOpen(!isOpen)}
@@ -53,38 +53,38 @@ export const CityRow = ({
                         {getLocationName(cityData.city, "city")}
                     </div>
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={Package}
                         value={cityData.count}
                         tooltip={`Total number of orders in ${getLocationName(cityData.city, "city")}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={Package}
                         value={cityData.inactive_count || 0}
                         tooltip={`Number of draft and cancelled orders in ${getLocationName(cityData.city, "city")}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[150px] text-center">
                     <TableCellMetric
                         icon={Coins}
                         value={formatCurrency(cityData.total_amount)}
                         tooltip={`Total revenue from all orders in ${getLocationName(cityData.city, "city")}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={TrendingUp}
                         value={formatCurrency(calculateAverage(cityData.total_amount, activeOrdersCount))}
                         tooltip={`Average order value in ${getLocationName(cityData.city, "city")}`}
                     />
                 </TableCell>
-                <TableCell>
+                <TableCell className="w-[120px] text-center">
                     <TableCellMetric
                         icon={Battery}
-                        value={`${cityData.total_capacity.toFixed(2)} kW`}
+                        value={`${(cityData.total_capacity || 0).toFixed(2)} kW`}
                         tooltip={`Total capacity in ${getLocationName(cityData.city, "city")}`}
                     />
                 </TableCell>
