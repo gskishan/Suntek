@@ -468,7 +468,7 @@ export const HierarchicalDataTable = ({ data, viewType = "location" }: Hierarchi
                                 </div>
                                 <div className="flex items-center gap-1.5 p-1">
                                     <CheckCircle className="h-4 w-4 text-purple-600" />
-                                    <span className="font-medium mr-1">Completed:</span>
+                                    <span className="font-medium mr-1">Completed / Closed:</span>
                                     <span className="text-purple-600">{completedOrders}</span>
                                     <span className="text-xs text-purple-500">
                                         ({percentFormatter.format(completedPercentage)}%)
