@@ -25,7 +25,7 @@ interface DashboardProps {
 }
 
 export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
-    const [dashboardType, setDashboardType] = useState<TabType>("location");
+    const [dashboardType, setDashboardType] = useState<TabType>("department");
     const [selectedStates, setSelectedStates] = useState<string[]>([]);
     const [selectedTerritories, setSelectedTerritories] = useState<string[]>([]);
     const [selectedCities, setSelectedCities] = useState<string[]>([]);

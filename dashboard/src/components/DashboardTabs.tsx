@@ -55,20 +55,20 @@ export const DashboardTabs = ({ activeDashboard, onDashboardChange }: DashboardT
             {mainTab === "sales" && salesTabExpanded && (
                 <div className="ml-8 flex space-x-1 bg-background p-1 rounded-lg border border-primary/20 w-fit">
                     <TabButton
-                        isActive={activeDashboard === "location"}
-                        onClick={() => onDashboardChange("location")}
-                        icon={<MapPin className="h-4 w-4 mr-1" />}
-                        isSubTab={true}
-                    >
-                        Sales by Location
-                    </TabButton>
-                    <TabButton
                         isActive={activeDashboard === "department"}
                         onClick={() => onDashboardChange("department")}
                         icon={<Building className="h-4 w-4 mr-1" />}
                         isSubTab={true}
                     >
                         Sales by Department
+                    </TabButton>
+                    <TabButton
+                        isActive={activeDashboard === "location"}
+                        onClick={() => onDashboardChange("location")}
+                        icon={<MapPin className="h-4 w-4 mr-1" />}
+                        isSubTab={true}
+                    >
+                        Sales by Location
                     </TabButton>
                 </div>
             )}
