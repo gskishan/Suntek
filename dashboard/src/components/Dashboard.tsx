@@ -25,7 +25,7 @@ interface DashboardProps {
 }
 
 export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
-    const [dashboardType, setDashboardType] = useState<TabType>("location");
+    const [dashboardType, setDashboardType] = useState<TabType>("department");
     const [selectedStates, setSelectedStates] = useState<string[]>([]);
     const [selectedTerritories, setSelectedTerritories] = useState<string[]>([]);
     const [selectedCities, setSelectedCities] = useState<string[]>([]);
@@ -120,7 +120,12 @@ export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
         }
 
         if (salesOrderStatus !== "all") {
-            params.status = salesOrderStatus;
+            // If "multiple" is selected, pass the actual array of statuses as comma-separated
+            if (salesOrderStatus === "multiple" && salesOrderStatuses.length > 0) {
+                params.status = salesOrderStatuses.join(",");
+            } else {
+                params.status = salesOrderStatus;
+            }
         }
 
         if (selectedTypeOfCase !== "all") {
@@ -166,6 +171,7 @@ export const Dashboard = ({ userName, userInitial }: DashboardProps) => {
         selectedDistricts,
         selectedDepartment,
         salesOrderStatus,
+        salesOrderStatuses,
         selectedTypeOfCase,
         selectedTypeOfStructure,
         selectedSalesPersons,
