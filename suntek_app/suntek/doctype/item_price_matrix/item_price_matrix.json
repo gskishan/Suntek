@@ -1,0 +1,170 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{item}-{uom_category_1}-{uom_category_2}-{####}",
+ "creation": "2025-04-28 12:08:59.215212",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "item_details_section",
+  "item",
+  "item_price",
+  "status",
+  "column_break_luwr",
+  "uom_category_1",
+  "uom_category_2",
+  "buying",
+  "selling",
+  "price_configuration_section",
+  "min_uom_1",
+  "max_uom_1",
+  "column_break_awrf",
+  "min_uom_2",
+  "max_uom_2",
+  "section_break_zadl",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_price",
+   "fieldtype": "Currency",
+   "label": "Item Price"
+  },
+  {
+   "fieldname": "column_break_luwr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "uom_category_1",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "UOM Category 1",
+   "options": "UOM",
+   "reqd": 1
+  },
+  {
+   "fieldname": "uom_category_2",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "UOM Category 2",
+   "options": "UOM",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_details_section",
+   "fieldtype": "Section Break",
+   "label": "Item Details"
+  },
+  {
+   "fieldname": "price_configuration_section",
+   "fieldtype": "Section Break",
+   "label": "Price Configuration"
+  },
+  {
+   "depends_on": "eval:(doc.uom_category_1 && doc.uom_category_2)",
+   "fieldname": "min_uom_1",
+   "fieldtype": "Float",
+   "label": "Min UOM 1",
+   "mandatory_depends_on": "eval:(doc.uom_category_1 && doc.uom_category_2)",
+   "non_negative": 1
+  },
+  {
+   "depends_on": "eval:(doc.uom_category_1 && doc.uom_category_2)",
+   "fieldname": "max_uom_1",
+   "fieldtype": "Float",
+   "label": "Max UOM 1",
+   "mandatory_depends_on": "eval:(doc.uom_category_1 && doc.uom_category_2)",
+   "non_negative": 1
+  },
+  {
+   "fieldname": "column_break_awrf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:(doc.uom_category_1 && doc.uom_category_2)",
+   "fieldname": "min_uom_2",
+   "fieldtype": "Float",
+   "label": "Min UOM 2",
+   "mandatory_depends_on": "eval:(doc.uom_category_1 && doc.uom_category_2)",
+   "non_negative": 1
+  },
+  {
+   "depends_on": "eval:(doc.uom_category_1 && doc.uom_category_2)",
+   "fieldname": "max_uom_2",
+   "fieldtype": "Float",
+   "label": "Max UOM 2",
+   "mandatory_depends_on": "eval:(doc.uom_category_1 && doc.uom_category_2)"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "Enabled",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Enabled\nDisabled",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "buying",
+   "fieldtype": "Check",
+   "label": "Buying"
+  },
+  {
+   "default": "0",
+   "fieldname": "selling",
+   "fieldtype": "Check",
+   "label": "Selling"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Item Price Matrix",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_zadl",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-04-28 12:40:43.655123",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "Item Price Matrix",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
