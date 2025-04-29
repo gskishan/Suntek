@@ -77,12 +77,6 @@ def get_columns():
             "width": 80,
         },
         {
-            "label": _("Consumed Qty (WO)"),
-            "fieldname": "consumed_qty",
-            "fieldtype": "Float",
-            "width": 80,
-        },
-        {
             "label": _("Pending Qty"),
             "fieldname": "pending_qty",
             "fieldtype": "Float",
@@ -110,9 +104,17 @@ def get_columns():
             "width": 120,
         },
         {
-            "label": _("Work Orders"),
-            "fieldname": "work_orders",
-            "fieldtype": "Data",
+            "label": _("Delivery Note"),
+            "fieldname": "delivery_note",
+            "fieldtype": "Link",
+            "options": "Delivery Note",
+            "width": 130,
+        },
+        {
+            "label": _("Sales Invoice"),
+            "fieldname": "sales_invoice",
+            "fieldtype": "Link",
+            "options": "Sales Invoice",
             "width": 130,
         },
     ]
@@ -185,68 +187,6 @@ def get_data(filters=None):
                 design_items_map[item.parent] = []
             design_items_map[item.parent].append(item)
 
-    work_order_conditions = ""
-    work_order_values = {}
-
-    if filters.get("from_date") and filters.get("to_date"):
-        work_order_conditions += " AND wo.planned_start_date BETWEEN %(from_date)s AND %(to_date)s"
-        work_order_values["from_date"] = filters.get("from_date")
-        work_order_values["to_date"] = filters.get("to_date")
-
-    all_work_orders = frappe.db.sql(
-        f"""
-        SELECT
-            wo.name,
-            wo.bom_no,
-            b.project
-        FROM
-            `tabWork Order` wo
-        JOIN
-            `tabBOM` b ON wo.bom_no = b.name
-        WHERE
-            wo.docstatus = 1
-            AND b.project IS NOT NULL
-            {work_order_conditions}
-        """,
-        work_order_values,
-        as_dict=1,
-    )
-
-    project_to_work_orders = {}
-    for wo in all_work_orders:
-        if wo.project not in project_to_work_orders:
-            project_to_work_orders[wo.project] = []
-        project_to_work_orders[wo.project].append(wo)
-
-    all_consumed_qtys = {}
-    if all_work_orders:
-        work_order_names = [wo.name for wo in all_work_orders]
-        consumed_qtys = frappe.db.sql(
-            """
-            SELECT
-                se.work_order,
-                sed.item_code,
-                SUM(sed.qty) as consumed_qty
-            FROM
-                `tabStock Entry` se
-            JOIN
-                `tabStock Entry Detail` sed ON se.name = sed.parent
-            WHERE
-                se.work_order IN %s
-                AND se.docstatus = 1
-                AND se.purpose IN ('Material Consumption for Manufacture', 'Manufacture', 'Material Transfer for Manufacture')
-            GROUP BY
-                se.work_order, sed.item_code
-            """,
-            [tuple(work_order_names) if len(work_order_names) > 1 else ("'" + work_order_names[0] + "'")],
-            as_dict=1,
-        )
-
-        for cq in consumed_qtys:
-            if cq.work_order not in all_consumed_qtys:
-                all_consumed_qtys[cq.work_order] = {}
-            all_consumed_qtys[cq.work_order][cq.item_code] = cq.consumed_qty
-
     transferred_qty_conditions = ""
     transferred_qty_values = {}
 
@@ -290,6 +230,93 @@ def get_data(filters=None):
             "last_stock_entry": tq.stock_entries.split(", ")[0] if tq.stock_entries else None,
         }
 
+    delivery_notes = frappe.db.sql(
+        """
+        SELECT
+            dni.against_sales_order as sales_order,
+            GROUP_CONCAT(DISTINCT dn.name ORDER BY dn.creation DESC SEPARATOR ', ') as delivery_notes
+        FROM
+            `tabDelivery Note` dn
+        JOIN
+            `tabDelivery Note Item` dni ON dn.name = dni.parent
+        WHERE
+            dn.docstatus = 1
+        GROUP BY
+            dni.against_sales_order
+        """,
+        as_dict=1,
+    )
+
+    so_to_dn = {}
+    for dn in delivery_notes:
+        if dn.sales_order:
+            so_to_dn[dn.sales_order] = dn.delivery_notes.split(", ")[0] if dn.delivery_notes else None
+
+    project_delivery_notes = frappe.db.sql(
+        """
+        SELECT
+            dn.project,
+            GROUP_CONCAT(DISTINCT dn.name ORDER BY dn.creation DESC SEPARATOR ', ') as delivery_notes
+        FROM
+            `tabDelivery Note` dn
+        WHERE
+            dn.docstatus = 1
+            AND dn.project IS NOT NULL
+        GROUP BY
+            dn.project
+        """,
+        as_dict=1,
+    )
+
+    project_to_dn = {}
+    for dn in project_delivery_notes:
+        if dn.project:
+            project_to_dn[dn.project] = dn.delivery_notes.split(", ")[0] if dn.delivery_notes else None
+
+    sales_invoices = frappe.db.sql(
+        """
+        SELECT
+            sii.sales_order,
+            GROUP_CONCAT(DISTINCT si.name ORDER BY si.creation DESC SEPARATOR ', ') as sales_invoices
+        FROM
+            `tabSales Invoice` si
+        JOIN
+            `tabSales Invoice Item` sii ON si.name = sii.parent
+        WHERE
+            si.docstatus = 1
+            AND sii.sales_order IS NOT NULL
+        GROUP BY
+            sii.sales_order
+        """,
+        as_dict=1,
+    )
+
+    so_to_si = {}
+    for si in sales_invoices:
+        if si.sales_order:
+            so_to_si[si.sales_order] = si.sales_invoices.split(", ")[0] if si.sales_invoices else None
+
+    project_sales_invoices = frappe.db.sql(
+        """
+        SELECT
+            si.project,
+            GROUP_CONCAT(DISTINCT si.name ORDER BY si.creation DESC SEPARATOR ', ') as sales_invoices
+        FROM
+            `tabSales Invoice` si
+        WHERE
+            si.docstatus = 1
+            AND si.project IS NOT NULL
+        GROUP BY
+            si.project
+        """,
+        as_dict=1,
+    )
+
+    project_to_si = {}
+    for si in project_sales_invoices:
+        if si.project:
+            project_to_si[si.project] = si.sales_invoices.split(", ")[0] if si.sales_invoices else None
+
     sales_orders = frappe.db.sql(
         f"""
         SELECT
@@ -310,6 +337,11 @@ def get_data(filters=None):
 
     for so in sales_orders:
         project_id = so.project
+        sales_order_id = so.sales_order
+
+        delivery_note = so_to_dn.get(sales_order_id) or project_to_dn.get(project_id)
+
+        sales_invoice = so_to_si.get(sales_order_id) or project_to_si.get(project_id)
 
         designs = project_to_designs.get(project_id, [])
 
@@ -323,20 +355,9 @@ def get_data(filters=None):
                     last_stock_entry = transferred_data.get("last_stock_entry")
                     last_transfer_date = transferred_data.get("last_transfer_date")
 
-                    consumed_qty = 0
-                    work_order_list = []
+                    pending_qty = item.required_qty - total_transferred
 
-                    work_orders = project_to_work_orders.get(project_id, [])
-
-                    for wo in work_orders:
-                        wo_consumed_qty = all_consumed_qtys.get(wo.name, {}).get(item.item_code, 0)
-                        if wo_consumed_qty:
-                            consumed_qty += float(wo_consumed_qty)
-                            work_order_list.append(wo.name)
-
-                    pending_qty = item.required_qty - total_transferred - consumed_qty
-
-                    if total_transferred <= 0 and consumed_qty <= 0:
+                    if total_transferred <= 0:
                         status = "Not Started"
                     elif pending_qty <= 0:
                         status = "Completed"
@@ -347,19 +368,19 @@ def get_data(filters=None):
                         continue
 
                     row = {
-                        "sales_order": so.sales_order,
+                        "sales_order": sales_order_id,
                         "project": project_id,
                         "design": design_id,
                         "item_code": item.item_code,
                         "item_name": item.item_name,
                         "required_qty": item.required_qty,
                         "transferred_qty": total_transferred,
-                        "consumed_qty": consumed_qty,
                         "pending_qty": pending_qty if pending_qty > 0 else 0,
                         "status": status,
                         "last_stock_entry": last_stock_entry,
                         "last_transfer_date": last_transfer_date,
-                        "work_orders": ", ".join(work_order_list) if work_order_list else None,
+                        "delivery_note": delivery_note,
+                        "sales_invoice": sales_invoice,
                     }
 
                     data.append(row)
@@ -368,19 +389,19 @@ def get_data(filters=None):
                 "only_design_projects"
             ):
                 row = {
-                    "sales_order": so.sales_order,
+                    "sales_order": sales_order_id,
                     "project": project_id,
                     "design": "Design Unavailable",
                     "item_code": None,
                     "item_name": None,
                     "required_qty": 0,
                     "transferred_qty": 0,
-                    "consumed_qty": 0,
                     "pending_qty": 0,
                     "status": "No Design",
                     "last_stock_entry": None,
                     "last_transfer_date": None,
-                    "work_orders": None,
+                    "delivery_note": delivery_note,
+                    "sales_invoice": sales_invoice,
                 }
 
                 data.append(row)
