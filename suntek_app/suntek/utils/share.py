@@ -38,7 +38,6 @@ def share_document(
             share=share or 0,
             everyone=everyone or 0,
             notify=notify or 0,
-            ignore_permissions=1,
         )
 
         frappe.db.commit()
