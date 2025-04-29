@@ -5,5 +5,5 @@
 from frappe.tests.utils import FrappeTestCase
 
 
-class TestItemPriceMatrix(FrappeTestCase):
+class TestSolarPanelPricingRule(FrappeTestCase):
 	pass
