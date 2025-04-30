@@ -4,6 +4,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { getERPUrl } from "./hierarchical-data-table/utils";
 
 interface SalesOrder {
     name: string;
@@ -634,7 +635,7 @@ export const SalesOrderTable = ({ data }: SalesOrderTableProps) => {
                                                                                                                 <div>
                                                                                                                     <div className="font-medium text-gray-900">
                                                                                                                         <a
-                                                                                                                            href={`/app/sales-order/${order.name}`}
+                                                                                                                            href={getERPUrl("Sales Order", order.name)}
                                                                                                                             target="_blank"
                                                                                                                             rel="noopener noreferrer"
                                                                                                                             className="text-blue-600 hover:text-blue-800 hover:underline"

@@ -305,7 +305,7 @@ export const DepartmentRow = ({
                     formatDate={formatDate}
                     getStatusColor={getStatusColor}
                     getTypeColor={getTypeColor}
-                    getERPUrl={() => getERPUrl("Sales Order", selectedOrder.name)}
+                    getERPUrl={getERPUrl}
                 />
             )}
         </>

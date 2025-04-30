@@ -123,7 +123,7 @@ export const OrderDetailsModal = ({
                     </Button>
                     <Button
                         className="flex items-center gap-2"
-                        onClick={() => window.open(`${getERPUrl()}/app/sales-order/${selectedOrder.name}`, "_blank")}
+                        onClick={() => window.open(getERPUrl("Sales Order", selectedOrder.name), "_blank")}
                     >
                         <ExternalLink className="h-4 w-4" />
                         View in ERP
