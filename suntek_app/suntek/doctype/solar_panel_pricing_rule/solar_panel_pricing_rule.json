@@ -1,0 +1,150 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{item}-{min_kwp}-{max_kwp}-{height}",
+ "creation": "2025-04-29 11:35:03.853477",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "item_details_section",
+  "item",
+  "base_price",
+  "disabled",
+  "price_list",
+  "price_configuration_section",
+  "min_kwp",
+  "max_kwp",
+  "column_break_fshn",
+  "height",
+  "section_break_gsnf",
+  "final_price"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_details_section",
+   "fieldtype": "Section Break",
+   "label": "Item Details"
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Item",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "base_price",
+   "fieldtype": "Currency",
+   "label": "Base Price",
+   "precision": "2"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "fieldname": "price_configuration_section",
+   "fieldtype": "Section Break",
+   "label": "Price Configuration"
+  },
+  {
+   "fieldname": "min_kwp",
+   "fieldtype": "Float",
+   "label": "Min KWP",
+   "non_negative": 1,
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "max_kwp",
+   "fieldtype": "Float",
+   "label": "Max KWP",
+   "non_negative": 1,
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_fshn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "height",
+   "fieldtype": "Select",
+   "label": "Height",
+   "options": "3 FEET\n6.5 FEET\n8 FEET",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_gsnf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "final_price",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Final Price",
+   "non_negative": 1,
+   "precision": "2"
+  },
+  {
+   "fieldname": "price_list",
+   "fieldtype": "Link",
+   "label": "Price List",
+   "options": "Price List",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-04-30 11:28:34.945846",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "Solar Panel Pricing Rule",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
