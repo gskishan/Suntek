@@ -13,6 +13,7 @@ def execute():
         FROM   `tabLead`
         WHERE  lead_owner IS NOT NULL
                 AND lead_owner != ''
+                AND lead_owner != owner
                 AND custom_neodove_campaign_name IS NOT NULL
                 AND custom_neodove_campaign_name != ''
         """,
@@ -29,6 +30,7 @@ def execute():
     total_open_shared = 0
     total_error_count = 0
     total_open_count = 0
+    total_already_shared = 0
 
     batch_size = 200
     offset = 0
@@ -48,6 +50,7 @@ def execute():
             FROM   `tabLead`
             WHERE  lead_owner IS NOT NULL
             AND    lead_owner != ''
+            AND    lead_owner != owner
             AND    custom_neodove_campaign_name IS NOT NULL
             AND    custom_neodove_campaign_name != ''
             LIMIT  %s
@@ -64,10 +67,10 @@ def execute():
         print(f"Batch {batch_num}: {batch_count} leads, {batch_open_count} with status 'Open'")
 
         open_leads_info = []
-
         batch_shared = 0
         batch_open_shared = 0
         batch_errors = 0
+        batch_already_shared = 0
 
         for lead in batch_leads:
             try:
@@ -89,7 +92,9 @@ def execute():
 
                     if lead.status == "Open":
                         batch_open_shared += 1
-                        open_leads_info.append(f"{lead.name} - Owner: {lead.lead_owner}")
+                        open_leads_info.append(f"{lead.name} - Owner: {lead.owner} - Lead Owner: {lead.lead_owner}")
+                else:
+                    batch_already_shared += 1
 
             except Exception as e:
                 batch_errors += 1
@@ -106,10 +111,12 @@ def execute():
         total_shared_count += batch_shared
         total_open_shared += batch_open_shared
         total_error_count += batch_errors
+        total_already_shared += batch_already_shared
 
         frappe.db.commit()
         print(
-            f"Batch {batch_num} complete: {batch_shared} leads shared ({batch_open_shared} open), {batch_errors} errors"
+            f"Batch {batch_num} complete: {batch_shared} leads shared ({batch_open_shared} open), "
+            f"{batch_already_shared} already shared, {batch_errors} errors"
         )
         print("-" * 40)
 
@@ -120,6 +127,9 @@ def execute():
     print(f"PATCH COMPLETE at {now_datetime().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Total Neodove leads processed: {total_count}")
     print(f"Total leads with status 'Open': {total_open_count}")
+    print(f"Total leads already shared with lead_owner: {total_already_shared}")
+    print(f"Total leads newly shared with lead_owner: {total_shared_count}")
+    print(f"Total open leads newly shared: {total_open_shared}")
     print(f"Errors encountered: {total_error_count}")
     print("=" * 80)
 
@@ -128,6 +138,7 @@ def execute():
         message=f"""
         Fixed critical visibility issue: {total_shared_count} Neodove leads were previously invisible to their owners.
         {total_open_shared} of these were OPEN leads that may require urgent follow-up.
+        {total_already_shared} leads were already properly shared.
         Total Neodove leads: {total_count} (Open: {total_open_count}).
         """,
     )
