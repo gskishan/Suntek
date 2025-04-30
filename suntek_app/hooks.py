@@ -47,15 +47,15 @@ override_doctype_class = {
     "Salary Slip": "suntek_app.custom_script.salary_slip.CustomSalarySlip",
 }
 
-permission_query_conditions = {
-    "Lead": "suntek_app.overrides.lead.get_permission_query_conditions",
-    "Opportunity": "suntek_app.overrides.opportunity.get_permission_query_conditions",
-}
+# permission_query_conditions = {
+#     "Lead": "suntek_app.overrides.lead.get_permission_query_conditions",
+#     "Opportunity": "suntek_app.overrides.opportunity.get_permission_query_conditions",
+# }
 
-has_permission = {
-    "Lead": "suntek_app.overrides.lead.has_permission",
-    "Opportunity": "suntek_app.overrides.opportunity.has_permission",
-}
+# has_permission = {
+#     "Lead": "suntek_app.overrides.lead.has_permission",
+#     "Opportunity": "suntek_app.overrides.opportunity.has_permission",
+# }
 
 doc_events = {
     "Address": {"before_save": ["suntek_app.custom_script.address.add_enquiry_to_links"]},
