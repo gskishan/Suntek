@@ -69,84 +69,8 @@ def is_document_assigned(doc_name, user, doctype):
     )
 
 
-def has_permission(doc, ptype="read", user=None):
-    """
-    Custom permission check function for document-level permissions
-    Returns True if the user has permission, False otherwise
-    """
-    user = user or frappe.session.user
-
-    user_roles = frappe.get_roles(user)
-
-    if user == "Administrator":
-        return True
-
-    if "System Manager" in user_roles:
-        return True
-
-    if doc.owner == user:
-        return True
-
-    if doc.doctype == "Lead":
-        if doc.get("lead_owner") == user:
-            return True
-    elif doc.doctype == "Opportunity":
-        if doc.get("opportunity_owner") == user:
-            return True
-
-    if is_document_shared(doc.name, user) or is_document_assigned(doc.name, user, doc.doctype):
-        return True
-
-    employee = get_user_employee(user)
-    if not employee:
-        return False
-
-    user_subordinates = get_subordinates(employee)
-
-    if doc.doctype == "Lead":
-        doc_creator_employee = get_user_employee(doc.owner)
-        doc_owner_employee = get_user_employee(doc.get("lead_owner"))
-
-        if doc_creator_employee and doc_creator_employee in user_subordinates:
-            return True
-        elif doc_owner_employee and doc_owner_employee in user_subordinates:
-            return True
-    elif doc.doctype == "Opportunity":
-        doc_creator_employee = get_user_employee(doc.owner)
-        doc_owner_employee = get_user_employee(doc.get("opportunity_owner"))
-
-        if doc_creator_employee and doc_creator_employee in user_subordinates:
-            return True
-        elif doc_owner_employee and doc_owner_employee in user_subordinates:
-            return True
-    else:
-        doc_creator_employee = get_user_employee(doc.owner)
-
-        if doc_creator_employee and doc_creator_employee in user_subordinates:
-            return True
-
-    return False
-
-
-def get_permission_query_conditions(user, doctype):
-    """
-    Returns query conditions for list views and reports
-    This ensures users only see their own documents and their subordinates' documents in lists
-    """
-    user_roles = frappe.get_roles(user)
-
-    if user == "Administrator":
-        return ""
-
-    if "System Manager" in user_roles:
-        return ""
-
-    special_owner_field = None
-    if doctype == "Lead":
-        special_owner_field = "lead_owner"
-    elif doctype == "Opportunity":
-        special_owner_field = "opportunity_owner"
-
+def base_permission_query_conditions(user, doctype, special_owner_field=None):
+    """Generate base permission query conditions that apply to all doctypes"""
     shared_condition = f"""EXISTS (SELECT 1 FROM `tabDocShare`
                           WHERE `tabDocShare`.share_name = `tab{doctype}`.name
                           AND `tabDocShare`.user = {frappe.db.escape(user)}
@@ -164,15 +88,18 @@ def get_permission_query_conditions(user, doctype):
         special_owner_condition = f" OR `{special_owner_field}` = {frappe.db.escape(user)}"
 
     base_conditions = f"({owner_condition}{special_owner_condition} OR {shared_condition} OR {assigned_condition})"
+    return base_conditions
 
+
+def get_subordinate_conditions(user, doctype, special_owner_field=None):
+    """Generate subordinate-related conditions for permission queries"""
     employee = get_user_employee(user)
     if not employee:
-        return base_conditions
+        return ""
 
     subordinate_employees = get_subordinates(employee, include_self=False)
-
     if not subordinate_employees:
-        return base_conditions
+        return ""
 
     subordinate_users = []
     for emp in subordinate_employees:
@@ -181,7 +108,7 @@ def get_permission_query_conditions(user, doctype):
             subordinate_users.append(emp_user)
 
     if not subordinate_users:
-        return base_conditions
+        return ""
 
     subordinate_conditions = []
 
@@ -193,9 +120,6 @@ def get_permission_query_conditions(user, doctype):
         quoted_users = [frappe.db.escape(u) for u in subordinate_users]
         subordinate_conditions.append(f"`{special_owner_field}` in ({', '.join(quoted_users)})")
 
-    subordinate_part = ""
     if subordinate_conditions:
-        subordinate_part = f" OR ({' OR '.join(subordinate_conditions)})"
-
-    final_condition = f"({base_conditions}{subordinate_part})"
-    return final_condition
+        return f" OR ({' OR '.join(subordinate_conditions)})"
+    return ""
