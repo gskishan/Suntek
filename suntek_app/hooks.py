@@ -119,6 +119,7 @@ doc_events = {
         "after_save": [
             "suntek_app.event_handlers.sales_order_event_handler.update_cppo_from_sales_order",
         ],
+        "on_cancel": "suntek_app.suntek.custom.sales_order.delete_linked_documents_on_cancel",
     },
     "Project": {
         "validate": "suntek_app.suntek.custom.project.validate",

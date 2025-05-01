@@ -24,6 +24,24 @@ def auto_project_creation_on_submit(doc, method):
     update_opportunity(doc)
 
 
+@frappe.whitelist()
+def delete_linked_documents_on_cancel(doc, method):
+    """Delete linked documents when a sales order is cancelled."""
+    if doc.docstatus == 2:
+        projects = frappe.get_all("Project", filters={"sales_order": doc.name}, fields=["name"])
+
+        for project in projects:
+            subsidies = frappe.get_all("Subsidy", filters={"project_name": project.name}, fields=["name"])
+            for subsidy in subsidies:
+                frappe.delete_doc("Subsidy", subsidy.name, force=1)
+
+            discoms = frappe.get_all("Discom", filters={"project_name": project.name}, fields=["name"])
+            for discom in discoms:
+                frappe.delete_doc("Discom", discom.name, force=1)
+
+            frappe.delete_doc("Project", project.name, force=1)
+
+
 def create_discom(project):
     """Creates Discom record based on the project's custom type of case."""
 
