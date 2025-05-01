@@ -30,8 +30,8 @@ before_migrate = "suntek_app.migrate.before_migrate"
 after_migrate = "suntek_app.migrate.after_migrate"
 
 override_whitelisted_methods = {
-    # "erpnext.stock.get_item_details.apply_price_list": "suntek_app.overrides.get_item_details.apply_price_list"
     "erpnext.stock.get_item_details.apply_price_list": "suntek_app.overrides.get_item_details.apply_price_list_for_solar_panel",
+    "erpnext.accounts.party.get_party_details": "suntek_app.overrides.accounts.party.get_party_details",
 }
 
 
