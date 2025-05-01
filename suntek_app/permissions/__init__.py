@@ -51,6 +51,24 @@ def get_subordinate_users(employee):
     return users
 
 
+def is_document_shared(doc_name, user, doctype=None):
+    """Check if document is shared with the user"""
+    return frappe.get_all(
+        "DocShare",
+        filters={"share_name": doc_name, "user": user, "read": 1},
+        limit=1,
+    )
+
+
+def is_document_assigned(doc_name, user, doctype):
+    """Check if document is assigned to the user"""
+    return frappe.get_all(
+        "ToDo",
+        filters={"reference_type": doctype, "reference_name": doc_name, "owner": user},
+        limit=1,
+    )
+
+
 def has_permission(doc, ptype="read", user=None):
     """
     Custom permission check function for document-level permissions
@@ -58,66 +76,54 @@ def has_permission(doc, ptype="read", user=None):
     """
     user = user or frappe.session.user
 
-    print(f"Permission check for {doc.doctype} {doc.name} by {user}")
+    user_roles = frappe.get_roles(user)
 
     if user == "Administrator":
         return True
 
-    if "System Manager" in frappe.get_roles(user):
+    if "System Manager" in user_roles:
+        return True
+
+    if doc.owner == user:
         return True
 
     if doc.doctype == "Lead":
         if doc.get("lead_owner") == user:
             return True
-
-        if frappe.get_all(
-            "DocShare",
-            filters={"share_name": doc.name, "user": user, "read": 1},
-            limit=1,
-        ):
+    elif doc.doctype == "Opportunity":
+        if doc.get("opportunity_owner") == user:
             return True
 
-        if frappe.get_all(
-            "ToDo",
-            filters={"reference_type": doc.doctype, "reference_name": doc.name, "owner": user},
-            limit=1,
-        ):
-            return True
-
-        employee = get_user_employee(user)
-        if employee:
-            allowed_users = get_subordinate_users(employee)
-            if doc.owner in allowed_users or doc.get("lead_owner") in allowed_users:
-                return True
-
-        return False
-
-    if doc.doctype == "Opportunity" and doc.get("opportunity_owner") == user:
-        return True
-
-    if frappe.get_all(
-        "DocShare",
-        filters={"share_name": doc.name, "user": user, "read": 1},
-        limit=1,
-    ):
-        return True
-
-    if frappe.get_all(
-        "ToDo",
-        filters={"reference_type": doc.doctype, "reference_name": doc.name, "owner": user},
-        limit=1,
-    ):
+    if is_document_shared(doc.name, user) or is_document_assigned(doc.name, user, doc.doctype):
         return True
 
     employee = get_user_employee(user)
     if not employee:
         return False
 
-    allowed_users = get_subordinate_users(employee)
-    allowed_users.append(user)
+    user_subordinates = get_subordinates(employee)
 
-    if doc.owner in allowed_users:
-        return True
+    if doc.doctype == "Lead":
+        doc_creator_employee = get_user_employee(doc.owner)
+        doc_owner_employee = get_user_employee(doc.get("lead_owner"))
+
+        if doc_creator_employee and doc_creator_employee in user_subordinates:
+            return True
+        elif doc_owner_employee and doc_owner_employee in user_subordinates:
+            return True
+    elif doc.doctype == "Opportunity":
+        doc_creator_employee = get_user_employee(doc.owner)
+        doc_owner_employee = get_user_employee(doc.get("opportunity_owner"))
+
+        if doc_creator_employee and doc_creator_employee in user_subordinates:
+            return True
+        elif doc_owner_employee and doc_owner_employee in user_subordinates:
+            return True
+    else:
+        doc_creator_employee = get_user_employee(doc.owner)
+
+        if doc_creator_employee and doc_creator_employee in user_subordinates:
+            return True
 
     return False
 
@@ -127,10 +133,12 @@ def get_permission_query_conditions(user, doctype):
     Returns query conditions for list views and reports
     This ensures users only see their own documents and their subordinates' documents in lists
     """
+    user_roles = frappe.get_roles(user)
+
     if user == "Administrator":
         return ""
 
-    if "System Manager" in frappe.get_roles(user):
+    if "System Manager" in user_roles:
         return ""
 
     special_owner_field = None
@@ -138,35 +146,6 @@ def get_permission_query_conditions(user, doctype):
         special_owner_field = "lead_owner"
     elif doctype == "Opportunity":
         special_owner_field = "opportunity_owner"
-
-    employee = get_user_employee(user)
-    if not employee:
-        shared_condition = f"""EXISTS (SELECT 1 FROM `tabDocShare`
-                              WHERE `tabDocShare`.share_name = `tab{doctype}`.name
-                              AND `tabDocShare`.user = {frappe.db.escape(user)}
-                              AND `tabDocShare`.read = 1)"""
-
-        assigned_condition = f"""EXISTS (SELECT 1 FROM `tabToDo`
-                               WHERE `tabToDo`.reference_type = {frappe.db.escape(doctype)}
-                               AND `tabToDo`.reference_name = `tab{doctype}`.name
-                               AND `tabToDo`.owner = {frappe.db.escape(user)})"""
-
-        special_owner_condition = ""
-        if special_owner_field:
-            special_owner_condition = f" OR `{special_owner_field}` = {frappe.db.escape(user)}"
-
-        return f"({shared_condition} OR {assigned_condition}{special_owner_condition})"
-
-    allowed_users = get_subordinate_users(employee)
-    allowed_users.append(user)
-
-    hierarchy_condition = ""
-    if allowed_users:
-        quoted_users = [frappe.db.escape(u) for u in allowed_users]
-        hierarchy_condition = f"""`owner` in ({", ".join(quoted_users)})"""
-
-        if special_owner_field:
-            hierarchy_condition += f""" OR `{special_owner_field}` in ({", ".join(quoted_users)})"""
 
     shared_condition = f"""EXISTS (SELECT 1 FROM `tabDocShare`
                           WHERE `tabDocShare`.share_name = `tab{doctype}`.name
@@ -178,4 +157,45 @@ def get_permission_query_conditions(user, doctype):
                            AND `tabToDo`.reference_name = `tab{doctype}`.name
                            AND `tabToDo`.owner = {frappe.db.escape(user)})"""
 
-    return f"({hierarchy_condition} OR {shared_condition} OR {assigned_condition})"
+    owner_condition = f"`owner` = {frappe.db.escape(user)}"
+
+    special_owner_condition = ""
+    if special_owner_field:
+        special_owner_condition = f" OR `{special_owner_field}` = {frappe.db.escape(user)}"
+
+    base_conditions = f"({owner_condition}{special_owner_condition} OR {shared_condition} OR {assigned_condition})"
+
+    employee = get_user_employee(user)
+    if not employee:
+        return base_conditions
+
+    subordinate_employees = get_subordinates(employee, include_self=False)
+
+    if not subordinate_employees:
+        return base_conditions
+
+    subordinate_users = []
+    for emp in subordinate_employees:
+        emp_user = get_employee_user(emp)
+        if emp_user:
+            subordinate_users.append(emp_user)
+
+    if not subordinate_users:
+        return base_conditions
+
+    subordinate_conditions = []
+
+    if subordinate_users:
+        quoted_users = [frappe.db.escape(u) for u in subordinate_users]
+        subordinate_conditions.append(f"`owner` in ({', '.join(quoted_users)})")
+
+    if special_owner_field and subordinate_users:
+        quoted_users = [frappe.db.escape(u) for u in subordinate_users]
+        subordinate_conditions.append(f"`{special_owner_field}` in ({', '.join(quoted_users)})")
+
+    subordinate_part = ""
+    if subordinate_conditions:
+        subordinate_part = f" OR ({' OR '.join(subordinate_conditions)})"
+
+    final_condition = f"({base_conditions}{subordinate_part})"
+    return final_condition
