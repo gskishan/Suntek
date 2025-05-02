@@ -111,7 +111,6 @@ doc_events = {
         ],
     },
     "Sales Order": {
-        "on_submit": "suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit",
         "on_update": [
             "suntek_app.api.webhook_handler.send_ambassador_status_update",
             "suntek_app.event_handlers.sales_order_event_handler.update_cppo_from_sales_order",
@@ -119,7 +118,12 @@ doc_events = {
         "after_save": [
             "suntek_app.event_handlers.sales_order_event_handler.update_cppo_from_sales_order",
         ],
-        "on_cancel": "suntek_app.suntek.custom.sales_order.delete_linked_documents_on_cancel",
+        "before_submit": [
+            "suntek_app.suntek.custom.sales_order.create_project_discom_subsidy_before_submit",
+        ],
+        "on_cancel": [
+            "suntek_app.suntek.custom.sales_order.delete_linked_documents_on_cancel",  # Cancel Project, Subsidy, Discom linked to Sales Order
+        ],
     },
     "Project": {
         "validate": "suntek_app.suntek.custom.project.validate",
