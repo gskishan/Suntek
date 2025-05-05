@@ -30,6 +30,8 @@
   "subsidy_cheque_date",
   "pcr_submission_target_date",
   "amended_from",
+  "state",
+  "branch",
   "section_break_vsli",
   "channel_partner",
   "channel_partner_name",
@@ -183,12 +185,25 @@
    "fieldtype": "Data",
    "label": "Channel Partner Mobile",
    "read_only": 1
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Link",
+   "label": "State",
+   "options": "State"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "Branch",
+   "options": "Branch"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-02-21 16:24:20.035111",
+ "modified": "2025-05-05 16:25:17.068716",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Subsidy",
@@ -207,6 +222,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
