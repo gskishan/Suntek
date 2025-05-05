@@ -30,6 +30,8 @@
   "net_meter_bill_revise_status",
   "revised_bill_copy",
   "amended_from",
+  "state",
+  "branch",
   "section_break_kehx",
   "channel_partner",
   "channel_partner_name",
@@ -183,12 +185,25 @@
    "fieldtype": "Data",
    "label": "Channel Partner Mobile",
    "read_only": 1
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Link",
+   "label": "State",
+   "options": "State"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "Branch",
+   "options": "Branch"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-02-21 16:12:51.163629",
+ "modified": "2025-05-05 16:20:28.400144",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Discom",
@@ -207,6 +222,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []
