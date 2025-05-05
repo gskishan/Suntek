@@ -14,6 +14,12 @@ Session.vim
 suntek_app/www/dashboard.html
 suntek_app/public/dashboard/
 */node_modules
-./yarn.lock
+/yarn.lock
+suntek_app/public/dashboard/node_modules
+suntek_app/public/node_modules
+
+node_modules/
+*/node_modules
+**/node_modules/
 suntek_app/public/dashboard/node_modules
 suntek_app/public/node_modules
