@@ -14,7 +14,6 @@ Session.vim
 suntek_app/www/dashboard.html
 suntek_app/public/dashboard/
 */node_modules
-/yarn.lock
 suntek_app/public/dashboard/node_modules
 suntek_app/public/node_modules
 
@@ -27,8 +26,9 @@ node_modules/
 */node_modules
 suntek_app/public/dashboard/node_modules
 suntek_app/public/node_modules
-/yarn.lock
+**/yarn.lock
 **/public/node_modules
 **/public/dashboard/node_modules
 
-/suntek_app/public/ndoe_modules
+/suntek_app/public/node_modules
+/suntek_app/public/dashboard/node_modules
