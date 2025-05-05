@@ -112,7 +112,7 @@ def create_lead_from_ambassador():
                 lead.save()
                 frappe.db.commit()
 
-                shared_doc = share_document(
+                share_document(
                     doctype="Lead",
                     doc_name=lead.name,
                     user_email=lead.lead_owner,
@@ -121,8 +121,6 @@ def create_lead_from_ambassador():
                     share=1,
                     notify=1,
                 )
-
-                print(f"SHARED_DOC: {shared_doc}")
 
                 response_data = dict(data)
                 response_data["lead_id"] = lead.name
