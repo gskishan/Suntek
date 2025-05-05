@@ -74,6 +74,8 @@ def create_discom(project):
     discom.project_name = project.name
     discom.sales_order = project.sales_order
     discom.customer_name = project.customer
+    discom.state = project.custom_state if project.custom_state else None
+    discom.branch = project.custom_branch if project.custom_branch else None
     discom.save()
 
 
@@ -84,6 +86,8 @@ def create_subsidy(project):
     subsidy.project_name = project.name
     subsidy.sales_order = project.sales_order
     subsidy.customer_name = project.customer
+    subsidy.state = project.custom_state if project.custom_state else None
+    subsidy.branch = project.custom_branch if project.custom_branch else None
     subsidy.save()
 
 
