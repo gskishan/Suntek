@@ -45,6 +45,12 @@ def get_columns():
             "width": 100,
         },
         {
+            "label": _("Project Creation Date"),
+            "fieldname": "project_creation_date",
+            "fieldtype": "Date",
+            "width": 120,
+        },
+        {
             "label": _("Design"),
             "fieldname": "design",
             "fieldtype": "Link",
@@ -321,16 +327,19 @@ def get_data(filters=None):
         f"""
         SELECT
             so.name as sales_order,
-            so.project
+            so.project,
+            p.creation as project_creation_date
         FROM
             `tabSales Order` so
+        LEFT JOIN
+            `tabProject` p ON p.name = so.project
         WHERE
             so.docstatus = 1
             AND so.project IS NOT NULL
             {conditions}
         ORDER BY
             so.creation DESC
-    """,
+        """,
         values,
         as_dict=1,
     )
@@ -370,6 +379,7 @@ def get_data(filters=None):
                     row = {
                         "sales_order": sales_order_id,
                         "project": project_id,
+                        "project_creation_date": so.project_creation_date,
                         "design": design_id,
                         "item_code": item.item_code,
                         "item_name": item.item_name,
@@ -391,6 +401,7 @@ def get_data(filters=None):
                 row = {
                     "sales_order": sales_order_id,
                     "project": project_id,
+                    "project_creation_date": so.project_creation_date,
                     "design": "Design Unavailable",
                     "item_code": None,
                     "item_name": None,
