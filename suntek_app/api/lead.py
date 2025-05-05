@@ -6,6 +6,7 @@ from suntek_app.suntek.utils.api_handler import (
     validate_auth_token,
 )
 from suntek_app.suntek.utils.lead_utils import get_next_telecaller
+from suntek_app.suntek.utils.share import share_document
 from suntek_app.suntek.utils.validation_utils import validate_mobile_number
 
 
@@ -110,6 +111,18 @@ def create_lead_from_ambassador():
 
                 lead.save()
                 frappe.db.commit()
+
+                shared_doc = share_document(
+                    doctype="Lead",
+                    doc_name=lead.name,
+                    user_email=lead.lead_owner,
+                    read=1,
+                    write=1,
+                    share=1,
+                    notify=1,
+                )
+
+                print(f"SHARED_DOC: {shared_doc}")
 
                 response_data = dict(data)
                 response_data["lead_id"] = lead.name

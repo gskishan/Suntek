@@ -40,7 +40,6 @@ def share_document(
             notify=notify or 0,
         )
 
-        frappe.db.commit()
         return True
     except Exception as e:
         frappe.log_error(

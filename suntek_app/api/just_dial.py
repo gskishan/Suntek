@@ -4,6 +4,7 @@ import frappe
 
 from suntek_app.suntek.utils.api_handler import create_api_response, parse_request_data
 from suntek_app.suntek.utils.lead_utils import get_next_telecaller
+from suntek_app.suntek.utils.share import share_document
 
 
 @frappe.whitelist(allow_guest=True)
@@ -23,6 +24,16 @@ def get_lead_from_just_dial():
 
         lead = _create_lead(data)
         lead.insert()
+
+        share_document(
+            doctype="Lead",
+            doc_name=lead.name,
+            user_email=lead.lead_owner,
+            read=1,
+            write=1,
+            share=1,
+            notify=1,
+        )
 
         return create_api_response(201, "success", "Lead created successfully", data)
     except Exception as e:
