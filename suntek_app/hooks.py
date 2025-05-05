@@ -29,6 +29,11 @@ before_install = "suntek_app.install.before_install"
 before_migrate = "suntek_app.migrate.before_migrate"
 after_migrate = "suntek_app.migrate.after_migrate"
 
+override_whitelisted_methods = {
+    "erpnext.stock.get_item_details.apply_price_list": "suntek_app.overrides.get_item_details.apply_price_list_for_solar_panel",
+    "erpnext.accounts.party.get_party_details": "suntek_app.overrides.accounts.party.get_party_details",
+}
+
 
 override_doctype_dashboards = {
     "Opportunity": "suntek_app.suntek.custom_dashboard.dashboard.update_opportunity_dashboard",
@@ -106,13 +111,18 @@ doc_events = {
         ],
     },
     "Sales Order": {
-        "on_submit": "suntek_app.suntek.custom.sales_order.auto_project_creation_on_submit",
         "on_update": [
             "suntek_app.api.webhook_handler.send_ambassador_status_update",
             "suntek_app.event_handlers.sales_order_event_handler.update_cppo_from_sales_order",
         ],
         "after_save": [
             "suntek_app.event_handlers.sales_order_event_handler.update_cppo_from_sales_order",
+        ],
+        "before_submit": [
+            "suntek_app.suntek.custom.sales_order.create_project_discom_subsidy_before_submit",
+        ],
+        "on_cancel": [
+            "suntek_app.suntek.custom.sales_order.delete_linked_documents_on_cancel",  # Cancel Project, Subsidy, Discom linked to Sales Order
         ],
     },
     "Project": {

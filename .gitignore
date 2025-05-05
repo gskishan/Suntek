@@ -10,3 +10,7 @@ node_modules/
 */.ruff_cache/
 */.ruff_cache
 Session.vim
+
+suntek_app/www/dashboard.html
+suntek_app/public/dashboard/
+*/node_modules
