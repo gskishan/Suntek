@@ -23,3 +23,12 @@ node_modules/
 **/node_modules/
 suntek_app/public/dashboard/node_modules
 suntek_app/public/node_modules
+node_modules/
+*/node_modules
+suntek_app/public/dashboard/node_modules
+suntek_app/public/node_modules
+/yarn.lock
+**/public/node_modules
+**/public/dashboard/node_modules
+
+/suntek_app/public/ndoe_modules
