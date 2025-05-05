@@ -14,8 +14,6 @@ Session.vim
 suntek_app/www/dashboard.html
 suntek_app/public/dashboard/
 */node_modules
-<<<<<<< HEAD
-=======
 suntek_app/public/dashboard/node_modules
 suntek_app/public/node_modules
 
@@ -34,4 +32,4 @@ suntek_app/public/node_modules
 
 /suntek_app/public/node_modules
 /suntek_app/public/dashboard/node_modules
->>>>>>> 7d66535 (update gitignore)
+
