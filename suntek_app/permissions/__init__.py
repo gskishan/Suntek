@@ -81,7 +81,8 @@ def base_permission_query_conditions(user, doctype, special_owner_field=None):
                            AND `tabToDo`.reference_name = `tab{doctype}`.name
                            AND `tabToDo`.owner = {frappe.db.escape(user)})"""
 
-    owner_condition = f"`owner` = {frappe.db.escape(user)}"
+    # owner_condition = f"`owner` = {frappe.db.escape(user)}"
+    owner_condition = f"`tab{doctype}`.`owner` = {frappe.db.escape(user)}"
 
     special_owner_condition = ""
     if special_owner_field:
@@ -114,7 +115,8 @@ def get_subordinate_conditions(user, doctype, special_owner_field=None):
 
     if subordinate_users:
         quoted_users = [frappe.db.escape(u) for u in subordinate_users]
-        subordinate_conditions.append(f"`owner` in ({', '.join(quoted_users)})")
+        # subordinate_conditions.append(f"`owner` in ({', '.join(quoted_users)})")
+        subordinate_conditions.append(f"`tab{doctype}`.`owner` in ({', '.join(quoted_users)})")
 
     if special_owner_field and subordinate_users:
         quoted_users = [frappe.db.escape(u) for u in subordinate_users]
