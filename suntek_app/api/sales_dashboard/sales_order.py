@@ -4,6 +4,7 @@ from collections import defaultdict
 
 import frappe
 
+from suntek_app.permissions.sales_order import get_permission_query_conditions
 from suntek_app.suntek.utils.api_handler import create_api_response
 
 
@@ -249,6 +250,12 @@ def _get_sales_orders_by_department(filters=None, limit=100):
 
     frappe.logger().info(f"_get_sales_orders_by_department called with filters: {filters}")
 
+    # Get permission query conditions
+    permission_conditions = get_permission_query_conditions(frappe.session.user)
+    if permission_conditions:
+        where_clause += f" AND ({permission_conditions})"
+        frappe.logger().info(f"Added permission conditions: {permission_conditions}")
+
     if filters:
         if filters.get("from_date"):
             where_clause += f" AND creation >= '{filters['from_date']}'"
@@ -425,13 +432,14 @@ def _get_sales_orders_by_department(filters=None, limit=100):
 
 def _get_sales_orders(filters=None, limit=100):
     frappe.logger().info(f"DEBUG STATE FILTER: Called _get_sales_orders with filters: {filters}")
-    if filters and filters.get("state"):
-        frappe.logger().info(f"DEBUG STATE FILTER: Filter includes state: {filters.get('state')}")
-
     where_clause = "1=1"
     show_sql = filters.pop("show_sql", False) if filters else False
 
-    frappe.logger().info(f"_get_sales_orders called with filters: {filters}")
+    # Get permission query conditions
+    permission_conditions = get_permission_query_conditions(frappe.session.user)
+    if permission_conditions:
+        where_clause += f" AND ({permission_conditions})"
+        frappe.logger().info(f"Added permission conditions: {permission_conditions}")
 
     if filters:
         if filters.get("from_date"):
