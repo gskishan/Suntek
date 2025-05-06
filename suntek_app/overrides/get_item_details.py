@@ -36,6 +36,7 @@ def apply_price_list_for_solar_panel(args, as_doc=False, doc=None):
         elif isinstance(doc, dict):
             items = doc.get("items", [])
             height = doc.get("custom_height")
+
     if height and result and isinstance(result, dict) and "children" in result:
         for child in result["children"]:
             item_name = child.get("name")
@@ -43,13 +44,9 @@ def apply_price_list_for_solar_panel(args, as_doc=False, doc=None):
             for item in items:
                 if item.get("name") == item_name:
                     item_code = item.get("item_code")
-                    kwp = item.get("qty", 1)
+                    capacity = item.get("qty", 1)
 
-                    solar_panel_price = get_price_from_solar_panel_pricing_rule(
-                        item_code=item_code,
-                        kwp=kwp,
-                        height=height,
-                    )
+                    solar_panel_price = get_price_from_solar_panel_pricing_rule(item_code, capacity, height)
 
                     if solar_panel_price:
                         child["price_list_rate"] = solar_panel_price

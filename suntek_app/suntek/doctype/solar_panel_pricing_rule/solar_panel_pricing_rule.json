@@ -12,10 +12,13 @@
   "disabled",
   "price_list",
   "price_configuration_section",
-  "min_kwp",
-  "max_kwp",
+  "panel_capacity_kwp",
+  "min_capacity",
+  "max_capacity",
   "column_break_fshn",
-  "height",
+  "system_height_feet",
+  "min_height",
+  "max_height",
   "section_break_gsnf",
   "final_price"
  ],
@@ -50,31 +53,8 @@
    "label": "Price Configuration"
   },
   {
-   "fieldname": "min_kwp",
-   "fieldtype": "Float",
-   "label": "Min KWP",
-   "non_negative": 1,
-   "precision": "2",
-   "reqd": 1
-  },
-  {
-   "fieldname": "max_kwp",
-   "fieldtype": "Float",
-   "label": "Max KWP",
-   "non_negative": 1,
-   "precision": "2",
-   "reqd": 1
-  },
-  {
    "fieldname": "column_break_fshn",
    "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "height",
-   "fieldtype": "Select",
-   "label": "Height",
-   "options": "3 FEET\n6.5 FEET\n8 FEET",
-   "reqd": 1
   },
   {
    "fieldname": "section_break_gsnf",
@@ -94,12 +74,54 @@
    "label": "Price List",
    "options": "Price List",
    "reqd": 1
+  },
+  {
+   "fieldname": "min_height",
+   "fieldtype": "Float",
+   "label": "Min Height",
+   "non_negative": 1,
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "max_height",
+   "fieldtype": "Float",
+   "label": "Max Height",
+   "non_negative": 1,
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "panel_capacity_kwp",
+   "fieldtype": "Heading",
+   "label": "Panel Capacity (KWP)"
+  },
+  {
+   "fieldname": "min_capacity",
+   "fieldtype": "Float",
+   "label": "Min Capacity",
+   "non_negative": 1,
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "max_capacity",
+   "fieldtype": "Float",
+   "label": "Max Capacity",
+   "non_negative": 1,
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "system_height_feet",
+   "fieldtype": "Heading",
+   "label": "System Height (FEET)"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-04-30 11:28:34.945846",
+ "modified": "2025-05-06 12:41:15.548368",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Solar Panel Pricing Rule",
