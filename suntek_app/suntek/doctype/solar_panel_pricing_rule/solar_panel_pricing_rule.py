@@ -6,19 +6,24 @@ from frappe.model.document import Document
 
 class SolarPanelPricingRule(Document):
     def validate(self):
+        self.validate_height()
+        self.validate_capacity()
+
         if self.is_new():
             if not self.price_list:
                 self.price_list = self.get_price_list()
 
-        self.validate_height()
-        self.validate_capacity()
-
     def validate_height(self):
         if not self.min_height:
-            frappe.throw("Min Height is required")
+            frappe.throw("Minimum Height is required")
         if not self.max_height:
-            frappe.throw("Max Height is required")
-
+            frappe.throw("Maximum Height is required")
+        if self.min_height == 0.00:
+            frappe.throw("Minimum Height cannot be zero")
+        if self.max_height == 0.00:
+            frappe.throw("Maximum Height cannot be zero")
+        if self.min_height > self.max_height:
+            frappe.throw("Minumum height cannot be greater than maximum height")
         if self.min_height == self.max_height:
             frappe.throw("Minimum and maximum height cannot be the same")
 
@@ -27,6 +32,12 @@ class SolarPanelPricingRule(Document):
             frappe.throw("Minimum capacity is required")
         if not self.max_capacity:
             frappe.throw("Maximum capacity is required")
+        if self.min_capacity == 0:
+            frappe.throw("Minimum capacity cannot be zero")
+        if self.max_capacity == 0:
+            frappe.throw("Maximum capacity cannot be zero")
+        if self.min_capacity > self.max_capacity:
+            frappe.throw("Minumum capacity cannot be greater than maximum capacity")
         if self.min_capacity == self.max_capacity:
             frappe.throw("Minimum and maximum capacity cannot be the same")
 
