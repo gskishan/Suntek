@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:{item}-{min_kwp}-{max_kwp}-{height}",
  "creation": "2025-04-29 11:35:03.853477",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -121,11 +120,10 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-05-06 12:41:15.548368",
+ "modified": "2025-05-06 15:19:39.019158",
  "modified_by": "Administrator",
  "module": "suntek",
  "name": "Solar Panel Pricing Rule",
- "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
