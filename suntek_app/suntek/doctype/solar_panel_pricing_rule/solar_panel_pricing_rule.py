@@ -2,9 +2,13 @@ import re
 
 import frappe
 from frappe.model.document import Document
+from frappe.model.naming import make_autoname
 
 
 class SolarPanelPricingRule(Document):
+    def autoname(self):
+        self.name = make_autoname("SLPR-.#####")
+
     def validate(self):
         self.validate_height()
         self.validate_capacity()
@@ -12,6 +16,27 @@ class SolarPanelPricingRule(Document):
         if self.is_new():
             if not self.price_list:
                 self.price_list = self.get_price_list()
+
+    def before_save(self):
+        self.verify_existing_pricing_rules()
+
+    def verify_existing_pricing_rules(self):
+        existing_rule = frappe.db.exists(
+            "Solar Panel Pricing Rule",
+            {
+                "item": self.item,
+                "min_capacity": float(self.min_capacity),
+                "max_capacity": float(self.max_capacity),
+                "min_height": float(self.min_height),
+                "max_height": float(self.max_height),
+                "disabled": 0,
+            },
+        )
+
+        if existing_rule:
+            frappe.throw(
+                "Another pricing rule with current configuration already exists. Please change height or capacity."
+            )
 
     def validate_height(self):
         if not self.min_height:
