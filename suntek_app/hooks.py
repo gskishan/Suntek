@@ -45,6 +45,7 @@ override_doctype_class = {
     "Contact": "suntek_app.suntek.custom.contact.CustomContact",
     "Quotation": "suntek_app.custom_script.quotation.CustomQuotation",
     "Salary Slip": "suntek_app.custom_script.salary_slip.CustomSalarySlip",
+    "Work Order": "suntek_app.overrides.work_order.CustomWorkOrder",
 }
 
 permission_query_conditions = {
