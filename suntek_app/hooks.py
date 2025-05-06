@@ -48,13 +48,17 @@ override_doctype_class = {
 }
 
 permission_query_conditions = {
-    "Lead": "suntek_app.overrides.lead.get_permission_query_conditions",
-    "Opportunity": "suntek_app.overrides.opportunity.get_permission_query_conditions",
+    "Lead": "suntek_app.permissions.lead.get_permission_query_conditions",
+    "Opportunity": "suntek_app.permissions.opportunity.get_permission_query_conditions",
+    "Quotation": "suntek_app.permissions.quotation.get_permission_query_conditions",
+    "Sales Order": "suntek_app.permissions.sales_order.get_permission_query_conditions",
 }
 
 has_permission = {
-    "Lead": "suntek_app.overrides.lead.has_permission",
-    "Opportunity": "suntek_app.overrides.opportunity.has_permission",
+    "Lead": "suntek_app.permissions.lead.has_permission",
+    "Opportunity": "suntek_app.permissions.opportunity.has_permission",
+    "Quotation": "suntek_app.permissions.quotation.has_permission",
+    "Sales Order": "suntek_app.permissions.sales_order.has_permission",
 }
 
 doc_events = {
