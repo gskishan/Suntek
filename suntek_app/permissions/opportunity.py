@@ -2,18 +2,13 @@ import frappe
 
 from suntek_app.permissions import (
     base_permission_query_conditions,
+    get_employee_from_sales_person,
     get_subordinate_conditions,
     get_subordinates,
     get_user_employee,
     is_document_assigned,
     is_document_shared,
 )
-
-
-def get_employee_from_sales_person(sales_person):
-    if not sales_person:
-        return None
-    return frappe.db.get_value("Sales Person", sales_person, "employee")
 
 
 def has_permission(doc, ptype="read", user=None):
