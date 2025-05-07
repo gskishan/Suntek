@@ -130,6 +130,7 @@ def make_project(source_name, target_doc=None):
         },
         target_doc,
         postprocess,
+        ignore_permissions=True,
     )
 
     return doc
