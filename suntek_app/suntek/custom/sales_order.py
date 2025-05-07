@@ -193,27 +193,28 @@ def make_sales_invoice(source_name, target_doc=None):
 def share_sales_order_with_sales_person(doc, method):
     """Share the sales order to the sales person after it is created."""
 
-    sales_person = frappe.get_doc("Sales Person", {"sales_person_name": doc.sales_person})
+    if doc.sales_person:
+        sales_person = frappe.get_doc("Sales Person", {"sales_person_name": doc.sales_person})
 
-    if sales_person:
-        sales_person_employee = frappe.get_doc("Employee", {"name": sales_person.employee})
+        if sales_person:
+            sales_person_employee = frappe.get_doc("Employee", {"name": sales_person.employee})
 
-        if sales_person_employee:
-            if not frappe.db.exists(
-                "DocShare",
-                {
-                    "share_doctype": doc.doctype,
-                    "share_name": doc.name,
-                    "user": sales_person_employee.user_id,
-                },
-            ):
-                shared_doc = frappe.new_doc("DocShare")
-                shared_doc.share_doctype = doc.doctype
-                shared_doc.share_name = doc.name
-                shared_doc.user = sales_person_employee.get("user_id")
-                shared_doc.read = 1
-                shared_doc.write = 1
-                shared_doc.share = 1
-                shared_doc.notify_by_email = 1
+            if sales_person_employee:
+                if not frappe.db.exists(
+                    "DocShare",
+                    {
+                        "share_doctype": doc.doctype,
+                        "share_name": doc.name,
+                        "user": sales_person_employee.user_id,
+                    },
+                ):
+                    shared_doc = frappe.new_doc("DocShare")
+                    shared_doc.share_doctype = doc.doctype
+                    shared_doc.share_name = doc.name
+                    shared_doc.user = sales_person_employee.get("user_id")
+                    shared_doc.read = 1
+                    shared_doc.write = 1
+                    shared_doc.share = 1
+                    shared_doc.notify_by_email = 1
 
-                shared_doc.insert()
+                    shared_doc.insert()
