@@ -125,3 +125,9 @@ def get_subordinate_conditions(user, doctype, special_owner_field=None):
     if subordinate_conditions:
         return f" OR ({' OR '.join(subordinate_conditions)})"
     return ""
+
+
+def get_employee_from_sales_person(sales_person):
+    if not sales_person:
+        return None
+    return frappe.db.get_value("Sales Person", sales_person, "employee")
