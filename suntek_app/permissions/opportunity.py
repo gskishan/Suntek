@@ -16,8 +16,12 @@ def has_permission(doc, ptype="read", user=None):
 
     if user == "Administrator":
         return True
+
     if "System Manager" in frappe.get_roles(user):
         return True
+    if "Sales Master Manager" in frappe.get_roles(user):
+        return True
+
     if doc.owner == user:
         return True
 
