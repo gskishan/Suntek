@@ -120,6 +120,9 @@ doc_events = {
             "suntek_app.api.webhook_handler.send_ambassador_status_update",
             "suntek_app.event_handlers.sales_order_event_handler.update_cppo_from_sales_order",
         ],
+        "after_insert": [
+            "suntek_app.suntek.custom.sales_order.share_sales_order_with_sales_person",
+        ],
         "after_save": [
             "suntek_app.event_handlers.sales_order_event_handler.update_cppo_from_sales_order",
         ],
@@ -157,6 +160,11 @@ doc_events = {
     "Issue": {
         "on_update": [
             "suntek_app.suntek.custom.issue.send_issue_update_to_ambassador_api",
+        ]
+    },
+    "DocShare": {
+        "before_insert": [
+            "suntek_app.overrides.docshare.share_opportunity_with_designer",
         ]
     },
 }
