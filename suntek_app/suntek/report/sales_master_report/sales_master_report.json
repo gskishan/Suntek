@@ -1,0 +1,209 @@
+{
+    "add_total_row": 0,
+    "add_translate_data": 0,
+    "columns": [
+        {
+            "fieldname": "lead_id",
+            "fieldtype": "Link",
+            "label": "Lead ID",
+            "options": "Lead",
+            "width": 110
+        },
+        {
+            "fieldname": "lead_created_month",
+            "fieldtype": "Data",
+            "label": "Lead Created Month",
+            "width": 140
+        },
+        {
+            "fieldname": "full_name",
+            "fieldtype": "Data",
+            "label": "Full Name",
+            "width": 180
+        },
+        {
+            "fieldname": "lead_owner",
+            "fieldtype": "Data",
+            "label": "Lead Owner",
+            "width": 140
+        },
+        {
+            "fieldname": "lead_source",
+            "fieldtype": "Data",
+            "label": "Lead Source",
+            "width": 120
+        },
+        {
+            "fieldname": "opportunity_id",
+            "fieldtype": "Link",
+            "label": "Opportunity ID",
+            "options": "Opportunity",
+            "width": 140
+        },
+        {
+            "fieldname": "opportunity_created_date",
+            "fieldtype": "Date",
+            "label": "Opportunity Created Date",
+            "width": 160
+        },
+        {
+            "fieldname": "opportunity_owner",
+            "fieldtype": "Data",
+            "label": "Opportunity Owner",
+            "width": 150
+        },
+        {
+            "fieldname": "opportunity_source",
+            "fieldtype": "Data",
+            "label": "Source",
+            "width": 120
+        },
+        {
+            "fieldname": "sales_executive",
+            "fieldtype": "Data",
+            "label": "Field Sales Executive",
+            "width": 180
+        },
+        {
+            "fieldname": "type_of_case",
+            "fieldtype": "Data",
+            "label": "Type of Case",
+            "width": 120
+        },
+        {
+            "fieldname": "customer_name",
+            "fieldtype": "Data",
+            "label": "Customer Name",
+            "width": 180
+        },
+        {
+            "fieldname": "mobile_no",
+            "fieldtype": "Data",
+            "label": "Mobile No",
+            "width": 120
+        },
+        {
+            "fieldname": "customer_category",
+            "fieldtype": "Data",
+            "label": "Customer Category",
+            "width": 150
+        },
+        {
+            "fieldname": "state",
+            "fieldtype": "Data",
+            "label": "State",
+            "width": 120
+        },
+        {
+            "fieldname": "branch",
+            "fieldtype": "Data",
+            "label": "Branch",
+            "width": 120
+        }
+    ],
+    "creation": "2025-05-09 15:23:38.534745",
+    "disabled": 0,
+    "docstatus": 0,
+    "doctype": "Report",
+    "filters": [
+        {
+            "fieldname": "from_date",
+            "label": "From Date",
+            "fieldtype": "Date",
+            "default": "",
+            "reqd": 0
+        },
+        {
+            "fieldname": "to_date",
+            "label": "To Date",
+            "fieldtype": "Date",
+            "default": "",
+            "reqd": 0
+        },
+        {
+            "fieldname": "lead_owner",
+            "label": "Lead Owner",
+            "fieldtype": "Link",
+            "options": "User"
+        },
+        {
+            "fieldname": "source",
+            "label": "Lead Source",
+            "fieldtype": "Link",
+            "options": "Lead Source"
+        },
+        {
+            "fieldname": "state",
+            "label": "State",
+            "fieldtype": "Link",
+            "options": "State"
+        },
+        {
+            "fieldname": "customer_category",
+            "label": "Customer Category",
+            "fieldtype": "Select",
+            "options": "\nIndividual\nC & I"
+        },
+        {
+            "fieldname": "type_of_case",
+            "label": "Type of Case",
+            "fieldtype": "Select",
+            "options": "\nSubsidy\nNon Subsidy\nDiscom"
+        },
+        {
+            "fieldname": "sales_executive",
+            "label": "Field Sales Executive",
+            "fieldtype": "Link",
+            "options": "Employee"
+        },
+        {
+            "fieldname": "branch",
+            "label": "Branch",
+            "fieldtype": "Data"
+        }
+    ],
+    "idx": 0,
+    "is_standard": "Yes",
+    "letter_head": "Suntek Energy Systems pvt.ltd",
+    "letterhead": null,
+    "modified": "2025-05-09 15:23:38.534745",
+    "modified_by": "Administrator",
+    "module": "suntek",
+    "name": "Sales Master Report",
+    "owner": "Administrator",
+    "prepared_report": 1,
+    "ref_doctype": "Lead",
+    "report_name": "Sales Master Report",
+    "report_type": "Script Report",
+    "roles": [
+        {
+            "role": "System Manager"
+        },
+        {
+            "role": "Sales Manager"
+        },
+        {
+            "role": "Sales User"
+        },
+        {
+            "role": "Sales Master Manager"
+        },
+        {
+            "role": "Sales & Purchase"
+        },
+        {
+            "role": "Sales Master Manager - Domestic"
+        },
+        {
+            "role": "Sales Master Manager (C&I)"
+        },
+        {
+            "role": "State Head"
+        },
+        {
+            "role": "Field Sales Exec"
+        }
+    ],
+    "timeout": 300,
+    "query_limit": 1000
+}
