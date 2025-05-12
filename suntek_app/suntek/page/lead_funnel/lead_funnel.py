@@ -132,12 +132,22 @@ class LeadFunnel:
         do_not_contact_count = sum(row.count for row in status_data if row.status == "Do Not Contact")
         quotation_count = sum(row.count for row in status_data if row.status == "Quotation")
         converted_count = sum(row.count for row in status_data if row.status == "Converted")
+        interested_count = sum(row.count for row in status_data if row.status in ["Interested", "Opportunity"])
+
+        # status_counts.update(
+        #     {
+        #         "Connected": total_count - open_enquiry_count,
+        #         "Interested": total_count - (open_enquiry_count + do_not_contact_count),
+        #         "Quotation": quotation_count + converted_count,
+        #         "Converted": converted_count,
+        #     }
+        # )
 
         status_counts.update(
             {
                 "Connected": total_count - open_enquiry_count,
-                "Interested": total_count - (open_enquiry_count + do_not_contact_count),
-                "Quotation": quotation_count + converted_count,
+                "Interested": interested_count,
+                "Quotation": quotation_count,
                 "Converted": converted_count,
             }
         )
