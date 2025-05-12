@@ -17,6 +17,11 @@ def has_permission(doc, ptype="read", user=None):
         return True
     if "System Manager" in frappe.get_roles(user):
         return True
+    if "Sales Master Manager" in frappe.get_roles(user):
+        return True
+    if "Lead Master Manager" in frappe.get_roles(user):
+        return True
+
     if doc.owner == user:
         return True
 
@@ -49,6 +54,10 @@ def get_permission_query_conditions(user):
         return ""
 
     if "System Manager" in frappe.get_roles(user):
+        return ""
+    if "Sales Master Manager" in frappe.get_roles(user):
+        return ""
+    if "Lead Master Manager" in frappe.get_roles(user):
         return ""
 
     special_owner_field = "lead_owner"
