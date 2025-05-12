@@ -151,6 +151,17 @@ def get_columns():
             "width": 190,
         },
         {"fieldname": "subsidy_amount", "label": _("Subsidy Amount"), "fieldtype": "Currency", "width": 140},
+        {
+            "fieldname": "payment_entry_id",
+            "label": _("Payment Entry ID"),
+            "fieldtype": "Link",
+            "options": "Payment Entry",
+            "width": 150,
+        },
+        {"fieldname": "payment_date", "label": _("Payment Date"), "fieldtype": "Date", "width": 130},
+        {"fieldname": "mode_of_payment", "label": _("Mode of Payment"), "fieldtype": "Data", "width": 150},
+        {"fieldname": "payment_order_status", "label": _("Payment Order Status"), "fieldtype": "Data", "width": 170},
+        {"fieldname": "paid_amount", "label": _("Paid Amount"), "fieldtype": "Currency", "width": 130},
     ]
 
 
@@ -162,7 +173,7 @@ def get_data(filters):
     for lead in leads:
         row = {
             "lead_id": lead.name,
-            "lead_created_month": lead.creation.strftime("%B %Y") if lead.creation else "N/A",
+            "lead_created_month": lead.creation.strftime("%d-%m-%Y") if lead.creation else "N/A",
             "full_name": f"{lead.first_name or ''} {lead.last_name or ''}".strip(),
             "lead_owner": lead.lead_owner,
             "lead_source": lead.source,
@@ -209,6 +220,10 @@ def get_data(filters):
                         subsidy = get_subsidy_from_project(project.name)
                         if subsidy:
                             update_row_with_subsidy(row, subsidy)
+
+                        payment_entry = get_payment_entry_from_project(project.name)
+                        if payment_entry:
+                            update_row_with_payment_entry(row, payment_entry)
 
                     design = get_design_from_sales_order_or_project(sales_order.name, row.get("project_id", ""))
                     if design:
@@ -722,6 +737,28 @@ def get_subsidy_from_project(project_id):
     return subsidies[0] if subsidies else None
 
 
+def get_payment_entry_from_project(project_id):
+    payment_entries = frappe.db.sql(
+        """
+        SELECT
+            pe.name, pe.posting_date, pe.mode_of_payment,
+            pe.payment_order_status, pe.paid_amount
+        FROM
+            `tabPayment Entry` pe
+        WHERE
+            pe.project = %s
+            AND pe.docstatus < 2
+        ORDER BY
+            pe.posting_date DESC
+        LIMIT 1
+    """,
+        project_id,
+        as_dict=True,
+    )
+
+    return payment_entries[0] if payment_entries else None
+
+
 def update_row_with_opportunity(row, opportunity):
     row.update(
         {
@@ -865,5 +902,17 @@ def update_row_with_subsidy(row, subsidy):
             "subsidy_status": subsidy.subsidy_status or "N/A",
             "subsidy_amt_received_date": subsidy.subsidy_cheque_date or "N/A",
             "subsidy_amount": subsidy.custom_subsidy_amount or 0,
+        }
+    )
+
+
+def update_row_with_payment_entry(row, payment_entry):
+    row.update(
+        {
+            "payment_entry_id": payment_entry.name,
+            "payment_date": payment_entry.posting_date or "N/A",
+            "mode_of_payment": payment_entry.mode_of_payment or "N/A",
+            "payment_order_status": payment_entry.custom_payment_order_status or "N/A",
+            "paid_amount": payment_entry.paid_amount or 0,
         }
     )
