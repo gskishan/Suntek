@@ -1,5 +1,3 @@
-# Copyright (c) 2023, kishan and contributors
-# For license information, please see license.txt
 from collections import Counter
 
 import frappe
@@ -202,7 +200,7 @@ def make_bom(source_name, target_doc=None):
 @frappe.whitelist()
 def make_stock_entry(source_name, target_doc=None):
     def update_item(obj, target, source_parent):
-        qty = flt(obj.qty) - flt(obj.transferred) if flt(obj.qty) > flt(obj.transferred) else 0
+        qty = flt(obj.qty) - flt(obj.transferred) if flt(obj.qty) > flt(obj.transferred) else flt(obj.qty)
         target.qty = qty
         target.against_designing_item = obj.name
         target.against_designing = obj.parent
@@ -218,7 +216,6 @@ def make_stock_entry(source_name, target_doc=None):
         target.set_transfer_qty()
         target.set_actual_qty()
         target.calculate_rate_and_amount(raise_error_if_no_rate=False)
-        # target.stock_entry_type = "Material Transfer to Customer"
         target.customer = source_doc.customer_name
         company = frappe.db.get_value("Project", source.custom_project, "company")
         warehouse = frappe.db.get_value("Company", company, "custom_default_warehouse")
@@ -246,9 +243,6 @@ def make_stock_entry(source_name, target_doc=None):
                     "uom": "uom",
                 },
                 "postprocess": update_item,
-                "condition": lambda doc: (
-                    flt(doc.transferred, doc.precision("transferred")) < flt(doc.qty, doc.precision("qty"))
-                ),
             },
         },
         target_doc,
