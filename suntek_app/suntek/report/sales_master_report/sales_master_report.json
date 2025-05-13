@@ -99,6 +99,50 @@
             "fieldtype": "Data",
             "label": "Branch",
             "width": 120
+        },
+        {
+            "fieldname": "subsidy_amount",
+            "fieldtype": "Currency",
+            "label": "Subsidy Amount",
+            "width": 140
+        },
+        {
+            "fieldname": "payment_sequence",
+            "fieldtype": "Data",
+            "label": "Payment Sequence",
+            "width": 140
+        },
+        {
+            "fieldname": "payment_entry_id",
+            "fieldtype": "Link",
+            "label": "Payment Entry ID",
+            "options": "Payment Entry",
+            "width": 150
+        },
+        {
+            "fieldname": "design_id",
+            "fieldtype": "Link",
+            "label": "Design ID",
+            "options": "Designing",
+            "width": 110
+        },
+        {
+            "fieldname": "design_date",
+            "fieldtype": "Date",
+            "label": "Design Creation Date",
+            "width": 160
+        },
+        {
+            "fieldname": "design_submitted_date",
+            "fieldtype": "Date",
+            "label": "Design Submitted Date",
+            "width": 160
+        },
+        {
+            "fieldname": "design_created_by",
+            "fieldtype": "Data",
+            "label": "Design Created By",
+            "width": 150
         }
     ],
     "creation": "2025-05-09 15:23:38.534745",

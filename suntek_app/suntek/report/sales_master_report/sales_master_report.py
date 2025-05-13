@@ -77,6 +77,7 @@ def get_columns():
         {"fieldname": "project_id", "label": _("Project ID"), "fieldtype": "Link", "options": "Project", "width": 110},
         {"fieldname": "design_id", "label": _("Design ID"), "fieldtype": "Link", "options": "Designing", "width": 110},
         {"fieldname": "design_date", "label": _("Design Creation Date"), "fieldtype": "Date", "width": 160},
+        {"fieldname": "design_submitted_date", "label": _("Design Submitted Date"), "fieldtype": "Date", "width": 160},
         {"fieldname": "design_created_by", "label": _("Design Created By"), "fieldtype": "Data", "width": 150},
         {"fieldname": "bom_id", "label": _("BOM ID"), "fieldtype": "Link", "options": "BOM", "width": 110},
         {
@@ -151,6 +152,7 @@ def get_columns():
             "width": 190,
         },
         {"fieldname": "subsidy_amount", "label": _("Subsidy Amount"), "fieldtype": "Currency", "width": 140},
+        {"fieldname": "payment_sequence", "label": _("Payment Sequence"), "fieldtype": "Data", "width": 140},
         {
             "fieldname": "payment_entry_id",
             "label": _("Payment Entry ID"),
@@ -221,9 +223,11 @@ def get_data(filters):
                         if subsidy:
                             update_row_with_subsidy(row, subsidy)
 
-                        payment_entry = get_payment_entry_from_project(project.name)
-                        if payment_entry:
-                            update_row_with_payment_entry(row, payment_entry)
+                        payment_entries = get_payment_entry_from_project(project.name)
+                        if payment_entries:
+                            additional_rows = update_row_with_payment_entry(row, payment_entries)
+                            if additional_rows:
+                                data.extend(additional_rows)
 
                     design = get_design_from_sales_order_or_project(sales_order.name, row.get("project_id", ""))
                     if design:
@@ -482,7 +486,7 @@ def get_design_from_sales_order_or_project(sales_order_id, project_id):
     designs = frappe.db.sql(
         """
         SELECT
-            d.name, d.creation, d.designer as created_by
+            d.name, d.creation, d.modified, d.docstatus, d.designer as created_by
         FROM
             `tabDesigning` d
         WHERE
@@ -749,14 +753,13 @@ def get_payment_entry_from_project(project_id):
             pe.project = %s
             AND pe.docstatus < 2
         ORDER BY
-            pe.posting_date DESC
-        LIMIT 1
+            pe.posting_date ASC
     """,
         project_id,
         as_dict=True,
     )
 
-    return payment_entries[0] if payment_entries else None
+    return payment_entries
 
 
 def update_row_with_opportunity(row, opportunity):
@@ -825,6 +828,7 @@ def update_row_with_design(row, design):
         {
             "design_id": design.name,
             "design_date": design.creation.date() if design.creation else "N/A",
+            "design_submitted_date": design.modified.date() if design.docstatus == 1 and design.modified else "N/A",
             "design_created_by": design.created_by or "N/A",
         }
     )
@@ -906,13 +910,35 @@ def update_row_with_subsidy(row, subsidy):
     )
 
 
-def update_row_with_payment_entry(row, payment_entry):
+def update_row_with_payment_entry(row, payment_entries):
+    if not payment_entries:
+        return
+
+    first_payment = payment_entries[0]
     row.update(
         {
-            "payment_entry_id": payment_entry.name,
-            "payment_date": payment_entry.posting_date or "N/A",
-            "mode_of_payment": payment_entry.mode_of_payment or "N/A",
-            "payment_order_status": payment_entry.custom_payment_order_status or "N/A",
-            "paid_amount": payment_entry.paid_amount or 0,
+            "payment_sequence": "Payment 1",
+            "payment_entry_id": first_payment.name,
+            "payment_date": first_payment.posting_date or "N/A",
+            "mode_of_payment": first_payment.mode_of_payment or "N/A",
+            "payment_order_status": first_payment.payment_order_status or "N/A",
+            "paid_amount": first_payment.paid_amount or 0,
         }
     )
+
+    additional_rows = []
+    for i, payment in enumerate(payment_entries[1:], 2):
+        new_row = row.copy()
+        new_row.update(
+            {
+                "payment_sequence": f"Payment {i}",
+                "payment_entry_id": payment.name,
+                "payment_date": payment.posting_date or "N/A",
+                "mode_of_payment": payment.mode_of_payment or "N/A",
+                "payment_order_status": payment.payment_order_status or "N/A",
+                "paid_amount": payment.paid_amount or 0,
+            }
+        )
+        additional_rows.append(new_row)
+
+    return additional_rows
