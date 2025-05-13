@@ -4,7 +4,7 @@ frappe.query_reports["Sales Master Report"] = {
             fieldname: "from_date",
             label: __("From Date"),
             fieldtype: "Date",
-            default: frappe.datetime.add_months(frappe.datetime.get_today(), -3),
+            default: frappe.datetime.add_months(frappe.datetime.get_today(), -1),
             reqd: 0,
         },
         {
@@ -36,24 +36,25 @@ frappe.query_reports["Sales Master Report"] = {
             fieldname: "customer_category",
             label: __("Customer Category"),
             fieldtype: "Select",
-            options: "\nIndividual\nC & I",
+            options: "\nAppartments\nGated Communities\nGovernment\nIndividual\nC & I",
         },
         {
             fieldname: "type_of_case",
             label: __("Type of Case"),
             fieldtype: "Select",
-            options: "\nSubsidy\nNon Subsidy\nDiscom",
+            options: "\nSubsidy\nNon Subsidy\nNo Subsidy No Discom",
         },
         {
             fieldname: "sales_executive",
             label: __("Field Sales Executive"),
             fieldtype: "Link",
-            options: "Employee",
+            options: "Sales Person",
         },
         {
             fieldname: "branch",
             label: __("Branch"),
-            fieldtype: "Data",
+            fieldtype: "Link",
+            options: "Branch",
         },
     ],
 };
