@@ -171,48 +171,70 @@ doc_events = {
 
 
 fixtures = [
-    {"doctype": "Warehouse Type", "filters": {"name": "Channel Partner"}},
-    {
-        "doctype": "Role",
-        "filters": [
-            [
-                "name",
-                "in",
-                [
-                    "Channel Partner",
-                    "Channel Partner Manager",
-                    "Sales Order Report User",
-                    "Solar Power Plant Manager",
-                ],
-            ]
-        ],
-    },
-    {
-        "doctype": "Custom DocPerm",
-        "filters": [
-            [
-                "role",
-                "in",
-                [
-                    "Channel Partner",
-                    "Channel Partner Manager",
-                    "Sales Order Report User",
-                    "Solar Power Plant Manager",
-                ],
-            ]
-        ],
-    },
-    {
-        "doctype": "Property Setter",
-        "filters": [["name", "in", ["Sales Order-order_type-options"]]],
-    },
-    {
-        "doctype": "Module Profile",
-        "filters": [
-            ["name", "=", "Channel Partner"],
-        ],
-    },
+    # {"doctype": "Warehouse Type", "filters": {"name": "Channel Partner"}},
+    # {
+    #     "doctype": "Role",
+    #     "filters": [
+    #         [
+    #             "name",
+    #             "in",
+    #             [
+    #                 "Channel Partner",
+    #                 "Channel Partner Manager",
+    #                 "Sales Order Report User",
+    #                 "Solar Power Plant Manager",
+    #             ],
+    #         ]
+    #     ],
+    # },
+    # {
+    #     "doctype": "Custom DocPerm",
+    #     "filters": [
+    #         [
+    #             "role",
+    #             "in",
+    #             [
+    #                 "Channel Partner",
+    #                 "Channel Partner Manager",
+    #                 "Sales Order Report User",
+    #                 "Solar Power Plant Manager",
+    #             ],
+    #         ]
+    #     ],
+    # },
+    # {
+    #     "doctype": "Property Setter",
+    #     "filters": [["name", "in", ["Sales Order-order_type-options"]]],
+    # },
+    # {
+    #     "doctype": "Module Profile",
+    #     "filters": [
+    #         ["name", "=", "Channel Partner"],
+    #     ],
+    # },
     {"doctype": "Stock Entry Type", "filters": [["name", "=", "Material Transfer to Channel Partner"]]},
+    {
+        "dt": "Custom Field",
+        "filters": [
+            [
+                "dt",
+                "in",
+                ["Purchase Order", "Purchase Order Item"],
+            ],
+            ["module", "=", "suntek"],
+        ],
+    },
+    {
+        "dt": "Property Setter",
+        "filters": [
+            [
+                "doc_type",
+                "in",
+                ["Purchase Order", "Purchase Order Item"],
+            ],
+            ["module", "=", "suntek"],
+        ],
+    },
 ]
 
 website_route_rules = [
