@@ -120,6 +120,9 @@ doc_events = {
             "suntek_app.api.webhook_handler.send_ambassador_status_update",
             "suntek_app.event_handlers.sales_order_event_handler.update_cppo_from_sales_order",
         ],
+        "validate": [
+            "suntek_app.suntek.custom.sales_order.set_project_template",
+        ],
         "after_insert": [
             "suntek_app.suntek.custom.sales_order.share_sales_order_with_sales_person",
         ],

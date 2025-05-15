@@ -9,10 +9,7 @@ def validate(doc, method):
 
 
 def custom_copy_from_template(self):
-    """
-    Copy tasks from template
-    """
-    if self.custom_project_template and not frappe.db.get_all(
+    if self.project_template and not frappe.db.get_all(
         "Task",
         dict(project=self.name),
         limit=1,
@@ -20,7 +17,7 @@ def custom_copy_from_template(self):
         if not self.expected_start_date:
             self.expected_start_date = today()
 
-        template = frappe.get_doc("Project Template", self.custom_project_template)
+        template = frappe.get_doc("Project Template", self.project_template)
 
         if not self.project_type:
             self.project_type = template.project_type
