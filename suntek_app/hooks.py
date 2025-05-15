@@ -134,7 +134,7 @@ doc_events = {
         ],
     },
     "Project": {
-        "validate": "suntek_app.suntek.custom.project.validate",
+        "validate": ["suntek_app.suntek.custom.project.validate"],
         "before_save": ["suntek_app.suntek.custom.project.get_channel_partner_data"],
     },
     "Price List": {"validate": "suntek_app.custom_script.price_list.validate"},
@@ -213,6 +213,35 @@ fixtures = [
         ],
     },
     {"doctype": "Stock Entry Type", "filters": [["name", "=", "Material Transfer to Channel Partner"]]},
+    # Fixtures for Property Setters and Custom Fields
+    {
+        "dt": "Property Setter",
+        "filters": [
+            ["module", "=", "suntek"],
+            [
+                "doc_type",
+                "in",
+                [
+                    "Project Template",
+                    "Project",
+                ],
+            ],
+        ],
+    },
+    {
+        "dt": "Custom Field",
+        "filters": [
+            ["module", "=", "suntek"],
+            [
+                "dt",
+                "in",
+                [
+                    "Project Template",
+                    "Project",
+                ],
+            ],
+        ],
+    },
 ]
 
 website_route_rules = [

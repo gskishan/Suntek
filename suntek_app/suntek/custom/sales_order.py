@@ -5,9 +5,12 @@ def create_project_discom_subsidy_before_submit(doc, method):
     if frappe.db.exists("Project", {"project_name": doc.name}):
         _delete_documents_linked_to_sales_order(doc)
 
+    # project_template = frappe.get_doc("Project Template", "Test Project Template")
     new_project = make_project(doc)
     new_project.custom_poc_person_name = doc.custom_person_name
     new_project.custom_poc_mobile_no = doc.custom_another_mobile_no
+    # new_project.project_template = project_template
+
     new_project.save()
 
     if doc.custom_type_of_case == "Subsidy":
