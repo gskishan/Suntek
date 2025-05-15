@@ -131,6 +131,7 @@ doc_events = {
         ],
         "before_submit": [
             "suntek_app.suntek.custom.sales_order.create_project_discom_subsidy_before_submit",
+            "suntek_app.suntek.custom.sales_order.set_project_template",  # TODO: remove later (not meant for production)
         ],
         "on_cancel": [
             "suntek_app.suntek.custom.sales_order.delete_linked_documents_on_cancel",  # Cancel Project, Subsidy, Discom linked to Sales Order

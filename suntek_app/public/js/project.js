@@ -71,7 +71,6 @@ frappe.ui.form.on("Project", {
 function show_task_timeline(frm) {
     frm.set_df_property("custom_task_timeline", "options", '<div class="text-muted">Loading Task Timeline</div>');
 
-    // First fetch tasks
     frappe.call({
         method: "frappe.client.get_list",
         args: {
@@ -84,7 +83,6 @@ function show_task_timeline(frm) {
         },
         callback: function (r) {
             if (r.message && r.message.length > 0) {
-                // Fetch assigned users for each task
                 const tasks = r.message;
                 const taskNames = tasks.map((task) => task.name);
 
@@ -103,7 +101,6 @@ function show_task_timeline(frm) {
                             try {
                                 const taskAssignments = {};
 
-                                // Group todos by task
                                 if (todoResponse.message && Array.isArray(todoResponse.message)) {
                                     todoResponse.message.forEach((todo) => {
                                         if (todo && todo.reference_name) {
@@ -124,19 +121,19 @@ function show_task_timeline(frm) {
                                 render_task_timeline(frm, tasks, taskAssignments);
                             } catch (todoError) {
                                 console.error("Error processing ToDo data:", todoError);
-                                // Fall back to rendering without assignments
+
                                 render_task_timeline(frm, tasks, {});
                             }
                         },
                         error: function (err) {
                             console.error("Error fetching ToDos:", err);
-                            // Fall back to rendering without assignments
+
                             render_task_timeline(frm, tasks, {});
                         },
                     });
                 } catch (fetchError) {
                     console.error("Error in ToDo fetch setup:", fetchError);
-                    // Fall back to rendering without assignments
+
                     render_task_timeline(frm, tasks, {});
                 }
             } else {
@@ -150,14 +147,11 @@ function show_task_timeline(frm) {
     });
 }
 
-// Global function for managing task assignees
 window.manage_task_assignees = function (task_name) {
     if (!task_name) return;
 
-    // Decode HTML entities if needed (like &#39; -> ')
     task_name = $("<div/>").html(task_name).text();
 
-    // Create a dialog to manage assignees
     const d = new frappe.ui.Dialog({
         title: __("Manage Task Assignees"),
         fields: [
@@ -168,10 +162,6 @@ window.manage_task_assignees = function (task_name) {
                 options: "Task",
                 default: task_name,
                 read_only: 1,
-            },
-            {
-                fieldtype: "Section Break",
-                label: __("Assign Individual User"),
             },
             {
                 label: __("Assign To User"),
@@ -196,62 +186,24 @@ window.manage_task_assignees = function (task_name) {
             },
             {
                 fieldtype: "Section Break",
-                label: __("Assign User Group"),
-            },
-            {
-                label: __("User Group"),
-                fieldname: "user_group",
-                fieldtype: "Link",
-                options: "User Group",
-                description: __("Select a User Group to assign all members to this task"),
-            },
-            {
-                fieldname: "group_assign_btn",
-                fieldtype: "Button",
-                label: __("Add Group Members"),
-                click: function () {
-                    const group = d.get_value("user_group");
-                    if (!group) {
-                        frappe.throw(__("Please select a User Group"));
-                        return;
-                    }
-
-                    assign_user_group(group);
-                },
-            },
-            {
-                fieldtype: "Section Break",
                 label: __("Current Assignees"),
             },
             {
                 fieldname: "assignee_list",
                 fieldtype: "HTML",
             },
-            {
-                fieldtype: "Section Break",
-                label: __("Group Assignments"),
-            },
-            {
-                fieldname: "group_assignment_list",
-                fieldtype: "HTML",
-                description: __("Users assigned via groups"),
-            },
         ],
         primary_action_label: __("Done"),
         primary_action: function () {
             d.hide();
-            // Refresh the project form to update the timeline
             cur_frm.reload_doc();
         },
     });
 
     d.show();
 
-    // Currently assigned users and groups
     let current_assignments = [];
-    let group_assignments = {};
 
-    // Function to assign a single user
     function assign_single_user(user) {
         frappe.call({
             method: "frappe.desk.form.assign_to.add",
@@ -267,10 +219,7 @@ window.manage_task_assignees = function (task_name) {
                         indicator: "green",
                     });
 
-                    // Clear the input
                     d.set_value("assign_to", "");
-
-                    // Refresh the current assignees
                     refresh_assignee_list();
                 } else if (r.exc) {
                     console.error("Error adding assignment:", r);
@@ -283,88 +232,6 @@ window.manage_task_assignees = function (task_name) {
         });
     }
 
-    // Function to assign all users in a group
-    function assign_user_group(group_name) {
-        // Instead of directly querying User Group Member, use the assign_to method with the group
-        frappe.show_alert({
-            message: __("Assigning group {0} to task...", [group_name]),
-            indicator: "blue",
-        });
-
-        // First try to locate the task to confirm it exists
-        frappe.call({
-            method: "frappe.client.get",
-            args: {
-                doctype: "Task",
-                name: task_name,
-            },
-            callback: function (r) {
-                if (r.message) {
-                    // The task exists, now use a simple method to handle group assignment
-                    // We'll use a custom approach here - first get if the group exists
-                    frappe.call({
-                        method: "frappe.client.get",
-                        args: {
-                            doctype: "User Group",
-                            name: group_name,
-                        },
-                        callback: function (group_response) {
-                            if (group_response.message) {
-                                // Group exists, store it in our tracking
-                                if (!group_assignments[group_name]) {
-                                    group_assignments[group_name] = [__("Group Members")];
-                                }
-
-                                // Update the UI
-                                refresh_group_assignments();
-
-                                // Make a direct call to assign this group to the task
-                                // Instead of getting all users, we'll use a group marker
-                                frappe.call({
-                                    method: "frappe.desk.form.assign_to.add",
-                                    args: {
-                                        doctype: "Task",
-                                        name: task_name,
-                                        assign_to: [group_name + " (Group)"],
-                                        description: __("Group Assignment: All users in {0}", [group_name]),
-                                    },
-                                    callback: function (assign_response) {
-                                        if (assign_response.message) {
-                                            frappe.show_alert({
-                                                message: __("Group {0} assigned to task", [group_name]),
-                                                indicator: "green",
-                                            });
-
-                                            // Clear the input and refresh
-                                            d.set_value("user_group", "");
-                                            refresh_assignee_list();
-                                        } else {
-                                            frappe.show_alert({
-                                                message: __("Failed to assign group {0}", [group_name]),
-                                                indicator: "red",
-                                            });
-                                        }
-                                    },
-                                });
-                            } else {
-                                frappe.show_alert({
-                                    message: __("User Group {0} not found", [group_name]),
-                                    indicator: "red",
-                                });
-                            }
-                        },
-                    });
-                } else {
-                    frappe.show_alert({
-                        message: __("Task {0} not found", [task_name]),
-                        indicator: "red",
-                    });
-                }
-            },
-        });
-    }
-
-    // Function to refresh the assignee list
     function refresh_assignee_list() {
         frappe.call({
             method: "frappe.client.get_list",
@@ -380,7 +247,6 @@ window.manage_task_assignees = function (task_name) {
             callback: function (r) {
                 console.log("ToDos for task:", r.message);
                 if (r.message) {
-                    // Store current assignments for reference
                     current_assignments = r.message;
 
                     let assignee_html = '<div class="assignee-list">';
@@ -391,7 +257,6 @@ window.manage_task_assignees = function (task_name) {
                         r.message.forEach((todo) => {
                             const assignee = todo.allocated_to || todo.owner;
 
-                            // Check if we have the todo name
                             if (!todo.name) {
                                 console.warn("Missing ToDo name for:", todo);
                                 return;
@@ -411,9 +276,6 @@ window.manage_task_assignees = function (task_name) {
 
                     assignee_html += "</div>";
                     d.fields_dict.assignee_list.$wrapper.html(assignee_html);
-
-                    // Also refresh group assignments
-                    refresh_group_assignments();
                 }
             },
             error: function (err) {
@@ -425,154 +287,17 @@ window.manage_task_assignees = function (task_name) {
         });
     }
 
-    // Function to refresh group assignments
-    function refresh_group_assignments() {
-        // Simplified approach - just show the groups we've tracked
-        let groups_html = '<div class="group-assignments">';
-
-        if (Object.keys(group_assignments).length === 0) {
-            groups_html += '<div class="text-muted">No group assignments</div>';
-        } else {
-            // For each group we've assigned, show a card
-            Object.keys(group_assignments).forEach((group) => {
-                groups_html += `
-                    <div class="group-item" style="margin-bottom: 15px; padding: 10px; background-color: var(--control-bg); border-radius: 4px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <strong>${frappe.utils.escape_html(group)}</strong>
-                            <button class="btn btn-xs btn-danger" 
-                                onclick="remove_group_assignment('${task_name}', '${group}', this)">
-                                ${__("Unassign Group")}
-                            </button>
-                        </div>
-                        <div class="text-muted">${__("All members of this group will be notified")}</div>
-                    </div>
-                `;
-            });
-        }
-
-        groups_html += "</div>";
-        d.fields_dict.group_assignment_list.$wrapper.html(groups_html);
-    }
-
-    // Initial load of assignees
     refresh_assignee_list();
 };
 
-// Function to remove a group assignment
-window.remove_group_assignment = function (taskName, groupName, buttonElement) {
-    if (!taskName || !groupName) {
-        console.error("Missing required parameters for group unassignment");
-        return;
-    }
-
-    // Disable the button to prevent multiple clicks
-    $(buttonElement).prop("disabled", true).html('<i class="fa fa-spinner fa-spin"></i>');
-
-    // Find the todo entry for the group assignment
-    frappe.call({
-        method: "frappe.client.get_list",
-        args: {
-            doctype: "ToDo",
-            filters: {
-                reference_type: "Task",
-                reference_name: taskName,
-                allocated_to: ["like", "%" + groupName + "%"],
-                status: "Open",
-            },
-            fields: ["name"],
-        },
-        callback: function (r) {
-            if (r.message && r.message.length > 0) {
-                // Found matching todos, delete them
-                let deleted = 0;
-                let errors = 0;
-
-                r.message.forEach((todo) => {
-                    frappe.call({
-                        method: "frappe.client.delete",
-                        args: {
-                            doctype: "ToDo",
-                            name: todo.name,
-                        },
-                        callback: function (delRes) {
-                            if (!delRes.exc) {
-                                deleted++;
-                            } else {
-                                errors++;
-                            }
-
-                            // If all processed
-                            if (deleted + errors === r.message.length) {
-                                if (deleted > 0) {
-                                    // Remove from our tracking
-                                    if (group_assignments[groupName]) {
-                                        delete group_assignments[groupName];
-                                    }
-
-                                    // Remove from UI
-                                    $(buttonElement)
-                                        .closest(".group-item")
-                                        .slideUp(300, function () {
-                                            $(this).remove();
-
-                                            // If no more groups
-                                            if (Object.keys(group_assignments).length === 0) {
-                                                $(".group-assignments").html(
-                                                    '<div class="text-muted">No group assignments</div>',
-                                                );
-                                            }
-                                        });
-
-                                    frappe.show_alert({
-                                        message: __("Unassigned group {0}", [groupName]),
-                                        indicator: errors > 0 ? "yellow" : "green",
-                                    });
-
-                                    // Refresh the form after a delay
-                                    setTimeout(function () {
-                                        if (cur_frm) cur_frm.reload_doc();
-                                    }, 1000);
-                                } else {
-                                    $(buttonElement).prop("disabled", false).text(__("Unassign Group"));
-                                    frappe.show_alert({
-                                        message: __("Failed to remove group assignment"),
-                                        indicator: "red",
-                                    });
-                                }
-                            }
-                        },
-                    });
-                });
-            } else {
-                // No todos found
-                $(buttonElement).prop("disabled", false).text(__("Unassign Group"));
-                frappe.show_alert({
-                    message: __("No assignments found for group {0}", [groupName]),
-                    indicator: "orange",
-                });
-            }
-        },
-        error: function () {
-            $(buttonElement).prop("disabled", false).text(__("Unassign Group"));
-            frappe.show_alert({
-                message: __("Error checking group assignments"),
-                indicator: "red",
-            });
-        },
-    });
-};
-
-// Function to remove an assignee
 window.remove_task_assignee = function (todo_name, task_name) {
     if (!todo_name || !task_name) {
         console.error("Missing required parameters:", { todo_name, task_name });
         return;
     }
 
-    // Decode HTML entities if needed
     task_name = $("<div/>").html(task_name).text();
 
-    // Use the correct API format for todo removal
     frappe.call({
         method: "frappe.desk.form.assign_to.remove",
         args: {
@@ -587,15 +312,12 @@ window.remove_task_assignee = function (todo_name, task_name) {
                     indicator: "green",
                 });
 
-                // Try a different approach - refresh the current form
                 if (cur_frm) {
                     cur_frm.reload_doc();
                 }
 
-                // Close any open dialog (in case the dialog is still open)
                 $(".modal.show").modal("hide");
 
-                // Re-show the assignments dialog after a short delay to allow the server to update
                 setTimeout(function () {
                     manage_task_assignees(task_name);
                 }, 500);
@@ -610,7 +332,6 @@ window.remove_task_assignee = function (todo_name, task_name) {
     });
 };
 
-// Safely handle task assignment clicks
 window.handleTaskAssignment = function (element) {
     const taskId = element && element.dataset ? element.dataset.task : null;
     if (taskId) {
@@ -722,28 +443,23 @@ function render_task_timeline(frm, tasks, taskAssignments) {
                 statusClass = "task-ongoing";
             }
 
-            // Generate assignment avatars HTML
             let assignmentsHtml = "";
             const taskUsers =
                 taskAssignments && task && task.name && taskAssignments[task.name] ? taskAssignments[task.name] : [];
             const maxAvatars = 3;
 
-            // Use a safer approach to avoid quote issues
             const safeTaskName = task.name.replace(/['"\\]/g, function (c) {
                 return "&#" + c.charCodeAt(0) + ";";
             });
 
-            // Create a clickable area that opens assignment dialog with data attribute
             assignmentsHtml = `<div class="task-assignments" data-task="${safeTaskName}" onclick="handleTaskAssignment(this)">`;
 
             if (Array.isArray(taskUsers) && taskUsers.length > 0) {
                 taskUsers.slice(0, maxAvatars).forEach((user) => {
                     if (user) {
                         try {
-                            // Get user's first name initial or use the first character of their email
                             const userInitial = (user.charAt(0) || "").toUpperCase();
 
-                            // Create an avatar with the user's initial
                             assignmentsHtml += `
                                 <div class="task-avatar" title="${frappe.utils.escape_html(user) || "Unknown user"}">
                                     ${userInitial}
@@ -757,7 +473,6 @@ function render_task_timeline(frm, tasks, taskAssignments) {
                     }
                 });
 
-                // Add +X more indicator if there are additional users
                 if (taskUsers.length > maxAvatars) {
                     assignmentsHtml += `<div class="avatar-count" title="${
                         taskUsers.length - maxAvatars
@@ -765,7 +480,6 @@ function render_task_timeline(frm, tasks, taskAssignments) {
                 }
             }
 
-            // Add "plus" button to indicate you can add assignees
             assignmentsHtml += `<div class="task-assign-btn" title="Manage assignees">+</div>`;
             assignmentsHtml += "</div>";
 
@@ -804,17 +518,14 @@ function render_task_timeline(frm, tasks, taskAssignments) {
     }
 }
 
-// Direct remove assignment function
 window.direct_remove_assign = function (taskName, todoName, buttonElement) {
     if (!taskName || !todoName) {
         console.error("Missing required parameters to remove assignment");
         return;
     }
 
-    // Disable the button to prevent multiple clicks
     $(buttonElement).prop("disabled", true).html('<i class="fa fa-spinner fa-spin"></i>');
 
-    // Try a more direct approach - delete the ToDo document
     frappe.call({
         method: "frappe.client.delete",
         args: {
@@ -825,25 +536,21 @@ window.direct_remove_assign = function (taskName, todoName, buttonElement) {
             $(buttonElement).prop("disabled", false).html(__("Remove"));
 
             if (!response.exc) {
-                // Show success message
                 frappe.show_alert({
                     message: __("Assignment removed"),
                     indicator: "green",
                 });
 
-                // Remove the row from the UI immediately for better UX
                 $(buttonElement)
                     .closest(".assignee-item")
                     .slideUp(300, function () {
                         $(this).remove();
 
-                        // Check if no more assignees
                         if ($(".assignee-item").length === 0) {
                             $(".assignee-list").html('<div class="text-muted">No assignees</div>');
                         }
                     });
 
-                // Refresh the form, but after a delay
                 setTimeout(function () {
                     if (cur_frm) cur_frm.reload_doc();
                 }, 1000);
@@ -855,7 +562,6 @@ window.direct_remove_assign = function (taskName, todoName, buttonElement) {
                     indicator: "red",
                 });
 
-                // If we get permission error, try the second approach
                 if (response.exc && response.exc.includes("Permission")) {
                     try_alternative_removal(taskName, todoName, buttonElement);
                 }
@@ -864,7 +570,6 @@ window.direct_remove_assign = function (taskName, todoName, buttonElement) {
     });
 };
 
-// Alternative approach if direct deletion fails
 function try_alternative_removal(taskName, todoName, buttonElement) {
     frappe.call({
         method: "frappe.desk.form.assign_to.remove",
@@ -875,25 +580,21 @@ function try_alternative_removal(taskName, todoName, buttonElement) {
         },
         callback: function (response) {
             if (!response.exc) {
-                // Show success message
                 frappe.show_alert({
                     message: __("Assignment removed (alternative method)"),
                     indicator: "green",
                 });
 
-                // Remove the row from the UI
                 $(buttonElement)
                     .closest(".assignee-item")
                     .slideUp(300, function () {
                         $(this).remove();
                     });
 
-                // Refresh the form
                 setTimeout(function () {
                     if (cur_frm) cur_frm.reload_doc();
                 }, 1000);
             } else {
-                // Try one last method as a fallback
                 frappe.call({
                     method: "frappe.desk.doctype.todo.todo.remove_assignment",
                     args: {

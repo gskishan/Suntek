@@ -226,10 +226,11 @@ def share_sales_order_with_sales_person(doc, method):
 
 def set_project_template(doc, method):
     if doc.docstatus == 0:
-        type_of_case = doc.custom_type_of_case
-        department = doc.custom_department
-        order_type = doc.order_type
+        # department = doc.custom_department
+        # order_type = doc.order_type
 
-        if order_type == "Sales":
-            if department == "Domestic (Residential) Sales Team - SESP":
-                doc.custom_project_template = "Boilerplate Project Template"
+        # if order_type == "Sales":
+        #     if department == "Domestic (Residential) Sales Team - SESP":
+
+        project_template_name = frappe.get_doc("Project Template", "Boilerplate Project Template").name
+        doc.custom_project_template = project_template_name
