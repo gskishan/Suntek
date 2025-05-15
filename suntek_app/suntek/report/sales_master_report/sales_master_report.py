@@ -54,7 +54,8 @@ def get_columns():
             "width": 130,
         },
         {"fieldname": "quotation_date", "label": _("Quotation Creation Date"), "fieldtype": "Date", "width": 180},
-        {"fieldname": "capacity", "label": _("Capacity"), "fieldtype": "Data", "width": 100},
+        # {"fieldname": "capacity", "label": _("Capacity"), "fieldtype": "Data", "width": 100},
+        {"fieldname": "structure_height", "label": _("Structure Height"), "fieldtype": "Data", "width": 140},
         {"fieldname": "final_price", "label": _("Final Price"), "fieldtype": "Currency", "width": 120},
         {
             "fieldname": "sales_order_id",
@@ -70,13 +71,17 @@ def get_columns():
             "fieldtype": "Data",
             "width": 170,
         },
+        {"fieldname": "sales_person", "label": _("Sales Person"), "fieldtype": "Data", "width": 170},
         {"fieldname": "delivery_date", "label": _("Delivery Date"), "fieldtype": "Date", "width": 130},
         {"fieldname": "sales_order_value", "label": _("Sales Order Value"), "fieldtype": "Currency", "width": 150},
         {"fieldname": "order_type", "label": _("Order Type"), "fieldtype": "Data", "width": 120},
-        {"fieldname": "structure_height", "label": _("Structure Height"), "fieldtype": "Data", "width": 140},
+        {"fieldname": "department", "label": _("Department"), "fieldtype": "Data", "width": 120},
+        {"fieldname": "item_group", "label": _("Item Group"), "fieldtype": "Data", "width": 140},
+        {"fieldname": "uom", "label": _("UOM"), "fieldtype": "Data", "width": 100},
+        {"fieldname": "qty", "label": _("Qty"), "fieldtype": "Float", "width": 80},
         {"fieldname": "project_id", "label": _("Project ID"), "fieldtype": "Link", "options": "Project", "width": 110},
         {"fieldname": "design_id", "label": _("Design ID"), "fieldtype": "Link", "options": "Designing", "width": 110},
-        {"fieldname": "design_date", "label": _("Design Creation Date"), "fieldtype": "Date", "width": 160},
+        {"fieldname": "design_date", "label": _("Design Assignment Date"), "fieldtype": "Date", "width": 160},
         {"fieldname": "design_submitted_date", "label": _("Design Submitted Date"), "fieldtype": "Date", "width": 160},
         {"fieldname": "design_created_by", "label": _("Design Created By"), "fieldtype": "Data", "width": 150},
         {"fieldname": "bom_id", "label": _("BOM ID"), "fieldtype": "Link", "options": "BOM", "width": 110},
@@ -211,9 +216,37 @@ def get_data(filters):
                 if sales_order:
                     update_row_with_sales_order(row, sales_order)
 
+                    # Fetch item details from sales order
+                    item_details = get_item_details_from_sales_order(sales_order.name)
+                    update_row_with_item_details(row, item_details)
+
                     project = get_project_from_sales_order(sales_order.name)
                     if project:
                         update_row_with_project(row, project)
+
+                        design = get_design_from_sales_order_or_project(sales_order.name, row.get("project_id", ""))
+                        if design:
+                            update_row_with_design(row, design)
+
+                        bom = get_bom_from_sales_order_or_project(sales_order.name, row.get("project_id", ""))
+                        if bom:
+                            update_row_with_bom(row, bom)
+
+                            work_order = get_work_order_from_bom(bom.name)
+                            if work_order:
+                                update_row_with_work_order(row, work_order)
+
+                        delivery_note = get_delivery_note_from_sales_order(sales_order.name)
+                        if delivery_note:
+                            update_row_with_delivery_note(row, delivery_note)
+
+                        sales_invoice = get_sales_invoice_from_sales_order(sales_order.name)
+                        if sales_invoice:
+                            update_row_with_sales_invoice(row, sales_invoice)
+
+                        installation_note = get_installation_note_from_sales_order(sales_order.name)
+                        if installation_note:
+                            update_row_with_installation_note(row, installation_note)
 
                         discom = get_discom_from_project(project.name)
                         if discom:
@@ -228,30 +261,30 @@ def get_data(filters):
                             additional_rows = update_row_with_payment_entry(row, payment_entries)
                             if additional_rows:
                                 data.extend(additional_rows)
+                    else:
+                        design = get_design_from_sales_order_or_project(sales_order.name, "")
+                        if design:
+                            update_row_with_design(row, design)
 
-                    design = get_design_from_sales_order_or_project(sales_order.name, row.get("project_id", ""))
-                    if design:
-                        update_row_with_design(row, design)
+                            bom = get_bom_from_sales_order_or_project(sales_order.name, "")
+                            if bom:
+                                update_row_with_bom(row, bom)
 
-                    bom = get_bom_from_sales_order_or_project(sales_order.name, row.get("project_id", ""))
-                    if bom:
-                        update_row_with_bom(row, bom)
+                                work_order = get_work_order_from_bom(bom.name)
+                                if work_order:
+                                    update_row_with_work_order(row, work_order)
 
-                        work_order = get_work_order_from_bom(bom.name)
-                        if work_order:
-                            update_row_with_work_order(row, work_order)
+                                delivery_note = get_delivery_note_from_sales_order(sales_order.name)
+                                if delivery_note:
+                                    update_row_with_delivery_note(row, delivery_note)
 
-                    delivery_note = get_delivery_note_from_sales_order(sales_order.name)
-                    if delivery_note:
-                        update_row_with_delivery_note(row, delivery_note)
+                                sales_invoice = get_sales_invoice_from_sales_order(sales_order.name)
+                                if sales_invoice:
+                                    update_row_with_sales_invoice(row, sales_invoice)
 
-                    sales_invoice = get_sales_invoice_from_sales_order(sales_order.name)
-                    if sales_invoice:
-                        update_row_with_sales_invoice(row, sales_invoice)
-
-                    installation_note = get_installation_note_from_sales_order(sales_order.name)
-                    if installation_note:
-                        update_row_with_installation_note(row, installation_note)
+                                installation_note = get_installation_note_from_sales_order(sales_order.name)
+                                if installation_note:
+                                    update_row_with_installation_note(row, installation_note)
 
         data.append(row)
 
@@ -394,12 +427,14 @@ def get_quotation_from_opportunity(opportunity_id):
     quotations = frappe.db.sql(
         """
         SELECT
-            q.name, q.creation, q.custom_capacity, q.grand_total
+            q.name, q.creation,
+            q.grand_total,
+            q.custom_height
         FROM
             `tabQuotation` q
         WHERE
             q.opportunity = %s
-            AND q.docstatus < 2
+            AND q.docstatus = 1
         ORDER BY
             q.creation DESC
         LIMIT 1
@@ -415,8 +450,8 @@ def get_sales_order_from_quotation(quotation_id):
     sales_orders = frappe.db.sql(
         """
         SELECT
-            so.name, so.creation, so.owner, so.delivery_date,
-            so.grand_total, so.order_type, so.custom_height
+            so.name, so.creation, so.owner, so.sales_person, so.delivery_date,
+            so.grand_total, so.order_type, so.custom_department
         FROM
             `tabSales Order` so
         WHERE
@@ -424,7 +459,7 @@ def get_sales_order_from_quotation(quotation_id):
                 SELECT parent FROM `tabSales Order Item`
                 WHERE prevdoc_docname = %s
             )
-            AND so.docstatus < 2
+            AND so.docstatus = 1
         ORDER BY
             so.creation DESC
         LIMIT 1
@@ -436,6 +471,32 @@ def get_sales_order_from_quotation(quotation_id):
     return sales_orders[0] if sales_orders else None
 
 
+def get_item_details_from_sales_order(sales_order_id):
+    item_details = frappe.db.sql(
+        """
+        SELECT
+            soi.item_code, soi.item_group, soi.uom, soi.qty
+        FROM
+            `tabSales Order Item` soi
+        WHERE
+            soi.parent = %s
+            AND (
+                soi.item_code = 'SES-ITEM-01083'
+                OR soi.item_group = 'SOLAR FENCING'
+                OR soi.item_group IN (
+                    SELECT name FROM `tabItem Group`
+                    WHERE parent_item_group = 'Solar Water Heater'
+                )
+            )
+        LIMIT 1
+        """,
+        sales_order_id,
+        as_dict=True,
+    )
+
+    return item_details[0] if item_details else None
+
+
 def get_project_from_sales_order(sales_order_id):
     projects = frappe.db.sql(
         """
@@ -445,7 +506,6 @@ def get_project_from_sales_order(sales_order_id):
             `tabProject` p
         WHERE
             p.sales_order = %s
-            AND p.docstatus < 2
         LIMIT 1
     """,
         sales_order_id,
@@ -751,7 +811,7 @@ def get_payment_entry_from_project(project_id):
             `tabPayment Entry` pe
         WHERE
             pe.project = %s
-            AND pe.docstatus < 2
+            AND pe.docstatus = 1
         ORDER BY
             pe.posting_date ASC
     """,
@@ -783,7 +843,7 @@ def update_row_with_opportunity(row, opportunity):
 def update_row_with_site_survey(row, site_survey):
     row.update(
         {
-            "site_survey_id": site_survey.name,
+            "site_survey_id": site_survey.name if site_survey.name else "N/A",
             "site_survey_date": site_survey.creation.date() if site_survey.creation else "N/A",
             "site_visited_by": site_survey.custom_site_visitor or "N/A",
         }
@@ -795,8 +855,9 @@ def update_row_with_quotation(row, quotation):
         {
             "quotation_id": quotation.name,
             "quotation_date": quotation.creation.date() if quotation.creation else "N/A",
-            "capacity": quotation.custom_capacity or "N/A",
+            # "capacity": quotation.custom_capacity or "N/A",
             "final_price": quotation.grand_total or 0,
+            "structure_height": quotation.custom_height or "N/A",
         }
     )
 
@@ -807,12 +868,32 @@ def update_row_with_sales_order(row, sales_order):
             "sales_order_id": sales_order.name,
             "sales_order_date": sales_order.creation.date() if sales_order.creation else "N/A",
             "sales_order_created_by": sales_order.owner or "N/A",
+            "sales_person": sales_order.sales_person or "N/A",
             "delivery_date": sales_order.delivery_date or "N/A",
             "sales_order_value": sales_order.grand_total or 0,
             "order_type": sales_order.order_type or "N/A",
-            "structure_height": sales_order.custom_height or "N/A",
+            "department": sales_order.custom_department or "N/A",
         }
     )
+
+
+def update_row_with_item_details(row, item_details):
+    if item_details:
+        row.update(
+            {
+                "item_group": item_details.item_group or "Not Panel / Fence / Heater",
+                "uom": item_details.uom or "N/A",
+                "qty": item_details.qty or 0,
+            }
+        )
+    else:
+        row.update(
+            {
+                "item_group": "Not Panel / Fence / Heater",
+                "uom": "N/A",
+                "qty": 0,
+            }
+        )
 
 
 def update_row_with_project(row, project):
