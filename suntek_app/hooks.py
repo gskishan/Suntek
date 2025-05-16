@@ -228,6 +228,7 @@ fixtures = [
                 [
                     "Project Template",
                     "Project",
+                    "Task",
                 ],
             ],
         ],
@@ -242,6 +243,7 @@ fixtures = [
                 [
                     "Project Template",
                     "Project",
+                    "Tsak",
                 ],
             ],
         ],

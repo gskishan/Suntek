@@ -1,130 +1,150 @@
 {
-  "actions": [],
-  "allow_rename": 1,
-  "autoname": "Designing-.#####",
-  "creation": "2023-11-17 13:06:43.672003",
-  "default_view": "List",
-  "doctype": "DocType",
-  "editable_grid": 1,
-  "engine": "InnoDB",
-  "field_order": [
-    "designer",
-    "designer_name",
-    "design",
-    "column_break_w4htu",
-    "site_survey",
-    "opportunity_name",
-    "designing_status",
-    "comments",
-    "section_break_sothd",
-    "bom",
-    "amended_from",
-    "section_break_uovk",
-    "channel_partner"
-  ],
-  "fields": [
-    {
-      "fetch_from": "designer.employee_name",
-      "fieldname": "designer_name",
-      "fieldtype": "Data",
-      "label": "Designer Name"
-    },
-    {
-      "fieldname": "design",
-      "fieldtype": "Table",
-      "label": "Design",
-      "options": "Design"
-    },
-    {
-      "allow_bulk_edit": 1,
-      "fieldname": "bom",
-      "fieldtype": "Table",
-      "label": "BOM",
-      "options": "Designing Item"
-    },
-    {
-      "fieldname": "amended_from",
-      "fieldtype": "Link",
-      "label": "Amended From",
-      "no_copy": 1,
-      "options": "Designing",
-      "print_hide": 1,
-      "read_only": 1
-    },
-    {
-      "fieldname": "column_break_w4htu",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "site_survey",
-      "fieldtype": "Link",
-      "label": "Site Survey",
-      "options": "Site Survey"
-    },
-    {
-      "fieldname": "opportunity_name",
-      "fieldtype": "Link",
-      "label": "Opportunity Name",
-      "options": "Opportunity"
-    },
-    {
-      "fieldname": "designer",
-      "fieldtype": "Link",
-      "label": "Designer",
-      "ignore_user_permissions": 1,
-      "options": "Employee"
-    },
-    {
-      "fieldname": "designing_status",
-      "fieldtype": "Select",
-      "in_list_view": 1,
-      "label": "Designing Status",
-      "options": "\nOpen\nCompleted"
-    },
-    {
-      "fieldname": "comments",
-      "fieldtype": "Small Text",
-      "label": "Comments"
-    },
-    {
-      "fieldname": "section_break_sothd",
-      "fieldtype": "Section Break"
-    },
-    {
-      "fieldname": "section_break_uovk",
-      "fieldtype": "Section Break"
-    },
-    {
-      "fieldname": "channel_partner",
-      "fieldtype": "Link",
-      "label": "Channel Partner",
-      "options": "Channel Partner"
-    }
-  ],
-  "index_web_pages_for_search": 1,
-  "is_submittable": 1,
-  "links": [],
-  "modified": "2025-03-01 12:02:30.831538",
-  "modified_by": "Administrator",
-  "module": "suntek",
-  "name": "Designing",
-  "naming_rule": "Expression (old style)",
-  "owner": "Administrator",
-  "permissions": [
-    {
-      "create": 1,
-      "delete": 1,
-      "email": 1,
-      "export": 1,
-      "print": 1,
-      "read": 1,
-      "report": 1,
-      "role": "System Manager",
-      "share": 1,
-      "write": 1
-    }
-  ],
-  "sort_field": "modified",
-  "sort_order": "DESC",
-  "states": []
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "Designing-.#####",
+ "creation": "2023-11-17 13:06:43.672003",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "designer",
+  "designer_name",
+  "design",
+  "column_break_w4htu",
+  "site_survey",
+  "opportunity_name",
+  "designing_status",
+  "comments",
+  "section_break_crmr",
+  "project",
+  "task",
+  "section_break_sothd",
+  "bom",
+  "amended_from",
+  "section_break_uovk",
+  "channel_partner"
+ ],
+ "fields": [
+  {
+   "fetch_from": "designer.employee_name",
+   "fieldname": "designer_name",
+   "fieldtype": "Data",
+   "label": "Designer Name"
+  },
+  {
+   "fieldname": "design",
+   "fieldtype": "Table",
+   "label": "Design",
+   "options": "Design"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "bom",
+   "fieldtype": "Table",
+   "label": "BOM",
+   "options": "Designing Item"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Designing",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_w4htu",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "site_survey",
+   "fieldtype": "Link",
+   "label": "Site Survey",
+   "options": "Site Survey"
+  },
+  {
+   "fieldname": "opportunity_name",
+   "fieldtype": "Link",
+   "label": "Opportunity Name",
+   "options": "Opportunity"
+  },
+  {
+   "fieldname": "designer",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "label": "Designer",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "designing_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Designing Status",
+   "options": "\nOpen\nCompleted"
+  },
+  {
+   "fieldname": "comments",
+   "fieldtype": "Small Text",
+   "label": "Comments"
+  },
+  {
+   "fieldname": "section_break_sothd",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "section_break_uovk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "channel_partner",
+   "fieldtype": "Link",
+   "label": "Channel Partner",
+   "options": "Channel Partner"
+  },
+  {
+   "fieldname": "section_break_crmr",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "task",
+   "fieldtype": "Link",
+   "label": "Task",
+   "options": "Task"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-05-16 14:33:34.255589",
+ "modified_by": "Administrator",
+ "module": "suntek",
+ "name": "Designing",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
 }
