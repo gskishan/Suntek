@@ -16,6 +16,15 @@ from suntek_app.suntek.utils.validation_utils import (
 )
 
 
+def set_lead_owner_for_web_form_leads(doc, method):
+    if doc.lead_owner == "Guest":
+        lead_owner = get_next_telecaller()
+        lead_owner_name = frappe.db.get_value("User", lead_owner, ["full_name"])
+
+        doc.lead_owner = lead_owner
+        doc.custom_enquiry_owner_name = lead_owner_name
+
+
 @frappe.whitelist()
 def verify_channel_partner(user):
     if frappe.db.exists("Channel Partner", {"linked_user": user}):
