@@ -80,6 +80,10 @@ doc_events = {
         "validate": [
             "suntek_app.suntek.custom.lead.change_enquiry_status",
             "suntek_app.suntek.custom.lead.set_enquiry_name",
+            "suntek_app.validations.clean_capacity.clean_capacity",
+        ],
+        "before_insert": [
+            "suntek_app.suntek.custom.lead.set_lead_owner_for_web_form_leads",
         ],
         "before_save": [
             "suntek_app.suntek.custom.lead.validate_enquiry_mobile_no",
@@ -103,6 +107,7 @@ doc_events = {
         "validate": [
             "suntek_app.suntek.custom.opportunity.change_opportunity_status",
             "suntek_app.suntek.custom.opportunity.set_opportunity_name",
+            "suntek_app.validations.clean_capacity.clean_capacity",
         ],
         "before_save": [
             "suntek_app.suntek.custom.opportunity.set_location_data",
