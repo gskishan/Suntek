@@ -224,7 +224,14 @@ fixtures = [
             [
                 "dt",
                 "in",
-                ["Purchase Order", "Purchase Order Item"],
+                [
+                    "CRM Note",
+                    "Lead",
+                    "Opportunity",
+                    "Opportunity Item",
+                    "Purchase Order",
+                    "Purchase Order Item",
+                ],
             ],
             ["module", "=", "suntek"],
         ],
@@ -235,7 +242,14 @@ fixtures = [
             [
                 "doc_type",
                 "in",
-                ["Purchase Order", "Purchase Order Item"],
+                [
+                    "CRM Note",
+                    "Lead",
+                    "Opportunity",
+                    "Opportunity Item",
+                    "Purchase Order",
+                    "Purchase Order Item",
+                ],
             ],
             ["module", "=", "suntek"],
         ],
