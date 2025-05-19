@@ -12,6 +12,7 @@ suntek_app.patches.remove_duplicate_permissions
 suntek_app.patches.change_ambassador_module_def
 suntek_app.patches.share_unshared_leads_from_just_dial_and_ambassador
 suntek_app.patches.grant_ess_role_and_module
+suntek_app.patches.clean_capacity_data
 
 [post_model_sync]
 suntek_app.patches.close_or_hold_sales_orders

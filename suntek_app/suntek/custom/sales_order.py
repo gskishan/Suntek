@@ -2,8 +2,9 @@ import frappe
 
 
 def create_project_discom_subsidy_before_submit(doc, method):
-    if frappe.db.exists("Project", {"project_name": doc.name}):
-        _delete_documents_linked_to_sales_order(doc)
+    if doc.amended_from:
+        link_amended_sales_order_to_project(doc)
+        return
 
     new_project = make_project(doc)
     new_project.custom_poc_person_name = doc.custom_person_name
@@ -17,14 +18,62 @@ def create_project_discom_subsidy_before_submit(doc, method):
         create_discom(new_project)
 
     doc.project = new_project.name
-
     frappe.db.set_value("Sales Order", doc.name, "project", new_project.name, update_modified=False)
 
     update_opportunity(doc)
 
 
+def link_amended_sales_order_to_project(doc):
+    """Connect the amended sales order to the existing project"""
+
+    project = frappe.db.get_value("Project", {"sales_order": doc.amended_from}, "name")
+
+    if not project:
+        new_project = make_project(doc)
+        new_project.custom_poc_person_name = doc.custom_person_name
+        new_project.custom_poc_mobile_no = doc.custom_another_mobile_no
+        new_project.save()
+
+        if doc.custom_type_of_case == "Subsidy":
+            create_subsidy(new_project)
+            create_discom(new_project)
+        elif doc.custom_type_of_case == "Discom":
+            create_discom(new_project)
+
+        doc.project = new_project.name
+        return
+
+    frappe.db.set_value("Project", project, "sales_order", doc.name, update_modified=False)
+
+    update_project_related_docs(project, doc.name)
+
+    doc.project = project
+    frappe.db.set_value("Sales Order", doc.name, "project", project, update_modified=False)
+
+
+def handle_amended_from_sales_order(doc, method):
+    """Handle updates when a sales order is created through the amend process"""
+    if doc.amended_from and not doc.docstatus:
+        project = frappe.db.get_value("Project", {"sales_order": doc.amended_from}, "name")
+
+        if project:
+            doc.project = project
+
+
+def update_project_related_docs(project_name, sales_order_name):
+    """Update sales_order field in related documents"""
+
+    subsidies = frappe.get_all("Subsidy", filters={"project_name": project_name}, fields=["name"])
+    for subsidy in subsidies:
+        frappe.db.set_value("Subsidy", subsidy.name, "sales_order", sales_order_name, update_modified=False)
+
+    discoms = frappe.get_all("Discom", filters={"project_name": project_name}, fields=["name"])
+    for discom in discoms:
+        frappe.db.set_value("Discom", discom.name, "sales_order", sales_order_name, update_modified=False)
+
+
 @frappe.whitelist()
-def auto_project_creation_on_submit(doc, method):  # Deprecated
+def auto_project_creation_on_submit(doc, method):
     if doc.docstatus == 1 and not doc.amended_from:
         project_make = None
         if not frappe.db.exists("Project", {"project_name": doc.name}):
@@ -44,27 +93,6 @@ def auto_project_creation_on_submit(doc, method):  # Deprecated
         project.db_set("sales_order", doc.name)
 
     update_opportunity(doc)
-
-
-@frappe.whitelist()
-def delete_linked_documents_on_cancel(doc, method):
-    """Delete linked documents when a sales order is cancelled."""
-    if doc.docstatus == 2:
-        _delete_documents_linked_to_sales_order(doc)
-
-
-def _delete_documents_linked_to_sales_order(doc):
-    projects = frappe.get_all("Project", filters={"sales_order": doc.name}, fields=["name"])
-
-    for project in projects:
-        subsidies = frappe.get_all("Subsidy", filters={"project_name": project.name}, fields=["name"])
-        discoms = frappe.get_all("Discom", filters={"project_name": project.name}, fields=["name"])
-
-        for subsidy in subsidies:
-            frappe.delete_doc("Subsidy", subsidy.name, force=1)
-        for discom in discoms:
-            frappe.delete_doc("Discom", discom.name, force=1)
-        doc.db_set("project", None)
 
 
 def create_discom(project):
