@@ -127,15 +127,13 @@ doc_events = {
         ],
         "after_insert": [
             "suntek_app.suntek.custom.sales_order.share_sales_order_with_sales_person",
+            "suntek_app.suntek.custom.sales_order.handle_amended_from_sales_order",
         ],
         "after_save": [
             "suntek_app.event_handlers.sales_order_event_handler.update_cppo_from_sales_order",
         ],
         "before_submit": [
             "suntek_app.suntek.custom.sales_order.create_project_discom_subsidy_before_submit",
-        ],
-        "on_cancel": [
-            "suntek_app.suntek.custom.sales_order.delete_linked_documents_on_cancel",  # Cancel Project, Subsidy, Discom linked to Sales Order
         ],
     },
     "Project": {
@@ -229,8 +227,12 @@ fixtures = [
                     "Lead",
                     "Opportunity",
                     "Opportunity Item",
+                    "Project",
                     "Purchase Order",
                     "Purchase Order Item",
+                    "Sales Order",
+                    "Sales Order Item",
+                    "Sales Taxes and Charges",
                 ],
             ],
             ["module", "=", "suntek"],
@@ -247,8 +249,12 @@ fixtures = [
                     "Lead",
                     "Opportunity",
                     "Opportunity Item",
+                    "Project",
                     "Purchase Order",
                     "Purchase Order Item",
+                    "Sales Order",
+                    "Sales Order Item",
+                    "Sales Taxes and Charges",
                 ],
             ],
             ["module", "=", "suntek"],
