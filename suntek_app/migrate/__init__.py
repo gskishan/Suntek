@@ -1,6 +1,6 @@
 import frappe
 
-from suntek_app.migrate.setup_project_boilerplate import setup_boilerplate
+from suntek_app.migrate.setup_suntek_project_automation_boilerplate import setup_suntek_project_automation
 from suntek_app.migrate.toggle_solar_ambassador_integration_status import (
     toggle_solar_ambassador_integration,
 )
@@ -28,4 +28,4 @@ def after_migrate():
     toggle_solar_ambassador_integration()
 
     # Create Boilerplate Project Data
-    setup_boilerplate()
+    setup_suntek_project_automation()
