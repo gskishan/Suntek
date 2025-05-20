@@ -106,11 +106,24 @@ def create_task_dependencies():
     print("Task dependencies created successfully for specific tasks")
 
 
+def create_project_template():
+    project_template_names = [
+        "Domestic No Subsidy No Discom",
+        "Domestic Subsidy and Discom",
+        "Domestic Discom Only",
+    ]
+
+    for i in range(0, len(project_template_names)):
+        if not frappe.db.exists("Project Template", {"project_type": project_template_names[i]}):
+            print(f"Project template with type {project_template_names[i]} does not exist")
+
+
 def setup_suntek_project_automation():
     """Main function to set up the entire suntek project automation"""
     create_task_types()
     create_project_types()
     create_tasks()
     create_task_dependencies()
+    create_project_template()
 
     print("Suntek project automation setup complete!")
