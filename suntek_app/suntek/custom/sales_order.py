@@ -14,7 +14,7 @@ def create_project_discom_subsidy_before_submit(doc, method):
     if doc.custom_type_of_case == "Subsidy":
         create_subsidy(new_project)
         create_discom(new_project)
-    elif doc.custom_type_of_case == "Discom":
+    elif doc.custom_type_of_case == "Non Subsidy":
         create_discom(new_project)
 
     doc.project = new_project.name
@@ -37,7 +37,7 @@ def link_amended_sales_order_to_project(doc):
         if doc.custom_type_of_case == "Subsidy":
             create_subsidy(new_project)
             create_discom(new_project)
-        elif doc.custom_type_of_case == "Discom":
+        elif doc.custom_type_of_case == "Non Subsidy":
             create_discom(new_project)
 
         doc.project = new_project.name
